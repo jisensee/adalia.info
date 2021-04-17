@@ -1,0 +1,29 @@
+type Query {
+  asteroids: [Asteroid!]!
+}
+
+type Asteroid {
+  id: ID!
+  name: String!
+  owner: String
+  radius: Float!
+  surfaceArea: Float!
+  orbitalPeriod: Int!
+  semiMajorAxis: Float!
+  inclination: Float!
+  spectralType: SpectralType!
+}
+
+enum SpectralType {
+  C
+  CM
+  CI
+  CS
+  CMS
+  CIS
+  S
+  SM
+  SI
+  M
+  I
+}

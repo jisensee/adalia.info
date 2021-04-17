@@ -1,0 +1,40 @@
+open ReScriptUrql
+
+module GetAllAsteroids = %graphql(`
+  query AsteroidsQuery {
+    asteroids {
+      name
+    }
+  }
+`)
+
+let handleResponse = (useQueryResponse: Hooks.useQueryResponse<'a>, handler) => {
+  let ({Hooks.response: response}, _) = useQueryResponse
+  switch response {
+  | Fetching => <div> {"Loading..."->React.string} </div>
+  | Error(_) => <div> {"Could not fetch data"->React.string} </div>
+  | Empty => <div> {"Nothing found"->React.string} </div>
+  | Data(data) => data->handler
+  | PartialData(data, _) => data->handler
+  }
+}
+
+let useResult = (query, handler) => {
+  let ({Hooks.response: response}, _) = Hooks.useQuery(~query, ())
+  switch response {
+  | Fetching => <div> {"Loading..."->React.string} </div>
+  | Error(_) => <div> {"Could not fetch data"->React.string} </div>
+  | Empty => <div> {"Nothing found"->React.string} </div>
+  | Data(data) => data->handler
+  | PartialData(data, _) => data->handler
+  }
+}
+
+@react.component
+let make = () => {
+  useResult(module(GetAllAsteroids), ({asteroids}) =>
+    asteroids
+    ->Belt.Array.map(({name}) => <p key={name}> {("Name: " ++ name)->React.string} </p>)
+    ->React.array
+  )
+}

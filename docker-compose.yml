@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  proxy:
+    image: adalia.info/proxy
+    container_name: adalia.info_proxy
+    build: ./proxy
+    ports:
+      - "80:80"
+
+  mongodb:
+    # port 27017
+    image: mongo
+    container_name: adalia.info_mongodb
+    environment:
+      - PUID=1000
+      - PGID=1000
+
+  server:
+    # port 5000
+    image: adalia.info/server
+    container_name: adalia.info_server
+    build: ./server
+    environment:
+      - MONGO_URL=mongodb:27017
+
+  client:
+    # port 80
+    image: adalia.info/client
+    container_name: adalia.info_client
+    build: ./client
