@@ -1,5 +1,6 @@
 FROM node:latest
 
+LABEL org.opencontainers.image.source="https://github.com/jisensee/adalia.info"
 
 WORKDIR /usr/src/app
 COPY package.json .
