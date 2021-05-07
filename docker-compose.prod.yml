@@ -5,7 +5,7 @@ services:
     extends:
       file: docker-compose.yml
       service: proxy
-    image: ghcr.io/jisensee/adalia.info/proxy
+    image: ghcr.io/jisensee/adalia.info/proxy:latest
 
   mongodb:
     extends:
@@ -16,10 +16,13 @@ services:
     extends:
       file: docker-compose.yml
       service: server
-    image: ghcr.io/jisensee/adalia.info/server
+    image: ghcr.io/jisensee/adalia.info/server:latest
 
   client:
     extends:
       file: docker-compose.yml
       service: client
-    image: ghcr.io/jisensee/adalia.info/client
+    image: ghcr.io/jisensee/adalia.info/client:latest
+
+volumes:
+  mongodb_data:
