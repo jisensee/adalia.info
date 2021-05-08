@@ -1,6 +1,5 @@
 @react.component
 let make = () => {
-  Api.useResult(module(Queries.DataTableAsteroids), ({asteroids}) => <>
-    <h1> {"Adalia.info"->React.string} </h1> <AsteroidTable asteroids />
-  </>)
+  let pageComp = RescriptReactRouter.useUrl()->Route.fromUrl->Pages.fromRoute
+  <div className="container mx-auto"> {pageComp} </div>
 }
