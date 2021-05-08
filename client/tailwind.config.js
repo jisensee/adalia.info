@@ -1,8 +1,13 @@
 module.exports = {
   purge: ['./index.html', './src/**/*.js'],
-  darkMode: false,
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        cyan: {
+          DEFAULT: '#69ebf4'
+        }
+      }
+    },
   },
   variants: {
     extend: {},
