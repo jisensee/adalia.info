@@ -1,9 +1,18 @@
+type kind =
+  | Internal(Route.t)
+  | External(string)
+
 @react.component
 let make = (~to_, ~children, ~className="") => {
-  let href = to_->Route.toUrl
-  let onClick = event => {
-    event->ReactEvent.Mouse.preventDefault
-    href->RescriptReactRouter.push
+  let (href, target, internal) = switch to_ {
+  | Internal(route) => (route->Route.toUrl, "_self", true)
+  | External(url) => (url, "_blank", false)
   }
-  <a href className onClick> children </a>
+  let onClick = event => {
+    if internal {
+      event->ReactEvent.Mouse.preventDefault
+      href->RescriptReactRouter.push
+    }
+  }
+  <a href target className onClick> children </a>
 }

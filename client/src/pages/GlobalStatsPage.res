@@ -1,2 +1,2 @@
 @react.component
-let make = () => <p> {"Global stats"->React.string} </p>
+let make = () => <h1> {"Global stats"->React.string} </h1>

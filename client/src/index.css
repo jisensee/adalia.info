@@ -6,6 +6,7 @@
   body {
     @apply bg-gray-900;
     @apply text-white;
+    @apply text-lg;
   }
 
   h1 {
@@ -26,11 +27,12 @@
   .rdt_TableExpanderRow {
     @apply bg-gray-900;
     @apply text-white;
+    @apply text-lg;
   }
 
   .rdt_TableCol_Sortable {
     @apply font-bold;
-    @apply text-lg;
+    @apply text-xl;
     @apply text-cyan !important;
   }
 }
