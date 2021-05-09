@@ -5,13 +5,13 @@
   "main": "index.js",
   "scripts": {
     "get-gql-schema": "get-graphql-schema http://localhost:5000/graphql -j > graphql_schema.json",
-    "clean": "rescript clean && rm -rf dist",
+    "clean": "rescript clean && rm -rf dist lib",
     "res:watch": "rescript build -w",
     "vite:dev": "vite",
     "start": "run-p res:watch vite:dev",
     "res:build": "rescript build",
     "vite:build": "vite build",
-    "build": "run-s res:build vite:build"
+    "build": "run-s clean res:build vite:build"
   },
   "author": "",
   "license": "ISC",
@@ -34,7 +34,7 @@
     "@urql/rescript": "^4.0.0",
     "graphql": "^15.5.0",
     "react": "^17.0.2",
-    "react-data-table-component": "^6.11.7",
+    "react-data-table-component": "^7.0.0-alpha-10",
     "react-dom": "^17.0.2",
     "styled-components": "^5.3.0",
     "urql": "^2.0.2"
