@@ -11,12 +11,12 @@ let make = (~children=?, ~kind, ~large=false) => {
   | Custom(_) => ""
   }
   let size = switch large {
-  | true => "text-3xl"
+  | true => "text-4xl"
   | false => ""
   }
   let icon = <i className={`${class} ${size}`} />
   switch children {
   | None => icon
-  | Some(c) => <div className="flex flex-row"> icon c </div>
+  | Some(c) => <div className="flex flex-row space-x-1 items-center"> icon  <span>c</span> </div>
   }
 }
