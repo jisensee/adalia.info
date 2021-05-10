@@ -12,13 +12,15 @@ let make = () =>
         <Item to_=Link.Internal(Route.Asteroids) className="text-cyan font-bold">
           {"adalia.info"->React.string}
         </Item>
-        <Item to_=Link.Internal(Route.Asteroids)> {"Asteroids"->React.string} </Item>
-        <Item to_=Link.Internal(Route.GlobalStats)> {"Global Stats"->React.string} </Item>
+        <Item to_=Link.Internal(Route.Asteroids)> <Icon kind={Icon.Fas("chart-pie")}>{"Asteroids"->React.string}</Icon> </Item>
+        <Item to_=Link.Internal(Route.GlobalStats)> {"Global stats"->React.string} </Item>
+
         // Divider in middle
         <div className="flex flex-grow" />
+
         // Right
         <Item className="float-right" to_=Link.External("https://github.com/jisensee/adalia.info")>
-          <Icon showing="github" brand=true large=true />
+          <Icon kind={Icon.Fab("github")} large=true />
         </Item>
       </ul>
     </div>

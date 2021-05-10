@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   proxy:
-    image: adalia.info/proxy
+    image: adalia.info/proxy:latest
     container_name: adalia.info_proxy
     build: ./proxy
     ports:
@@ -20,7 +20,7 @@ services:
 
   server:
     # port 5000
-    image: adalia.info/server
+    image: adalia.info/server:latest
     container_name: adalia.info_server
     build: ./server
     environment:
@@ -28,7 +28,7 @@ services:
 
   client:
     # port 80
-    image: adalia.info/client
+    image: adalia.info/client:latest
     container_name: adalia.info_client
     build: ./client
 

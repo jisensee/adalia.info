@@ -2,6 +2,7 @@
 FROM node:current-alpine3.10 as build
 
 RUN apk add g++ make python
+RUN npm install -g rescript
 
 WORKDIR /app
 
