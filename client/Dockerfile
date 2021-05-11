@@ -7,8 +7,9 @@ RUN npm install -g rescript
 WORKDIR /app
 
 COPY package.json /app
+COPY package-lock.json /app
 
-RUN npm install --legacy-peer-deps
+RUN npm ci
 
 COPY . /app
 
