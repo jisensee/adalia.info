@@ -15,9 +15,9 @@ let make = () =>
         <Item to_=Link.Internal(Route.GlobalStats)> <Icon kind={Icon.Fas("chart-pie")}>{"Global stats"->React.string}</Icon> </Item>
       </ul>
       <ul className="flex flex-row items-center space-x-9 justify-end">
-              <Item to_=Link.External("https://influenceth.io")>
-<Icon kind={Icon.Custom("influence.png")} />
-              </Item>
+        <Item to_=Link.External("https://www.influenceth.io")>
+          <Icon kind={Icon.Custom("influence.png")} />
+        </Item>
         <Item to_=Link.External("https://github.com/jisensee/adalia.info")>
           <Icon kind={Icon.Fab("github")} large=true />
         </Item>
