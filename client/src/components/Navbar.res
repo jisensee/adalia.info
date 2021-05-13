@@ -8,11 +8,15 @@ let make = () =>
   <nav className="bg-gray-800 p-2">
     <div className="container mx-auto flex flex-row">
       <ul className="flex flex-row items-center space-x-9 flex-grow">
-        <Item to_=Link.Internal(Route.Asteroids) className="text-cyan text-2xl font-bold">
-          <Icon kind={Icon.Fas("sun")}>{"adalia.info"->React.string}</Icon>
+        <Item to_=Link.Internal(Route.Home) className="text-cyan text-2xl font-bold">
+          <Icon kind={Icon.Fas("sun")}> {"adalia.info"->React.string} </Icon>
         </Item>
-        <Item to_=Link.Internal(Route.Asteroids)> <Icon kind={Icon.Fas("meteor")}>{"Asteroids"->React.string}</Icon> </Item>
-        <Item to_=Link.Internal(Route.GlobalStats)> <Icon kind={Icon.Fas("chart-pie")}>{"Global stats"->React.string}</Icon> </Item>
+        <Item to_=Link.Internal(Route.Asteroids({page: None, pageSize: None}))>
+          <Icon kind={Icon.Fas("meteor")}> {"Asteroids"->React.string} </Icon>
+        </Item>
+        <Item to_=Link.Internal(Route.GlobalStats)>
+          <Icon kind={Icon.Fas("chart-pie")}> {"Global stats"->React.string} </Icon>
+        </Item>
       </ul>
       <ul className="flex flex-row items-center space-x-9 justify-end">
         <Item to_=Link.External("https://www.influenceth.io")>

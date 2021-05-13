@@ -10,4 +10,11 @@ fragment DataTableAsteroid on Asteroid {
   inclination
   spectralType
 }
+
+fragment DataTableAsteroidPage on AsteroidPage {
+  rows {
+    ...DataTableAsteroid
+  }
+  totalRows
+}
 `)

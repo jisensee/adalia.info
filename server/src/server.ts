@@ -2,7 +2,7 @@ import { ApolloServer } from 'apollo-server-express'
 import express from 'express'
 import { MongoClient } from 'mongodb'
 import Asteroids from './asteroids'
-import initialize from './initializer'
+import { initializeAsteroids } from './initializer'
 import schema from './schema'
 
 const app = express()
@@ -15,7 +15,7 @@ const client = new MongoClient(mongoConnectionStr, {
 client
   .connect()
   .then((client) => client.db().collection('asteroids'))
-  .then(initialize)
+  .then(initializeAsteroids)
 
 const server = new ApolloServer({
   schema,

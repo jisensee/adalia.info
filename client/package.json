@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "get-gql-schema": "get-graphql-schema http://localhost:5000/graphql -j > graphql_schema.json",
+    "get-gql-schema": "get-graphql-schema http://localhost/graphql -j > graphql_schema.json",
     "clean": "rescript clean && rm -rf dist lib",
     "res:watch": "rescript build -w",
     "vite:dev": "vite",

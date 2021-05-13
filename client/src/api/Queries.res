@@ -1,9 +1,9 @@
 open Fragments
 
 %graphql(`
-  query DataTableAsteroids {
-    asteroids {
-      ...DataTableAsteroid
+  query DataTableAsteroids($page: PageInput!) {
+    asteroids(page: $page) {
+        ...DataTableAsteroidPage
     }
   }
 `)

@@ -1,5 +1,5 @@
 type Query {
-  asteroids: [Asteroid!]!
+  asteroids(page: PageInput!): AsteroidPage!
 }
 
 type Asteroid {
@@ -12,6 +12,16 @@ type Asteroid {
   semiMajorAxis: Float!
   inclination: Float!
   spectralType: SpectralType!
+}
+
+input PageInput {
+  size: Int!
+  num: Int!
+}
+
+type AsteroidPage {
+  rows: [Asteroid!]!
+  totalRows: Int!
 }
 
 enum SpectralType {

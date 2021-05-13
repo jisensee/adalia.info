@@ -14,6 +14,11 @@ export interface Asteroid {
   inclination: number
 }
 
+export interface AsteroidPage {
+  rows: Asteroid[]
+  totalRows: number
+}
+
 export enum SpectralType {
   C = 'C',
   CM = 'CM',
@@ -33,7 +38,19 @@ export default class Asteroids extends MongoDataSource<Asteroid> {
     super(collection)
   }
 
-  public getAll() {
-    return this.collection.find().toArray()
+  public async getPage(
+    pageSize: number,
+    pageNum: number
+  ): Promise<AsteroidPage> {
+    const offset = (pageNum - 1) * pageSize
+    const rows = await this.collection
+      .find()
+      .skip(offset)
+      .limit(pageSize)
+      .toArray()
+    return {
+      rows,
+      totalRows: await this.collection.countDocuments(),
+    }
   }
 }

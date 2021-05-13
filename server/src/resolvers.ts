@@ -1,11 +1,15 @@
-import { MongoDataSource } from 'apollo-datasource-mongodb'
 import { IResolvers } from 'graphql-tools'
 import { Context, DataSources } from './context'
 
+interface PageInput {
+  size: number
+  num: number
+}
+
 const resolvers: IResolvers<DataSources, Context> = {
   Query: {
-    asteroids: (parent, args, { dataSources }) =>
-      dataSources.asteroids.getAll(),
+    asteroids: (_, { page }: { page: PageInput }, { dataSources }) =>
+      dataSources.asteroids.getPage(Math.max(page.size, 100), page.num),
   },
 }
 

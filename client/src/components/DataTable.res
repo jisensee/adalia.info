@@ -14,6 +14,8 @@ module CellRenderer = {
 }
 
 type data = array<Js.Dict.t<string>>
+type rowsPerPage = int
+type page = int
 
 @deriving(abstract)
 type column = {
@@ -23,5 +25,57 @@ type column = {
   @optional sortable: bool,
 }
 
-@module("react-data-table-component") @react.component
-external make: (~columns: array<column>, ~data: data, ~noHeader: bool) => React.element = "default"
+module Binding = {
+  @module("react-data-table-component") @react.component
+  external make: (
+    ~columns: array<column>,
+    ~data: data=?,
+    ~noHeader: bool=?,
+    ~pagination: bool=?,
+    ~paginationServer: bool=?,
+    ~paginationTotalRows: int=?,
+    ~paginationPerPage: int=?,
+    ~paginationRowsPerPageOptions: array<int>=?,
+    ~paginationDefaultPage: int=?,
+    ~onChangeRowsPerPage: (rowsPerPage, page) => unit=?,
+    ~onChangePage: page => unit=?,
+    ~fixedHeader: bool=?,
+    ~fixedHeaderScrollHeight: string=?,
+    ~paginationIconFirstPage: React.element=?,
+    ~paginationIconLastPage: React.element=?,
+    ~paginationIconNext: React.element=?,
+    ~paginationIconPrevious: React.element=?,
+  ) => React.element = "default"
+}
+
+module WithPagination = {
+  @react.component
+  let make = (
+    ~columns,
+    ~data,
+    ~totalRows,
+    ~currentPage,
+    ~currentPageSize,
+    ~pageSizeOptions,
+    ~onChange,
+  ) => {
+    <Binding
+      columns
+      data
+      noHeader={true}
+      fixedHeader={true}
+      pagination={true}
+      paginationServer={true}
+      paginationRowsPerPageOptions=pageSizeOptions
+      paginationDefaultPage=currentPage
+      paginationPerPage=currentPageSize
+      paginationTotalRows=totalRows
+      onChangePage={newPage => onChange(currentPageSize, newPage)}
+      onChangeRowsPerPage=onChange
+      paginationIconNext={<Icon kind={Icon.Fas("forward")} />}
+      paginationIconPrevious={<Icon kind={Icon.Fas("backward")} />}
+      paginationIconFirstPage={<Icon kind={Icon.Fas("step-backward")} />}
+      paginationIconLastPage={<Icon kind={Icon.Fas("step-forward")} />}
+    />
+  }
+}

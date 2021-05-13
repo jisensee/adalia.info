@@ -31,6 +31,20 @@
     @apply text-lg;
   }
 
+  .rdt_Pagination {
+    @apply bg-gray-800 !important;
+    @apply text-white !important;
+    @apply text-sm !important;
+  }
+
+  .rdt_Pagination button:enabled {
+    @apply text-white !important;
+  }
+
+  .rdt_Pagination button:disabled {
+    @apply text-gray-600 !important;
+  }
+
   .rdt_TableCol_Sortable {
     @apply font-bold;
     @apply text-xl;
