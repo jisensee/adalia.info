@@ -13,9 +13,9 @@ let make = (~asteroids: array<Fragments.DataTableAsteroid.t>) => {
 
   let ownerCell = DataTable.CellRenderer.make("owner", address => <AsteroidOwner address />)
   let columns = [
-    DataTable.column(~name="ID", ~selector="id", ~sortable=true, ()),
-    DataTable.column(~name="Name", ~selector="name", ()),
-    DataTable.column(~name="Owner", ~selector="owner", ~cellRenderer=ownerCell, ()),
+    DataTable.column(~name="ID", ~selector=Js.Dict.get(_,"id"), ~sortable=true, ()),
+    DataTable.column(~name="Name", ~selector=Js.Dict.get(_,"name"), ()),
+    DataTable.column(~name="Owner", ~selector=Js.Dict.get(_,"owner"), ~cellRenderer=ownerCell, ()),
   ]
 
   <DataTable noHeader=true columns data />

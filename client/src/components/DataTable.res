@@ -18,7 +18,7 @@ type data = array<Js.Dict.t<string>>
 @deriving(abstract)
 type column = {
   name: string,
-  selector: string,
+  selector: Js.Dict.t<string> => option<string>,
   @optional @as("cell") cellRenderer: CellRenderer.t,
   @optional sortable: bool,
 }
