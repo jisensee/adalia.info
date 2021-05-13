@@ -1,8 +1,10 @@
-name: build-prod
+name: Proxy prod build
 on:
   push:
     branches:
       - main
+    paths:
+      - "proxy/**"
 jobs:
   build-prod:
     runs-on: ubuntu-latest
@@ -30,22 +32,6 @@ jobs:
           context: proxy
           push: true
           tags: ghcr.io/${{github.repository_owner}}/adalia.info/proxy
-      - name: Server build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: server
-          push: true
-          tags: ghcr.io/${{github.repository_owner}}/adalia.info/server
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
-      - name: Client build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: client
-          push: true
-          tags: ghcr.io/${{github.repository_owner}}/adalia.info/client
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
       - name: Move cache
         run: |
           rm -rf /tmp/.buildx-cache
