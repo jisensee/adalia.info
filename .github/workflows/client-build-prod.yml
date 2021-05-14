@@ -1,5 +1,6 @@
 name: Client prod build
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
