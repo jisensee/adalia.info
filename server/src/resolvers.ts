@@ -1,15 +1,17 @@
 import { IResolvers } from 'graphql-tools'
 import { Context, DataSources } from './context'
-
-interface PageInput {
-  size: number
-  num: number
-}
+import { PageInput, QueryAsteroidsArgs, SortingMode } from './types'
 
 const resolvers: IResolvers<DataSources, Context> = {
   Query: {
-    asteroids: (_, { page }: { page: PageInput }, { dataSources }) =>
-      dataSources.asteroids.getPage(Math.max(page.size, 100), page.num),
+    asteroids: (_, args: QueryAsteroidsArgs, { dataSources }) =>
+      dataSources.asteroids.getPage(
+        {
+          ...args.page,
+          size: Math.min(args.page.size, 100),
+        },
+        args.sorting
+      ),
   },
 }
 

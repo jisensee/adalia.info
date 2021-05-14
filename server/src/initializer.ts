@@ -1,5 +1,5 @@
 import { Collection } from 'apollo-datasource-mongodb'
-import { Asteroid, SpectralType } from './asteroids'
+import { Asteroid, SpectralType } from './types'
 
 const randomInt = (min: number, max: number) =>
   Math.floor(Math.random() * (max - min)) + min
@@ -7,22 +7,22 @@ const randomInt = (min: number, max: number) =>
 const randomSpectraltype = () =>
   [
     SpectralType.C,
-    SpectralType.CI,
-    SpectralType.CIS,
-    SpectralType.CM,
-    SpectralType.CMS,
-    SpectralType.CS,
+    SpectralType.Ci,
+    SpectralType.Cis,
+    SpectralType.Cm,
+    SpectralType.Cms,
+    SpectralType.Cs,
     SpectralType.I,
     SpectralType.M,
     SpectralType.M,
-    SpectralType.SI,
-    SpectralType.SM,
+    SpectralType.Si,
+    SpectralType.Sm,
   ][randomInt(0, 11)]
 
 const randomRoid = (id: number): Asteroid => ({
-  id,
+  id: id,
   name: `name ${id}`,
-  owner: [`owner-${id}`, undefined][randomInt(0, 2)],
+  owner: [`owner-${id}`, null][randomInt(0, 2)],
   radius: randomInt(100, 10000),
   surfaceArea: randomInt(200, 20000),
   semiMajorAxis: randomInt(0, 50),

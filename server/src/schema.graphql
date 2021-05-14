@@ -1,9 +1,14 @@
 type Query {
-  asteroids(page: PageInput!): AsteroidPage!
+  asteroids(page: PageInput!, sorting: AsteroidSortingInput): AsteroidPage!
+}
+
+type AsteroidPage {
+  rows: [Asteroid!]!
+  totalRows: Int!
 }
 
 type Asteroid {
-  id: ID!
+  id: Int!
   name: String!
   owner: String
   radius: Float!
@@ -19,9 +24,26 @@ input PageInput {
   num: Int!
 }
 
-type AsteroidPage {
-  rows: [Asteroid!]!
-  totalRows: Int!
+input AsteroidSortingInput {
+  field: AsteroidField!
+  mode: SortingMode!
+}
+
+enum SortingMode {
+  ASCENDING
+  DESCENDING
+}
+
+enum AsteroidField {
+  ID
+  NAME
+  OWNER
+  RADIUS
+  SURFACE_AREA
+  ORBITAL_PERIOD
+  SEMI_MAJOR_AXIS
+  INCLINATION
+  SPECTRAL_TYPE
 }
 
 enum SpectralType {

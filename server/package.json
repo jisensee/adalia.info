@@ -7,7 +7,8 @@
     "start": "node -r ts-node/register ./src/server.ts",
     "start:watch": "nodemon",
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc && cp src/schema.graphql dist"
+    "codegen": "graphql-codegen",
+    "build": "npm run clean && npm run codegen && tsc && cp src/schema.graphql dist"
   },
   "nodemonConfig": {
     "ignore": [
@@ -31,6 +32,8 @@
     "mongodb": "^3.6.6"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^1.21.4",
+    "@graphql-codegen/typescript": "^1.22.0",
     "@types/node": "^14.14.7",
     "graphql-import-node": "^0.0.4",
     "graphql-tools": "^4.0.8",

@@ -1,0 +1,8 @@
+schema: ./src/schema.graphql
+generates:
+  ./src/types.ts:
+    plugins:
+      - typescript
+    config:
+      avoidOptionals: true
+      immutableTypes: true
