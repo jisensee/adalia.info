@@ -8,17 +8,49 @@ let toStringParam = (name, value, toString) => (name, value->Option.map(toString
 let toIntParam = (name, value) => toStringParam(name, value, Int.toString)
 
 module AsteroidPageParamType = {
+  module SortMode = {
+    type t = Ascending | Descending
+    let toString = mode =>
+      switch mode {
+      | Ascending => "asc"
+      | Descending => "desc"
+      }
+    let fromString = str =>
+      switch str {
+      | "asc" => Some(Ascending)
+      | "desc" => Some(Descending)
+      | _ => None
+      }
+  }
+  module Sort = {
+    type t = {
+      by: string,
+      mode: SortMode.t,
+    }
+    let fromString = str =>
+      switch str->Js.String2.split(":")->List.fromArray {
+      | list{field, mode} => mode->SortMode.fromString->Option.map(m => {by: field, mode: m})
+      | _ => None
+      }
+    let toString = sort => `${sort.by}:${sort.mode->SortMode.toString}`
+  }
   type t = {
     page: option<int>,
     pageSize: option<int>,
+    sort: option<Sort.t>,
   }
   let fromDict = dict => {
     page: dict->mapIntParam("page"),
     pageSize: dict->mapIntParam("pageSize"),
+    sort: dict->Js.Dict.get("sort")->Option.flatMap(Sort.fromString),
   }
 
-  let toDict = ({page, pageSize}) =>
-    [toIntParam("page", page), toIntParam("pageSize", pageSize)]->paramsToDict
+  let toDict = ({page, pageSize, sort}) =>
+    [
+      toIntParam("page", page),
+      toIntParam("pageSize", pageSize),
+      ("sort", sort->Option.map(Sort.toString)),
+    ]->paramsToDict
 }
 
 module AsteroidPageParam = QueryParams.Make(AsteroidPageParamType)
@@ -28,7 +60,7 @@ type t = Home | Asteroids(AsteroidPageParam.t) | GlobalStats | NotFound
 let toUrl = r =>
   switch r {
   | Home => "/"
-  | Asteroids(params) => `/asteroids/?${params->AsteroidPageParam.toString}`
+  | Asteroids(params) => `/asteroids/${params->AsteroidPageParam.toString}`
   | GlobalStats => "/global-stats"
   | NotFound => "/404"
   }
@@ -44,3 +76,4 @@ let fromUrl = (url: RescriptReactRouter.url) =>
   }
 
 let go = route => route->toUrl->RescriptReactRouter.push
+let update = route => route->toUrl->RescriptReactRouter.replace

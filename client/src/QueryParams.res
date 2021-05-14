@@ -20,5 +20,9 @@ module Make = (Param: PageParam) => {
   type t = Param.t
   let fromString = params =>
     params->Js.String2.split("&")->Belt.Array.keepMap(parseParam)->Js.Dict.fromArray->Param.fromDict
-  let toString = param => param->Param.toDict->dictToStrParams
+  let toString = param =>
+    switch param->Param.toDict->dictToStrParams {
+    | "" => ""
+    | s => "?" ++ s
+    }
 }

@@ -17,8 +17,11 @@ type data = array<Js.Dict.t<string>>
 type rowsPerPage = int
 type page = int
 
+type sortDirection = [#asc | #desc]
+
 @deriving(abstract)
 type column = {
+  id: string,
   name: string,
   selector: Js.Dict.t<string> => option<string>,
   @optional @as("cell") cellRenderer: CellRenderer.t,
@@ -45,6 +48,10 @@ module Binding = {
     ~paginationIconLastPage: React.element=?,
     ~paginationIconNext: React.element=?,
     ~paginationIconPrevious: React.element=?,
+    ~defaultSortFieldId: string=?,
+    ~onSort: (column, sortDirection) => unit=?,
+    ~sortServer: bool=?,
+    ~sortFunction: (data, string, sortDirection) => data=?,
   ) => React.element = "default"
 }
 
@@ -58,13 +65,18 @@ module WithPagination = {
     ~currentPageSize,
     ~pageSizeOptions,
     ~onChange,
+    ~onSort,
+    ~defaultSortFieldId=?,
   ) => {
     <Binding
       columns
       data
       noHeader={true}
-      fixedHeader={true}
+      onSort
+      sortServer={true}
       pagination={true}
+      sortFunction={(data, _, _) => Js.Array2.copy(data)}
+      ?defaultSortFieldId
       paginationServer={true}
       paginationRowsPerPageOptions=pageSizeOptions
       paginationDefaultPage=currentPage

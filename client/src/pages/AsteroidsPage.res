@@ -7,13 +7,48 @@ type pageData = {
 }
 
 module Table = {
+  open Route.AsteroidPageParamType
   @react.component
-  let make = (~page, ~pageSize, ~pageSizeOptions) => {
+  let make = (~page, ~pageSize, ~pageSizeOptions, ~sort: Sort.t) => {
+    let (firstRender, setFirstRender) = React.useState(() => true)
     let (pageData, setPageData) = React.useState(() => {
       currentPage: page,
       currentPageSize: pageSize,
     })
+    let (sortData, setSortData) = React.useState(() => sort)
 
+    React.useEffect0(() => {
+      setFirstRender(_ => false)
+      None
+    })
+
+    React.useEffect2(() => {
+      Route.Asteroids({
+        page: pageData.currentPage->Some,
+        pageSize: pageData.currentPageSize->Some,
+        sort: sortData->Some,
+      })
+      ->Route.update
+      ->ignore
+      None
+    }, (pageData, sortData))
+
+    let gqlSortingMode = switch sortData.mode {
+    | SortMode.Ascending => #ASCENDING
+    | SortMode.Descending => #DESCENDING
+    }
+    let gqlSortingField = switch sortData.by {
+    | "id" => #ID
+    | "name" => #NAME
+    | "owner" => #OWNER
+    | "radius" => #RADIUS
+    | "surfaceArea" => #SURFACE_AREA
+    | "orbitalPeriod" => #ORBITAL_PERIOD
+    | "semiMajorAxis" => #SEMI_MAJOR_AXIS
+    | "inclination" => #INCLINATION
+    | "spectralType" => #SPECTRAL_TYPE
+    | _ => #ID
+    }
     let ({Hooks.response: response}, _) = Hooks.useQuery(
       ~query=module(Queries.DataTableAsteroids),
       {
@@ -21,30 +56,44 @@ module Table = {
           num: pageData.currentPage,
           size: pageData.currentPageSize,
         },
+        sort: {
+          field: gqlSortingField,
+          mode: gqlSortingMode,
+        },
       },
     )
 
     let onChange = (newPageSize: DataTable.rowsPerPage, newPage: DataTable.page) => {
-      Route.Asteroids({
-        page: Some(newPage),
-        pageSize: Some(newPageSize),
-      })
-      ->Route.go
-      ->ignore
       setPageData(_ => {
         currentPage: newPage,
         currentPageSize: newPageSize,
       })
     }
 
+    let onSort = (column: DataTable.column, direction) => {
+      let mode = switch direction {
+      | #asc => SortMode.Ascending
+      | #desc => SortMode.Descending
+      }
+      let newSortData = {Sort.by: column->DataTable.idGet, mode: mode}
+      setSortData(_ => newSortData)
+    }
+
+    let defaultSortFieldId = switch firstRender {
+    | true => Some(sortData.by)
+    | false => Some(sortData.by)
+    }
+
     switch response {
     | Data({asteroids}) =>
       <AsteroidTable
         pageData=asteroids
+        ?defaultSortFieldId
         currentPage=pageData.currentPage
         currentPageSize=pageData.currentPageSize
         pageSizeOptions
         onChange
+        onSort
       />
     | _ => React.null
     }
@@ -52,22 +101,28 @@ module Table = {
 }
 
 @react.component
-let make = (~page=?, ~pageSize=?) => {
+let make = (~page=?, ~pageSize=?, ~sort=?) => {
+  open Route.AsteroidPageParamType
   let pageSizeOptions = [15, 25, 50]
-  React.useEffect0(() => {
-    Route.Asteroids({
-      page: page->Option.getWithDefault(1)->Some,
-      pageSize: pageSize->Option.getWithDefault(15)->Some,
-    })
-    ->Route.go
-    ->ignore
+  React.useEffect3(() => {
+    switch (page, pageSize, sort) {
+    | (None, None, None) =>
+      Route.Asteroids({
+        page: Some(1),
+        pageSize: Some(15),
+        sort: Some({Sort.by: "id", mode: SortMode.Ascending}),
+      })
+      ->Route.update
+      ->ignore
+    | _ => ()
+    }
     None
-  })
+  }, (page, pageSize, sort))
 
-  switch (page, pageSize) {
-  | (Some(p), Some(ps)) =>
+  switch (page, pageSize, sort) {
+  | (Some(p), Some(ps), Some(s)) =>
     <div className="flex flex-col h-full">
-      <h1> {"Asteroids"->React.string} </h1> <Table page=p pageSize=ps pageSizeOptions />
+      <h1> {"Asteroids"->React.string} </h1> <Table page=p pageSize=ps pageSizeOptions sort=s />
     </div>
   | _ => React.null
   }
