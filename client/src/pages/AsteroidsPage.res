@@ -104,22 +104,23 @@ module Table = {
 let make = (~page=?, ~pageSize=?, ~sort=?) => {
   open Route.AsteroidPageParamType
   let pageSizeOptions = [15, 25, 50]
+  let filteredPageSize = pageSize->Option.keep(Js.Array2.includes(pageSizeOptions))
   React.useEffect3(() => {
-    switch (page, pageSize, sort) {
-    | (None, None, None) =>
+    switch (page, filteredPageSize, sort) {
+    | (Some(_), Some(_), Some(_)) => ()
+    | _ =>
       Route.Asteroids({
-        page: Some(1),
-        pageSize: Some(15),
-        sort: Some({Sort.by: "id", mode: SortMode.Ascending}),
+        page: page->Option.getWithDefault(1)->Some,
+        pageSize: filteredPageSize->Option.getWithDefault(15)->Some,
+        sort: sort->Option.getWithDefault({Sort.by: "id", mode: SortMode.Ascending})->Some,
       })
       ->Route.update
       ->ignore
-    | _ => ()
     }
     None
   }, (page, pageSize, sort))
 
-  switch (page, pageSize, sort) {
+  switch (page, filteredPageSize, sort) {
   | (Some(p), Some(ps), Some(s)) =>
     <div className="flex flex-col h-full">
       <h1> {"Asteroids"->React.string} </h1> <Table page=p pageSize=ps pageSizeOptions sort=s />
