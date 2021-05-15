@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: /tmp/.buildx-cache
-          key: ${{runner.os}}-buildx-${{github.sha}}
+          key: ${{runner.os}}-buildx-v1-${{github.sha}}
           restore-keys: |
             ${{runner.os}}-buildx-
       - name: Login to github container registry
