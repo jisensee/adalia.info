@@ -2,30 +2,25 @@ open Belt
 open ReScriptUrql
 
 type pageData = {
-  currentPage: int,
-  currentPageSize: int,
+  pageNum: int,
+  pageSize: int,
 }
 
+module Param = Route.AsteroidPageParam
+
 module Table = {
-  open Route.AsteroidPageParamType
   @react.component
-  let make = (~page, ~pageSize, ~pageSizeOptions, ~sort: Sort.t) => {
-    let (firstRender, setFirstRender) = React.useState(() => true)
+  let make = (~pageNum, ~pageSize, ~pageSizeOptions, ~sort: QueryParams.Sort.t) => {
     let (pageData, setPageData) = React.useState(() => {
-      currentPage: page,
-      currentPageSize: pageSize,
+      pageNum: pageNum,
+      pageSize: pageSize,
     })
     let (sortData, setSortData) = React.useState(() => sort)
 
-    React.useEffect0(() => {
-      setFirstRender(_ => false)
-      None
-    })
-
     React.useEffect2(() => {
       Route.Asteroids({
-        page: pageData.currentPage->Some,
-        pageSize: pageData.currentPageSize->Some,
+        pageNum: pageData.pageNum->Some,
+        pageSize: pageData.pageSize->Some,
         sort: sortData->Some,
       })
       ->Route.update
@@ -34,10 +29,10 @@ module Table = {
     }, (pageData, sortData))
 
     let gqlSortingMode = switch sortData.mode {
-    | SortMode.Ascending => #ASCENDING
-    | SortMode.Descending => #DESCENDING
+    | QueryParams.SortMode.Ascending => #ASCENDING
+    | QueryParams.SortMode.Descending => #DESCENDING
     }
-    let gqlSortingField = switch sortData.by {
+    let gqlSortingField = switch sortData.field {
     | "id" => #ID
     | "name" => #NAME
     | "owner" => #OWNER
@@ -53,8 +48,8 @@ module Table = {
       ~query=module(Queries.DataTableAsteroids),
       {
         page: {
-          num: pageData.currentPage,
-          size: pageData.currentPageSize,
+          num: pageData.pageNum,
+          size: pageData.pageSize,
         },
         sort: {
           field: gqlSortingField,
@@ -63,67 +58,67 @@ module Table = {
       },
     )
 
-    let onChange = (newPageSize: DataTable.rowsPerPage, newPage: DataTable.page) => {
+    let onPageChange = (newPageSize: DataTable.pageSize, newPageNum: DataTable.pageNum) => {
       setPageData(_ => {
-        currentPage: newPage,
-        currentPageSize: newPageSize,
+        pageNum: newPageNum,
+        pageSize: newPageSize,
       })
     }
 
     let onSort = (column: DataTable.column, direction) => {
       let mode = switch direction {
-      | #asc => SortMode.Ascending
-      | #desc => SortMode.Descending
+      | #asc => QueryParams.SortMode.Ascending
+      | #desc => QueryParams.SortMode.Descending
       }
-      let newSortData = {Sort.by: column->DataTable.idGet, mode: mode}
+      let newSortData = {QueryParams.Sort.field: column->DataTable.idGet, mode: mode}
       setSortData(_ => newSortData)
-    }
-
-    let defaultSortFieldId = switch firstRender {
-    | true => Some(sortData.by)
-    | false => Some(sortData.by)
     }
 
     switch response {
     | Data({asteroids}) =>
       <AsteroidTable
         pageData=asteroids
-        ?defaultSortFieldId
-        currentPage=pageData.currentPage
-        currentPageSize=pageData.currentPageSize
+        defaultSortFieldId=sort.field
+        pageSize=pageData.pageSize
         pageSizeOptions
-        onChange
+        onPageChange
         onSort
       />
+    | Fetching => <AsteroidTable.Loading />
     | _ => React.null
     }
   }
 }
 
 @react.component
-let make = (~page=?, ~pageSize=?, ~sort=?) => {
-  open Route.AsteroidPageParamType
+let make = (~pageNum=?, ~pageSize=?, ~sort=?) => {
   let pageSizeOptions = [15, 25, 50]
   let filteredPageSize = pageSize->Option.keep(Js.Array2.includes(pageSizeOptions))
+  let initialSortField: AsteroidTable.Column.id = #id
   React.useEffect3(() => {
-    switch (page, filteredPageSize, sort) {
+    switch (pageNum, filteredPageSize, sort) {
     | (Some(_), Some(_), Some(_)) => ()
     | _ =>
       Route.Asteroids({
-        page: page->Option.getWithDefault(1)->Some,
+        pageNum: pageNum->Option.getWithDefault(1)->Some,
         pageSize: filteredPageSize->Option.getWithDefault(15)->Some,
-        sort: sort->Option.getWithDefault({Sort.by: "id", mode: SortMode.Ascending})->Some,
+        sort: sort
+        ->Option.getWithDefault({
+          QueryParams.Sort.field: (initialSortField :> string),
+          mode: QueryParams.SortMode.Ascending,
+        })
+        ->Some,
       })
       ->Route.update
       ->ignore
     }
     None
-  }, (page, pageSize, sort))
+  }, (pageNum, pageSize, sort))
 
-  switch (page, filteredPageSize, sort) {
+  switch (pageNum, filteredPageSize, sort) {
   | (Some(p), Some(ps), Some(s)) =>
     <div className="flex flex-col h-full">
-      <h1> {"Asteroids"->React.string} </h1> <Table page=p pageSize=ps pageSizeOptions sort=s />
+      <h1> {"Asteroids"->React.string} </h1> <Table pageNum=p pageSize=ps pageSizeOptions sort=s />
     </div>
   | _ => React.null
   }

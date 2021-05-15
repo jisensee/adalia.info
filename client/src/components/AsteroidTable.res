@@ -1,95 +1,96 @@
-open Belt
 external spectralTypeToStr: Fragments.DataTableAsteroid.t_spectralType => string = "%identity"
+
+module Column = {
+  type id = [
+    | #id
+    | #owner
+    | #name
+    | #radius
+    | #surfaceArea
+    | #orbitalPeriod
+    | #semiMajorAxis
+    | #inclination
+    | #spectralType
+  ]
+  let toName = id =>
+    switch id {
+    | #id => "ID"
+    | #owner => "Owner"
+    | #name => "Name"
+    | #radius => "Radius"
+    | #surfaceArea => "Surface area"
+    | #orbitalPeriod => "Orbital period"
+    | #semiMajorAxis => "Semi major axis"
+    | #inclination => "Inclination"
+    | #spectralType => "Spectral type"
+    }
+  let make = (id: id) =>
+    DataTable.column(
+      ~id=(id :> string),
+      ~name=id->toName,
+      ~selector=Js.Dict.get(_, (id :> string)),
+      ~sortable=true,
+    )
+}
 
 let ownerCell = DataTable.CellRenderer.make("owner", address => <AsteroidOwner address />)
 let columns = [
-  DataTable.column(~id="id", ~name="ID", ~selector=Js.Dict.get(_, "id"), ~sortable=true, ()),
-  DataTable.column(~id="name", ~name="Name", ~selector=Js.Dict.get(_, "name"), ~sortable=true, ()),
-  DataTable.column(
-    ~id="owner",
-    ~name="Owner",
-    ~selector=Js.Dict.get(_, "owner"),
-    ~cellRenderer=ownerCell,
-    ~sortable=true,
-    (),
-  ),
-  DataTable.column(
-    ~id="radius",
-    ~name="Radius",
-    ~selector=Js.Dict.get(_, "radius"),
-    ~sortable=true,
-    (),
-  ),
-  DataTable.column(
-    ~id="surfaceArea",
-    ~name="Surface area",
-    ~selector=Js.Dict.get(_, "surfaceArea"),
-    ~sortable=true,
-    (),
-  ),
-  DataTable.column(
-    ~id="orbitalPeriod",
-    ~name="Orbital period",
-    ~selector=Js.Dict.get(_, "orbitalPeriod"),
-    ~sortable=true,
-    (),
-  ),
-  DataTable.column(
-    ~id="semiMajorAxis",
-    ~name="Semi major axis",
-    ~selector=Js.Dict.get(_, "semiMajorAxis"),
-    ~sortable=true,
-    (),
-  ),
-  DataTable.column(
-    ~id="inclination",
-    ~name="Inclination",
-    ~selector=Js.Dict.get(_, "inclination"),
-    ~sortable=true,
-    (),
-  ),
-  DataTable.column(
-    ~id="spectralType",
-    ~name="Spectral type",
-    ~selector=Js.Dict.get(_, "spectralType"),
-    ~sortable=true,
-    (),
-  ),
+  Column.make(#id, ()),
+  Column.make(#owner, ~cell=ownerCell, ()),
+  Column.make(#name, ()),
+  Column.make(#radius, ()),
+  Column.make(#surfaceArea, ()),
+  Column.make(#orbitalPeriod, ()),
+  Column.make(#semiMajorAxis, ()),
+  Column.make(#inclination, ()),
+  Column.make(#spectralType, ()),
 ]
+
+let cell = (id: Column.id, value: 'a, formatValue: 'a => string) => (
+  (id :> string),
+  value->formatValue,
+)
+
+module Loading = {
+  @react.component
+  let make = () => <DataTable.Loading columns text={"Loading asteroids..."} />
+}
 
 @react.component
 let make = (
   ~pageData: Fragments.DataTableAsteroidPage.t,
-  ~currentPage,
-  ~currentPageSize,
+  ~pageSize,
   ~pageSizeOptions,
-  ~defaultSortFieldId=?,
-  ~onChange,
+  ~defaultSortFieldId,
+  ~onPageChange,
   ~onSort,
 ) => {
+  open Belt
   let data =
     pageData.rows
-    ->Belt.Array.map(a => [
-      ("id", a.id->Belt.Int.toString),
-      ("name", a.name),
-      ("owner", a.owner->Option.getWithDefault("")),
-      ("radius", a.radius->Belt.Float.toString),
-      ("surfaceArea", a.surfaceArea->Belt.Float.toString),
-      ("orbitalPeriod", a.orbitalPeriod->Belt.Int.toString),
-      ("semiMajorAxis", a.semiMajorAxis->Belt.Float.toString),
-      ("inclination", a.inclination->Belt.Float.toString),
-      ("spectralType", a.spectralType->spectralTypeToStr),
+    ->Array.map(a => [
+      cell(#id, a.id, Int.toString),
+      cell(#name, a.name, s => s),
+      cell(#owner, a.owner, Option.getWithDefault(_, "")),
+      cell(#radius, a.radius, Float.toString),
+      cell(#surfaceArea, a.surfaceArea, Float.toString),
+      cell(#orbitalPeriod, a.orbitalPeriod, Int.toString),
+      cell(#semiMajorAxis, a.semiMajorAxis, Float.toString),
+      cell(#inclination, a.inclination, Float.toString),
+      cell(#spectralType, a.spectralType, spectralTypeToStr),
     ])
-    ->Belt.Array.map(Js.Dict.fromArray)
-  <DataTable.WithPagination
-    columns
-    data
-    ?defaultSortFieldId
-    totalRows={pageData.totalRows}
-    currentPage
-    currentPageSize
-    pageSizeOptions
-    onChange
-    onSort
-  />
+    ->Array.map(Js.Dict.fromArray)
+  let pagination: DataTable.pagination = {
+    server: true,
+    pageSize: pageSize,
+    pageSizeOptions: pageSizeOptions,
+    onChange: onPageChange,
+    totalRows: pageData.totalRows,
+  }
+  let sorting: DataTable.sorting = {
+    server: true,
+    defaultSortFieldId: defaultSortFieldId,
+    onChange: onSort,
+  }
+  <DataTable columns data pagination sorting />
 }

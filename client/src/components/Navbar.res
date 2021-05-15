@@ -11,7 +11,7 @@ let make = () =>
         <Item to_=Link.Internal(Route.Home) className="text-cyan text-2xl font-bold">
           <Icon kind={Icon.Fas("sun")}> {"adalia.info"->React.string} </Icon>
         </Item>
-        <Item to_=Link.Internal(Route.Asteroids({page: None, pageSize: None, sort: None}))>
+        <Item to_=Link.Internal(Route.Asteroids({pageNum: None, pageSize: None, sort: None}))>
           <Icon kind={Icon.Fas("meteor")}> {"Asteroids"->React.string} </Icon>
         </Item>
         <Item to_=Link.Internal(Route.GlobalStats)>

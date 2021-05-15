@@ -14,8 +14,8 @@ module CellRenderer = {
 }
 
 type data = array<Js.Dict.t<string>>
-type rowsPerPage = int
-type page = int
+type pageSize = int
+type pageNum = int
 
 type sortDirection = [#asc | #desc]
 
@@ -24,7 +24,7 @@ type column = {
   id: string,
   name: string,
   selector: Js.Dict.t<string> => option<string>,
-  @optional @as("cell") cellRenderer: CellRenderer.t,
+  @optional cell: CellRenderer.t,
   @optional sortable: bool,
 }
 
@@ -34,14 +34,17 @@ module Binding = {
     ~columns: array<column>,
     ~data: data=?,
     ~noHeader: bool=?,
+    ~progressPending: bool=?,
+    ~progressComponent: React.element=?,
+    ~persistTableHead: bool=?,
     ~pagination: bool=?,
     ~paginationServer: bool=?,
     ~paginationTotalRows: int=?,
     ~paginationPerPage: int=?,
     ~paginationRowsPerPageOptions: array<int>=?,
     ~paginationDefaultPage: int=?,
-    ~onChangeRowsPerPage: (rowsPerPage, page) => unit=?,
-    ~onChangePage: page => unit=?,
+    ~onChangeRowsPerPage: (pageSize, pageNum) => unit=?,
+    ~onChangePage: pageNum => unit=?,
     ~fixedHeader: bool=?,
     ~fixedHeaderScrollHeight: string=?,
     ~paginationIconFirstPage: React.element=?,
@@ -55,39 +58,90 @@ module Binding = {
   ) => React.element = "default"
 }
 
-module WithPagination = {
+type pagination = {
+  server: bool,
+  totalRows: int,
+  pageSize: int,
+  pageSizeOptions: array<int>,
+  onChange: (pageSize, pageNum) => unit,
+}
+
+type sorting = {
+  server: bool,
+  onChange: (column, sortDirection) => unit,
+  defaultSortFieldId: string,
+}
+
+type header = {
+  fixed: bool,
+  scrollHeight: string,
+}
+
+module Loading = {
   @react.component
-  let make = (
-    ~columns,
-    ~data,
-    ~totalRows,
-    ~currentPage,
-    ~currentPageSize,
-    ~pageSizeOptions,
-    ~onChange,
-    ~onSort,
-    ~defaultSortFieldId=?,
-  ) => {
+  let make = (~columns, ~text) =>
     <Binding
       columns
-      data
-      noHeader={true}
-      onSort
-      sortServer={true}
-      pagination={true}
-      sortFunction={(data, _, _) => Js.Array2.copy(data)}
-      ?defaultSortFieldId
-      paginationServer={true}
-      paginationRowsPerPageOptions=pageSizeOptions
-      paginationDefaultPage=currentPage
-      paginationPerPage=currentPageSize
-      paginationTotalRows=totalRows
-      onChangePage={newPage => onChange(currentPageSize, newPage)}
-      onChangeRowsPerPage=onChange
-      paginationIconNext={<Icon kind={Icon.Fas("forward")} />}
-      paginationIconPrevious={<Icon kind={Icon.Fas("backward")} />}
-      paginationIconFirstPage={<Icon kind={Icon.Fas("step-backward")} />}
-      paginationIconLastPage={<Icon kind={Icon.Fas("step-forward")} />}
+      progressPending={true}
+      persistTableHead={true}
+      progressComponent={<div className="datatable-loading w-full py-4">
+        <Common.LoadingSpinner text className="" />
+      </div>}
     />
+}
+
+@react.component
+let make = (~columns, ~data, ~pagination=?, ~sorting=?, ~header=?) => {
+  let (
+    usePagination,
+    paginationServer,
+    paginationTotalRows,
+    paginationPerPage,
+    paginationRowsPerPageOptions,
+    onChangeRowsPerPage,
+    onChangePage,
+  ) = switch pagination {
+  | None => (false, None, None, None, None, None, None)
+  | Some(p: pagination) => (
+      true,
+      p.server->Some,
+      p.totalRows->Some,
+      p.pageSize->Some,
+      p.pageSizeOptions->Some,
+      p.onChange->Some,
+      Some(newPage => p.onChange(p.pageSize, newPage)),
+    )
   }
+
+  let (sortServer, onSort, defaultSortFieldId) = switch sorting {
+  | None => (None, None, None)
+  | Some(s) => (s.server->Some, s.onChange->Some, s.defaultSortFieldId->Some)
+  }
+
+  let (fixedHeader, fixedHeaderScrollHeight) = switch header {
+  | None => (None, None)
+  | Some(h) => (h.fixed->Some, h.scrollHeight->Some)
+  }
+  <Binding
+    columns
+    data
+    sortFunction={(data, _, _) => Js.Array2.copy(data)}
+    noHeader={true}
+    ?fixedHeader
+    ?fixedHeaderScrollHeight
+    ?sortServer
+    ?onSort
+    ?defaultSortFieldId
+    pagination=usePagination
+    ?paginationServer
+    ?paginationRowsPerPageOptions
+    ?paginationPerPage
+    ?paginationTotalRows
+    ?onChangePage
+    ?onChangeRowsPerPage
+    paginationIconNext={<Icon kind={Icon.Fas("forward")} />}
+    paginationIconPrevious={<Icon kind={Icon.Fas("backward")} />}
+    paginationIconFirstPage={<Icon kind={Icon.Fas("step-backward")} />}
+    paginationIconLastPage={<Icon kind={Icon.Fas("step-forward")} />}
+  />
 }
