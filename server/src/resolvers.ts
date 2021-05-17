@@ -10,7 +10,8 @@ const resolvers: IResolvers<DataSources, Context> = {
           ...args.page,
           size: Math.min(args.page.size, 100),
         },
-        args.sorting
+        args.sorting,
+        args.filter
       ),
     asteroidCount: (_, args: QueryAsteroidCountArgs, { dataSources }) =>
       dataSources.asteroids.count(args.filter),

@@ -1,5 +1,9 @@
 type Query {
-  asteroids(page: PageInput!, sorting: AsteroidSortingInput): AsteroidPage!
+  asteroids(
+    page: PageInput!
+    sorting: AsteroidSortingInput
+    filter: AsteroidFilterInput
+  ): AsteroidPage!
 
   asteroidCount(filter: AsteroidFilterInput): AsteroidCount!
 }
@@ -38,6 +42,7 @@ input AsteroidSortingInput {
 
 input AsteroidFilterInput {
   owned: Boolean
+  spectralTypes: [SpectralType!]
 }
 
 enum SortingMode {

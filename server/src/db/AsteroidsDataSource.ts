@@ -10,6 +10,7 @@ import {
   Maybe,
   PageInput,
   SortingMode,
+  SpectralType,
 } from '../types'
 
 const fieldToSortName = (field: AsteroidField): keyof Asteroid => {
@@ -51,10 +52,17 @@ const ownedFilter = (owned: boolean) => ({
   },
 })
 
+const spectralTypesFilter = (spectralTypes: SpectralType[]) => ({
+  spectralType: { $in: spectralTypes },
+})
+
 const filterToQuery = (filter: AsteroidFilterInput) => {
   const owned = filter.owned === null ? {} : ownedFilter(filter.owned)
+  const spectralTypes = filter.spectralTypes
+    ? spectralTypesFilter([...filter.spectralTypes])
+    : {}
 
-  return { ...owned }
+  return { $and: [owned, spectralTypes] }
 }
 
 export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
@@ -64,20 +72,23 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
 
   public async getPage(
     page: PageInput,
-    sorting: Maybe<AsteroidSortingInput>
+    sorting: Maybe<AsteroidSortingInput>,
+    filter: Maybe<AsteroidFilterInput>
   ): Promise<AsteroidPage> {
     const offset = (page.num - 1) * page.size
     const sortParam = sorting != null ? createSortParam(sorting) : {}
-    const rows = await this.collection
-      .find()
+    const query = filter ? filterToQuery(filter) : {}
+
+    const cursor = this.collection
+      .find(query)
       .sort(sortParam)
       .skip(offset)
       .limit(page.size)
-      .toArray()
-    return {
-      rows,
-      totalRows: await this.collection.countDocuments(),
-    }
+
+    const totalRows = await cursor.count()
+    const rows = await cursor.toArray()
+
+    return { rows, totalRows }
   }
 
   public async count(
