@@ -1,7 +1,12 @@
 open Belt
 
+@send external toLocaleString: float => string = "toLocaleString"
+
 let getText = (~count, ~total, ~percent) => {
-  `${count->Int.toString} / ${total->Int.toString} (${percent->Float.toString} %)`
+  let countStr = count->Int.toFloat->toLocaleString
+  let totalStr = total->Int.toFloat->toLocaleString
+  let percentStr = percent->toLocaleString
+  `${countStr} / ${totalStr} (${percentStr} %)`
 }
 
 let getPercent = (~count, ~total) => {
