@@ -17,4 +17,9 @@ fragment DataTableAsteroidPage on AsteroidPage {
   }
   totalRows
 }
+
+fragment AsteroidCount on AsteroidCount {
+  count
+  total
+}
 `)

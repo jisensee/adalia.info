@@ -13,7 +13,7 @@
     @apply text-4xl;
     @apply text-cyan;
     @apply font-bold;
-    @apply mb-2;
+    @apply mb-4;
   }
 
   .rdt_Table,
