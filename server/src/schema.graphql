@@ -1,10 +1,17 @@
 type Query {
   asteroids(page: PageInput!, sorting: AsteroidSortingInput): AsteroidPage!
+
+  asteroidCount(filter: AsteroidFilterInput): AsteroidCount!
 }
 
 type AsteroidPage {
   rows: [Asteroid!]!
   totalRows: Int!
+}
+
+type AsteroidCount {
+  count: Int!
+  total: Int!
 }
 
 type Asteroid {
@@ -27,6 +34,10 @@ input PageInput {
 input AsteroidSortingInput {
   field: AsteroidField!
   mode: SortingMode!
+}
+
+input AsteroidFilterInput {
+  owned: Boolean
 }
 
 enum SortingMode {

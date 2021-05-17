@@ -24,6 +24,12 @@ export type Asteroid = {
   readonly spectralType: SpectralType;
 };
 
+export type AsteroidCount = {
+  readonly __typename?: 'AsteroidCount';
+  readonly count: Scalars['Int'];
+  readonly total: Scalars['Int'];
+};
+
 export enum AsteroidField {
   Id = 'ID',
   Name = 'NAME',
@@ -35,6 +41,10 @@ export enum AsteroidField {
   Inclination = 'INCLINATION',
   SpectralType = 'SPECTRAL_TYPE'
 }
+
+export type AsteroidFilterInput = {
+  readonly owned: Maybe<Scalars['Boolean']>;
+};
 
 export type AsteroidPage = {
   readonly __typename?: 'AsteroidPage';
@@ -55,12 +65,18 @@ export type PageInput = {
 export type Query = {
   readonly __typename?: 'Query';
   readonly asteroids: AsteroidPage;
+  readonly asteroidCount: AsteroidCount;
 };
 
 
 export type QueryAsteroidsArgs = {
   page: PageInput;
   sorting: Maybe<AsteroidSortingInput>;
+};
+
+
+export type QueryAsteroidCountArgs = {
+  filter: Maybe<AsteroidFilterInput>;
 };
 
 export enum SortingMode {

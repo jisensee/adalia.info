@@ -1,7 +1,7 @@
-import Asteroids from './asteroids'
+import AsteroidsDataSource from './db/AsteroidsDataSource'
 
 export interface DataSources {
-  asteroids: Asteroids
+  asteroids: AsteroidsDataSource
 }
 
 export interface Context {

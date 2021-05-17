@@ -1,14 +1,14 @@
 import { ApolloServer } from 'apollo-server-express'
 import express from 'express'
 import { MongoClient } from 'mongodb'
-import Asteroids from './asteroids'
 import { initializeAsteroids } from './initializer'
+import AsteroidsDataSource from './db/AsteroidsDataSource'
 import schema from './schema'
 
 const app = express()
 
 const mongoUrl = process.env.MONGO_URL ?? 'localhost:27017'
-const mongoConnectionStr = `mongodb://${mongoUrl}/influence-info`
+const mongoConnectionStr = `mongodb://${mongoUrl}/adalia-info`
 const client = new MongoClient(mongoConnectionStr, {
   useUnifiedTopology: true,
 })
@@ -22,7 +22,7 @@ const server = new ApolloServer({
   playground: true,
   introspection: true,
   dataSources: () => ({
-    asteroids: new Asteroids(client.db().collection('asteroids')),
+    asteroids: new AsteroidsDataSource(client.db().collection('asteroids')),
   }),
 })
 
