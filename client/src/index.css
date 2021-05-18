@@ -16,6 +16,21 @@
     @apply mb-4;
   }
 
+  h2 {
+    @apply text-3xl;
+    @apply text-cyan;
+  }
+
+  select {
+    @apply bg-gray-900;
+    @apply border-cyan;
+    @apply rounded-3xl;
+  }
+
+  select[disabled] {
+    @apply opacity-30;
+  }
+
   .rdt_Table,
   .rdt_TableRow,
   .rdt_TableCol,

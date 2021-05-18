@@ -10,23 +10,32 @@ module Param = Route.AsteroidPageParam
 
 module Table = {
   @react.component
-  let make = (~pageNum, ~pageSize, ~pageSizeOptions, ~sort: QueryParams.Sort.t) => {
+  let make = (
+    ~pageNum,
+    ~pageSize,
+    ~pageSizeOptions,
+    ~sort: QueryParams.Sort.t,
+    ~filter: AsteroidFilters.t,
+  ) => {
     let (pageData, setPageData) = React.useState(() => {
       pageNum: pageNum,
       pageSize: pageSize,
     })
     let (sortData, setSortData) = React.useState(() => sort)
+    let ownedFilter = filter.owned->AsteroidFilters.Filter.toOption
+    let spectralTypesFilter = filter.spectralTypes->AsteroidFilters.Filter.toOption
 
-    React.useEffect2(() => {
+    React.useEffect3(() => {
       Route.Asteroids({
         pageNum: pageData.pageNum->Some,
         pageSize: pageData.pageSize->Some,
         sort: sortData->Some,
+        owned: ownedFilter,
       })
       ->Route.update
       ->ignore
       None
-    }, (pageData, sortData))
+    }, (pageData, sortData, ownedFilter))
 
     let gqlSortingMode = switch sortData.mode {
     | QueryParams.SortMode.Ascending => #ASCENDING
@@ -54,6 +63,10 @@ module Table = {
         sort: {
           field: gqlSortingField,
           mode: gqlSortingMode,
+        },
+        filter: {
+          owned: ownedFilter,
+          spectralTypes: spectralTypesFilter,
         },
       },
     )
@@ -91,11 +104,23 @@ module Table = {
 }
 
 @react.component
-let make = (~pageNum=?, ~pageSize=?, ~sort=?) => {
+let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?) => {
   let pageSizeOptions = [15, 25, 50]
   let filteredPageSize = pageSize->Option.keep(Js.Array2.includes(pageSizeOptions))
   let initialSortField: AsteroidTable.Column.id = #id
-  React.useEffect3(() => {
+
+  let (filter, setFilter) = React.useState(() => {
+    AsteroidFilters.owned: {
+      active: owned->Option.isSome,
+      value: owned->Option.getWithDefault(true),
+    },
+    spectralTypes: {
+      active: false,
+      value: [],
+    },
+  })
+
+  React.useEffect4(() => {
     switch (pageNum, filteredPageSize, sort) {
     | (Some(_), Some(_), Some(_)) => ()
     | _ =>
@@ -108,18 +133,24 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?) => {
           mode: QueryParams.SortMode.Ascending,
         })
         ->Some,
+        owned: filter.owned->AsteroidFilters.Filter.toOption,
       })
       ->Route.update
       ->ignore
     }
     None
-  }, (pageNum, pageSize, sort))
+  }, (pageNum, pageSize, sort, filter))
 
   switch (pageNum, filteredPageSize, sort) {
-  | (Some(p), Some(ps), Some(s)) =>
-    <div className="flex flex-col h-full">
-      <h1> {"Asteroids"->React.string} </h1> <Table pageNum=p pageSize=ps pageSizeOptions sort=s />
-    </div>
+  | (Some(p), Some(ps), Some(s)) => {
+      let onFilterChange = newFilter => setFilter(_ => newFilter)
+
+      <div className="flex flex-col h-full">
+        <h1> {"Asteroids"->React.string} </h1>
+        <AsteroidFilters filter onChange=onFilterChange />
+        <Table pageNum=p pageSize=ps pageSizeOptions sort=s filter />
+      </div>
+    }
   | _ => React.null
   }
 }

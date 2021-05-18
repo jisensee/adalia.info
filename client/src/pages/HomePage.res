@@ -4,7 +4,7 @@ open ReScriptUrql
 let make = () => {
   let ({Hooks.response: response}, _) = Hooks.useQuery(
     ~query=module(Queries.AsteroidCount),
-    {filter: Some({owned: Some(true)})},
+    {filter: Some({owned: Some(true), spectralTypes: None})},
   )
   <>
     <h1> {"Home"->React.string} </h1>

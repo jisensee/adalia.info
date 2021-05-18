@@ -1,8 +1,8 @@
 open Fragments
 
 %graphql(`
-query DataTableAsteroids($page: PageInput!, $sort: AsteroidSortingInput!) {
-  asteroids(page: $page, sorting: $sort) {
+query DataTableAsteroids($page: PageInput!, $sort: AsteroidSortingInput!, $filter: AsteroidFilterInput!) {
+  asteroids(page: $page, sorting: $sort, filter: $filter) {
       ...DataTableAsteroidPage
   }
 }

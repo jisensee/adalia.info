@@ -5,17 +5,20 @@ module AsteroidPageParamType = {
     pageNum: option<int>,
     pageSize: option<int>,
     sort: option<QueryParams.Sort.t>,
+    owned: option<bool>,
   }
   let fromDict = dict => {
     pageNum: dict->QueryParams.mapIntParam("page"),
     pageSize: dict->QueryParams.mapIntParam("pageSize"),
     sort: dict->Js.Dict.get("sort")->Option.flatMap(QueryParams.Sort.fromString),
+    owned: dict->QueryParams.mapBoolParam("owned"),
   }
-  let toDict = ({pageNum, pageSize, sort}) =>
+  let toDict = ({pageNum, pageSize, sort, owned}) =>
     [
       QueryParams.toIntParam("page", pageNum),
       QueryParams.toIntParam("pageSize", pageSize),
       ("sort", sort->Option.map(QueryParams.Sort.toString)),
+      QueryParams.toBoolParam("owned", owned),
     ]->QueryParams.paramsToDict
 }
 
