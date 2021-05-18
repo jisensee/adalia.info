@@ -1,0 +1,39 @@
+@import url("datatable.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-900;
+    @apply text-white;
+    @apply text-lg;
+  }
+
+  h1 {
+    @apply text-4xl;
+    @apply text-cyan;
+    @apply font-bold;
+    @apply mb-4;
+  }
+
+  h2 {
+    @apply text-3xl;
+    @apply text-cyan;
+  }
+
+  select {
+    @apply bg-gray-900;
+    @apply border-cyan;
+    @apply rounded-3xl;
+  }
+
+  select[disabled] {
+    @apply opacity-30;
+  }
+
+  p {
+    @apply mb-3;
+  }
+}

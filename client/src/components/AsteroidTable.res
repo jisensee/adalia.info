@@ -18,11 +18,11 @@ module Column = {
     | #owner => "Owner"
     | #name => "Name"
     | #radius => "Radius"
-    | #surfaceArea => "Surface area"
+    | #surfaceArea => "Surface"
     | #orbitalPeriod => "Orbital period"
     | #semiMajorAxis => "Semi major axis"
     | #inclination => "Inclination"
-    | #spectralType => "Spectral type"
+    | #spectralType => "Sp. type"
     }
   let make = (id: id) =>
     DataTable.column(
@@ -35,15 +35,15 @@ module Column = {
 
 let ownerCell = DataTable.CellRenderer.make("owner", address => <AsteroidOwner address />)
 let columns = [
-  Column.make(#id, ()),
-  Column.make(#owner, ~cell=ownerCell, ()),
-  Column.make(#name, ()),
-  Column.make(#radius, ()),
-  Column.make(#surfaceArea, ()),
-  Column.make(#orbitalPeriod, ()),
-  Column.make(#semiMajorAxis, ()),
-  Column.make(#inclination, ()),
-  Column.make(#spectralType, ()),
+  Column.make(#id, ~grow=0, ()),
+  Column.make(#owner, ~grow=10, ~cell=ownerCell, ()),
+  Column.make(#name, ~grow=10, ()),
+  Column.make(#spectralType, ~grow=10, ()),
+  Column.make(#radius, ~grow=10, ()),
+  Column.make(#surfaceArea, ~grow=10, ()),
+  Column.make(#orbitalPeriod, ~grow=12, ()),
+  Column.make(#semiMajorAxis, ~grow=13, ()),
+  Column.make(#inclination, ~grow=11, ()),
 ]
 
 let cell = (id: Column.id, value: 'a, formatValue: 'a => string) => (

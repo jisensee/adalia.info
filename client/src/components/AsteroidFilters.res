@@ -61,7 +61,7 @@ module OwnedFilter = {
 }
 
 @react.component
-let make = (~filter, ~onChange) => {
+let make = (~className="", ~filter, ~onChange) => {
   let onOwnedChange = owned => onChange({...filter, owned: owned})
   let (filtersVisible, setFiltersVisible) = React.useState(() => filter->isActive)
   let iconKind = Icon.Fas("chevron-right")
@@ -69,15 +69,16 @@ let make = (~filter, ~onChange) => {
   | true => (Some(Icon.Rotate90), "max-h-96")
   | false => (None, "max-h-0")
   }
-  <>
+  <div className>
     <div className="cursor-pointer" onClick={_ => setFiltersVisible(v => !v)}>
       <Icon
-        className="text-cyan w-3 transition-all duration-200" kind=iconKind rotation=?iconRotation>
+        className="text-cyan w-3 transition-all duration-300" kind=iconKind rotation=?iconRotation>
         <h2 className="pl-2"> {"Filters"->React.string} </h2>
       </Icon>
     </div>
-    <div className={`flex flex-row ${height} transition-max-height duration-200 ease-in-out`}>
+    <div
+      className={`flex overflow-hidden flex-row ${height} transition-max-height duration-300 ease-in-out`}>
       <OwnedFilter filter=filter.owned onChange=onOwnedChange />
     </div>
-  </>
+  </div>
 }

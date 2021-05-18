@@ -1,6 +1,6 @@
 module.exports = {
   purge: {
-    content: ["./index.html", "./src/index.css", "./src/**/*.js"],
+    content: ["./index.html", "./src/css/index.css", "./src/**/*.js"],
     options: {
       safelist: [
         "rdt_Table",

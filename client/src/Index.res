@@ -1,4 +1,4 @@
-%%raw(`import './index.css'`)
+%%raw(`import './css/index.css'`)
 %%raw(`import '@fontsource/jura'`)
 %%raw(`import '@fortawesome/fontawesome-free/css/all.css'`)
 

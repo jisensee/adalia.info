@@ -26,6 +26,7 @@ type column = {
   selector: Js.Dict.t<string> => option<string>,
   @optional cell: CellRenderer.t,
   @optional sortable: bool,
+  @optional grow: int,
 }
 
 module Binding = {

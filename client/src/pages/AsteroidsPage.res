@@ -150,7 +150,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?) => {
         <p>
           {"You can apply filters to all asteroids by expanding the filter widget. You can share you current filter and sorting setup simply by copying the URL."->React.string}
         </p>
-        <AsteroidFilters filter onChange=onFilterChange />
+        <AsteroidFilters className="mb-4" filter onChange=onFilterChange />
         <Table pageNum=p pageSize=ps pageSizeOptions sort=s filter />
       </div>
     }
