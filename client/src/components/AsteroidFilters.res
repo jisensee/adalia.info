@@ -64,17 +64,19 @@ module OwnedFilter = {
 let make = (~filter, ~onChange) => {
   let onOwnedChange = owned => onChange({...filter, owned: owned})
   let (filtersVisible, setFiltersVisible) = React.useState(() => filter->isActive)
-  let (icon, visible) = switch filtersVisible {
-  | true => (Icon.Fas("chevron-down"), "visible")
-  | false => (Icon.Fas("chevron-right"), "hidden")
+  let iconKind = Icon.Fas("chevron-right")
+  let (iconRotation, height) = switch filtersVisible {
+  | true => (Some(Icon.Rotate90), "max-h-96")
+  | false => (None, "max-h-0")
   }
   <>
     <div className="cursor-pointer" onClick={_ => setFiltersVisible(v => !v)}>
-      <Icon className="text-cyan" kind=icon>
+      <Icon
+        className="text-cyan w-3 transition-all duration-200" kind=iconKind rotation=?iconRotation>
         <h2 className="pl-2"> {"Filters"->React.string} </h2>
       </Icon>
     </div>
-    <div className={`flex flex-row ${visible}`}>
+    <div className={`flex flex-row ${height} transition-max-height duration-200 ease-in-out`}>
       <OwnedFilter filter=filter.owned onChange=onOwnedChange />
     </div>
   </>

@@ -18,6 +18,9 @@ module.exports = {
   },
   theme: {
     extend: {
+      transitionProperty: {
+        "max-height": "max-height",
+      },
       colors: {
         cyan: {
           DEFAULT: "#69ebf4",
