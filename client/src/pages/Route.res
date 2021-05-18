@@ -26,6 +26,8 @@ module AsteroidPageParam = QueryParams.Make(AsteroidPageParamType)
 
 type t = Home | Asteroids(AsteroidPageParam.t) | GlobalStats | NotFound
 
+let defaultAsteroidsRoute = Asteroids({pageNum: None, pageSize: None, sort: None, owned: None})
+
 let toUrl = r =>
   switch r {
   | Home => "/"

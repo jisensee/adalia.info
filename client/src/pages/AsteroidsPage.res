@@ -147,6 +147,9 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?) => {
 
       <div className="flex flex-col h-full">
         <h1> {"Asteroids"->React.string} </h1>
+        <p>
+          {"You can apply filters to all asteroids by expanding the filter widget. You can share you current filter and sorting setup simply by copying the URL."->React.string}
+        </p>
         <AsteroidFilters filter onChange=onFilterChange />
         <Table pageNum=p pageSize=ps pageSizeOptions sort=s filter />
       </div>

@@ -31,6 +31,10 @@
     @apply opacity-30;
   }
 
+  p {
+    @apply mb-3;
+  }
+
   .rdt_Table,
   .rdt_TableRow,
   .rdt_TableCol,
