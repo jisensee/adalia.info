@@ -1,4 +1,5 @@
 import { Collection } from 'apollo-datasource-mongodb'
+import AsteroidsDataSource from './db/AsteroidsDataSource'
 import { Asteroid, SpectralType } from './types'
 
 const randomInt = (min: number, max: number) =>
@@ -35,6 +36,20 @@ const initialData: Asteroid[] = [...Array(250_000).keys()].map((id) =>
   randomRoid(id + 1)
 )
 
+const setupIndices = async (collection: Collection<Asteroid>) => {
+  const keys: Array<keyof Asteroid> = [
+    'name',
+    'owner',
+    'radius',
+    'surfaceArea',
+    'semiMajorAxis',
+    'inclination',
+    'orbitalPeriod',
+    'spectralType',
+  ]
+  await collection.createIndexes(keys.map((key) => ({ key: { [key]: 1 } })))
+}
+
 export async function initializeAsteroids(collection: Collection<Asteroid>) {
   const count = await collection.countDocuments()
   if (count > 0) {
@@ -42,4 +57,6 @@ export async function initializeAsteroids(collection: Collection<Asteroid>) {
   }
   await collection.insertMany(initialData)
   console.log('Updated asteroids')
+  await setupIndices(collection)
+  console.log('Created indices')
 }

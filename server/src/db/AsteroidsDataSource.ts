@@ -57,7 +57,7 @@ const spectralTypesFilter = (spectralTypes: SpectralType[]) => ({
 })
 
 const filterToQuery = (filter: AsteroidFilterInput) => {
-  const owned = filter.owned === null ? {} : ownedFilter(filter.owned)
+  const owned = filter.owned == null ? {} : ownedFilter(filter.owned)
   const spectralTypes = filter.spectralTypes
     ? spectralTypesFilter([...filter.spectralTypes])
     : {}
