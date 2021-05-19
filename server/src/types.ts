@@ -45,6 +45,7 @@ export enum AsteroidField {
 export type AsteroidFilterInput = {
   readonly owned: Maybe<Scalars['Boolean']>;
   readonly spectralTypes: Maybe<ReadonlyArray<SpectralType>>;
+  readonly radius: Maybe<RangeInput>;
 };
 
 export type AsteroidPage = {
@@ -79,6 +80,11 @@ export type QueryAsteroidsArgs = {
 
 export type QueryAsteroidCountArgs = {
   filter: Maybe<AsteroidFilterInput>;
+};
+
+export type RangeInput = {
+  readonly from: Scalars['Float'];
+  readonly to: Scalars['Float'];
 };
 
 export enum SortingMode {

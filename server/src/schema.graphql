@@ -43,6 +43,12 @@ input AsteroidSortingInput {
 input AsteroidFilterInput {
   owned: Boolean
   spectralTypes: [SpectralType!]
+  radius: RangeInput
+}
+
+input RangeInput {
+  from: Float!
+  to: Float!
 }
 
 enum SortingMode {

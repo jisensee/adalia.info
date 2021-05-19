@@ -9,6 +9,7 @@ import {
   AsteroidSortingInput,
   Maybe,
   PageInput,
+  RangeInput,
   SortingMode,
   SpectralType,
 } from '../types'
@@ -56,13 +57,21 @@ const spectralTypesFilter = (spectralTypes: SpectralType[]) => ({
   spectralType: { $in: spectralTypes },
 })
 
+const radiusFilter = (radius: RangeInput) => ({
+  radius: {
+    $gte: radius.from,
+    $lte: radius.to,
+  },
+})
+
 const filterToQuery = (filter: AsteroidFilterInput) => {
   const owned = filter.owned == null ? {} : ownedFilter(filter.owned)
   const spectralTypes = filter.spectralTypes
     ? spectralTypesFilter([...filter.spectralTypes])
     : {}
+  const radius = filter.radius ? radiusFilter(filter.radius) : {}
 
-  return { $and: [owned, spectralTypes] }
+  return { $and: [owned, spectralTypes, radius] }
 }
 
 export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
