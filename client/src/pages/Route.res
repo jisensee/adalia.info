@@ -1,24 +1,32 @@
 open Belt
 
+let peek = (v, msg) => {
+  Js.log2(msg, v)
+  v
+}
+
 module AsteroidPageParamType = {
   type t = {
     pageNum: option<int>,
     pageSize: option<int>,
     sort: option<QueryParams.Sort.t>,
     owned: option<bool>,
+    radius: option<(int, int)>,
   }
   let fromDict = dict => {
     pageNum: dict->QueryParams.mapIntParam("page"),
     pageSize: dict->QueryParams.mapIntParam("pageSize"),
     sort: dict->Js.Dict.get("sort")->Option.flatMap(QueryParams.Sort.fromString),
     owned: dict->QueryParams.mapBoolParam("owned"),
+    radius: dict->QueryParams.mapIntRangeParam("radius"),
   }
-  let toDict = ({pageNum, pageSize, sort, owned}) =>
+  let toDict = ({pageNum, pageSize, sort, owned, radius}) =>
     [
       QueryParams.toIntParam("page", pageNum),
       QueryParams.toIntParam("pageSize", pageSize),
       ("sort", sort->Option.map(QueryParams.Sort.toString)),
       QueryParams.toBoolParam("owned", owned),
+      QueryParams.toIntRangeParam("radius", radius),
     ]->QueryParams.paramsToDict
 }
 
@@ -26,7 +34,13 @@ module AsteroidPageParam = QueryParams.Make(AsteroidPageParamType)
 
 type t = Home | Asteroids(AsteroidPageParam.t) | GlobalStats | NotFound
 
-let defaultAsteroidsRoute = Asteroids({pageNum: None, pageSize: None, sort: None, owned: None})
+let defaultAsteroidsRoute = Asteroids({
+  pageNum: None,
+  pageSize: None,
+  sort: None,
+  owned: None,
+  radius: None,
+})
 
 let toUrl = r =>
   switch r {

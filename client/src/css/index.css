@@ -29,8 +29,28 @@
     @apply rounded-3xl;
   }
 
-  select[disabled] {
-    @apply opacity-30;
+  input {
+    @apply bg-gray-900 !important;
+    @apply text-white;
+    @apply border-cyan !important;
+    @apply rounded-3xl !important;
+  }
+
+  button {
+    @apply border;
+    @apply border-cyan;
+    @apply py-2;
+    @apply px-3;
+    @apply rounded-xl;
+  }
+
+  button:hover {
+    @apply bg-gray-800;
+  }
+
+  select[disabled],
+  input[disabled] {
+    @apply opacity-30 !important;
   }
 
   p {

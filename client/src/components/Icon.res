@@ -6,7 +6,7 @@ type kind =
 type rotation = Rotate90 | Rotate180 | Rotate270
 
 @react.component
-let make = (~children=?, ~className="", ~kind, ~large=false, ~rotation=?) => {
+let make = (~children=?, ~text=?, ~className="", ~kind, ~large=false, ~rotation=?) => {
   let size = switch large {
   | true => "text-4xl"
   | false => ""
@@ -24,8 +24,11 @@ let make = (~children=?, ~className="", ~kind, ~large=false, ~rotation=?) => {
   | Fab(icon) => makeFaIcon(icon, "fab")
   | Custom(icon) => <img src={`/icons/${icon}`} />
   }
-  switch children {
-  | None => icon
-  | Some(c) => <div className="flex flex-row space-x-1 items-center"> icon <span> c </span> </div>
+  let makeWithChildren = c =>
+    <div className="flex flex-row space-x-1 items-center"> icon <span> c </span> </div>
+  switch (children, text) {
+  | (Some(c), None) => makeWithChildren(c)
+  | (None, Some(t)) => makeWithChildren(t->React.string)
+  | _ => icon
   }
 }

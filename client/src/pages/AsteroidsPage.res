@@ -24,18 +24,20 @@ module Table = {
     let (sortData, setSortData) = React.useState(() => sort)
     let ownedFilter = filter.owned->AsteroidFilters.Filter.toOption
     let spectralTypesFilter = filter.spectralTypes->AsteroidFilters.Filter.toOption
+    let radiusFilter = filter.radius->AsteroidFilters.Filter.toOption
 
-    React.useEffect3(() => {
+    React.useEffect4(() => {
       Route.Asteroids({
         pageNum: pageData.pageNum->Some,
         pageSize: pageData.pageSize->Some,
         sort: sortData->Some,
         owned: ownedFilter,
+        radius: radiusFilter,
       })
       ->Route.update
       ->ignore
       None
-    }, (pageData, sortData, ownedFilter))
+    }, (pageData, sortData, ownedFilter, radiusFilter))
 
     let gqlSortingMode = switch sortData.mode {
     | QueryParams.SortMode.Ascending => #ASCENDING
@@ -67,6 +69,10 @@ module Table = {
         filter: {
           owned: ownedFilter,
           spectralTypes: spectralTypesFilter,
+          radius: radiusFilter->Option.map(((from, to_)) => {
+            Queries.DataTableAsteroids.from: from,
+            to_: to_,
+          }),
         },
       },
     )
@@ -103,13 +109,16 @@ module Table = {
   }
 }
 
-@react.component
-let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?) => {
-  let pageSizeOptions = [15, 25, 50]
-  let filteredPageSize = pageSize->Option.keep(Js.Array2.includes(pageSizeOptions))
-  let initialSortField: AsteroidTable.Column.id = #id
+type filterState = {
+  current: AsteroidFilters.t,
+  applied: AsteroidFilters.t,
+}
 
-  let (filter, setFilter) = React.useState(() => {
+@react.component
+let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?, ~radius=?) => {
+  Js.log2("radius", radius)
+  Js.log2("owned", owned)
+  let defaultFilter = {
     AsteroidFilters.owned: {
       active: owned->Option.isSome,
       value: owned->Option.getWithDefault(true),
@@ -118,7 +127,16 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?) => {
       active: false,
       value: [],
     },
-  })
+    radius: {
+      active: radius->Option.isSome,
+      value: radius->Option.getWithDefault((100, 900)),
+    },
+  }
+  let pageSizeOptions = [15, 25, 50]
+  let filteredPageSize = pageSize->Option.keep(Js.Array2.includes(pageSizeOptions))
+  let initialSortField: AsteroidTable.Column.id = #id
+
+  let (filter, setFilter) = React.useState(() => {current: defaultFilter, applied: defaultFilter})
 
   React.useEffect4(() => {
     switch (pageNum, filteredPageSize, sort) {
@@ -133,25 +151,32 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?) => {
           mode: QueryParams.SortMode.Ascending,
         })
         ->Some,
-        owned: filter.owned->AsteroidFilters.Filter.toOption,
+        owned: filter.applied.owned->AsteroidFilters.Filter.toOption,
+        radius: filter.applied.radius->AsteroidFilters.Filter.toOption,
       })
       ->Route.update
       ->ignore
     }
     None
-  }, (pageNum, pageSize, sort, filter))
+  }, (pageNum, pageSize, sort, filter.applied))
 
   switch (pageNum, filteredPageSize, sort) {
   | (Some(p), Some(ps), Some(s)) => {
-      let onFilterChange = newFilter => setFilter(_ => newFilter)
+      let onFilterChange = newFilter => setFilter(_ => {...filter, current: newFilter})
+      let onFilterApply = () => {
+        let correctedFilter = filter.current->AsteroidFilters.correctFilter
+        setFilter(_ => {current: correctedFilter, applied: correctedFilter})
+      }
 
       <div className="flex flex-col h-full">
         <h1> {"Asteroids"->React.string} </h1>
         <p>
-          {"You can apply filters to all asteroids by expanding the filter widget. You can share you current filter and sorting setup simply by copying the URL."->React.string}
+          {"You can apply filters to all asteroids by expanding the filter widget. Copy the URL to share your current filter and sorting setup."->React.string}
         </p>
-        <AsteroidFilters className="mb-4" filter onChange=onFilterChange />
-        <Table pageNum=p pageSize=ps pageSizeOptions sort=s filter />
+        <AsteroidFilters
+          className="mb-4" filter=filter.current onChange=onFilterChange onApply=onFilterApply
+        />
+        <Table pageNum=p pageSize=ps pageSizeOptions sort=s filter=filter.applied />
       </div>
     }
   | _ => React.null

@@ -1,3 +1,5 @@
+open Belt
+
 module LoadingSpinner = {
   @react.component
   let make = (~className="", ~text) => {
@@ -29,5 +31,21 @@ module Select = {
       )
       ->React.array}
     </select>
+  }
+}
+
+module NumberInput = {
+  @react.component
+  let make = (~className="", ~value, ~onChange, ~enabled=true) => {
+    let onValueChange = e =>
+      ReactEvent.Form.currentTarget(e)["value"]->Int.fromString->Option.forEach(onChange)
+
+    <input
+      className
+      type_="number"
+      value={value->Int.toString}
+      onChange=onValueChange
+      disabled={!enabled}
+    />
   }
 }

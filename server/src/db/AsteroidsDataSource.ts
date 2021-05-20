@@ -9,7 +9,7 @@ import {
   AsteroidSortingInput,
   Maybe,
   PageInput,
-  RangeInput,
+  IntRangeInput,
   SortingMode,
   SpectralType,
 } from '../types'
@@ -57,7 +57,7 @@ const spectralTypesFilter = (spectralTypes: SpectralType[]) => ({
   spectralType: { $in: spectralTypes },
 })
 
-const radiusFilter = (radius: RangeInput) => ({
+const radiusFilter = (radius: IntRangeInput) => ({
   radius: {
     $gte: radius.from,
     $lte: radius.to,

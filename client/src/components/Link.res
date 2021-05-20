@@ -3,7 +3,7 @@ type kind =
   | External(string)
 
 let influence = External("https://www.influenceth.io")
-let influenceGame = External("https://www.influenceth.io")
+let influenceGame = External("https://www.game.influenceth.io")
 let githubRepo = External("https://www.github.com/jisensee/adalia.info")
 
 @react.component
