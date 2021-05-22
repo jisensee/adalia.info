@@ -1,5 +1,3 @@
-type spectralType = [#C | #CI | #CIS | #CM | #CMS | #CS | #I | #M | #S | #SI | #SM]
-
 module Filter = {
   type t<'a> = {
     active: bool,
@@ -34,7 +32,7 @@ module Filter = {
 
 type t = {
   owned: Filter.t<bool>,
-  spectralTypes: Filter.t<array<spectralType>>,
+  spectralTypes: Filter.t<array<SpectralType.t>>,
   radius: Filter.t<(int, int)>,
 }
 
@@ -87,10 +85,19 @@ module RadiusFilter = {
   }
 }
 
+module SpectralTypeFilter = {
+  @react.component
+  let make = (~filter, ~onChange) => {
+    let makeFilterComp = (v, oc, enabled) => <SpectralTypePicker selected=v onChange=oc enabled />
+    <Filter label="Spectral types" filter onChange makeFilterComp />
+  }
+}
+
 @react.component
 let make = (~className="", ~filter, ~onChange, ~onApply) => {
   let onOwnedChange = owned => onChange({...filter, owned: owned})
   let onRadiusChange = radius => onChange({...filter, radius: radius})
+  let onSpectralTypesChange = spectralTypes => onChange({...filter, spectralTypes: spectralTypes})
   let (filtersVisible, setFiltersVisible) = React.useState(() => filter->isActive)
   let iconKind = Icon.Fas("chevron-right")
   let (iconRotation, height) = switch filtersVisible {
@@ -107,8 +114,11 @@ let make = (~className="", ~filter, ~onChange, ~onApply) => {
     <div
       className={`flex flex-col items-start overflow-hidden ${height} transition-max-height duration-300 ease-in-out`}>
       <div className="flex flex-row space-x-10 mb-4">
-        <OwnedFilter filter=filter.owned onChange=onOwnedChange />
-        <RadiusFilter filter=filter.radius onChange=onRadiusChange />
+        <div className="flex-col space-y-3">
+          <OwnedFilter filter=filter.owned onChange=onOwnedChange />
+          <RadiusFilter filter=filter.radius onChange=onRadiusChange />
+        </div>
+        <SpectralTypeFilter filter=filter.spectralTypes onChange=onSpectralTypesChange />
       </div>
       <button onClick={_ => onApply()}> <Icon kind={Icon.Fas("check")} text="Apply" /> </button>
     </div>

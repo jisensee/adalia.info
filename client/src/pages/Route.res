@@ -6,6 +6,7 @@ let defaultAsteroidsRoute = Asteroids({
   sort: None,
   owned: None,
   radius: None,
+  spectralTypes: None,
 })
 
 let toUrl = r =>

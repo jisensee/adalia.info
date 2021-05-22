@@ -26,18 +26,19 @@ module Table = {
     let spectralTypesFilter = filter.spectralTypes->AsteroidFilters.Filter.toOption
     let radiusFilter = filter.radius->AsteroidFilters.Filter.toOption
 
-    React.useEffect4(() => {
+    React.useEffect5(() => {
       Route.Asteroids({
         pageNum: pageData.pageNum->Some,
         pageSize: pageData.pageSize->Some,
         sort: sortData->Some,
         owned: ownedFilter,
         radius: radiusFilter,
+        spectralTypes: spectralTypesFilter,
       })
       ->Route.update
       ->ignore
       None
-    }, (pageData, sortData, ownedFilter, radiusFilter))
+    }, (pageData, sortData, ownedFilter, radiusFilter, spectralTypesFilter))
 
     let gqlSortingMode = switch sortData.mode {
     | QueryParams.SortMode.Ascending => #ASCENDING
@@ -115,15 +116,15 @@ type filterState = {
 }
 
 @react.component
-let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?, ~radius=?) => {
+let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?, ~radius=?, ~spectralTypes=?) => {
   let defaultFilter = {
     AsteroidFilters.owned: {
       active: owned->Option.isSome,
       value: owned->Option.getWithDefault(true),
     },
     spectralTypes: {
-      active: false,
-      value: [],
+      active: spectralTypes->Option.isSome,
+      value: spectralTypes->Option.getWithDefault([]),
     },
     radius: {
       active: radius->Option.isSome,
@@ -151,6 +152,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?, ~radius=?) => {
         ->Some,
         owned: filter.applied.owned->AsteroidFilters.Filter.toOption,
         radius: filter.applied.radius->AsteroidFilters.Filter.toOption,
+        spectralTypes: filter.applied.spectralTypes->AsteroidFilters.Filter.toOption,
       })
       ->Route.update
       ->ignore

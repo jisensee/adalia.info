@@ -72,6 +72,12 @@ module SortingParamType = {
 }
 module SortingParam = MakeParam(SortingParamType)
 
+module SpectralTypesParam = MakeParam({
+  type t = array<SpectralType.t>
+  let toString = arr => arr->Array.map(SpectralType.toString)->Array.joinWith(",", v => v)
+  let fromString = s => s->Js.String2.split(",")->Array.keepMap(SpectralType.fromString)->Some
+})
+
 module type PageParams = {
   type t
   let fromDict: Js.Dict.t<string> => t
