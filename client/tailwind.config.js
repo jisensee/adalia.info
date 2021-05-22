@@ -13,6 +13,7 @@ module.exports = {
         "rdt_TableHeadRow",
         "rdt_TableBody",
         "rdt_TableExpanderRow",
+        "rdt_Pagination",
       ],
     },
   },
