@@ -92,5 +92,11 @@ let make = (
     defaultSortFieldId: defaultSortFieldId,
     onChange: onSort,
   }
-  <DataTable columns data pagination sorting />
+  <DataTable
+    columns
+    data
+    pagination
+    sorting
+    noDataText="No asteroids are matching your query. Try widening or removing some filters."
+  />
 }

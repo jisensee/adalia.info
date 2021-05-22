@@ -56,6 +56,8 @@ module Binding = {
     ~onSort: (column, sortDirection) => unit=?,
     ~sortServer: bool=?,
     ~sortFunction: (data, string, sortDirection) => data=?,
+    ~noDataComponent: React.element=?,
+    ~responsive: bool=?,
   ) => React.element = "default"
 }
 
@@ -91,8 +93,14 @@ module Loading = {
     />
 }
 
+module NoDataComponent = {
+  @react.component
+  let make = (~text="No records found") =>
+    <div className="w-full text-center bg-gray-900 text-white"> {text->React.string} </div>
+}
+
 @react.component
-let make = (~columns, ~data, ~pagination=?, ~sorting=?, ~header=?) => {
+let make = (~columns, ~data, ~pagination=?, ~sorting=?, ~header=?, ~noDataText=?) => {
   let (
     usePagination,
     paginationServer,
@@ -140,9 +148,12 @@ let make = (~columns, ~data, ~pagination=?, ~sorting=?, ~header=?) => {
     ?paginationTotalRows
     ?onChangePage
     ?onChangeRowsPerPage
+    persistTableHead=true
     paginationIconNext={<Icon kind={Icon.Fas("forward")} />}
     paginationIconPrevious={<Icon kind={Icon.Fas("backward")} />}
     paginationIconFirstPage={<Icon kind={Icon.Fas("step-backward")} />}
     paginationIconLastPage={<Icon kind={Icon.Fas("step-forward")} />}
+    noDataComponent={<NoDataComponent text=?noDataText />}
+    responsive=true
   />
 }
