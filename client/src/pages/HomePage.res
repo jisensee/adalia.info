@@ -10,7 +10,7 @@ let make = () => {
     <h1> {"Home"->React.string} </h1>
     <p>
       {"Welcome to "->React.string}
-      <span className="text-cyan"> {"adalia.info"->React.string} </span>
+      <Link to_={Link.Internal(Route.Home)} text="adalia.info" />
       {", a community-driven hub for all things regarding "->React.string}
       <Link to_=Link.influenceGame text="Influence" />
       {", a space strategy MMO built on the Ethereum blockchain."->React.string}

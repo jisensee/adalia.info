@@ -24,7 +24,7 @@ let make = (~to_, ~children=?, ~text=?, ~highlight=true, ~bold=true, ~className=
       href->RescriptReactRouter.push
     }
   }
-  <a href target className={`${highlightClass} ${className}`} onClick>
+  <a href target className={`${highlightClass} hover:text-blue-400 ${className}`} onClick>
     {switch (children, text) {
     | (Some(c), _) => c
     | (None, Some(txt)) => txt->React.string

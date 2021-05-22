@@ -1,9 +1,7 @@
 module Item = {
   @react.component
   let make = (~to_, ~children, ~className="", ~highlight=true, ~bold=false) =>
-    <li className={className ++ " text-xl hover:text-cyan"}>
-      <Link to_ highlight bold> {children} </Link>
-    </li>
+    <li className={className ++ " text-xl"}> <Link to_ highlight bold> {children} </Link> </li>
 }
 @react.component
 let make = () =>
