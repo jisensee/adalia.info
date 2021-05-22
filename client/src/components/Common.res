@@ -49,3 +49,26 @@ module NumberInput = {
     />
   }
 }
+
+module IntRangeInput = {
+  @react.component
+  let make = (~className="", ~inputClassName="", ~value, ~onChange, ~enabled) => {
+    let (lower, upper) = value
+
+    <div className={`flex flex-row items-center space-x-3 ${className}`}>
+      <NumberInput
+        className=inputClassName
+        value=lower
+        onChange={newLower => onChange((newLower, upper))}
+        enabled
+      />
+      <Icon className="text-cyan" kind={Icon.Fas("minus")} />
+      <NumberInput
+        className=inputClassName
+        value=upper
+        onChange={newUpper => onChange((lower, newUpper))}
+        enabled
+      />
+    </div>
+  }
+}

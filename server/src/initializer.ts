@@ -15,7 +15,7 @@ const randomSpectraltype = () =>
     SpectralType.Cs,
     SpectralType.I,
     SpectralType.M,
-    SpectralType.M,
+    SpectralType.S,
     SpectralType.Si,
     SpectralType.Sm,
   ][randomInt(0, 11)]

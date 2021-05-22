@@ -35,6 +35,11 @@ type t = {
   spectralTypes: Filter.t<array<SpectralType.t>>,
   radius: Filter.t<(int, int)>,
 }
+let toQueryParamFilter = asteroidFilter => {
+  PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
+  radius: asteroidFilter.radius->Filter.toOption,
+  spectralTypes: asteroidFilter.spectralTypes->Filter.toOption,
+}
 
 let correctRadius = ((from, to_)) => (Js.Math.max_int(from, 100), Js.Math.min_int(to_, 900))
 let correctFilter = f => {
@@ -71,16 +76,8 @@ module OwnedFilter = {
 module RadiusFilter = {
   @react.component
   let make = (~filter, ~onChange) => {
-    let makeFilterComp = ((lower, upper), oc, enabled) =>
-      <div className="flex flex-row items-center space-x-3">
-        <Common.NumberInput
-          className="w-32" value=lower onChange={newLower => oc((newLower, upper))} enabled
-        />
-        <Icon className="text-cyan" kind={Icon.Fas("minus")} />
-        <Common.NumberInput
-          className="w-32" value=upper onChange={newUpper => oc((lower, newUpper))} enabled
-        />
-      </div>
+    let makeFilterComp = (value, oc, enabled) =>
+      <Common.IntRangeInput value onChange=oc enabled inputClassName="w-32" />
     <Filter label="Radius (m)" filter onChange makeFilterComp />
   }
 }
@@ -94,11 +91,11 @@ module SpectralTypeFilter = {
 }
 
 @react.component
-let make = (~className="", ~filter, ~onChange, ~onApply) => {
-  let onOwnedChange = owned => onChange({...filter, owned: owned})
-  let onRadiusChange = radius => onChange({...filter, radius: radius})
-  let onSpectralTypesChange = spectralTypes => onChange({...filter, spectralTypes: spectralTypes})
-  let (filtersVisible, setFiltersVisible) = React.useState(() => filter->isActive)
+let make = (~className="", ~filters, ~onChange, ~onApply) => {
+  let onOwnedChange = owned => onChange({...filters, owned: owned})
+  let onRadiusChange = radius => onChange({...filters, radius: radius})
+  let onSpectralTypesChange = spectralTypes => onChange({...filters, spectralTypes: spectralTypes})
+  let (filtersVisible, setFiltersVisible) = React.useState(() => filters->isActive)
   let iconKind = Icon.Fas("chevron-right")
   let (iconRotation, height) = switch filtersVisible {
   | true => (Some(Icon.Rotate90), "max-h-96")
@@ -115,10 +112,10 @@ let make = (~className="", ~filter, ~onChange, ~onApply) => {
       className={`flex flex-col items-start overflow-hidden ${height} transition-max-height duration-300 ease-in-out`}>
       <div className="flex flex-row space-x-10 mb-4">
         <div className="flex-col space-y-3">
-          <OwnedFilter filter=filter.owned onChange=onOwnedChange />
-          <RadiusFilter filter=filter.radius onChange=onRadiusChange />
+          <OwnedFilter filter=filters.owned onChange=onOwnedChange />
+          <RadiusFilter filter=filters.radius onChange=onRadiusChange />
         </div>
-        <SpectralTypeFilter filter=filter.spectralTypes onChange=onSpectralTypesChange />
+        <SpectralTypeFilter filter=filters.spectralTypes onChange=onSpectralTypesChange />
       </div>
       <button onClick={_ => onApply()}> <Icon kind={Icon.Fas("check")} text="Apply" /> </button>
     </div>
