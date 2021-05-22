@@ -1,40 +1,42 @@
-.rdt_TableCell,
-.rdt_TableExpanderRow {
-  @apply bg-gray-900;
-  @apply text-white;
-  @apply text-lg;
-}
+@layer base {
+  .rdt_TableCell,
+  .rdt_TableExpanderRow {
+    @apply bg-gray-900;
+    @apply text-white;
+    @apply text-lg;
+  }
 
-.rdt_TableCol {
-  @apply bg-gray-800 !important;
-}
+  .rdt_TableCol {
+    @apply bg-gray-800 !important;
+  }
 
-.rdt_TableCol_Sortable {
-  @apply font-bold;
-  @apply text-xl;
-  @apply text-cyan !important;
-  @apply bg-gray-800 !important;
-}
+  .rdt_TableCol_Sortable {
+    @apply font-bold;
+    @apply text-xl;
+    @apply text-cyan !important;
+    @apply bg-gray-800 !important;
+  }
 
-.datatable-loading {
-  @apply bg-gray-900;
-  @apply text-white;
-}
+  .datatable-loading {
+    @apply bg-gray-900;
+    @apply text-white;
+  }
 
-.rdt_Pagination {
-  @apply bg-gray-800 !important;
-  @apply text-white !important;
-  @apply text-sm !important;
-}
+  .rdt_Pagination {
+    @apply bg-gray-800 !important;
+    @apply text-white !important;
+    @apply text-sm !important;
+  }
 
-.rdt_Pagination svg {
-  @apply hidden !important;
-}
+  .rdt_Pagination svg {
+    @apply hidden !important;
+  }
 
-.rdt_Pagination button:enabled {
-  @apply text-white !important;
-}
+  .rdt_Pagination button:enabled {
+    @apply text-white !important;
+  }
 
-.rdt_Pagination button:disabled {
-  @apply text-gray-600 !important;
+  .rdt_Pagination button:disabled {
+    @apply text-gray-600 !important;
+  }
 }
