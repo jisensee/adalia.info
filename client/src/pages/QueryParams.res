@@ -1,64 +1,46 @@
 open Belt
 
-let parseParam = param =>
-  switch param->Js.String2.split("=")->List.fromArray {
-  | list{key, value} => Some((key, value))
-  | _ => None
-  }
-
-let dictToStrParams = dict =>
-  dict->Js.Dict.entries->Array.map(((key, value)) => `${key}=${value}`)->Array.joinWith("&", s => s)
-
-let intRangeFromString = range =>
-  switch range->Js.String2.split("-")->List.fromArray {
-  | list{from, to_} =>
-    Int.fromString(from)->Option.flatMap(f => Int.fromString(to_)->Option.map(t => (f, t)))
-  | _ => None
-  }
-
-let mapParam = (dict, name, mapper) => dict->Js.Dict.get(name)->Option.flatMap(mapper)
-let mapIntParam = (dict, name) => mapParam(dict, name, Int.fromString)
-let mapIntRangeParam = (dict, name) => mapParam(dict, name, intRangeFromString)
-let mapBoolParam = (dict, name) =>
-  mapParam(dict, name, str =>
-    switch str {
-    | "true" => Some(true)
-    | _ => Some(false)
-    }
-  )
-
-let paramsToDict = items =>
-  items->Array.keepMap(((key, value)) => value->Option.map(v => (key, v)))->Js.Dict.fromArray
-
-let toStringParam = (name, value, toString) => (name, value->Option.map(toString))
-let toIntParam = (name, value) => toStringParam(name, value, Int.toString)
-let toBoolParam = (name, value) => (
-  name,
-  switch value {
-  | Some(true) => Some("true")
-  | Some(false) => Some("false")
-  | None => None
-  },
-)
-let toIntRangeParam = (name, value) =>
-  toStringParam(name, value, ((from, to_)) => `${from->Int.toString}-${to_->Int.toString}`)
-
-module type PageParams = {
+module type ParamType = {
   type t
-  let fromDict: Js.Dict.t<string> => t
-  let toDict: t => Js.Dict.t<string>
+  let toString: t => string
+  let fromString: string => option<t>
 }
 
-module Make = (Params: PageParams) => {
-  type t = Params.t
-  let fromString = params =>
-    params->Js.String2.split("&")->Array.keepMap(parseParam)->Js.Dict.fromArray->Params.fromDict
-  let toString = param =>
-    switch param->Params.toDict->dictToStrParams {
-    | "" => ""
-    | s => "?" ++ s
-    }
+module MakeParam = (Type: ParamType) => {
+  let toParam = (name, value) => value->Option.map(v => (name, v->Type.toString))
+  let fromDict = (dict, name) => dict->Js.Dict.get(name)->Option.flatMap(Type.fromString)
 }
+
+module IntParam = MakeParam({
+  type t = int
+  let toString = Int.toString
+  let fromString = Int.fromString
+})
+
+module BoolParam = MakeParam({
+  type t = bool
+  let toString = b =>
+    switch b {
+    | true => "true"
+    | false => "false"
+    }
+  let fromString = s =>
+    switch s {
+    | "true" => true->Some
+    | _ => false->Some
+    }
+})
+
+module IntRangeParam = MakeParam({
+  type t = (int, int)
+  let toString = ((a, b)) => `${a->Int.toString}-${b->Int.toString}`
+  let fromString = range =>
+    switch range->Js.String2.split("-")->List.fromArray {
+    | list{from, to_} =>
+      Int.fromString(from)->Option.flatMap(f => Int.fromString(to_)->Option.map(t => (f, t)))
+    | _ => None
+    }
+})
 
 module SortMode = {
   type t = Ascending | Descending
@@ -74,15 +56,47 @@ module SortMode = {
     | _ => None
     }
 }
-module Sort = {
-  type t = {
-    field: string,
-    mode: SortMode.t,
-  }
+
+type sortingParam = {
+  field: string,
+  mode: SortMode.t,
+}
+module SortingParamType = {
+  type t = sortingParam
+  let toString = sort => `${sort.field}:${sort.mode->SortMode.toString}`
   let fromString = str =>
     switch str->Js.String2.split(":")->List.fromArray {
     | list{field, mode} => mode->SortMode.fromString->Option.map(m => {field: field, mode: m})
     | _ => None
     }
-  let toString = sort => `${sort.field}:${sort.mode->SortMode.toString}`
+}
+module SortingParam = MakeParam(SortingParamType)
+
+module type PageParams = {
+  type t
+  let fromDict: Js.Dict.t<string> => t
+  let toValues: t => array<option<(string, string)>>
+}
+
+let parseParam = param =>
+  switch param->Js.String2.split("=")->List.fromArray {
+  | list{key, value} => Some((key, value))
+  | _ => None
+  }
+let dictToStrParams = dict =>
+  dict->Js.Dict.entries->Array.map(((key, value)) => `${key}=${value}`)->Array.joinWith("&", s => s)
+
+module Make = (Params: PageParams) => {
+  type t = Params.t
+  let fromString = params =>
+    params->Js.String2.split("&")->Array.keepMap(parseParam)->Js.Dict.fromArray->Params.fromDict
+  let toString = param =>
+    switch param
+    ->Params.toValues
+    ->Array.keepMap(opValues => opValues)
+    ->Js.Dict.fromArray
+    ->dictToStrParams {
+    | "" => ""
+    | s => "?" ++ s
+    }
 }

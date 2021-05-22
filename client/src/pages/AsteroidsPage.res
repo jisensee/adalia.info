@@ -6,7 +6,7 @@ type pageData = {
   pageSize: int,
 }
 
-module Param = Route.AsteroidPageParam
+module Param = PageQueryParams.AsteroidPage
 
 module Table = {
   @react.component
@@ -14,7 +14,7 @@ module Table = {
     ~pageNum,
     ~pageSize,
     ~pageSizeOptions,
-    ~sort: QueryParams.Sort.t,
+    ~sort: QueryParams.SortingParamType.t,
     ~filter: AsteroidFilters.t,
   ) => {
     let (pageData, setPageData) = React.useState(() => {
@@ -89,7 +89,7 @@ module Table = {
       | #asc => QueryParams.SortMode.Ascending
       | #desc => QueryParams.SortMode.Descending
       }
-      let newSortData = {QueryParams.Sort.field: column->DataTable.idGet, mode: mode}
+      let newSortData = {QueryParams.field: column->DataTable.idGet, mode: mode}
       setSortData(_ => newSortData)
     }
 
@@ -116,8 +116,6 @@ type filterState = {
 
 @react.component
 let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?, ~radius=?) => {
-  Js.log2("radius", radius)
-  Js.log2("owned", owned)
   let defaultFilter = {
     AsteroidFilters.owned: {
       active: owned->Option.isSome,
@@ -147,7 +145,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~owned=?, ~radius=?) => {
         pageSize: filteredPageSize->Option.getWithDefault(15)->Some,
         sort: sort
         ->Option.getWithDefault({
-          QueryParams.Sort.field: (initialSortField :> string),
+          QueryParams.field: (initialSortField :> string),
           mode: QueryParams.SortMode.Ascending,
         })
         ->Some,
