@@ -4,8 +4,8 @@ type Query {
     sorting: AsteroidSortingInput
     filter: AsteroidFilterInput
   ): AsteroidPage!
-
   asteroidCount(filter: AsteroidFilterInput): AsteroidCount!
+  asteroid(id: Int!): Asteroid
 }
 
 type AsteroidPage {

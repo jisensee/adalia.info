@@ -12,4 +12,10 @@ query AsteroidCount($filter: AsteroidFilterInput) {
     ...AsteroidCount
   }
 }
+
+query Asteroid($id: Int!) {
+  asteroid(id: $id) {
+    ...FullAsteroid
+  }
+}
 `)

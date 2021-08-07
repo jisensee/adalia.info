@@ -75,6 +75,7 @@ export type Query = {
   readonly __typename?: 'Query';
   readonly asteroids: AsteroidPage;
   readonly asteroidCount: AsteroidCount;
+  readonly asteroid: Maybe<Asteroid>;
 };
 
 
@@ -87,6 +88,11 @@ export type QueryAsteroidsArgs = {
 
 export type QueryAsteroidCountArgs = {
   filter: Maybe<AsteroidFilterInput>;
+};
+
+
+export type QueryAsteroidArgs = {
+  id: Scalars['Int'];
 };
 
 export type RangeInput = {

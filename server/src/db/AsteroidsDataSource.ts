@@ -141,4 +141,8 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
       total,
     }
   }
+
+  public async getByRockId(id: number) {
+    return this.collection.find({ id }).next()
+  }
 }

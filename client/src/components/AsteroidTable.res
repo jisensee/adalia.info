@@ -35,9 +35,12 @@ module Column = {
     )
 }
 
+let idCell = DataTable.CellRenderer.make("id", id =>
+  <Link to_=Link.Internal(Route.Asteroid(id)) className="font-bold"> {id->React.string} </Link>
+)
 let ownerCell = DataTable.CellRenderer.make("owner", address => <AsteroidOwner address />)
 let columns = [
-  Column.make(#id, ~grow=0, ()),
+  Column.make(#id, ~grow=0, ~cell=idCell, ()),
   Column.make(#owner, ~grow=10, ~cell=ownerCell, ()),
   Column.make(#name, ~grow=10, ()),
   Column.make(#spectralType, ~grow=8, ()),

@@ -1,6 +1,10 @@
 import { IResolvers } from 'graphql-tools'
 import { Context, DataSources } from './context'
-import { QueryAsteroidCountArgs, QueryAsteroidsArgs } from './types'
+import {
+  QueryAsteroidArgs,
+  QueryAsteroidCountArgs,
+  QueryAsteroidsArgs,
+} from './types'
 
 const resolvers: IResolvers<DataSources, Context> = {
   Query: {
@@ -15,6 +19,8 @@ const resolvers: IResolvers<DataSources, Context> = {
       ),
     asteroidCount: (_, args: QueryAsteroidCountArgs, { dataSources }) =>
       dataSources.asteroids.count(args.filter),
+    asteroid: (_, args: QueryAsteroidArgs, { dataSources }) =>
+      dataSources.asteroids.getByRockId(args.id),
   },
 }
 
