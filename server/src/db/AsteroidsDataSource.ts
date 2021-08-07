@@ -57,10 +57,10 @@ const spectralTypesFilter = (spectralTypes: SpectralType[]) => ({
   spectralType: { $in: spectralTypes },
 })
 
-const radiusFilter = (radius: IntRangeInput) => ({
-  radius: {
-    $gte: radius.from,
-    $lte: radius.to,
+const intRangeFilter = (range: IntRangeInput, fieldName: keyof Asteroid) => ({
+  [fieldName]: {
+    $gte: range.from,
+    $lte: range.to,
   },
 })
 
@@ -69,9 +69,31 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
   const spectralTypes = filter.spectralTypes
     ? spectralTypesFilter([...filter.spectralTypes])
     : {}
-  const radius = filter.radius ? radiusFilter(filter.radius) : {}
+  const radius = filter.radius ? intRangeFilter(filter.radius, 'radius') : {}
+  const surface = filter.surface
+    ? intRangeFilter(filter.surface, 'surfaceArea')
+    : {}
+  const orbitalPeriod = filter.orbitalPeriod
+    ? intRangeFilter(filter.orbitalPeriod, 'orbitalPeriod')
+    : {}
+  const semiMajorAxis = filter.semiMajorAxis
+    ? intRangeFilter(filter.semiMajorAxis, 'semiMajorAxis')
+    : {}
+  const inclination = filter.inclination
+    ? intRangeFilter(filter.inclination, 'inclination')
+    : {}
 
-  return { $and: [owned, spectralTypes, radius] }
+  return {
+    $and: [
+      owned,
+      spectralTypes,
+      radius,
+      surface,
+      orbitalPeriod,
+      semiMajorAxis,
+      inclination,
+    ],
+  }
 }
 
 export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
