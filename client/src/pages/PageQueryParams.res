@@ -45,7 +45,7 @@ module AsteroidPageParamType = {
       FloatRangeParam.toParam("orbitalPeriod", getFilter(f => f.orbitalPeriod)),
       FloatRangeParam.toParam("semiMajorAxis", getFilter(f => f.semiMajorAxis)),
       FloatRangeParam.toParam("inclination", getFilter(f => f.inclination)),
-      FloatRangeParam.toParam("eccentricity", getFilter(f => f.inclination)),
+      FloatRangeParam.toParam("eccentricity", getFilter(f => f.eccentricity)),
     ]
   }
 }
