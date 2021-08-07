@@ -5,6 +5,10 @@ module AsteroidPageParamType = {
     owned: option<bool>,
     radius: option<(int, int)>,
     spectralTypes: option<array<SpectralType.t>>,
+    surfaceArea: option<(int, int)>,
+    orbitalPeriod: option<(int, int)>,
+    semiMajorAxis: option<(int, int)>,
+    inclination: option<(int, int)>,
   }
   type t = {
     pageNum: option<int>,
@@ -20,6 +24,10 @@ module AsteroidPageParamType = {
       owned: dict->BoolParam.fromDict("owned"),
       radius: dict->IntRangeParam.fromDict("radius"),
       spectralTypes: dict->SpectralTypesParam.fromDict("spectralTypes"),
+      surfaceArea: dict->IntRangeParam.fromDict("surfaceArea"),
+      orbitalPeriod: dict->IntRangeParam.fromDict("orbitalPeriod"),
+      semiMajorAxis: dict->IntRangeParam.fromDict("semiMajorAxis"),
+      inclination: dict->IntRangeParam.fromDict("inclination"),
     }),
   }
   let toValues = ({pageNum, pageSize, sort, filters}) => {
@@ -31,6 +39,10 @@ module AsteroidPageParamType = {
       BoolParam.toParam("owned", getFilter(f => f.owned)),
       IntRangeParam.toParam("radius", getFilter(f => f.radius)),
       SpectralTypesParam.toParam("spectralTypes", getFilter(f => f.spectralTypes)),
+      IntRangeParam.toParam("surfaceArea", getFilter(f => f.surfaceArea)),
+      IntRangeParam.toParam("orbitalPeriod", getFilter(f => f.orbitalPeriod)),
+      IntRangeParam.toParam("semiMajorAxis", getFilter(f => f.semiMajorAxis)),
+      IntRangeParam.toParam("inclination", getFilter(f => f.inclination)),
     ]
   }
 }

@@ -34,11 +34,19 @@ type t = {
   owned: Filter.t<bool>,
   spectralTypes: Filter.t<array<SpectralType.t>>,
   radius: Filter.t<(int, int)>,
+  surfaceArea: Filter.t<(int, int)>,
+  orbitalPeriod: Filter.t<(int, int)>,
+  semiMajorAxis: Filter.t<(int, int)>,
+  inclination: Filter.t<(int, int)>,
 }
 let toQueryParamFilter = asteroidFilter => {
   PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
   radius: asteroidFilter.radius->Filter.toOption,
   spectralTypes: asteroidFilter.spectralTypes->Filter.toOption,
+  surfaceArea: asteroidFilter.surfaceArea->Filter.toOption,
+  orbitalPeriod: asteroidFilter.orbitalPeriod->Filter.toOption,
+  semiMajorAxis: asteroidFilter.semiMajorAxis->Filter.toOption,
+  inclination: asteroidFilter.inclination->Filter.toOption,
 }
 
 let correctRadius = ((from, to_)) => (Js.Math.max_int(from, 100), Js.Math.min_int(to_, 900))
@@ -73,12 +81,12 @@ module OwnedFilter = {
   }
 }
 
-module RadiusFilter = {
+module IntRangeFilter = {
   @react.component
-  let make = (~filter, ~onChange) => {
+  let make = (~filter, ~onChange, ~label) => {
     let makeFilterComp = (value, oc, enabled) =>
       <Common.IntRangeInput value onChange=oc enabled inputClassName="w-32" />
-    <Filter label="Radius (m)" filter onChange makeFilterComp />
+    <Filter label filter onChange makeFilterComp />
   }
 }
 
@@ -95,6 +103,10 @@ let make = (~className="", ~filters, ~onChange, ~onApply) => {
   let onOwnedChange = owned => onChange({...filters, owned: owned})
   let onRadiusChange = radius => onChange({...filters, radius: radius})
   let onSpectralTypesChange = spectralTypes => onChange({...filters, spectralTypes: spectralTypes})
+  let onSurfaceAreaChange = surfaceArea => onChange({...filters, surfaceArea: surfaceArea})
+  let onOrbitalPeriodChange = orbitalPeriod => onChange({...filters, orbitalPeriod: orbitalPeriod})
+  let onSemiMajorAxisChange = semiMajorAxis => onChange({...filters, semiMajorAxis: semiMajorAxis})
+  let onInclinationChange = inclination => onChange({...filters, inclination: inclination})
   let (filtersVisible, setFiltersVisible) = React.useState(() => filters->isActive)
   let iconKind = Icon.Fas("chevron-right")
   let (iconRotation, height) = switch filtersVisible {
@@ -113,9 +125,27 @@ let make = (~className="", ~filters, ~onChange, ~onApply) => {
       <div className="flex flex-row space-x-10 mb-4">
         <div className="flex-col space-y-3">
           <OwnedFilter filter=filters.owned onChange=onOwnedChange />
-          <RadiusFilter filter=filters.radius onChange=onRadiusChange />
+          <IntRangeFilter
+            filter=filters.orbitalPeriod
+            onChange=onOrbitalPeriodChange
+            label="Orbital period (days)"
+          />
         </div>
         <SpectralTypeFilter filter=filters.spectralTypes onChange=onSpectralTypesChange />
+        <div className="flex-col space-y-3">
+          <IntRangeFilter filter=filters.radius onChange=onRadiusChange label="Radius (m)" />
+          <IntRangeFilter
+            filter=filters.surfaceArea onChange=onSurfaceAreaChange label=`Surface area (km²)`
+          />
+        </div>
+        <div className="flex-col space-y-3">
+          <IntRangeFilter
+            filter=filters.semiMajorAxis onChange=onSemiMajorAxisChange label="Semi major axis (AU)"
+          />
+          <IntRangeFilter
+            filter=filters.inclination onChange=onInclinationChange label="Inclination (degrees)"
+          />
+        </div>
       </div>
       <button onClick={_ => onApply()}> <Icon kind={Icon.Fas("check")} text="Apply" /> </button>
     </div>

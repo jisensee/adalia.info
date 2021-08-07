@@ -44,7 +44,7 @@ input AsteroidFilterInput {
   owned: Boolean
   spectralTypes: [SpectralType!]
   radius: IntRangeInput
-  surface: IntRangeInput
+  surfaceArea: IntRangeInput
   orbitalPeriod: IntRangeInput
   semiMajorAxis: IntRangeInput
   inclination: IntRangeInput

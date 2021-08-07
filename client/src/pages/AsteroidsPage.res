@@ -66,6 +66,10 @@ let getDefaultFilter = filters => {
     AsteroidFilters.owned: getDefault(f => f.ParamType.owned, true),
     spectralTypes: getDefault(f => f.spectralTypes, []),
     radius: getDefault(f => f.radius, (100, 900)),
+    surfaceArea: getDefault(f => f.surfaceArea, (200, 20000)),
+    orbitalPeriod: getDefault(f => f.orbitalPeriod, (700, 3000)),
+    semiMajorAxis: getDefault(f => f.semiMajorAxis, (0, 50)),
+    inclination: getDefault(f => f.inclination, (0, 20)),
   }
 }
 

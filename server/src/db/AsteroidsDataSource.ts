@@ -70,8 +70,8 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
     ? spectralTypesFilter([...filter.spectralTypes])
     : {}
   const radius = filter.radius ? intRangeFilter(filter.radius, 'radius') : {}
-  const surface = filter.surface
-    ? intRangeFilter(filter.surface, 'surfaceArea')
+  const surface = filter.surfaceArea
+    ? intRangeFilter(filter.surfaceArea, 'surfaceArea')
     : {}
   const orbitalPeriod = filter.orbitalPeriod
     ? intRangeFilter(filter.orbitalPeriod, 'orbitalPeriod')

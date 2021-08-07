@@ -491,6 +491,46 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "surfaceArea",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "IntRangeInput",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "orbitalPeriod",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "IntRangeInput",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "semiMajorAxis",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "IntRangeInput",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "inclination",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "IntRangeInput",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,

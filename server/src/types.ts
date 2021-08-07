@@ -46,7 +46,7 @@ export type AsteroidFilterInput = {
   readonly owned: Maybe<Scalars['Boolean']>;
   readonly spectralTypes: Maybe<ReadonlyArray<SpectralType>>;
   readonly radius: Maybe<IntRangeInput>;
-  readonly surface: Maybe<IntRangeInput>;
+  readonly surfaceArea: Maybe<IntRangeInput>;
   readonly orbitalPeriod: Maybe<IntRangeInput>;
   readonly semiMajorAxis: Maybe<IntRangeInput>;
   readonly inclination: Maybe<IntRangeInput>;
