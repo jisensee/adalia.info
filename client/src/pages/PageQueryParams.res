@@ -3,12 +3,13 @@ module AsteroidPageParamType = {
 
   type filters = {
     owned: option<bool>,
-    radius: option<(int, int)>,
+    radius: option<(float, float)>,
     spectralTypes: option<array<SpectralType.t>>,
-    surfaceArea: option<(int, int)>,
-    orbitalPeriod: option<(int, int)>,
-    semiMajorAxis: option<(int, int)>,
-    inclination: option<(int, int)>,
+    surfaceArea: option<(float, float)>,
+    orbitalPeriod: option<(float, float)>,
+    semiMajorAxis: option<(float, float)>,
+    inclination: option<(float, float)>,
+    eccentricity: option<(float, float)>,
   }
   type t = {
     pageNum: option<int>,
@@ -22,12 +23,13 @@ module AsteroidPageParamType = {
     sort: dict->SortingParam.fromDict("sort"),
     filters: Some({
       owned: dict->BoolParam.fromDict("owned"),
-      radius: dict->IntRangeParam.fromDict("radius"),
+      radius: dict->FloatRangeParam.fromDict("radius"),
       spectralTypes: dict->SpectralTypesParam.fromDict("spectralTypes"),
-      surfaceArea: dict->IntRangeParam.fromDict("surfaceArea"),
-      orbitalPeriod: dict->IntRangeParam.fromDict("orbitalPeriod"),
-      semiMajorAxis: dict->IntRangeParam.fromDict("semiMajorAxis"),
-      inclination: dict->IntRangeParam.fromDict("inclination"),
+      surfaceArea: dict->FloatRangeParam.fromDict("surfaceArea"),
+      orbitalPeriod: dict->FloatRangeParam.fromDict("orbitalPeriod"),
+      semiMajorAxis: dict->FloatRangeParam.fromDict("semiMajorAxis"),
+      inclination: dict->FloatRangeParam.fromDict("inclination"),
+      eccentricity: dict->FloatRangeParam.fromDict("eccentricity"),
     }),
   }
   let toValues = ({pageNum, pageSize, sort, filters}) => {
@@ -37,12 +39,13 @@ module AsteroidPageParamType = {
       IntParam.toParam("pageSize", pageSize),
       SortingParam.toParam("sort", sort),
       BoolParam.toParam("owned", getFilter(f => f.owned)),
-      IntRangeParam.toParam("radius", getFilter(f => f.radius)),
+      FloatRangeParam.toParam("radius", getFilter(f => f.radius)),
       SpectralTypesParam.toParam("spectralTypes", getFilter(f => f.spectralTypes)),
-      IntRangeParam.toParam("surfaceArea", getFilter(f => f.surfaceArea)),
-      IntRangeParam.toParam("orbitalPeriod", getFilter(f => f.orbitalPeriod)),
-      IntRangeParam.toParam("semiMajorAxis", getFilter(f => f.semiMajorAxis)),
-      IntRangeParam.toParam("inclination", getFilter(f => f.inclination)),
+      FloatRangeParam.toParam("surfaceArea", getFilter(f => f.surfaceArea)),
+      FloatRangeParam.toParam("orbitalPeriod", getFilter(f => f.orbitalPeriod)),
+      FloatRangeParam.toParam("semiMajorAxis", getFilter(f => f.semiMajorAxis)),
+      FloatRangeParam.toParam("inclination", getFilter(f => f.inclination)),
+      FloatRangeParam.toParam("eccentricity", getFilter(f => f.inclination)),
     ]
   }
 }

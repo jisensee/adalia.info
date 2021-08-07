@@ -9,6 +9,7 @@ fragment DataTableAsteroid on Asteroid {
   semiMajorAxis
   inclination
   spectralType
+  eccentricity
 }
 
 fragment DataTableAsteroidPage on AsteroidPage {

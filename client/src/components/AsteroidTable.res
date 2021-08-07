@@ -11,6 +11,7 @@ module Column = {
     | #semiMajorAxis
     | #inclination
     | #spectralType
+    | #eccentricity
   ]
   let toName = id =>
     switch id {
@@ -23,6 +24,7 @@ module Column = {
     | #semiMajorAxis => "Semi major axis"
     | #inclination => "Inclination"
     | #spectralType => "Sp. type"
+    | #eccentricity => "Eccentricity"
     }
   let make = (id: id) =>
     DataTable.column(
@@ -38,12 +40,13 @@ let columns = [
   Column.make(#id, ~grow=0, ()),
   Column.make(#owner, ~grow=10, ~cell=ownerCell, ()),
   Column.make(#name, ~grow=10, ()),
-  Column.make(#spectralType, ~grow=10, ()),
-  Column.make(#radius, ~grow=10, ()),
-  Column.make(#surfaceArea, ~grow=10, ()),
+  Column.make(#spectralType, ~grow=8, ()),
+  Column.make(#radius, ~grow=7, ()),
+  Column.make(#surfaceArea, ~grow=8, ()),
   Column.make(#orbitalPeriod, ~grow=12, ()),
   Column.make(#semiMajorAxis, ~grow=13, ()),
-  Column.make(#inclination, ~grow=11, ()),
+  Column.make(#inclination, ~grow=10, ()),
+  Column.make(#eccentricity, ~grow=11, ()),
 ]
 
 let cell = (id: Column.id, value: 'a, formatValue: 'a => string) => (
@@ -74,10 +77,11 @@ let make = (
       cell(#owner, a.owner, Option.getWithDefault(_, "")),
       cell(#radius, a.radius, Float.toString),
       cell(#surfaceArea, a.surfaceArea, Float.toString),
-      cell(#orbitalPeriod, a.orbitalPeriod, Int.toString),
+      cell(#orbitalPeriod, a.orbitalPeriod, Float.toString),
       cell(#semiMajorAxis, a.semiMajorAxis, Float.toString),
       cell(#inclination, a.inclination, Float.toString),
       cell(#spectralType, a.spectralType, spectralTypeToStr),
+      cell(#eccentricity, a.eccentricity, Float.toString),
     ])
     ->Array.map(Js.Dict.fromArray)
   let pagination: DataTable.pagination = {

@@ -30,6 +30,7 @@ const randomRoid = (id: number): Asteroid => ({
   inclination: randomInt(0, 20),
   orbitalPeriod: randomInt(700, 3000),
   spectralType: randomSpectraltype(),
+  eccentricity: randomInt(0, 5),
 })
 
 const initialData: Asteroid[] = [...Array(250_000).keys()].map((id) =>
@@ -46,6 +47,7 @@ const setupIndices = async (collection: Collection<Asteroid>) => {
     'inclination',
     'orbitalPeriod',
     'spectralType',
+    'eccentricity',
   ]
   await collection.createIndexes(keys.map((key) => ({ key: { [key]: 1 } })))
 }

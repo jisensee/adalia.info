@@ -38,19 +38,19 @@ module NumberInput = {
   @react.component
   let make = (~className="", ~value, ~onChange, ~enabled=true) => {
     let onValueChange = e =>
-      ReactEvent.Form.currentTarget(e)["value"]->Int.fromString->Option.forEach(onChange)
+      ReactEvent.Form.currentTarget(e)["value"]->Float.fromString->Option.forEach(onChange)
 
     <input
       className
       type_="number"
-      value={value->Int.toString}
+      value={value->Float.toString}
       onChange=onValueChange
       disabled={!enabled}
     />
   }
 }
 
-module IntRangeInput = {
+module NumberRangeInput = {
   @react.component
   let make = (~className="", ~inputClassName="", ~value, ~onChange, ~enabled) => {
     let (lower, upper) = value

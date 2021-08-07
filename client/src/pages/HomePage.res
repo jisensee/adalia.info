@@ -13,6 +13,7 @@ let make = () => {
         orbitalPeriod: None,
         semiMajorAxis: None,
         inclination: None,
+        eccentricity: None,
       }),
     },
   )

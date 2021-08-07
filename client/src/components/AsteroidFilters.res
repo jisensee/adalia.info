@@ -33,11 +33,12 @@ module Filter = {
 type t = {
   owned: Filter.t<bool>,
   spectralTypes: Filter.t<array<SpectralType.t>>,
-  radius: Filter.t<(int, int)>,
-  surfaceArea: Filter.t<(int, int)>,
-  orbitalPeriod: Filter.t<(int, int)>,
-  semiMajorAxis: Filter.t<(int, int)>,
-  inclination: Filter.t<(int, int)>,
+  radius: Filter.t<(float, float)>,
+  surfaceArea: Filter.t<(float, float)>,
+  orbitalPeriod: Filter.t<(float, float)>,
+  semiMajorAxis: Filter.t<(float, float)>,
+  inclination: Filter.t<(float, float)>,
+  eccentricity: Filter.t<(float, float)>,
 }
 let toQueryParamFilter = asteroidFilter => {
   PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
@@ -47,9 +48,10 @@ let toQueryParamFilter = asteroidFilter => {
   orbitalPeriod: asteroidFilter.orbitalPeriod->Filter.toOption,
   semiMajorAxis: asteroidFilter.semiMajorAxis->Filter.toOption,
   inclination: asteroidFilter.inclination->Filter.toOption,
+  eccentricity: asteroidFilter.eccentricity->Filter.toOption,
 }
 
-let correctRadius = ((from, to_)) => (Js.Math.max_int(from, 100), Js.Math.min_int(to_, 900))
+let correctRadius = ((from, to_)) => (Js.Math.max_float(from, 100.0), Js.Math.min_float(to_, 900.0))
 let correctFilter = f => {
   ...f,
   radius: {
@@ -81,11 +83,11 @@ module OwnedFilter = {
   }
 }
 
-module IntRangeFilter = {
+module NumberRangeFilter = {
   @react.component
   let make = (~filter, ~onChange, ~label) => {
     let makeFilterComp = (value, oc, enabled) =>
-      <Common.IntRangeInput value onChange=oc enabled inputClassName="w-32" />
+      <Common.NumberRangeInput value onChange=oc enabled inputClassName="w-32" />
     <Filter label filter onChange makeFilterComp />
   }
 }
@@ -107,6 +109,7 @@ let make = (~className="", ~filters, ~onChange, ~onApply) => {
   let onOrbitalPeriodChange = orbitalPeriod => onChange({...filters, orbitalPeriod: orbitalPeriod})
   let onSemiMajorAxisChange = semiMajorAxis => onChange({...filters, semiMajorAxis: semiMajorAxis})
   let onInclinationChange = inclination => onChange({...filters, inclination: inclination})
+  let onEccentricityChange = eccentricity => onChange({...filters, eccentricity: eccentricity})
   let (filtersVisible, setFiltersVisible) = React.useState(() => filters->isActive)
   let iconKind = Icon.Fas("chevron-right")
   let (iconRotation, height) = switch filtersVisible {
@@ -125,25 +128,30 @@ let make = (~className="", ~filters, ~onChange, ~onApply) => {
       <div className="flex flex-row space-x-10 mb-4">
         <div className="flex-col space-y-3">
           <OwnedFilter filter=filters.owned onChange=onOwnedChange />
-          <IntRangeFilter
-            filter=filters.orbitalPeriod
-            onChange=onOrbitalPeriodChange
-            label="Orbital period (days)"
-          />
         </div>
         <SpectralTypeFilter filter=filters.spectralTypes onChange=onSpectralTypesChange />
         <div className="flex-col space-y-3">
-          <IntRangeFilter filter=filters.radius onChange=onRadiusChange label="Radius (m)" />
-          <IntRangeFilter
+          <NumberRangeFilter filter=filters.radius onChange=onRadiusChange label="Radius (m)" />
+          <NumberRangeFilter
             filter=filters.surfaceArea onChange=onSurfaceAreaChange label=`Surface area (km²)`
           />
         </div>
         <div className="flex-col space-y-3">
-          <IntRangeFilter
+          <NumberRangeFilter
             filter=filters.semiMajorAxis onChange=onSemiMajorAxisChange label="Semi major axis (AU)"
           />
-          <IntRangeFilter
+          <NumberRangeFilter
             filter=filters.inclination onChange=onInclinationChange label="Inclination (degrees)"
+          />
+        </div>
+        <div className="flex-col space-y-3">
+          <NumberRangeFilter
+            filter=filters.orbitalPeriod
+            onChange=onOrbitalPeriodChange
+            label="Orbital period (days)"
+          />
+          <NumberRangeFilter
+            filter=filters.eccentricity onChange=onEccentricityChange label="Eccentricity"
           />
         </div>
       </div>

@@ -40,6 +40,7 @@ let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters) =>
           orbitalPeriod: appliedFilters.orbitalPeriod->AsteroidFilters.Filter.toOption,
           semiMajorAxis: appliedFilters.semiMajorAxis->AsteroidFilters.Filter.toOption,
           inclination: appliedFilters.inclination->AsteroidFilters.Filter.toOption,
+          eccentricity: appliedFilters.eccentricity->AsteroidFilters.Filter.toOption,
         }),
       })
       ->Route.update
@@ -119,6 +120,10 @@ let useAsteroidPageQuery = (
           to_: to_,
         }),
         inclination: filters.inclination->Option.map(((from, to_)) => {
+          Queries.DataTableAsteroids.from: from,
+          to_: to_,
+        }),
+        eccentricity: filters.eccentricity->Option.map(((from, to_)) => {
           Queries.DataTableAsteroids.from: from,
           to_: to_,
         }),

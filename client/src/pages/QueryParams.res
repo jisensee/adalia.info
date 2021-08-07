@@ -31,13 +31,13 @@ module BoolParam = MakeParam({
     }
 })
 
-module IntRangeParam = MakeParam({
-  type t = (int, int)
-  let toString = ((a, b)) => `${a->Int.toString}-${b->Int.toString}`
+module FloatRangeParam = MakeParam({
+  type t = (float, float)
+  let toString = ((a, b)) => `${a->Float.toString}-${b->Float.toString}`
   let fromString = range =>
     switch range->Js.String2.split("-")->List.fromArray {
     | list{from, to_} =>
-      Int.fromString(from)->Option.flatMap(f => Int.fromString(to_)->Option.map(t => (f, t)))
+      Float.fromString(from)->Option.flatMap(f => Float.fromString(to_)->Option.map(t => (f, t)))
     | _ => None
     }
 })

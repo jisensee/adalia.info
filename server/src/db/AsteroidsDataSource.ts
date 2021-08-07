@@ -9,7 +9,7 @@ import {
   AsteroidSortingInput,
   Maybe,
   PageInput,
-  IntRangeInput,
+  RangeInput,
   SortingMode,
   SpectralType,
 } from '../types'
@@ -34,6 +34,8 @@ const fieldToSortName = (field: AsteroidField): keyof Asteroid => {
       return 'spectralType'
     case AsteroidField.SurfaceArea:
       return 'surfaceArea'
+    case AsteroidField.Eccentricity:
+      return 'eccentricity'
   }
 }
 
@@ -57,7 +59,7 @@ const spectralTypesFilter = (spectralTypes: SpectralType[]) => ({
   spectralType: { $in: spectralTypes },
 })
 
-const intRangeFilter = (range: IntRangeInput, fieldName: keyof Asteroid) => ({
+const rangeFilter = (range: RangeInput, fieldName: keyof Asteroid) => ({
   [fieldName]: {
     $gte: range.from,
     $lte: range.to,
@@ -69,18 +71,21 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
   const spectralTypes = filter.spectralTypes
     ? spectralTypesFilter([...filter.spectralTypes])
     : {}
-  const radius = filter.radius ? intRangeFilter(filter.radius, 'radius') : {}
+  const radius = filter.radius ? rangeFilter(filter.radius, 'radius') : {}
   const surface = filter.surfaceArea
-    ? intRangeFilter(filter.surfaceArea, 'surfaceArea')
+    ? rangeFilter(filter.surfaceArea, 'surfaceArea')
     : {}
   const orbitalPeriod = filter.orbitalPeriod
-    ? intRangeFilter(filter.orbitalPeriod, 'orbitalPeriod')
+    ? rangeFilter(filter.orbitalPeriod, 'orbitalPeriod')
     : {}
   const semiMajorAxis = filter.semiMajorAxis
-    ? intRangeFilter(filter.semiMajorAxis, 'semiMajorAxis')
+    ? rangeFilter(filter.semiMajorAxis, 'semiMajorAxis')
     : {}
   const inclination = filter.inclination
-    ? intRangeFilter(filter.inclination, 'inclination')
+    ? rangeFilter(filter.inclination, 'inclination')
+    : {}
+  const eccentricity = filter.eccentricity
+    ? rangeFilter(filter.eccentricity, 'eccentricity')
     : {}
 
   return {
@@ -92,6 +97,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
       orbitalPeriod,
       semiMajorAxis,
       inclination,
+      eccentricity,
     ],
   }
 }

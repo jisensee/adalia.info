@@ -18,9 +18,10 @@ export type Asteroid = {
   readonly owner: Maybe<Scalars['String']>;
   readonly radius: Scalars['Float'];
   readonly surfaceArea: Scalars['Float'];
-  readonly orbitalPeriod: Scalars['Int'];
+  readonly orbitalPeriod: Scalars['Float'];
   readonly semiMajorAxis: Scalars['Float'];
   readonly inclination: Scalars['Float'];
+  readonly eccentricity: Scalars['Float'];
   readonly spectralType: SpectralType;
 };
 
@@ -39,17 +40,19 @@ export enum AsteroidField {
   OrbitalPeriod = 'ORBITAL_PERIOD',
   SemiMajorAxis = 'SEMI_MAJOR_AXIS',
   Inclination = 'INCLINATION',
-  SpectralType = 'SPECTRAL_TYPE'
+  SpectralType = 'SPECTRAL_TYPE',
+  Eccentricity = 'ECCENTRICITY'
 }
 
 export type AsteroidFilterInput = {
   readonly owned: Maybe<Scalars['Boolean']>;
   readonly spectralTypes: Maybe<ReadonlyArray<SpectralType>>;
-  readonly radius: Maybe<IntRangeInput>;
-  readonly surfaceArea: Maybe<IntRangeInput>;
-  readonly orbitalPeriod: Maybe<IntRangeInput>;
-  readonly semiMajorAxis: Maybe<IntRangeInput>;
-  readonly inclination: Maybe<IntRangeInput>;
+  readonly radius: Maybe<RangeInput>;
+  readonly surfaceArea: Maybe<RangeInput>;
+  readonly orbitalPeriod: Maybe<RangeInput>;
+  readonly semiMajorAxis: Maybe<RangeInput>;
+  readonly inclination: Maybe<RangeInput>;
+  readonly eccentricity: Maybe<RangeInput>;
 };
 
 export type AsteroidPage = {
@@ -61,11 +64,6 @@ export type AsteroidPage = {
 export type AsteroidSortingInput = {
   readonly field: AsteroidField;
   readonly mode: SortingMode;
-};
-
-export type IntRangeInput = {
-  readonly from: Scalars['Int'];
-  readonly to: Scalars['Int'];
 };
 
 export type PageInput = {
@@ -89,6 +87,11 @@ export type QueryAsteroidsArgs = {
 
 export type QueryAsteroidCountArgs = {
   filter: Maybe<AsteroidFilterInput>;
+};
+
+export type RangeInput = {
+  readonly from: Scalars['Float'];
+  readonly to: Scalars['Float'];
 };
 
 export enum SortingMode {

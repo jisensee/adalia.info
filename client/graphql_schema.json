@@ -289,7 +289,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "Int",
+                "name": "Float",
                 "ofType": null
               }
             },
@@ -314,6 +314,22 @@
           },
           {
             "name": "inclination",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "NON_NULL",
+              "name": null,
+              "ofType": {
+                "kind": "SCALAR",
+                "name": "Float",
+                "ofType": null
+              }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "eccentricity",
             "description": null,
             "args": [],
             "type": {
@@ -487,7 +503,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "IntRangeInput",
+              "name": "RangeInput",
               "ofType": null
             },
             "defaultValue": null
@@ -497,7 +513,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "IntRangeInput",
+              "name": "RangeInput",
               "ofType": null
             },
             "defaultValue": null
@@ -507,7 +523,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "IntRangeInput",
+              "name": "RangeInput",
               "ofType": null
             },
             "defaultValue": null
@@ -517,7 +533,7 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "IntRangeInput",
+              "name": "RangeInput",
               "ofType": null
             },
             "defaultValue": null
@@ -527,7 +543,17 @@
             "description": null,
             "type": {
               "kind": "INPUT_OBJECT",
-              "name": "IntRangeInput",
+              "name": "RangeInput",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
+            "name": "eccentricity",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "RangeInput",
               "ofType": null
             },
             "defaultValue": null
@@ -549,7 +575,7 @@
       },
       {
         "kind": "INPUT_OBJECT",
-        "name": "IntRangeInput",
+        "name": "RangeInput",
         "description": null,
         "fields": null,
         "inputFields": [
@@ -561,7 +587,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "Int",
+                "name": "Float",
                 "ofType": null
               }
             },
@@ -575,7 +601,7 @@
               "name": null,
               "ofType": {
                 "kind": "SCALAR",
-                "name": "Int",
+                "name": "Float",
                 "ofType": null
               }
             },
@@ -667,6 +693,12 @@
           },
           {
             "name": "SPECTRAL_TYPE",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "ECCENTRICITY",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null

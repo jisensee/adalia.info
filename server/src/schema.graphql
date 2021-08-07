@@ -24,9 +24,10 @@ type Asteroid {
   owner: String
   radius: Float!
   surfaceArea: Float!
-  orbitalPeriod: Int!
+  orbitalPeriod: Float!
   semiMajorAxis: Float!
   inclination: Float!
+  eccentricity: Float!
   spectralType: SpectralType!
 }
 
@@ -43,16 +44,17 @@ input AsteroidSortingInput {
 input AsteroidFilterInput {
   owned: Boolean
   spectralTypes: [SpectralType!]
-  radius: IntRangeInput
-  surfaceArea: IntRangeInput
-  orbitalPeriod: IntRangeInput
-  semiMajorAxis: IntRangeInput
-  inclination: IntRangeInput
+  radius: RangeInput
+  surfaceArea: RangeInput
+  orbitalPeriod: RangeInput
+  semiMajorAxis: RangeInput
+  inclination: RangeInput
+  eccentricity: RangeInput
 }
 
-input IntRangeInput {
-  from: Int!
-  to: Int!
+input RangeInput {
+  from: Float!
+  to: Float!
 }
 
 enum SortingMode {
@@ -70,6 +72,7 @@ enum AsteroidField {
   SEMI_MAJOR_AXIS
   INCLINATION
   SPECTRAL_TYPE
+  ECCENTRICITY
 }
 
 enum SpectralType {
