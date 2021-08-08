@@ -15,7 +15,7 @@ let make = (~asteroid: Fragments.FullAsteroid.t) => {
     ("Eccentricity", asteroid.eccentricity->React.float, ""),
   ]
 
-  let cardUrl = `http://api.influenceth.io/metadata/asteroids/${asteroid.id->Int.toString}/card.svg`
+  let cardUrl = `https://api.influenceth.io/metadata/asteroids/${asteroid.id->Int.toString}/card.svg`
 
   <>
     <h1> {`Asteroid '${asteroid.name}'`->React.string} </h1>
