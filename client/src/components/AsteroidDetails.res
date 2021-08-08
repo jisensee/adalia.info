@@ -20,12 +20,12 @@ let make = (~asteroid: Fragments.FullAsteroid.t) => {
   <>
     <h1> {`Asteroid '${asteroid.name}'`->React.string} </h1>
     <div className="flex flex-col space-y-7 lg:flex-row lg:space-x-7">
-      <img className="w-1/4 object-contain" src=cardUrl />
-      <div className="grid grid-cols-3 gap-4 flex-grow">
+      <img className="lg:w-1/4 object-contain" src=cardUrl />
+      <div className="grid grid-cols-3 lg:grid-cols-5 gap-4 flex-grow">
         {items
         ->Array.map(((label, content, unit)) => <>
           <div className="text-cyan font-bold col-span-1"> {label->React.string} </div>
-          <div className="col-span-2"> content {` ${unit}`->React.string} </div>
+          <div className="col-span-2 lg:col-span-4"> content {` ${unit}`->React.string} </div>
         </>)
         ->React.array}
       </div>
