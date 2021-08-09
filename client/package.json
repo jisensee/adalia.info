@@ -25,12 +25,13 @@
     "postcss": "^8.2.10",
     "rescript": "^9.1.2",
     "tailwindcss": "^2.1.1",
-    "vite": "^2.1.5"
+    "vite": "^2.4.4"
   },
   "dependencies": {
     "@fontsource/jura": "^4.3.0",
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@rescript/react": "^0.10.2",
+    "@ryyppy/rescript-promise": "^2.1.0",
     "@tailwindcss/forms": "^0.3.2",
     "@urql/rescript": "^4.0.0",
     "graphql": "^15.5.0",

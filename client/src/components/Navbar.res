@@ -12,22 +12,15 @@ let make = () =>
           <Icon kind={Icon.Fas("sun")}> {"adalia.info"->React.string} </Icon>
         </Item>
         <Item to_=Link.Internal(Route.defaultAsteroidsRoute)>
-          <Icon kind={Icon.Fas("meteor")}>
-            <span className="hidden lg:block"> {"Asteroids"->React.string} </span>
-          </Icon>
+          <Icon kind={Icon.Fas("meteor")} mobile={true}> {"Asteroids"->React.string} </Icon>
         </Item>
         <Item to_=Link.Internal(Route.GlobalStats)>
-          <Icon kind={Icon.Fas("chart-pie")}>
-            <span className="hidden lg:block"> {"Global stats"->React.string} </span>
-          </Icon>
+          <Icon kind={Icon.Fas("chart-pie")} mobile={true}> {"Global stats"->React.string} </Icon>
         </Item>
       </ul>
       <ul className="flex flex-row items-center space-x-9 justify-end">
-        <Item to_=Link.influence highlight=false>
-          <Icon kind={Icon.Custom("influence.png")} />
-        </Item>
-        <Item to_=Link.githubRepo highlight=false>
-          <Icon kind={Icon.Fab("github")} large=true />
+        <Item to_=Link.Internal(Route.Support)>
+          <Icon kind={Icon.Fas("hands-helping")} mobile={true}> {"Support"->React.string} </Icon>
         </Item>
       </ul>
     </div>

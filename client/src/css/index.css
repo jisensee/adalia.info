@@ -23,6 +23,11 @@
     @apply text-cyan;
   }
 
+  h3 {
+    @apply text-2xl;
+    @apply text-cyan;
+  }
+
   select {
     @apply bg-gray-900;
     @apply border-cyan;
