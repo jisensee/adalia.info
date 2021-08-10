@@ -1,9 +1,10 @@
 import { ApolloServer } from 'apollo-server-express'
 import express from 'express'
 import { MongoClient } from 'mongodb'
-import { initializeAsteroids } from './initializer'
 import AsteroidsDataSource from './db/AsteroidsDataSource'
 import schema from './schema'
+import { runImport } from './asteroid-import/asteroid-importer'
+import AsteroidImportInfoDataSource from './db/AsteroidImportInfoDataSource'
 
 const app = express()
 
@@ -14,8 +15,8 @@ const client = new MongoClient(mongoConnectionStr, {
 })
 client
   .connect()
-  .then((client) => client.db().collection('asteroids'))
-  .then(initializeAsteroids)
+  .then((client) => client.db())
+  .then(runImport)
 
 const server = new ApolloServer({
   schema,
@@ -23,6 +24,9 @@ const server = new ApolloServer({
   introspection: true,
   dataSources: () => ({
     asteroids: new AsteroidsDataSource(client.db().collection('asteroids')),
+    asteroidImports: new AsteroidImportInfoDataSource(
+      client.db().collection('asteroid-import-info')
+    ),
   }),
 })
 

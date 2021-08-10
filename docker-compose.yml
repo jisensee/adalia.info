@@ -25,6 +25,7 @@ services:
     build: ./server
     environment:
       - MONGO_URL=mongodb:27017
+      - ASTEROID_DATA_DUMP_URL=${ASTEROID_DATA_DUMP_URL}
 
   client:
     # port 80

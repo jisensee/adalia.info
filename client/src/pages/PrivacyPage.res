@@ -11,7 +11,7 @@ let make = () => {
     </p>
     <p> {"Besides that, no other personal data is being processed."->React.string} </p>
     <p>
-      {"This site does currently not use any cookies not and will never make use of tracking techniques or advertisements and will always be free to use. Funding to keep this site running is aquired privately and by voluntarly donations."->React.string}
+      {"This site does currently not use any cookies, will never make use of tracking techniques or advertisements and will always be free to use. Funding to keep this site running is aquired privately and by voluntarly donations."->React.string}
     </p>
   </>
 }

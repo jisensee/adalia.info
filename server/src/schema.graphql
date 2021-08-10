@@ -1,3 +1,5 @@
+scalar Date
+
 type Query {
   asteroids(
     page: PageInput!
@@ -6,6 +8,7 @@ type Query {
   ): AsteroidPage!
   asteroidCount(filter: AsteroidFilterInput): AsteroidCount!
   asteroid(id: Int!): Asteroid
+  lastDataUpdateAt: Date
 }
 
 type AsteroidPage {
@@ -20,15 +23,18 @@ type AsteroidCount {
 
 type Asteroid {
   id: Int!
+  baseName: String!
   name: String!
   owner: String
   radius: Float!
   surfaceArea: Float!
+  size: AsteroidSize!
   orbitalPeriod: Float!
   semiMajorAxis: Float!
   inclination: Float!
   eccentricity: Float!
   spectralType: SpectralType!
+  scanned: Boolean!
 }
 
 input PageInput {
@@ -87,4 +93,11 @@ enum SpectralType {
   SI
   M
   I
+}
+
+enum AsteroidSize {
+  SMALL
+  MEDIUM
+  LARGE
+  HUGE
 }

@@ -1,5 +1,6 @@
 import { IResolvers } from 'graphql-tools'
 import { Context, DataSources } from './context'
+import { dateScalar } from './scalars'
 import {
   QueryAsteroidArgs,
   QueryAsteroidCountArgs,
@@ -7,6 +8,7 @@ import {
 } from './types'
 
 const resolvers: IResolvers<DataSources, Context> = {
+  Date: dateScalar,
   Query: {
     asteroids: (_, args: QueryAsteroidsArgs, { dataSources }) =>
       dataSources.asteroids.getPage(
@@ -21,6 +23,8 @@ const resolvers: IResolvers<DataSources, Context> = {
       dataSources.asteroids.count(args.filter),
     asteroid: (_, args: QueryAsteroidArgs, { dataSources }) =>
       dataSources.asteroids.getByRockId(args.id),
+    lastDataUpdateAt: (_, _args, { dataSources }) =>
+      dataSources.asteroidImports.getLast().then((imp) => imp?.lastRun),
   },
 }
 

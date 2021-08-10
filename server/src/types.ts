@@ -9,20 +9,24 @@ export type Scalars = {
   Boolean: boolean;
   Int: number;
   Float: number;
+  Date: any;
 };
 
 export type Asteroid = {
   readonly __typename?: 'Asteroid';
   readonly id: Scalars['Int'];
+  readonly baseName: Scalars['String'];
   readonly name: Scalars['String'];
   readonly owner: Maybe<Scalars['String']>;
   readonly radius: Scalars['Float'];
   readonly surfaceArea: Scalars['Float'];
+  readonly size: AsteroidSize;
   readonly orbitalPeriod: Scalars['Float'];
   readonly semiMajorAxis: Scalars['Float'];
   readonly inclination: Scalars['Float'];
   readonly eccentricity: Scalars['Float'];
   readonly spectralType: SpectralType;
+  readonly scanned: Scalars['Boolean'];
 };
 
 export type AsteroidCount = {
@@ -61,10 +65,18 @@ export type AsteroidPage = {
   readonly totalRows: Scalars['Int'];
 };
 
+export enum AsteroidSize {
+  Small = 'SMALL',
+  Medium = 'MEDIUM',
+  Large = 'LARGE',
+  Huge = 'HUGE'
+}
+
 export type AsteroidSortingInput = {
   readonly field: AsteroidField;
   readonly mode: SortingMode;
 };
+
 
 export type PageInput = {
   readonly size: Scalars['Int'];
@@ -76,6 +88,7 @@ export type Query = {
   readonly asteroids: AsteroidPage;
   readonly asteroidCount: AsteroidCount;
   readonly asteroid: Maybe<Asteroid>;
+  readonly lastDataUpdateAt: Maybe<Scalars['Date']>;
 };
 
 
