@@ -4,7 +4,7 @@ let make = () => {
     <div className="container mx-auto p-4 flex flex-row justify-center space-x-20">
       <div className="flex flex-col">
         <Link className="text-cyan" to_=Link.Internal(Route.Support)>
-          <Icon kind={Icon.Fas("hands-helping")}> {"How to support"->React.string} </Icon>
+          <Icon kind={Icon.Fas("hands-helping")}> {"Support"->React.string} </Icon>
         </Link>
         <Link className="text-cyan" to_=Link.Internal(Route.Privacy)>
           <Icon kind={Icon.Fas("lock")}>

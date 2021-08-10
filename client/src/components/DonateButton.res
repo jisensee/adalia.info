@@ -35,7 +35,7 @@ let make = (~className="") => {
   }
 
   <div className>
-    <div className="flex flew-row mb-2 w-full sm:w-96">
+    <div className="flex flew-row mb-2 w-full sm:w-1/2 lg:w-1/3">
       <button
         className="mr-0 border-r-0 rounded-r-none w-1/2"
         disabled={state === DonationPending}
