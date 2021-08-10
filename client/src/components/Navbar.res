@@ -4,8 +4,8 @@ module Item = {
     <li className={className ++ " text-xl"}> <Link to_ highlight bold> {children} </Link> </li>
 }
 @react.component
-let make = () =>
-  <nav className="bg-gray-800 py-2 px-4">
+let make = (~className="") =>
+  <nav className={`bg-gray-800 py-2 px-4 ${className}`}>
     <div className="container mx-auto flex flex-row">
       <ul className="flex flex-row items-center space-x-9 flex-grow">
         <Item to_=Link.Internal(Route.Home) bold=true className="text-2xl">
