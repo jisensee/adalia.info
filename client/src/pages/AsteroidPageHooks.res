@@ -87,6 +87,7 @@ let useAsteroidPageQuery = (
   | "semiMajorAxis" => #SEMI_MAJOR_AXIS
   | "inclination" => #INCLINATION
   | "spectralType" => #SPECTRAL_TYPE
+  | "eccentricity" => #ECCENTRICITY
   | _ => #ID
   }
   let ({Hooks.response: response}, _) = Hooks.useQuery(

@@ -2,9 +2,10 @@ type kind =
   | Internal(Route.t)
   | External(string)
 
-let influence = External("https://www.influenceth.io")
-let influenceGame = External("https://www.game.influenceth.io")
-let githubRepo = External("https://www.github.com/jisensee/adalia.info")
+let influence = External("https://influenceth.io")
+let influenceGame = External("https://game.influenceth.io")
+let makeGameRoidLink = id => External("https://game.influenceth.io/" ++ id)
+let githubRepo = External("https://github.com/jisensee/adalia.info")
 let discord = External("https://discord.gg/XynYK5yCQy")
 let referral = External("https://game.influenceth.io?r=0xD90b1056F1E5DA3d81D09D643e6AC092ec3a7871")
 

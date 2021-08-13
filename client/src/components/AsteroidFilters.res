@@ -10,6 +10,8 @@ module Filter = {
     | false => None
     }
 
+  let disable = f => {...f, active: false}
+
   @react.component
   let make = (~className="", ~label, ~filter, ~onChange, ~makeFilterComp) => {
     let onCheckboxChange = e => {
@@ -40,6 +42,16 @@ type t = {
   inclination: Filter.t<(float, float)>,
   eccentricity: Filter.t<(float, float)>,
 }
+let disableAll = filter => {
+  owned: filter.owned->Filter.disable,
+  spectralTypes: filter.spectralTypes->Filter.disable,
+  radius: filter.radius->Filter.disable,
+  surfaceArea: filter.surfaceArea->Filter.disable,
+  orbitalPeriod: filter.orbitalPeriod->Filter.disable,
+  semiMajorAxis: filter.semiMajorAxis->Filter.disable,
+  inclination: filter.inclination->Filter.disable,
+  eccentricity: filter.eccentricity->Filter.disable,
+}
 let toQueryParamFilter = asteroidFilter => {
   PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
   radius: asteroidFilter.radius->Filter.toOption,
@@ -51,12 +63,36 @@ let toQueryParamFilter = asteroidFilter => {
   eccentricity: asteroidFilter.eccentricity->Filter.toOption,
 }
 
-let correctRadius = ((from, to_)) => (Js.Math.max_float(from, 100.0), Js.Math.min_float(to_, 900.0))
+let correctValue = ((from, to_), (min, max)) => (
+  Js.Math.max_float(from, min),
+  Js.Math.min_float(to_, max),
+)
+
 let correctFilter = f => {
   ...f,
   radius: {
     ...f.radius,
-    value: correctRadius(f.radius.value),
+    value: correctValue(f.radius.value, Defaults.radiusBounds),
+  },
+  surfaceArea: {
+    ...f.surfaceArea,
+    value: correctValue(f.surfaceArea.value, Defaults.surfaceBounds),
+  },
+  orbitalPeriod: {
+    ...f.orbitalPeriod,
+    value: correctValue(f.orbitalPeriod.value, Defaults.orbitalPeriodBounds),
+  },
+  semiMajorAxis: {
+    ...f.semiMajorAxis,
+    value: correctValue(f.semiMajorAxis.value, Defaults.semiMajorAxisBounds),
+  },
+  inclination: {
+    ...f.inclination,
+    value: correctValue(f.inclination.value, Defaults.inclinationBounds),
+  },
+  eccentricity: {
+    ...f.eccentricity,
+    value: correctValue(f.eccentricity.value, Defaults.eccentricityBounds),
   },
 }
 
@@ -101,7 +137,7 @@ module SpectralTypeFilter = {
 }
 
 @react.component
-let make = (~className="", ~filters, ~onChange, ~onApply) => {
+let make = (~className="", ~filters, ~onChange, ~onApply, ~onReset) => {
   let onOwnedChange = owned => onChange({...filters, owned: owned})
   let onRadiusChange = radius => onChange({...filters, radius: radius})
   let onSpectralTypesChange = spectralTypes => onChange({...filters, spectralTypes: spectralTypes})
@@ -123,39 +159,48 @@ let make = (~className="", ~filters, ~onChange, ~onApply) => {
         <h2 className="pl-2"> {"Filters"->React.string} </h2>
       </Icon>
     </div>
-    <div
-      className={`flex flex-col items-start overflow-hidden ${height} transition-max-height duration-300 ease-in-out`}>
-      <div className="flex flex-row space-x-10 mb-4">
-        <div className="flex-col space-y-3">
-          <OwnedFilter filter=filters.owned onChange=onOwnedChange />
+    <form onSubmit={ReactEvent.Form.preventDefault}>
+      <div
+        className={`flex flex-col items-start overflow-hidden ${height} transition-max-height duration-300 ease-in-out`}>
+        <div className="flex flex-row space-x-10 mb-4">
+          <div className="flex-col space-y-3">
+            <OwnedFilter filter=filters.owned onChange=onOwnedChange />
+          </div>
+          <SpectralTypeFilter filter=filters.spectralTypes onChange=onSpectralTypesChange />
+          <div className="flex-col space-y-3">
+            <NumberRangeFilter filter=filters.radius onChange=onRadiusChange label="Radius (m)" />
+            <NumberRangeFilter
+              filter=filters.surfaceArea onChange=onSurfaceAreaChange label=`Surface area (km²)`
+            />
+          </div>
+          <div className="flex-col space-y-3">
+            <NumberRangeFilter
+              filter=filters.semiMajorAxis
+              onChange=onSemiMajorAxisChange
+              label="Semi major axis (AU)"
+            />
+            <NumberRangeFilter
+              filter=filters.inclination onChange=onInclinationChange label="Inclination (degrees)"
+            />
+          </div>
+          <div className="flex-col space-y-3">
+            <NumberRangeFilter
+              filter=filters.orbitalPeriod
+              onChange=onOrbitalPeriodChange
+              label="Orbital period (days)"
+            />
+            <NumberRangeFilter
+              filter=filters.eccentricity onChange=onEccentricityChange label="Eccentricity"
+            />
+          </div>
         </div>
-        <SpectralTypeFilter filter=filters.spectralTypes onChange=onSpectralTypesChange />
-        <div className="flex-col space-y-3">
-          <NumberRangeFilter filter=filters.radius onChange=onRadiusChange label="Radius (m)" />
-          <NumberRangeFilter
-            filter=filters.surfaceArea onChange=onSurfaceAreaChange label=`Surface area (km²)`
-          />
-        </div>
-        <div className="flex-col space-y-3">
-          <NumberRangeFilter
-            filter=filters.semiMajorAxis onChange=onSemiMajorAxisChange label="Semi major axis (AU)"
-          />
-          <NumberRangeFilter
-            filter=filters.inclination onChange=onInclinationChange label="Inclination (degrees)"
-          />
-        </div>
-        <div className="flex-col space-y-3">
-          <NumberRangeFilter
-            filter=filters.orbitalPeriod
-            onChange=onOrbitalPeriodChange
-            label="Orbital period (days)"
-          />
-          <NumberRangeFilter
-            filter=filters.eccentricity onChange=onEccentricityChange label="Eccentricity"
-          />
+        <div className="flex flex-row space-x-9">
+          <button type_="submit" onClick={_ => onApply()}>
+            <Icon kind={Icon.Fas("check")} text="Apply" />
+          </button>
+          <button onClick={_ => onReset()}> <Icon kind={Icon.Fas("times")} text="Reset" /> </button>
         </div>
       </div>
-      <button onClick={_ => onApply()}> <Icon kind={Icon.Fas("check")} text="Apply" /> </button>
-    </div>
+    </form>
   </div>
 }

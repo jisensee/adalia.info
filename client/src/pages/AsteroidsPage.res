@@ -65,12 +65,12 @@ let getDefaultFilter = filters => {
   {
     AsteroidFilters.owned: getDefault(f => f.ParamType.owned, true),
     spectralTypes: getDefault(f => f.spectralTypes, []),
-    radius: getDefault(f => f.radius, (100., 900.)),
-    surfaceArea: getDefault(f => f.surfaceArea, (200., 20000.)),
-    orbitalPeriod: getDefault(f => f.orbitalPeriod, (700., 3000.)),
-    semiMajorAxis: getDefault(f => f.semiMajorAxis, (0., 50.)),
-    inclination: getDefault(f => f.inclination, (0., 20.)),
-    eccentricity: getDefault(f => f.eccentricity, (0., 5.)),
+    radius: getDefault(f => f.radius, Defaults.radiusBounds),
+    surfaceArea: getDefault(f => f.surfaceArea, Defaults.surfaceBounds),
+    orbitalPeriod: getDefault(f => f.orbitalPeriod, Defaults.orbitalPeriodBounds),
+    semiMajorAxis: getDefault(f => f.semiMajorAxis, Defaults.semiMajorAxisBounds),
+    inclination: getDefault(f => f.inclination, Defaults.inclinationBounds),
+    eccentricity: getDefault(f => f.eccentricity, Defaults.eccentricityBounds),
   }
 }
 
@@ -90,6 +90,11 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?) => {
         let correctedFilter = filters.current->AsteroidFilters.correctFilter
         setFilters(_ => {current: correctedFilter, applied: correctedFilter})
       }
+      let onReset = () =>
+        setFilters(_ => {
+          current: filters.current->AsteroidFilters.disableAll,
+          applied: filters.applied->AsteroidFilters.disableAll,
+        })
 
       <div className="flex flex-col h-full">
         <h1> {"Asteroids"->React.string} </h1>
@@ -97,7 +102,11 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?) => {
           {"You can apply filters to all asteroids by expanding the filter widget. Copy the URL to share your current filter and sorting setup."->React.string}
         </p>
         <AsteroidFilters
-          className="mb-4" filters=filters.current onChange=onFilterChange onApply=onFilterApply
+          className="mb-4"
+          filters=filters.current
+          onChange=onFilterChange
+          onApply=onFilterApply
+          onReset
         />
         <Table pageNum=p pageSize=ps sort=s filters=filters.applied />
       </div>

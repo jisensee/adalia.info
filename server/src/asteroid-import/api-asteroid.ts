@@ -60,6 +60,12 @@ const convertSpectralType = (apiType: ApiSpectralType) => {
   }
 }
 
+const calcSurface = (radius: number) => {
+  // Radius is in meter but surface area is in kilometer
+  const radiusKm = radius / 1000
+  return 4 * radiusKm * radiusKm * Math.PI
+}
+
 export const convertApiAsteroidToInternal = (
   apiAsteroid: ApiAsteroid
 ): Asteroid => {
@@ -72,7 +78,7 @@ export const convertApiAsteroidToInternal = (
     owner: apiAsteroid.owner ?? null,
     spectralType: convertSpectralType(toSpectralType(apiAsteroid.spectralType)),
     radius: apiAsteroid.r,
-    surfaceArea: 4 * apiAsteroid.r * apiAsteroid.r * Math.PI,
+    surfaceArea: calcSurface(apiAsteroid.r),
     size: convertSize(toSize(apiAsteroid.r)),
     eccentricity: apiAsteroid.orbital.e,
     inclination: apiAsteroid.orbital.i * (180 / Math.PI),

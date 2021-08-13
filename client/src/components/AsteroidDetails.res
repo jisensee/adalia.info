@@ -5,14 +5,21 @@ external spectralTypeToStr: Fragments.FullAsteroid.t_spectralType => string = "%
 @react.component
 let make = (~asteroid: Fragments.FullAsteroid.t) => {
   let items = [
-    ("Surface area", asteroid.surfaceArea->React.float, `km²`),
-    ("Radius", asteroid.radius->React.float, "m"),
-    ("Owner", asteroid.owner->Option.getWithDefault("unowned")->React.string, ""),
+    ("Surface area", asteroid.surfaceArea->Format.surfaceArea->React.string, `km²`),
+    ("Radius", asteroid.radius->Format.radius->React.string, "m"),
+    (
+      "Owner",
+      switch asteroid.owner {
+      | None => "unowned"->React.string
+      | Some(owner) => <AsteroidOwner address=owner />
+      },
+      "",
+    ),
     ("Spectral type", asteroid.spectralType->spectralTypeToStr->React.string, ""),
-    ("Orbital period", asteroid.orbitalPeriod->React.float, "days"),
-    ("Semi major axis", asteroid.semiMajorAxis->React.float, "AU"),
-    ("Inclination", asteroid.inclination->React.float, `°`),
-    ("Eccentricity", asteroid.eccentricity->React.float, ""),
+    ("Orbital period", asteroid.orbitalPeriod->Format.orbitalPeriod->React.string, "days"),
+    ("Semi major axis", asteroid.semiMajorAxis->Format.semiMajorAxis->React.string, "AU"),
+    ("Inclination", asteroid.inclination->Format.inclination->React.string, `°`),
+    ("Eccentricity", asteroid.eccentricity->Format.eccentricity->React.string, ""),
   ]
 
   let cardUrl = `https://api.influenceth.io/metadata/asteroids/${asteroid.id->Int.toString}/card.svg`

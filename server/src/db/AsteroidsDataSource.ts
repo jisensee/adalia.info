@@ -41,11 +41,9 @@ const fieldToSortName = (field: AsteroidField): keyof Asteroid => {
 
 const createSortParam = (sorting: AsteroidSortingInput) => {
   const sortName = fieldToSortName(sorting.field)
-  const idSortName = fieldToSortName(AsteroidField.Id)
   const mode = sorting.mode == SortingMode.Ascending ? 1 : -1
   return {
     [sortName]: mode,
-    [idSortName]: mode,
   }
 }
 

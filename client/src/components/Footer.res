@@ -34,9 +34,10 @@ module LastDataUpdateDisplay = {
   let make = (~lastDataUpdateAt=?) =>
     switch lastDataUpdateAt {
     | None => React.null
-    | Some(timestamp) =>
+    | Some(_timestamp) =>
       <div className="flex justify-center text-base">
-        {`Last data update: ${timestamp->Js.Date.toLocaleString}`->React.string}
+        {/* {`Last data update: ${timestamp->Js.Date.toLocaleString}`->React.string} */
+        "Data is currently static from a snapshot of 2021-08-10"->React.string}
       </div>
     }
 }

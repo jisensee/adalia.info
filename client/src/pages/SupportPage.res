@@ -8,7 +8,7 @@ let make = () => {
     </p>
     <h3> {"Donate"->React.string} </h3>
     <p>
-      {"The monthly AWS bill to keep this project online totals about $50 currently. If you wish to contribute, you can send some ETH my way here. This money is being invested to 100% into the community. First priority is keeping this site running, any excess will be spent on virtual space rocks."->React.string}
+      {"The monthly AWS bill to keep this project online totals about $50 currently. If you wish to contribute, you can send some ETH my way here. This money is being invested to 100% into the community. First priority is keeping this site running, any excess will be spent on virtual space rocks and potentially distributed to other contributors."->React.string}
     </p>
     <p>
       {"If you like to claim a special donator role (and potentially more special perks) on the Discord server, please DM me before you donate so I can verify it. But it is obviously also fine if you prefer to stay anonymous."->React.string}
