@@ -23,6 +23,8 @@ services:
     image: adalia.info/server:latest
     container_name: adalia.info_server
     build: ./server
+    depends_on:
+      - mongodb
     environment:
       - MONGO_URL=mongodb:27017
       - ASTEROID_DATA_DUMP_URL=${ASTEROID_DATA_DUMP_URL}
