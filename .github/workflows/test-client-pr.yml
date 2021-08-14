@@ -1,0 +1,24 @@
+name: Test client PR
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'client/**'
+
+jobs:
+  build-client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '15'
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - run: npm install
+      - run: npm run build
