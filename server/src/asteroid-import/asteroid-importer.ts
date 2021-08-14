@@ -96,13 +96,15 @@ export const runImport = async (db: Db) => {
       },
     })
     const writeOperations = asteroids.map(getUpdateOperation)
-    await asteroidCollection.bulkWrite(writeOperations)
+    const writeResult = await asteroidCollection.bulkWrite(writeOperations)
     const batchTime = (new Date().getTime() - batchStartTime) / 1000
     console.log(
-      `Updated batch of ${asteroids.length} asteroids in ${batchTime} seconds`
+      `Updated batch of ${
+        writeResult.upsertedCount ?? 0
+      } asteroids in ${batchTime} seconds`
     )
     totalUpdated += asteroids.length
-    console.log(`Total updated asteroids: ${totalUpdated}`)
+    console.log(`Total processed asteroids: ${totalUpdated}`)
   })
   const totalTime = (new Date().getTime() - importStartTime) / 1000
   console.log(`Finished asteroid import in ${totalTime} seconds!`)

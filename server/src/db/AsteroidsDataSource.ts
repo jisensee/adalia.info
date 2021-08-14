@@ -118,14 +118,13 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
     const sortParam = sorting != null ? createSortParam(sorting) : {}
     const query = filter ? filterToQuery(filter) : {}
 
-    const cursor = this.collection
+    const totalRows = await this.collection.countDocuments(query)
+    const rows = await this.collection
       .find(query)
       .sort(sortParam)
       .skip(offset)
       .limit(page.size)
-
-    const totalRows = await cursor.count()
-    const rows = await cursor.toArray()
+      .toArray()
 
     return { rows, totalRows }
   }
