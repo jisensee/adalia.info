@@ -6,7 +6,7 @@ let make = () => {
     ~query=module(Queries.AsteroidCount),
     {
       filter: Some({
-        owned: None,
+        owned: Some(true),
         scanned: None,
         spectralTypes: None,
         radius: None,
