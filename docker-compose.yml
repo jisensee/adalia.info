@@ -5,6 +5,9 @@ services:
     image: adalia.info/proxy:latest
     container_name: adalia.info_proxy
     build: ./proxy
+    depends_on:
+      - server
+      - client
     ports:
       - "80:80"
 
