@@ -26,6 +26,8 @@ const fieldToSortName = (field: AsteroidField): keyof Asteroid => {
       return 'orbitalPeriod'
     case AsteroidField.Owner:
       return 'owner'
+    case AsteroidField.Scanned:
+      return 'scanned'
     case AsteroidField.Radius:
       return 'radius'
     case AsteroidField.SemiMajorAxis:
@@ -66,6 +68,7 @@ const rangeFilter = (range: RangeInput, fieldName: keyof Asteroid) => ({
 
 const filterToQuery = (filter: AsteroidFilterInput) => {
   const owned = filter.owned == null ? {} : ownedFilter(filter.owned)
+  const scanned = filter.scanned == null ? {} : { scanned: filter.scanned }
   const spectralTypes = filter.spectralTypes
     ? spectralTypesFilter([...filter.spectralTypes])
     : {}
@@ -89,6 +92,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
   return {
     $and: [
       owned,
+      scanned,
       spectralTypes,
       radius,
       surface,

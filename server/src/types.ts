@@ -39,6 +39,7 @@ export enum AsteroidField {
   Id = 'ID',
   Name = 'NAME',
   Owner = 'OWNER',
+  Scanned = 'SCANNED',
   Radius = 'RADIUS',
   SurfaceArea = 'SURFACE_AREA',
   OrbitalPeriod = 'ORBITAL_PERIOD',
@@ -50,6 +51,7 @@ export enum AsteroidField {
 
 export type AsteroidFilterInput = {
   readonly owned: Maybe<Scalars['Boolean']>;
+  readonly scanned: Maybe<Scalars['Boolean']>;
   readonly spectralTypes: Maybe<ReadonlyArray<SpectralType>>;
   readonly radius: Maybe<RangeInput>;
   readonly surfaceArea: Maybe<RangeInput>;

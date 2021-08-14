@@ -17,7 +17,6 @@ export interface ApiAsteroid {
   spectralType: number
   owner?: string
   rawBonuses?: number
-  scanned?: boolean
 }
 
 const convertSize = (apiSize: Size) => {
@@ -73,7 +72,7 @@ export const convertApiAsteroidToInternal = (
   return {
     id: apiAsteroid.i,
     baseName: apiAsteroid.baseName,
-    scanned: apiAsteroid.scanned ?? false,
+    scanned: !!apiAsteroid.rawBonuses,
     name: apiAsteroid.name ?? apiAsteroid.baseName,
     owner: apiAsteroid.owner ?? null,
     spectralType: convertSpectralType(toSpectralType(apiAsteroid.spectralType)),

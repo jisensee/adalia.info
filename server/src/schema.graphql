@@ -49,6 +49,7 @@ input AsteroidSortingInput {
 
 input AsteroidFilterInput {
   owned: Boolean
+  scanned: Boolean
   spectralTypes: [SpectralType!]
   radius: RangeInput
   surfaceArea: RangeInput
@@ -72,6 +73,7 @@ enum AsteroidField {
   ID
   NAME
   OWNER
+  SCANNED
   RADIUS
   SURFACE_AREA
   ORBITAL_PERIOD

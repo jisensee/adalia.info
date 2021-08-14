@@ -7,8 +7,8 @@ module AddressLink = {
 let shortenAddress = ethAddress => {
   let len = ethAddress->Js.String2.length
 
-  let start = ethAddress->Js.String2.substring(~from=0, ~to_=5)
-  let end = ethAddress->Js.String2.substring(~from=len - 3, ~to_=len)
+  let start = ethAddress->Js.String2.substring(~from=0, ~to_=4)
+  let end = ethAddress->Js.String2.substring(~from=len - 2, ~to_=len)
 
   `${start}...${end}`
 }

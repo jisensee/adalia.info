@@ -34,6 +34,7 @@ let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters) =>
         ->Some,
         filters: Some({
           owned: appliedFilters.AsteroidFilters.owned->AsteroidFilters.Filter.toOption,
+          scanned: appliedFilters.AsteroidFilters.scanned->AsteroidFilters.Filter.toOption,
           radius: appliedFilters.radius->AsteroidFilters.Filter.toOption,
           spectralTypes: appliedFilters.spectralTypes->AsteroidFilters.Filter.toOption,
           surfaceArea: appliedFilters.surfaceArea->AsteroidFilters.Filter.toOption,
@@ -103,6 +104,7 @@ let useAsteroidPageQuery = (
       },
       filter: {
         owned: filters.owned,
+        scanned: filters.scanned,
         spectralTypes: filters.spectralTypes,
         radius: filters.radius->Option.map(((from, to_)) => {
           Queries.DataTableAsteroids.from: from,

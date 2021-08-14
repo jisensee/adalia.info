@@ -4,6 +4,7 @@ module Column = {
   type id = [
     | #id
     | #owner
+    | #scanned
     | #name
     | #radius
     | #surfaceArea
@@ -17,6 +18,7 @@ module Column = {
     switch id {
     | #id => "ID"
     | #owner => "Owner"
+    | #scanned => "Scan"
     | #name => "Name"
     | #radius => "Radius"
     | #surfaceArea => "Surface"
@@ -51,6 +53,7 @@ let columns = [
   Column.make(#owner, ~grow=5, ~cell=ownerCell, ()),
   Column.make(#name, ~grow=8, ()),
   Column.make(#spectralType, ~grow=2, ()),
+  Column.make(#scanned, ~grow=5, ()),
   Column.make(#radius, ~grow=5, ()),
   Column.make(#surfaceArea, ~grow=8, ()),
   Column.make(#orbitalPeriod, ~grow=5, ()),
@@ -89,12 +92,13 @@ let make = (
       cell(#id, a.id, Int.toString),
       cell(#name, a.name, s => s),
       cell(#owner, a.owner, Option.getWithDefault(_, "")),
+      cell(#spectralType, a.spectralType, spectralTypeToStr),
+      cell(#scanned, a.scanned, scanned => scanned ? "Yes" : "No"),
       cell(#radius, a.radius, Format.radius, ~unit="m"),
       cell(#surfaceArea, a.surfaceArea, Format.surfaceArea, ~unit=`km²`),
       cell(#orbitalPeriod, a.orbitalPeriod, Format.orbitalPeriod, ~unit="d"),
       cell(#semiMajorAxis, a.semiMajorAxis, Format.semiMajorAxis, ~unit="AU"),
       cell(#inclination, a.inclination, Format.inclination, ~unit=`°`),
-      cell(#spectralType, a.spectralType, spectralTypeToStr),
       cell(#eccentricity, a.eccentricity, Format.eccentricity),
     ])
     ->Array.map(Js.Dict.fromArray)

@@ -10,6 +10,7 @@ fragment DataTableAsteroid on Asteroid {
   inclination
   spectralType
   eccentricity
+  scanned
 }
 
 fragment FullAsteroid on Asteroid {
@@ -23,6 +24,7 @@ fragment FullAsteroid on Asteroid {
   inclination
   spectralType
   eccentricity
+  scanned
 }
 
 fragment DataTableAsteroidPage on AsteroidPage {

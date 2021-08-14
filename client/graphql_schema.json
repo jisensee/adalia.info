@@ -588,6 +588,16 @@
             "defaultValue": null
           },
           {
+            "name": "scanned",
+            "description": null,
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "defaultValue": null
+          },
+          {
             "name": "spectralTypes",
             "description": null,
             "type": {
@@ -754,6 +764,12 @@
           },
           {
             "name": "OWNER",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "SCANNED",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null

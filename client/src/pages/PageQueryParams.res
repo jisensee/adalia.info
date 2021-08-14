@@ -3,6 +3,7 @@ module AsteroidPageParamType = {
 
   type filters = {
     owned: option<bool>,
+    scanned: option<bool>,
     radius: option<(float, float)>,
     spectralTypes: option<array<SpectralType.t>>,
     surfaceArea: option<(float, float)>,
@@ -23,6 +24,7 @@ module AsteroidPageParamType = {
     sort: dict->SortingParam.fromDict("sort"),
     filters: Some({
       owned: dict->BoolParam.fromDict("owned"),
+      scanned: dict->BoolParam.fromDict("scanned"),
       radius: dict->FloatRangeParam.fromDict("radius"),
       spectralTypes: dict->SpectralTypesParam.fromDict("spectralTypes"),
       surfaceArea: dict->FloatRangeParam.fromDict("surfaceArea"),
@@ -39,6 +41,7 @@ module AsteroidPageParamType = {
       IntParam.toParam("pageSize", pageSize),
       SortingParam.toParam("sort", sort),
       BoolParam.toParam("owned", getFilter(f => f.owned)),
+      BoolParam.toParam("scanned", getFilter(f => f.scanned)),
       FloatRangeParam.toParam("radius", getFilter(f => f.radius)),
       SpectralTypesParam.toParam("spectralTypes", getFilter(f => f.spectralTypes)),
       FloatRangeParam.toParam("surfaceArea", getFilter(f => f.surfaceArea)),

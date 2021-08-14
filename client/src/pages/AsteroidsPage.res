@@ -64,6 +64,7 @@ let getDefaultFilter = filters => {
   }
   {
     AsteroidFilters.owned: getDefault(f => f.ParamType.owned, true),
+    scanned: getDefault(f => f.ParamType.scanned, true),
     spectralTypes: getDefault(f => f.spectralTypes, []),
     radius: getDefault(f => f.radius, Defaults.radiusBounds),
     surfaceArea: getDefault(f => f.surfaceArea, Defaults.surfaceBounds),

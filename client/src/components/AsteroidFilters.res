@@ -34,6 +34,7 @@ module Filter = {
 
 type t = {
   owned: Filter.t<bool>,
+  scanned: Filter.t<bool>,
   spectralTypes: Filter.t<array<SpectralType.t>>,
   radius: Filter.t<(float, float)>,
   surfaceArea: Filter.t<(float, float)>,
@@ -44,6 +45,7 @@ type t = {
 }
 let disableAll = filter => {
   owned: filter.owned->Filter.disable,
+  scanned: filter.scanned->Filter.disable,
   spectralTypes: filter.spectralTypes->Filter.disable,
   radius: filter.radius->Filter.disable,
   surfaceArea: filter.surfaceArea->Filter.disable,
@@ -54,6 +56,7 @@ let disableAll = filter => {
 }
 let toQueryParamFilter = asteroidFilter => {
   PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
+  scanned: asteroidFilter.scanned->Filter.toOption,
   radius: asteroidFilter.radius->Filter.toOption,
   spectralTypes: asteroidFilter.spectralTypes->Filter.toOption,
   surfaceArea: asteroidFilter.surfaceArea->Filter.toOption,
@@ -96,26 +99,36 @@ let correctFilter = f => {
   },
 }
 
-let isActive = t => t.owned.active || t.spectralTypes.active || t.radius.active
+let isActive = f =>
+  [
+    f.owned.active,
+    f.scanned.active,
+    f.radius.active,
+    f.surfaceArea.active,
+    f.orbitalPeriod.active,
+    f.semiMajorAxis.active,
+    f.inclination.active,
+    f.eccentricity.active,
+  ]->Belt.Array.some(active => active)
 
-module OwnedFilter = {
+module BoolFilter = {
   @react.component
-  let make = (~filter, ~onChange) => {
-    let options = [("owned", "Owned"), ("unowned", "Unowned")]
+  let make = (~filter, ~onChange, ~label, ~trueText, ~falseText) => {
+    let options = [("yes", trueText), ("no", falseText)]
     let toString = val =>
       switch val {
-      | true => "owned"
-      | false => "unowned"
+      | true => "yes"
+      | false => "no"
       }
     let fromString = str =>
       switch str {
-      | "owned" => true
+      | "yes" => true
       | _ => false
       }
 
     let makeFilterComp = (v, oc, enabled) =>
       <Common.Select value=v onChange=oc options toString fromString enabled />
-    <Filter label="Ownership" filter onChange makeFilterComp />
+    <Filter label filter onChange makeFilterComp />
   }
 }
 
@@ -139,6 +152,7 @@ module SpectralTypeFilter = {
 @react.component
 let make = (~className="", ~filters, ~onChange, ~onApply, ~onReset) => {
   let onOwnedChange = owned => onChange({...filters, owned: owned})
+  let onScannedChange = scanned => onChange({...filters, scanned: scanned})
   let onRadiusChange = radius => onChange({...filters, radius: radius})
   let onSpectralTypesChange = spectralTypes => onChange({...filters, spectralTypes: spectralTypes})
   let onSurfaceAreaChange = surfaceArea => onChange({...filters, surfaceArea: surfaceArea})
@@ -164,7 +178,20 @@ let make = (~className="", ~filters, ~onChange, ~onApply, ~onReset) => {
         className={`flex flex-col items-start overflow-hidden ${height} transition-max-height duration-300 ease-in-out`}>
         <div className="flex flex-row space-x-10 mb-4">
           <div className="flex-col space-y-3">
-            <OwnedFilter filter=filters.owned onChange=onOwnedChange />
+            <BoolFilter
+              filter=filters.owned
+              onChange=onOwnedChange
+              label="Ownership"
+              trueText="Owned"
+              falseText="Unowned"
+            />
+            <BoolFilter
+              filter=filters.scanned
+              onChange=onScannedChange
+              label="Scanned"
+              trueText="Yes"
+              falseText="No"
+            />
           </div>
           <SpectralTypeFilter filter=filters.spectralTypes onChange=onSpectralTypesChange />
           <div className="flex-col space-y-3">
