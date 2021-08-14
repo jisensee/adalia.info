@@ -10,7 +10,7 @@ services:
 
   mongodb:
     # port 27017
-    image: mongo
+    image: mongo:5.0.2
     container_name: adalia.info_mongodb
     environment:
       - PUID=1000
