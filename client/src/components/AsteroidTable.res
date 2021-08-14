@@ -49,7 +49,7 @@ let ownerCell = DataTable.CellRenderer.make("owner", address =>
   <AsteroidOwner address shortAddress={true} />
 )
 let columns = [
-  Column.make(#id, ~grow=5, ~cell=idCell, ()),
+  Column.make(#id, ~grow=6, ~cell=idCell, ()),
   Column.make(#owner, ~grow=5, ~cell=ownerCell, ()),
   Column.make(#name, ~grow=8, ()),
   Column.make(#spectralType, ~grow=2, ()),
