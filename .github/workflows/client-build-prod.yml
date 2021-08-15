@@ -20,7 +20,7 @@ jobs:
             ${{runner.os}}-buildx-client-
       - name: Write app version
         run: >
-          echo '{"version": "${{ github.event.create.ref }}"}' > ./client/version.json
+          echo '{"version": "${{ github.event.ref }}"}' > ./client/version.json
       - name: Login to github container registry
         uses: docker/login-action@v1
         with:
