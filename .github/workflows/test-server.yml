@@ -1,24 +1,30 @@
-name: Test client PR
+name: Test server
 
 on:
   workflow_dispatch:
-  pull_request:
+  push:
+    branches:
+      - main
     paths:
       - 'client/**'
+  pull_request:
+    paths:
+      - 'server/**'
 
 jobs:
-  build-client:
+  build-server:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
-        working-directory: client
+        working-directory: server
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: '15'
           cache: npm
-          cache-dependency-path: client/package-lock.json
+          cache-dependency-path: server/package-lock.json
       - run: npm install
+      - run: npm run codegen
       - run: npm run build

@@ -1,11 +1,8 @@
 name: Proxy prod build
 on:
-  workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - "proxy/**"
+  create:
+    tags:
+      - '*'
 jobs:
   build-prod:
     runs-on: ubuntu-latest
