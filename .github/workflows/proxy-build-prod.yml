@@ -1,6 +1,6 @@
 name: Proxy prod build
 on:
-  create:
+  push:
     tags:
       - '*'
 jobs:

@@ -1,6 +1,6 @@
 name: Client prod build
 on:
-  create:
+  push:
     tags:
       - '*'
 jobs:

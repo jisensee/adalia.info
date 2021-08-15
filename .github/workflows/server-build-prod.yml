@@ -1,6 +1,6 @@
 name: Server prod build
 on:
-  create:
+  push:
     tags:
       - '*'
 jobs:
