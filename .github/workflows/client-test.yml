@@ -1,4 +1,4 @@
-name: Test server
+name: Client test
 
 on:
   workflow_dispatch:
@@ -6,25 +6,24 @@ on:
     branches:
       - main
     paths:
-      - 'server/**'
+      - 'client/**'
   pull_request:
     paths:
-      - 'server/**'
+      - 'client/**'
 
 jobs:
-  build-server:
+  build-client:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
-        working-directory: server
+        working-directory: client
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: '15'
           cache: npm
-          cache-dependency-path: server/package-lock.json
-      - run: npm install
-      - run: npm run codegen
+          cache-dependency-path: client/package-lock.json
+      - run: npm ci
       - run: npm run build
