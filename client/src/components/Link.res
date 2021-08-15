@@ -8,6 +8,9 @@ let makeGameRoidLink = id => External("https://game.influenceth.io/" ++ id)
 let githubRepo = External("https://github.com/jisensee/adalia.info")
 let discord = External("https://discord.gg/XynYK5yCQy")
 let referral = External("https://game.influenceth.io?r=0xD90b1056F1E5DA3d81D09D643e6AC092ec3a7871")
+let makeReleaseLink = version => External(
+  `https://github.com/jisensee/adalia.info/releases/tag/${version}`,
+)
 
 @react.component
 let make = (
