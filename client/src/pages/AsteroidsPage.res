@@ -103,7 +103,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?) => {
           {"You can apply filters to all asteroids by expanding the filter widget. Copy the URL to share your current filter and sorting setup."->React.string}
         </p>
         <AsteroidFilters
-          className="mb-4"
+          className="mb-3"
           filters=filters.current
           onChange=onFilterChange
           onApply=onFilterApply

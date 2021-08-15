@@ -16,10 +16,12 @@ module Button = {
     | false => "opacity-30"
     }
 
-    <div
-      className={`w-12 text-center py-1 border border-solid rounded-2xl ${borderColor} ${enabledStyle}`}
-      onClick>
-      {(spectralType :> string)->React.string}
+    <div className="p-1">
+      <div
+        className={`w-12 text-center py-1 border border-solid rounded-2xl ${borderColor} ${enabledStyle}`}
+        onClick>
+        {(spectralType :> string)->React.string}
+      </div>
     </div>
   }
 }
@@ -44,5 +46,7 @@ let make = (~selected, ~onChange, ~enabled) => {
       enabled
     />
   }
-  <div className="grid grid-cols-4 gap-3"> {types->Belt.Array.map(toButton)->React.array} </div>
+  <div className="flex flex-row flex-wrap items-center">
+    {types->Belt.Array.map(toButton)->React.array}
+  </div>
 }

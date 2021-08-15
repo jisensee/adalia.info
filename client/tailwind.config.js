@@ -33,7 +33,7 @@ module.exports = {
     },
     extend: {
       maxHeight: {
-        all: '50rem',
+        all: '100rem',
       },
       transitionProperty: {
         'max-h': 'max-height',
