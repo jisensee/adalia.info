@@ -28,7 +28,7 @@ let make = (~className="") => {
   | DonationSuccess =>
     <p className="text-cyan"> {"Thanks for your contribution!"->React.string} </p>
   | DonationError =>
-    <p className="text-red-500">
+    <p className="text-red">
       {"Something went wrong...please try again or use the wallet address directly."->React.string}
     </p>
   | _ => React.null
