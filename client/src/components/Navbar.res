@@ -5,7 +5,7 @@ module Item = {
 }
 @react.component
 let make = (~className="") =>
-  <nav className={`bg-gray-800 py-2 px-4 ${className}`}>
+  <nav className={`bg-gray py-2 px-4 ${className}`}>
     <div className="container mx-auto flex flex-row">
       <ul className="flex flex-row items-center space-x-9 flex-grow">
         <Item to_=Link.Internal(Route.Home) bold=true className="text-2xl">

@@ -96,7 +96,7 @@ module Loading = {
 module NoDataComponent = {
   @react.component
   let make = (~text="No records found") =>
-    <div className="w-full text-center bg-gray-900 text-white"> {text->React.string} </div>
+    <div className="w-full text-center bg-gray-dark text-white"> {text->React.string} </div>
 }
 
 @react.component

@@ -44,7 +44,7 @@ module LastDataUpdateDisplay = {
 
 module VersionDisplay = {
   @react.component
-  let make = (~className="", ~version, ~linkRelease) => {
+  let make = (~version, ~linkRelease) => {
     let versionText = `Version: ${version}`->React.string
     <div className="flex justify-center text-base">
       {switch linkRelease {

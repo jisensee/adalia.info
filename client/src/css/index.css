@@ -1,4 +1,4 @@
-@import url("datatable.css");
+@import url('datatable.css');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 @layer base {
   body {
-    @apply bg-gray-900;
+    @apply bg-gray-dark;
     @apply text-white;
     @apply text-lg;
   }
@@ -29,13 +29,13 @@
   }
 
   select {
-    @apply bg-gray-900;
+    @apply bg-gray-dark;
     @apply border-cyan;
     @apply rounded-3xl;
   }
 
   input {
-    @apply bg-gray-900 !important;
+    @apply bg-gray-dark !important;
     @apply text-white;
     @apply border-cyan !important;
     @apply rounded-3xl !important;
@@ -50,7 +50,7 @@
   }
 
   button:hover {
-    @apply bg-gray-800;
+    @apply bg-gray;
   }
 
   select[disabled],
