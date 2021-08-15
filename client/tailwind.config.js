@@ -32,8 +32,12 @@ module.exports = {
       white: colors.white,
     },
     extend: {
+      maxHeight: {
+        all: '50rem',
+      },
       transitionProperty: {
-        'max-height': 'max-height',
+        'max-h': 'max-height',
+        h: 'height',
       },
     },
   },

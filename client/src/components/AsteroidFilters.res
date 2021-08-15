@@ -161,73 +161,59 @@ let make = (~className="", ~filters, ~onChange, ~onApply, ~onReset) => {
   let onInclinationChange = inclination => onChange({...filters, inclination: inclination})
   let onEccentricityChange = eccentricity => onChange({...filters, eccentricity: eccentricity})
   let (filtersVisible, setFiltersVisible) = React.useState(() => filters->isActive)
-  let iconKind = Icon.Fas("chevron-right")
-  let (iconRotation, height) = switch filtersVisible {
-  | true => (Some(Icon.Rotate90), "max-h-96")
-  | false => (None, "max-h-0")
-  }
-  <div className>
-    <div className="cursor-pointer" onClick={_ => setFiltersVisible(v => !v)}>
-      <Icon
-        className="text-cyan w-3 transition-all duration-300" kind=iconKind rotation=?iconRotation>
-        <h2 className="pl-2"> {"Filters"->React.string} </h2>
-      </Icon>
-    </div>
+  let titleComp = <h2> {"Filters"->React.string} </h2>
+  <CollapsibleContent
+    titleComp isOpen=filtersVisible onOpenChange={isOpen => setFiltersVisible(_ => isOpen)}>
     <form onSubmit={ReactEvent.Form.preventDefault}>
-      <div
-        className={`flex flex-col items-start overflow-hidden ${height} transition-max-height duration-300 ease-in-out`}>
-        <div className="flex flex-row space-x-10 mb-4">
-          <div className="flex-col space-y-3">
-            <BoolFilter
-              filter=filters.owned
-              onChange=onOwnedChange
-              label="Ownership"
-              trueText="Owned"
-              falseText="Unowned"
-            />
-            <BoolFilter
-              filter=filters.scanned
-              onChange=onScannedChange
-              label="Scanned"
-              trueText="Yes"
-              falseText="No"
-            />
-          </div>
-          <SpectralTypeFilter filter=filters.spectralTypes onChange=onSpectralTypesChange />
-          <div className="flex-col space-y-3">
-            <NumberRangeFilter filter=filters.radius onChange=onRadiusChange label="Radius (m)" />
-            <NumberRangeFilter
-              filter=filters.surfaceArea onChange=onSurfaceAreaChange label=`Surface area (km²)`
-            />
-          </div>
-          <div className="flex-col space-y-3">
-            <NumberRangeFilter
-              filter=filters.semiMajorAxis
-              onChange=onSemiMajorAxisChange
-              label="Semi major axis (AU)"
-            />
-            <NumberRangeFilter
-              filter=filters.inclination onChange=onInclinationChange label="Inclination (degrees)"
-            />
-          </div>
-          <div className="flex-col space-y-3">
-            <NumberRangeFilter
-              filter=filters.orbitalPeriod
-              onChange=onOrbitalPeriodChange
-              label="Orbital period (days)"
-            />
-            <NumberRangeFilter
-              filter=filters.eccentricity onChange=onEccentricityChange label="Eccentricity"
-            />
-          </div>
+      <div className="flex flex-row space-x-10 mb-4">
+        <div className="flex-col space-y-3">
+          <BoolFilter
+            filter=filters.owned
+            onChange=onOwnedChange
+            label="Ownership"
+            trueText="Owned"
+            falseText="Unowned"
+          />
+          <BoolFilter
+            filter=filters.scanned
+            onChange=onScannedChange
+            label="Scanned"
+            trueText="Yes"
+            falseText="No"
+          />
         </div>
-        <div className="flex flex-row space-x-9">
-          <button type_="submit" onClick={_ => onApply()}>
-            <Icon kind={Icon.Fas("check")} text="Apply" />
-          </button>
-          <button onClick={_ => onReset()}> <Icon kind={Icon.Fas("times")} text="Reset" /> </button>
+        <SpectralTypeFilter filter=filters.spectralTypes onChange=onSpectralTypesChange />
+        <div className="flex-col space-y-3">
+          <NumberRangeFilter filter=filters.radius onChange=onRadiusChange label="Radius (m)" />
+          <NumberRangeFilter
+            filter=filters.surfaceArea onChange=onSurfaceAreaChange label=`Surface area (km²)`
+          />
+        </div>
+        <div className="flex-col space-y-3">
+          <NumberRangeFilter
+            filter=filters.semiMajorAxis onChange=onSemiMajorAxisChange label="Semi major axis (AU)"
+          />
+          <NumberRangeFilter
+            filter=filters.inclination onChange=onInclinationChange label="Inclination (degrees)"
+          />
+        </div>
+        <div className="flex-col space-y-3">
+          <NumberRangeFilter
+            filter=filters.orbitalPeriod
+            onChange=onOrbitalPeriodChange
+            label="Orbital period (days)"
+          />
+          <NumberRangeFilter
+            filter=filters.eccentricity onChange=onEccentricityChange label="Eccentricity"
+          />
         </div>
       </div>
+      <div className="flex flex-row space-x-9">
+        <button type_="submit" onClick={_ => onApply()}>
+          <Icon kind={Icon.Fas("check")} text="Apply" />
+        </button>
+        <button onClick={_ => onReset()}> <Icon kind={Icon.Fas("times")} text="Reset" /> </button>
+      </div>
     </form>
-  </div>
+  </CollapsibleContent>
 }
