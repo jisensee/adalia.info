@@ -1,4 +1,4 @@
-# adalia.info [![Test server](https://github.com/jisensee/adalia.info/actions/workflows/test-server.yml/badge.svg)](https://github.com/jisensee/adalia.info/actions/workflows/test-server.yml) [![Test client](https://github.com/jisensee/adalia.info/actions/workflows/test-client.yml/badge.svg)](https://github.com/jisensee/adalia.info/actions/workflows/test-client.yml)
+# adalia.info [![Server test](https://github.com/jisensee/adalia.info/actions/workflows/server-test.yml/badge.svg)](https://github.com/jisensee/adalia.info/actions/workflows/server-test.yml) [![Client test](https://github.com/jisensee/adalia.info/actions/workflows/client-test.yml/badge.svg)](https://github.com/jisensee/adalia.info/actions/workflows/client-test.yml)
 A community site for [Influence](https://www.influenceth.io/), a space strategy MMO running on the Etheurm blockchain.
 
 ## Support
