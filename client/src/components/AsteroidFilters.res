@@ -23,7 +23,7 @@ module Filter = {
     <div className={`${className} flex flex-col`}>
       <label className="mb-3 font-bold">
         <input
-          className="mr-3" type_="checkbox" checked={filter.active} onChange=onCheckboxChange
+          className="ml-1 mr-3" type_="checkbox" checked={filter.active} onChange=onCheckboxChange
         />
         {label->React.string}
       </label>
@@ -149,85 +149,138 @@ module SpectralTypeFilter = {
   }
 }
 
+module Buttons = {
+  @react.component
+  let make = (~onApply, ~onReset) =>
+    <div className="flex flex-row space-x-5 mt-2">
+      <button type_="submit" onClick={_ => onApply()}>
+        <Icon kind={Icon.Fas("check")} text="Apply" />
+      </button>
+      <button onClick={_ => onReset()}> <Icon kind={Icon.Fas("times")} text="Reset" /> </button>
+    </div>
+}
+
+module FilterCategory = {
+  @react.component
+  let make = (~children, ~title, ~isOpen, ~onOpenChange) =>
+    <CollapsibleContent
+      className="flex flex-row flex-wrap -m-2"
+      titleComp={<h3> {title->React.string} </h3>}
+      isOpen
+      onOpenChange>
+      {children->React.Children.map(c => <div className="pr-2 pl-2 pb-2"> c </div>)}
+    </CollapsibleContent>
+}
+
+module GeneralFilters = {
+  @react.component
+  let make = (~filters, ~onChange: t => unit) => {
+    let initialIsOpen =
+      [
+        filters.radius,
+        filters.surfaceArea,
+        filters.orbitalPeriod,
+        filters.inclination,
+        filters.semiMajorAxis,
+        filters.eccentricity,
+      ]->Belt.Array.every(f => f.active === false)
+    let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+    <FilterCategory title="General" isOpen onOpenChange={o => setOpen(_ => o)}>
+      <BoolFilter
+        filter=filters.owned
+        onChange={owned => onChange({...filters, owned: owned})}
+        label="Ownership"
+        trueText="Owned"
+        falseText="Unowned"
+      />
+      <BoolFilter
+        filter=filters.scanned
+        onChange={scanned => onChange({...filters, scanned: scanned})}
+        label="Scanned"
+        trueText="Yes"
+        falseText="No"
+      />
+      <SpectralTypeFilter
+        filter=filters.spectralTypes
+        onChange={spType => onChange({...filters, spectralTypes: spType})}
+      />
+    </FilterCategory>
+  }
+}
+
+let isSomeFilterActive = filters => filters->Belt.Array.some(f => f.Filter.active)
+
+module SizeFilters = {
+  @react.component
+  let make = (~filters, ~onChange: t => unit) => {
+    let initialIsOpen = [filters.radius, filters.surfaceArea]->isSomeFilterActive
+    let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+    <FilterCategory title="Size" isOpen onOpenChange={o => setOpen(_ => o)}>
+      <NumberRangeFilter
+        filter=filters.radius
+        onChange={radius => onChange({...filters, radius: radius})}
+        label="Radius (m)"
+      />
+      <NumberRangeFilter
+        filter=filters.surfaceArea
+        onChange={surfaceArea => onChange({...filters, surfaceArea: surfaceArea})}
+        label=`Surface area (km²)`
+      />
+    </FilterCategory>
+  }
+}
+
+module OrbitalFilters = {
+  @react.component
+  let make = (~filters, ~onChange: t => unit) => {
+    let initialIsOpen =
+      [
+        filters.semiMajorAxis,
+        filters.inclination,
+        filters.orbitalPeriod,
+        filters.eccentricity,
+      ]->isSomeFilterActive
+    let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+    <FilterCategory title="Orbitals" isOpen onOpenChange={o => setOpen(_ => o)}>
+      <NumberRangeFilter
+        filter=filters.semiMajorAxis
+        onChange={semiMajorAxis => onChange({...filters, semiMajorAxis: semiMajorAxis})}
+        label="Semi major axis (AU)"
+      />
+      <NumberRangeFilter
+        filter=filters.inclination
+        onChange={inclination => onChange({...filters, inclination: inclination})}
+        label="Inclination (degrees)"
+      />
+      <NumberRangeFilter
+        filter=filters.orbitalPeriod
+        onChange={orbitalPeriod => onChange({...filters, orbitalPeriod: orbitalPeriod})}
+        label="Orbital period (days)"
+      />
+      <NumberRangeFilter
+        filter=filters.eccentricity
+        onChange={eccentricity => onChange({...filters, eccentricity: eccentricity})}
+        label="Eccentricity"
+      />
+    </FilterCategory>
+  }
+}
+
 @react.component
 let make = (~className="", ~filters, ~onChange, ~onApply, ~onReset) => {
-  let onOwnedChange = owned => onChange({...filters, owned: owned})
-  let onScannedChange = scanned => onChange({...filters, scanned: scanned})
-  let onRadiusChange = radius => onChange({...filters, radius: radius})
-  let onSpectralTypesChange = spectralTypes => onChange({...filters, spectralTypes: spectralTypes})
-  let onSurfaceAreaChange = surfaceArea => onChange({...filters, surfaceArea: surfaceArea})
-  let onOrbitalPeriodChange = orbitalPeriod => onChange({...filters, orbitalPeriod: orbitalPeriod})
-  let onSemiMajorAxisChange = semiMajorAxis => onChange({...filters, semiMajorAxis: semiMajorAxis})
-  let onInclinationChange = inclination => onChange({...filters, inclination: inclination})
-  let onEccentricityChange = eccentricity => onChange({...filters, eccentricity: eccentricity})
   let (filtersVisible, setFiltersVisible) = React.useState(() => filters->isActive)
-  let iconKind = Icon.Fas("chevron-right")
-  let (iconRotation, height) = switch filtersVisible {
-  | true => (Some(Icon.Rotate90), "max-h-96")
-  | false => (None, "max-h-0")
-  }
-  <div className>
-    <div className="cursor-pointer" onClick={_ => setFiltersVisible(v => !v)}>
-      <Icon
-        className="text-cyan w-3 transition-all duration-300" kind=iconKind rotation=?iconRotation>
-        <h2 className="pl-2"> {"Filters"->React.string} </h2>
-      </Icon>
-    </div>
-    <form onSubmit={ReactEvent.Form.preventDefault}>
-      <div
-        className={`flex flex-col items-start overflow-hidden ${height} transition-max-height duration-300 ease-in-out`}>
-        <div className="flex flex-row space-x-10 mb-4">
-          <div className="flex-col space-y-3">
-            <BoolFilter
-              filter=filters.owned
-              onChange=onOwnedChange
-              label="Ownership"
-              trueText="Owned"
-              falseText="Unowned"
-            />
-            <BoolFilter
-              filter=filters.scanned
-              onChange=onScannedChange
-              label="Scanned"
-              trueText="Yes"
-              falseText="No"
-            />
-          </div>
-          <SpectralTypeFilter filter=filters.spectralTypes onChange=onSpectralTypesChange />
-          <div className="flex-col space-y-3">
-            <NumberRangeFilter filter=filters.radius onChange=onRadiusChange label="Radius (m)" />
-            <NumberRangeFilter
-              filter=filters.surfaceArea onChange=onSurfaceAreaChange label=`Surface area (km²)`
-            />
-          </div>
-          <div className="flex-col space-y-3">
-            <NumberRangeFilter
-              filter=filters.semiMajorAxis
-              onChange=onSemiMajorAxisChange
-              label="Semi major axis (AU)"
-            />
-            <NumberRangeFilter
-              filter=filters.inclination onChange=onInclinationChange label="Inclination (degrees)"
-            />
-          </div>
-          <div className="flex-col space-y-3">
-            <NumberRangeFilter
-              filter=filters.orbitalPeriod
-              onChange=onOrbitalPeriodChange
-              label="Orbital period (days)"
-            />
-            <NumberRangeFilter
-              filter=filters.eccentricity onChange=onEccentricityChange label="Eccentricity"
-            />
-          </div>
-        </div>
-        <div className="flex flex-row space-x-9">
-          <button type_="submit" onClick={_ => onApply()}>
-            <Icon kind={Icon.Fas("check")} text="Apply" />
-          </button>
-          <button onClick={_ => onReset()}> <Icon kind={Icon.Fas("times")} text="Reset" /> </button>
-        </div>
-      </div>
+  <CollapsibleContent
+    className
+    titleComp={<h2> {"Filters"->React.string} </h2>}
+    isOpen=filtersVisible
+    onOpenChange={isOpen => setFiltersVisible(_ => isOpen)}>
+    <form className="flex flex-col space-y-3" onSubmit={ReactEvent.Form.preventDefault}>
+      <GeneralFilters filters onChange />
+      <SizeFilters filters onChange />
+      <OrbitalFilters filters onChange />
+      <div />
+      <Buttons onApply onReset />
+      <div />
     </form>
-  </div>
+  </CollapsibleContent>
 }
