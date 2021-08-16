@@ -42,6 +42,7 @@ let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters) =>
           semiMajorAxis: appliedFilters.semiMajorAxis->AsteroidFilters.Filter.toOption,
           inclination: appliedFilters.inclination->AsteroidFilters.Filter.toOption,
           eccentricity: appliedFilters.eccentricity->AsteroidFilters.Filter.toOption,
+          estimatedPrice: appliedFilters.estimatedPrice->AsteroidFilters.Filter.toOption,
         }),
       })
       ->Route.update
@@ -89,6 +90,7 @@ let useAsteroidPageQuery = (
   | "inclination" => #INCLINATION
   | "spectralType" => #SPECTRAL_TYPE
   | "eccentricity" => #ECCENTRICITY
+  | "estimatedPrice" => #ESTIMATED_PRICE
   | _ => #ID
   }
   let ({Hooks.response: response}, _) = Hooks.useQuery(
@@ -127,6 +129,10 @@ let useAsteroidPageQuery = (
           to_: to_,
         }),
         eccentricity: filters.eccentricity->Option.map(((from, to_)) => {
+          Queries.DataTableAsteroids.from: from,
+          to_: to_,
+        }),
+        estimatedPrice: filters.estimatedPrice->Option.map(((from, to_)) => {
           Queries.DataTableAsteroids.from: from,
           to_: to_,
         }),

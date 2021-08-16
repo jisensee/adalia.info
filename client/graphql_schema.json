@@ -456,6 +456,18 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
+          },
+          {
+            "name": "estimatedPrice",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Float",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -674,6 +686,16 @@
               "ofType": null
             },
             "defaultValue": null
+          },
+          {
+            "name": "estimatedPrice",
+            "description": null,
+            "type": {
+              "kind": "INPUT_OBJECT",
+              "name": "RangeInput",
+              "ofType": null
+            },
+            "defaultValue": null
           }
         ],
         "interfaces": null,
@@ -812,6 +834,12 @@
           },
           {
             "name": "ECCENTRICITY",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "ESTIMATED_PRICE",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null

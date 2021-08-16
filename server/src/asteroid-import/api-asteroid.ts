@@ -6,6 +6,7 @@ import {
   SpectralType as ApiSpectralType,
   toSize,
   toSpectralType,
+  isScanned,
 } from 'influence-utils'
 
 export interface ApiAsteroid {
@@ -65,23 +66,32 @@ const calcSurface = (radius: number) => {
   return 4 * radiusKm * radiusKm * Math.PI
 }
 
+const estimatePrice = (radius: number) => {
+  const lots = (radius * radius) / 250_000
+  const basePrice = 52.87
+  return basePrice + (basePrice / 10) * lots
+}
+
 export const convertApiAsteroidToInternal = (
   apiAsteroid: ApiAsteroid
 ): Asteroid => {
   const orbit = new KeplerianOrbit(apiAsteroid.orbital)
+  const radius = apiAsteroid.r
+  const owner = apiAsteroid.owner
   return {
     id: apiAsteroid.i,
     baseName: apiAsteroid.baseName,
-    scanned: !!apiAsteroid.rawBonuses,
+    scanned: apiAsteroid.rawBonuses ? isScanned(apiAsteroid.rawBonuses) : false,
     name: apiAsteroid.name ?? apiAsteroid.baseName,
-    owner: apiAsteroid.owner ?? null,
+    owner: owner ?? null,
     spectralType: convertSpectralType(toSpectralType(apiAsteroid.spectralType)),
-    radius: apiAsteroid.r,
+    radius,
     surfaceArea: calcSurface(apiAsteroid.r),
     size: convertSize(toSize(apiAsteroid.r)),
     eccentricity: apiAsteroid.orbital.e,
     inclination: apiAsteroid.orbital.i * (180 / Math.PI),
     semiMajorAxis: apiAsteroid.orbital.a,
     orbitalPeriod: orbit.getPeriod(),
+    estimatedPrice: owner ? null : estimatePrice(radius),
   }
 }

@@ -11,6 +11,7 @@ module AsteroidPageParamType = {
     semiMajorAxis: option<(float, float)>,
     inclination: option<(float, float)>,
     eccentricity: option<(float, float)>,
+    estimatedPrice: option<(float, float)>,
   }
   type t = {
     pageNum: option<int>,
@@ -32,6 +33,7 @@ module AsteroidPageParamType = {
       semiMajorAxis: dict->FloatRangeParam.fromDict("semiMajorAxis"),
       inclination: dict->FloatRangeParam.fromDict("inclination"),
       eccentricity: dict->FloatRangeParam.fromDict("eccentricity"),
+      estimatedPrice: dict->FloatRangeParam.fromDict("estimatedPrice"),
     }),
   }
   let toValues = ({pageNum, pageSize, sort, filters}) => {
@@ -49,6 +51,7 @@ module AsteroidPageParamType = {
       FloatRangeParam.toParam("semiMajorAxis", getFilter(f => f.semiMajorAxis)),
       FloatRangeParam.toParam("inclination", getFilter(f => f.inclination)),
       FloatRangeParam.toParam("eccentricity", getFilter(f => f.eccentricity)),
+      FloatRangeParam.toParam("estimatedPrice", getFilter(f => f.estimatedPrice)),
     ]
   }
 }

@@ -15,6 +15,7 @@ let make = () => {
         semiMajorAxis: None,
         inclination: None,
         eccentricity: None,
+        estimatedPrice: None,
       }),
     },
   )
