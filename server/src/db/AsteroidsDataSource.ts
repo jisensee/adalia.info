@@ -38,6 +38,8 @@ const fieldToSortName = (field: AsteroidField): keyof Asteroid => {
       return 'surfaceArea'
     case AsteroidField.Eccentricity:
       return 'eccentricity'
+    case AsteroidField.EstimatedPrice:
+      return 'estimatedPrice'
   }
 }
 
@@ -88,6 +90,9 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
   const eccentricity = filter.eccentricity
     ? rangeFilter(filter.eccentricity, 'eccentricity')
     : {}
+  const priceEstimate = filter.estimatedPrice
+    ? rangeFilter(filter.estimatedPrice, 'estimatedPrice')
+    : {}
 
   return {
     $and: [
@@ -100,6 +105,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
       semiMajorAxis,
       inclination,
       eccentricity,
+      priceEstimate,
     ],
   }
 }

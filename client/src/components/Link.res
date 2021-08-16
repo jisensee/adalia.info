@@ -2,12 +2,13 @@ type kind =
   | Internal(Route.t)
   | External(string)
 
+let referralParam = "?r=0xD90b1056F1E5DA3d81D09D643e6AC092ec3a7871"
+
 let influence = External("https://influenceth.io")
-let influenceGame = External("https://game.influenceth.io")
-let makeGameRoidLink = id => External("https://game.influenceth.io/" ++ id)
+let influenceGame = External("https://game.influenceth.io" ++ referralParam)
+let makeGameRoidLink = id => External("https://game.influenceth.io/" ++ id ++ referralParam)
 let githubRepo = External("https://github.com/jisensee/adalia.info")
 let discord = External("https://discord.gg/XynYK5yCQy")
-let referral = External("https://game.influenceth.io?r=0xD90b1056F1E5DA3d81D09D643e6AC092ec3a7871")
 let makeReleaseLink = version => External(
   `https://github.com/jisensee/adalia.info/releases/tag/${version}`,
 )

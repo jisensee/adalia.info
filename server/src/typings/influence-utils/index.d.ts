@@ -47,4 +47,6 @@ declare module 'influence-utils' {
   export function toSpectralType(num: number): SpectralType
 
   export function toSize(radius: number): Size
+
+  export function isScanned(packed: number): boolean
 }

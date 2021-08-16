@@ -72,6 +72,7 @@ let getDefaultFilter = filters => {
     semiMajorAxis: getDefault(f => f.semiMajorAxis, Defaults.semiMajorAxisBounds),
     inclination: getDefault(f => f.inclination, Defaults.inclinationBounds),
     eccentricity: getDefault(f => f.eccentricity, Defaults.eccentricityBounds),
+    estimatedPrice: getDefault(f => f.estimatedPrice, Defaults.estimatedPriceBounds),
   }
 }
 
@@ -101,6 +102,10 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?) => {
         <h1> {"Asteroids"->React.string} </h1>
         <p>
           {"You can apply filters to all asteroids by expanding the filter widget. Copy the URL to share your current filter and sorting setup."->React.string}
+        </p>
+        <p>
+          <span className="text-cyan font-bold"> {"Disclaimer: "->React.string} </span>
+          {"The shown prices are calculated of a base price of $75 and were not provided by official data. Therefore they cannot be guaranteed to be correct."->React.string}
         </p>
         <AsteroidFilters
           className="mb-3"

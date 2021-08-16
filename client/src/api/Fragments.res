@@ -11,6 +11,7 @@ fragment DataTableAsteroid on Asteroid {
   spectralType
   eccentricity
   scanned
+  estimatedPrice
 }
 
 fragment FullAsteroid on Asteroid {
@@ -25,6 +26,7 @@ fragment FullAsteroid on Asteroid {
   spectralType
   eccentricity
   scanned
+  estimatedPrice
 }
 
 fragment DataTableAsteroidPage on AsteroidPage {

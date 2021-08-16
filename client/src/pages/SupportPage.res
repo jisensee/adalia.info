@@ -16,11 +16,11 @@ let make = () => {
     <DonateButton />
     <h3> {"Referral"->React.string} </h3>
     <p className="mb-0">
-      {"Alternatively (or additionaly) you can use my "->React.string}
-      <Link to_={Link.External(referralLink)}> {"referral link"->React.string} </Link>
+      {"All links to the game on this site include my "->React.string}
+      <Link to_={Link.External(referralLink)}> {"referral address."->React.string} </Link>
     </p>
     <p>
-      {"This does not cost you anything and is a great way to support this site and the developers of Influence alike."->React.string}
+      {"Using those is no different to normal links but supports me indirectly without any cost for you."->React.string}
     </p>
     <h3> {"Become involved"->React.string} </h3>
     <p> {"There are also a bunch of non-monatary things you can do:"->React.string} </p>

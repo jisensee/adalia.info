@@ -13,6 +13,7 @@ module Column = {
     | #inclination
     | #spectralType
     | #eccentricity
+    | #estimatedPrice
   ]
   let toName = id =>
     switch id {
@@ -27,6 +28,7 @@ module Column = {
     | #inclination => "Incl."
     | #spectralType => "Type"
     | #eccentricity => "Ecc."
+    | #estimatedPrice => "Est. price"
     }
   let make = (id: id) =>
     DataTable.column(
@@ -49,10 +51,11 @@ let ownerCell = DataTable.CellRenderer.make("owner", address =>
   <AsteroidOwner address shortAddress={true} />
 )
 let columns = [
-  Column.make(#id, ~grow=6, ~cell=idCell, ()),
+  Column.make(#id, ~grow=7, ~cell=idCell, ()),
   Column.make(#owner, ~grow=5, ~cell=ownerCell, ()),
   Column.make(#name, ~grow=8, ()),
   Column.make(#spectralType, ~grow=2, ()),
+  Column.make(#estimatedPrice, ~grow=7, ()),
   Column.make(#scanned, ~grow=5, ()),
   Column.make(#radius, ~grow=5, ()),
   Column.make(#surfaceArea, ~grow=8, ()),
@@ -62,13 +65,14 @@ let columns = [
   Column.make(#eccentricity, ~grow=5, ()),
 ]
 
-let cell = (~unit=?, id: Column.id, value: 'a, formatValue: 'a => string) => (
+let cell = (~unit=?, ~prependUnit=false, id: Column.id, value: 'a, formatValue: 'a => string) => (
   (id :> string),
-  value->formatValue ++
-    switch unit {
-    | None => ""
-    | Some(u) => ` ${u}`
-    },
+  switch (formatValue(value), unit, prependUnit) {
+  | ("", _, _) => ""
+  | (formatted, None, _) => formatted
+  | (formatted, Some(u), false) => `${formatted}${u}`
+  | (formatted, Some(u), true) => `${u}${formatted}`
+  },
 )
 
 module Loading = {
@@ -93,11 +97,18 @@ let make = (
       cell(#name, a.name, s => s),
       cell(#owner, a.owner, Option.getWithDefault(_, "")),
       cell(#spectralType, a.spectralType, spectralTypeToStr),
+      cell(
+        #estimatedPrice,
+        a.estimatedPrice,
+        Belt.Option.mapWithDefault(_, "", Format.bigFloat),
+        ~unit="$",
+        ~prependUnit=true,
+      ),
       cell(#scanned, a.scanned, scanned => scanned ? "Yes" : "No"),
-      cell(#radius, a.radius, Format.radius, ~unit="m"),
-      cell(#surfaceArea, a.surfaceArea, Format.surfaceArea, ~unit=`km²`),
-      cell(#orbitalPeriod, a.orbitalPeriod, Format.orbitalPeriod, ~unit="d"),
-      cell(#semiMajorAxis, a.semiMajorAxis, Format.semiMajorAxis, ~unit="AU"),
+      cell(#radius, a.radius, Format.bigFloat, ~unit=" m"),
+      cell(#surfaceArea, a.surfaceArea, Format.bigFloat, ~unit=` km²`),
+      cell(#orbitalPeriod, a.orbitalPeriod, Format.orbitalPeriod, ~unit=" d"),
+      cell(#semiMajorAxis, a.semiMajorAxis, Format.semiMajorAxis, ~unit=" AU"),
       cell(#inclination, a.inclination, Format.inclination, ~unit=`°`),
       cell(#eccentricity, a.eccentricity, Format.eccentricity),
     ])

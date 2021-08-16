@@ -27,6 +27,7 @@ export type Asteroid = {
   readonly eccentricity: Scalars['Float'];
   readonly spectralType: SpectralType;
   readonly scanned: Scalars['Boolean'];
+  readonly estimatedPrice: Maybe<Scalars['Float']>;
 };
 
 export type AsteroidCount = {
@@ -46,7 +47,8 @@ export enum AsteroidField {
   SemiMajorAxis = 'SEMI_MAJOR_AXIS',
   Inclination = 'INCLINATION',
   SpectralType = 'SPECTRAL_TYPE',
-  Eccentricity = 'ECCENTRICITY'
+  Eccentricity = 'ECCENTRICITY',
+  EstimatedPrice = 'ESTIMATED_PRICE'
 }
 
 export type AsteroidFilterInput = {
@@ -59,6 +61,7 @@ export type AsteroidFilterInput = {
   readonly semiMajorAxis: Maybe<RangeInput>;
   readonly inclination: Maybe<RangeInput>;
   readonly eccentricity: Maybe<RangeInput>;
+  readonly estimatedPrice: Maybe<RangeInput>;
 };
 
 export type AsteroidPage = {

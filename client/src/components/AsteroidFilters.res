@@ -42,6 +42,7 @@ type t = {
   semiMajorAxis: Filter.t<(float, float)>,
   inclination: Filter.t<(float, float)>,
   eccentricity: Filter.t<(float, float)>,
+  estimatedPrice: Filter.t<(float, float)>,
 }
 let disableAll = filter => {
   owned: filter.owned->Filter.disable,
@@ -53,6 +54,7 @@ let disableAll = filter => {
   semiMajorAxis: filter.semiMajorAxis->Filter.disable,
   inclination: filter.inclination->Filter.disable,
   eccentricity: filter.eccentricity->Filter.disable,
+  estimatedPrice: filter.estimatedPrice->Filter.disable,
 }
 let toQueryParamFilter = asteroidFilter => {
   PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
@@ -64,6 +66,7 @@ let toQueryParamFilter = asteroidFilter => {
   semiMajorAxis: asteroidFilter.semiMajorAxis->Filter.toOption,
   inclination: asteroidFilter.inclination->Filter.toOption,
   eccentricity: asteroidFilter.eccentricity->Filter.toOption,
+  estimatedPrice: asteroidFilter.estimatedPrice->Filter.toOption,
 }
 
 let correctValue = ((from, to_), (min, max)) => (
@@ -164,11 +167,11 @@ module FilterCategory = {
   @react.component
   let make = (~children, ~title, ~isOpen, ~onOpenChange) =>
     <CollapsibleContent
-      className="flex flex-row flex-wrap -m-2"
+      className="flex flex-row flex-wrap -ml-5"
       titleComp={<h3> {title->React.string} </h3>}
       isOpen
       onOpenChange>
-      {children->React.Children.map(c => <div className="pr-2 pl-2 pb-2"> c </div>)}
+      {children->React.Children.map(c => <div className="pr-5 pl-5 pb-3"> c </div>)}
     </CollapsibleContent>
 }
 
@@ -183,6 +186,7 @@ module GeneralFilters = {
         filters.inclination,
         filters.semiMajorAxis,
         filters.eccentricity,
+        filters.estimatedPrice,
       ]->Belt.Array.every(f => f.active === false)
     let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
     <FilterCategory title="General" isOpen onOpenChange={o => setOpen(_ => o)}>
@@ -225,6 +229,11 @@ module SizeFilters = {
         filter=filters.surfaceArea
         onChange={surfaceArea => onChange({...filters, surfaceArea: surfaceArea})}
         label=`Surface area (km²)`
+      />
+      <NumberRangeFilter
+        filter=filters.estimatedPrice
+        onChange={estimatedPrice => onChange({...filters, estimatedPrice: estimatedPrice})}
+        label="Estimated price ($)"
       />
     </FilterCategory>
   }

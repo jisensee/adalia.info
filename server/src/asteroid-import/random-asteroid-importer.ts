@@ -41,6 +41,7 @@ const randomRoid = (id: number): Asteroid => ({
   orbitalPeriod: randomInt(700, 3000),
   spectralType: randomSpectraltype(),
   eccentricity: randomInt(0, 5),
+  estimatedPrice: randomInt(75, 5_000_000),
 })
 
 const randomImporter: AsteroidImporter = {

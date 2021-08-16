@@ -28,6 +28,12 @@
     @apply text-cyan;
   }
 
+  h4 {
+    @apply text-xl;
+    @apply text-cyan;
+    @apply font-bold;
+  }
+
   select {
     @apply bg-gray-dark;
     @apply border-cyan;

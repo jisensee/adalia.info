@@ -16,7 +16,7 @@ let shortenAddress = ethAddress => {
 @react.component
 let make = (~address: string, ~shortAddress=false) => {
   switch address {
-  | "" => "-"->React.string
+  | "" => ""->React.string
   | add =>
     <AddressLink address=add>
       {switch shortAddress {
