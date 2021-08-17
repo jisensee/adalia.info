@@ -72,3 +72,34 @@ module NumberRangeInput = {
     </div>
   }
 }
+
+module Popover = {
+  @module("@headlessui/react") @react.component
+  external make: (~className: string=?, ~children: React.element) => React.element = "Popover"
+
+  module Button = {
+    @module("@headlessui/react") @scope("Popover") @react.component
+    external make: (~className: string=?, ~children: React.element) => React.element = "Button"
+  }
+
+  module Panel = {
+    @module("@headlessui/react") @scope("Popover") @react.component
+    external make: (~className: string=?, ~children: React.element) => React.element = "Panel"
+  }
+}
+
+module Transition = {
+  @module("@headlessui/react") @react.component
+  external make: (
+    ~children: React.element,
+    ~className: string=?,
+    ~show: bool=?,
+    ~appear: bool=?,
+    ~enter: string=?,
+    ~enterFrom: string=?,
+    ~enterTo: string=?,
+    ~leave: string=?,
+    ~leaveFrom: string=?,
+    ~leaveTo: string=?,
+  ) => React.element = "Transition"
+}

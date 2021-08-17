@@ -12,6 +12,7 @@ let defaultAsteroidsRoute = Asteroids({
   pageSize: None,
   sort: None,
   filters: None,
+  columns: None,
 })
 
 let toUrl = r =>

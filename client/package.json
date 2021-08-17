@@ -30,14 +30,16 @@
   "dependencies": {
     "@fontsource/jura": "^4.3.0",
     "@fortawesome/fontawesome-free": "^5.15.3",
+    "@headlessui/react": "^1.4.0",
     "@rescript/react": "^0.10.2",
     "@ryyppy/rescript-promise": "^2.1.0",
     "@tailwindcss/forms": "^0.3.2",
     "@urql/rescript": "^4.0.0",
     "graphql": "^15.5.0",
     "react": "^17.0.2",
-    "react-data-table-component": "^7.0.0-alpha-10",
+    "react-data-table-component": "^7.0.0-rc6",
     "react-dom": "^17.0.2",
+    "react-tiny-popover": "^6.0.10",
     "styled-components": "^5.3.0",
     "urql": "^2.0.2"
   }

@@ -27,11 +27,13 @@ type column = {
   @optional cell: CellRenderer.t,
   @optional sortable: bool,
   @optional grow: int,
+  @optional minWidth: string,
 }
 
 module Binding = {
   @module("react-data-table-component") @react.component
   external make: (
+    ~className: string=?,
     ~columns: array<column>,
     ~data: data=?,
     ~noHeader: bool=?,
@@ -134,7 +136,6 @@ let make = (~columns, ~data, ~pagination=?, ~sorting=?, ~header=?, ~noDataText=?
   <Binding
     columns
     data
-    sortFunction={(data, _, _) => Js.Array2.copy(data)}
     noHeader={true}
     ?fixedHeader
     ?fixedHeaderScrollHeight
