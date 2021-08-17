@@ -1,3 +1,5 @@
+open Belt
+
 module Filter = {
   type t<'a> = {
     active: bool,
@@ -112,7 +114,8 @@ let isActive = f =>
     f.semiMajorAxis.active,
     f.inclination.active,
     f.eccentricity.active,
-  ]->Belt.Array.some(active => active)
+    f.estimatedPrice.active,
+  ]->Array.some(active => active)
 
 module BoolFilter = {
   @react.component
@@ -187,7 +190,12 @@ module GeneralFilters = {
         filters.semiMajorAxis,
         filters.eccentricity,
         filters.estimatedPrice,
-      ]->Belt.Array.every(f => f.active === false)
+      ]->Array.every(f => f.active === false) ||
+        [
+          filters.owned.active,
+          filters.scanned.active,
+          filters.spectralTypes.active,
+        ]->Array.some(a => a)
     let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
     <FilterCategory title="General" isOpen onOpenChange={o => setOpen(_ => o)}>
       <BoolFilter
@@ -212,13 +220,18 @@ module GeneralFilters = {
   }
 }
 
-let isSomeFilterActive = filters => filters->Belt.Array.some(f => f.Filter.active)
-
 module SizeFilters = {
   @react.component
   let make = (~filters, ~onChange: t => unit) => {
-    let initialIsOpen = [filters.radius, filters.surfaceArea]->isSomeFilterActive
+    let initialIsOpen =
+      [
+        filters.radius.active,
+        filters.surfaceArea.active,
+        filters.estimatedPrice.active,
+      ]->Array.some(a => a)
+
     let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+
     <FilterCategory title="Size" isOpen onOpenChange={o => setOpen(_ => o)}>
       <NumberRangeFilter
         filter=filters.radius
@@ -244,12 +257,14 @@ module OrbitalFilters = {
   let make = (~filters, ~onChange: t => unit) => {
     let initialIsOpen =
       [
-        filters.semiMajorAxis,
-        filters.inclination,
-        filters.orbitalPeriod,
-        filters.eccentricity,
-      ]->isSomeFilterActive
+        filters.semiMajorAxis.active,
+        filters.inclination.active,
+        filters.orbitalPeriod.active,
+        filters.eccentricity.active,
+      ]->Array.some(a => a)
+
     let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+
     <FilterCategory title="Orbitals" isOpen onOpenChange={o => setOpen(_ => o)}>
       <NumberRangeFilter
         filter=filters.semiMajorAxis
