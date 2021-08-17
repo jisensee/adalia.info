@@ -17,9 +17,9 @@ let useFilters = defaultFilters =>
     applied: defaultFilters,
   })
 
-let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters) =>
-  React.useEffect4(() => {
-    let initialSortField: AsteroidTable.Column.id = #id
+let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters, ~columns) =>
+  React.useEffect5(() => {
+    let initialSortField = AsteroidTableColumn.Id
     switch (pageNum, pageSize, sort) {
     | (Some(_), Some(_), Some(_)) => ()
     | _ =>
@@ -28,7 +28,7 @@ let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters) =>
         pageSize: pageSize->Option.getWithDefault(15)->Some,
         sort: sort
         ->Option.getWithDefault({
-          QueryParams.field: (initialSortField :> string),
+          QueryParams.field: initialSortField->AsteroidTableColumn.toString,
           mode: QueryParams.SortMode.Ascending,
         })
         ->Some,
@@ -44,25 +44,27 @@ let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters) =>
           eccentricity: appliedFilters.eccentricity->AsteroidFilters.Filter.toOption,
           estimatedPrice: appliedFilters.estimatedPrice->AsteroidFilters.Filter.toOption,
         }),
+        columns: Some(columns),
       })
       ->Route.update
       ->ignore
     }
     None
-  }, (pageNum, pageSize, sort, appliedFilters))
+  }, (pageNum, pageSize, sort, appliedFilters, columns->Belt.Array.length))
 
-let useRouteUpdateEffect = (~pageData, ~sortData, ~filters) => React.useEffect3(() => {
+let useRouteUpdateEffect = (~pageData, ~sortData, ~filters, ~columns) => React.useEffect4(() => {
     let filters = filters->AsteroidFilters.toQueryParamFilter
     Route.Asteroids({
-      pageNum: pageData.pageNum->Some,
-      pageSize: pageData.pageSize->Some,
-      sort: sortData->Some,
+      pageNum: Some(pageData.pageNum),
+      pageSize: Some(pageData.pageSize),
+      sort: Some(sortData),
       filters: Some(filters),
+      columns: Some(columns),
     })
     ->Route.update
     ->ignore
     None
-  }, (pageData, sortData, filters))
+  }, (pageData, sortData, filters, columns->Belt.Array.length))
 
 let usePageData = (~pageNum, ~pageSize) =>
   React.useState(() => {

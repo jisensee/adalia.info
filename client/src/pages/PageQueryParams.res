@@ -1,6 +1,14 @@
 module AsteroidPageParamType = {
   open QueryParams
 
+  module AsteroidTableColumnsParam = MakeParam({
+    type t = array<AsteroidTableColumn.t>
+    let toString = colums =>
+      colums->Belt.Array.map(AsteroidTableColumn.toString)->Js.Array2.joinWith(_, ",")
+    let fromString = str =>
+      str->Js.String2.split(_, ",")->Belt.Array.keepMap(AsteroidTableColumn.fromString)->Some
+  })
+
   type filters = {
     owned: option<bool>,
     scanned: option<bool>,
@@ -18,6 +26,7 @@ module AsteroidPageParamType = {
     pageSize: option<int>,
     sort: option<sortingParam>,
     filters: option<filters>,
+    columns: option<array<AsteroidTableColumn.t>>,
   }
   let fromDict = dict => {
     pageNum: dict->IntParam.fromDict("page"),
@@ -35,8 +44,9 @@ module AsteroidPageParamType = {
       eccentricity: dict->FloatRangeParam.fromDict("eccentricity"),
       estimatedPrice: dict->FloatRangeParam.fromDict("estimatedPrice"),
     }),
+    columns: dict->AsteroidTableColumnsParam.fromDict("columns"),
   }
-  let toValues = ({pageNum, pageSize, sort, filters}) => {
+  let toValues = ({pageNum, pageSize, sort, filters, columns}) => {
     let getFilter = getter => filters->Belt.Option.flatMap(getter)
     [
       IntParam.toParam("page", pageNum),
@@ -52,6 +62,7 @@ module AsteroidPageParamType = {
       FloatRangeParam.toParam("inclination", getFilter(f => f.inclination)),
       FloatRangeParam.toParam("eccentricity", getFilter(f => f.eccentricity)),
       FloatRangeParam.toParam("estimatedPrice", getFilter(f => f.estimatedPrice)),
+      AsteroidTableColumnsParam.toParam("columns", columns),
     ]
   }
 }

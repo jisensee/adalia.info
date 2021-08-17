@@ -1,43 +1,6 @@
 external spectralTypeToStr: Fragments.DataTableAsteroid.t_spectralType => string = "%identity"
 
-module Column = {
-  type id = [
-    | #id
-    | #owner
-    | #scanned
-    | #name
-    | #radius
-    | #surfaceArea
-    | #orbitalPeriod
-    | #semiMajorAxis
-    | #inclination
-    | #spectralType
-    | #eccentricity
-    | #estimatedPrice
-  ]
-  let toName = id =>
-    switch id {
-    | #id => "ID"
-    | #owner => "Owner"
-    | #scanned => "Scan"
-    | #name => "Name"
-    | #radius => "Radius"
-    | #surfaceArea => "Surface"
-    | #orbitalPeriod => "OP"
-    | #semiMajorAxis => "SMA"
-    | #inclination => "Incl."
-    | #spectralType => "Type"
-    | #eccentricity => "Ecc."
-    | #estimatedPrice => "Est. price"
-    }
-  let make = (id: id) =>
-    DataTable.column(
-      ~id=(id :> string),
-      ~name=id->toName,
-      ~selector=Js.Dict.get(_, (id :> string)),
-      ~sortable=true,
-    )
-}
+module Column = AsteroidTableColumn
 
 let idCell = DataTable.CellRenderer.make("id", id =>
   <div className="flex flex-row space-x-5 items-center">
@@ -50,23 +13,54 @@ let idCell = DataTable.CellRenderer.make("id", id =>
 let ownerCell = DataTable.CellRenderer.make("owner", address =>
   <AsteroidOwner address shortAddress={true} />
 )
-let columns = [
-  Column.make(#id, ~grow=7, ~cell=idCell, ()),
-  Column.make(#owner, ~grow=5, ~cell=ownerCell, ()),
-  Column.make(#name, ~grow=8, ()),
-  Column.make(#spectralType, ~grow=2, ()),
-  Column.make(#estimatedPrice, ~grow=7, ()),
-  Column.make(#scanned, ~grow=5, ()),
-  Column.make(#radius, ~grow=5, ()),
-  Column.make(#surfaceArea, ~grow=8, ()),
-  Column.make(#orbitalPeriod, ~grow=5, ()),
-  Column.make(#semiMajorAxis, ~grow=5, ()),
-  Column.make(#inclination, ~grow=5, ()),
-  Column.make(#eccentricity, ~grow=5, ()),
-]
 
-let cell = (~unit=?, ~prependUnit=false, id: Column.id, value: 'a, formatValue: 'a => string) => (
-  (id :> string),
+let spectralTypeCell = DataTable.CellRenderer.make("spectralType", st =>
+  <span>
+    <span className="text-cyan text-xl font-bold"> {st->React.string} </span>
+    {"-Type"->React.string}
+  </span>
+)
+
+let makeColumn = column => {
+  let (cell, minWidth, grow) = switch column {
+  | Column.Id => (Some(idCell), "9rem", 0)
+  | Column.Owner => (Some(ownerCell), "8rem", 0)
+  | Column.Name => (None, "", 1)
+  | Column.SpectralType => (Some(spectralTypeCell), "7rem", 0)
+  | Column.EstimatedPrice => (None, "13rem", 0)
+  | Column.Scanned => (None, "9rem", 0)
+  | Column.Radius => (None, "8rem", 0)
+  | Column.SurfaceArea => (None, "12rem", 0)
+  | Column.OrbitalPeriod => (None, "12rem", 0)
+  | Column.SemiMajorAxis => (None, "12rem", 0)
+  | Column.Inclination => (None, "10rem", 0)
+  | Column.Eccentricity => (None, "11rem", 0)
+  }
+  DataTable.column(
+    ~id=column->Column.toString,
+    ~name=column->Column.toName,
+    ~selector=Js.Dict.get(_, column->Column.toString),
+    ~sortable=true,
+    ~minWidth,
+    ~grow,
+    ~cell?,
+    (),
+  )
+}
+
+let makeDataTableColumns = columns => {
+  let customColumns = columns->Belt.Array.map(makeColumn)
+  [makeColumn(Column.Id)]->Belt.Array.concat(customColumns)
+}
+
+let cell = (
+  ~unit=?,
+  ~prependUnit=false,
+  column: Column.t,
+  value: 'a,
+  formatValue: 'a => string,
+) => (
+  column->Column.toString,
   switch (formatValue(value), unit, prependUnit) {
   | ("", _, _) => ""
   | (formatted, None, _) => formatted
@@ -75,9 +69,12 @@ let cell = (~unit=?, ~prependUnit=false, id: Column.id, value: 'a, formatValue: 
   },
 )
 
+let mapColumns = Belt.Array.map(_, makeColumn)
+
 module Loading = {
   @react.component
-  let make = () => <DataTable.Loading columns text={"Loading asteroids..."} />
+  let make = (~columns) =>
+    <DataTable.Loading columns={makeDataTableColumns(columns)} text={"Loading asteroids..."} />
 }
 
 @react.component
@@ -88,29 +85,30 @@ let make = (
   ~defaultSortFieldId,
   ~onPageChange,
   ~onSort,
+  ~columns: array<Column.t>,
 ) => {
   open Belt
   let data =
     pageData.rows
     ->Array.map(a => [
-      cell(#id, a.id, Int.toString),
-      cell(#name, a.name, s => s),
-      cell(#owner, a.owner, Option.getWithDefault(_, "")),
-      cell(#spectralType, a.spectralType, spectralTypeToStr),
+      cell(Column.Id, a.id, Int.toString),
+      cell(Column.Name, a.name, s => s),
+      cell(Column.Owner, a.owner, Option.getWithDefault(_, "")),
+      cell(Column.SpectralType, a.spectralType, spectralTypeToStr),
       cell(
-        #estimatedPrice,
+        Column.EstimatedPrice,
         a.estimatedPrice,
         Belt.Option.mapWithDefault(_, "", Format.bigFloat),
         ~unit="$",
         ~prependUnit=true,
       ),
-      cell(#scanned, a.scanned, scanned => scanned ? "Yes" : "No"),
-      cell(#radius, a.radius, Format.bigFloat, ~unit=" m"),
-      cell(#surfaceArea, a.surfaceArea, Format.bigFloat, ~unit=` km²`),
-      cell(#orbitalPeriod, a.orbitalPeriod, Format.orbitalPeriod, ~unit=" d"),
-      cell(#semiMajorAxis, a.semiMajorAxis, Format.semiMajorAxis, ~unit=" AU"),
-      cell(#inclination, a.inclination, Format.inclination, ~unit=`°`),
-      cell(#eccentricity, a.eccentricity, Format.eccentricity),
+      cell(Column.Scanned, a.scanned, scanned => scanned ? "Yes" : "No"),
+      cell(Column.Radius, a.radius, Format.bigFloat, ~unit=" m"),
+      cell(Column.SurfaceArea, a.surfaceArea, Format.bigFloat, ~unit=` km²`),
+      cell(Column.OrbitalPeriod, a.orbitalPeriod, Format.orbitalPeriod, ~unit=" d"),
+      cell(Column.SemiMajorAxis, a.semiMajorAxis, Format.semiMajorAxis, ~unit=" AU"),
+      cell(Column.Inclination, a.inclination, Format.inclination, ~unit=`°`),
+      cell(Column.Eccentricity, a.eccentricity, Format.eccentricity),
     ])
     ->Array.map(Js.Dict.fromArray)
   let pagination: DataTable.pagination = {
@@ -126,7 +124,7 @@ let make = (
     onChange: onSort,
   }
   <DataTable
-    columns
+    columns={makeDataTableColumns(columns)}
     data
     pagination
     sorting

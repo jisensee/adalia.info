@@ -35,6 +35,9 @@ module.exports = {
       maxHeight: {
         all: '100rem',
       },
+      zIndex: {
+        '-10': '-10',
+      },
       transitionProperty: {
         'max-h': 'max-height',
       },

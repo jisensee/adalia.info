@@ -13,12 +13,13 @@ module Table = {
     ~pageSize,
     ~sort: QueryParams.SortingParamType.t,
     ~filters: AsteroidFilters.t,
+    ~columns,
   ) => {
     let (pageData, setPageData) = usePageData(~pageNum, ~pageSize)
     let (sortData, setSortData) = React.useState(() => sort)
     let queryParamFilters = filters->AsteroidFilters.toQueryParamFilter
 
-    useRouteUpdateEffect(~pageData, ~sortData, ~filters)
+    useRouteUpdateEffect(~pageData, ~sortData, ~filters, ~columns)
 
     let response = useAsteroidPageQuery(~sortData, ~pageData, ~filters=queryParamFilters)
 
@@ -44,11 +45,12 @@ module Table = {
         pageData=asteroids
         defaultSortFieldId=sort.field
         pageSize=pageData.pageSize
+        columns
         pageSizeOptions
         onPageChange
         onSort
       />
-    | Fetching => <AsteroidTable.Loading />
+    | Fetching => <AsteroidTable.Loading columns />
     | _ => React.null
     }
   }
@@ -77,16 +79,58 @@ let getDefaultFilter = filters => {
 }
 
 @react.component
-let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?) => {
+let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
   let defaultFilters = getDefaultFilter(filters)
   let filteredPageSize = pageSize->Option.keep(Js.Array2.includes(pageSizeOptions))
 
   let (filters, setFilters) = useFilters(defaultFilters)
+  let defaultCols = [
+    AsteroidTableColumn.Owner,
+    Name,
+    SpectralType,
+    Radius,
+    OrbitalPeriod,
+    EstimatedPrice,
+  ]
+  let allCols = [
+    AsteroidTableColumn.Owner,
+    Name,
+    SpectralType,
+    Radius,
+    SurfaceArea,
+    OrbitalPeriod,
+    SemiMajorAxis,
+    Inclination,
+    Eccentricity,
+    EstimatedPrice,
+    Scanned,
+  ]
+  let makeColumnMap = active => allCols->Array.map(c => (c, active->Array.some(a => a === c)))
+  let (selectedColumns, setSelectedColumns) = React.useState(_ =>
+    switch columns {
+    | None => defaultCols->makeColumnMap
+    | Some(selected) => selected->makeColumnMap
+    }
+  )
+  let activeCols = selectedColumns->Array.keepMap(((key, active)) =>
+    switch active {
+    | true => Some(key)
+    | false => None
+    }
+  )
 
-  useInitialRouteEffect(~pageNum, ~pageSize, ~sort, ~appliedFilters=filters.applied)
+  Js.log2("selected cols", selectedColumns)
 
-  switch (pageNum, filteredPageSize, sort) {
-  | (Some(p), Some(ps), Some(s)) => {
+  useInitialRouteEffect(
+    ~pageNum,
+    ~pageSize,
+    ~sort,
+    ~appliedFilters=filters.applied,
+    ~columns=activeCols,
+  )
+
+  switch (pageNum, filteredPageSize, sort, columns) {
+  | (Some(p), Some(ps), Some(s), Some(_)) => {
       let onFilterChange = newFilters => setFilters(_ => {...filters, current: newFilters})
       let onFilterApply = () => {
         let correctedFilter = filters.current->AsteroidFilters.correctFilter
@@ -98,8 +142,36 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?) => {
           applied: filters.applied->AsteroidFilters.disableAll,
         })
 
+      let columnConfig =
+        <AsteroidTableColumnConfig
+          columns=selectedColumns
+          onChange={c => setSelectedColumns(_ => c)}
+          columnToString={AsteroidTableColumn.toName}
+        />
+      module Popover = Common.Popover
+
       <div className="flex flex-col h-full">
-        <h1> {"Asteroids"->React.string} </h1>
+        <div className="flex flex-row">
+          <h1> {"Asteroids"->React.string} </h1>
+          <div className="flex flex-row flex-grow justify-end items-center pb-2">
+            <Popover className="relative">
+              <Popover.Button className="">
+                <Icon kind={Icon.Fas("list")}> {"Columns"->React.string} </Icon>
+              </Popover.Button>
+              <Common.Transition
+                enter="transition duration-100 ease-out"
+                enterFrom="transform scale-95 opacity-0"
+                enterTo="transform scale-100 opacity-100"
+                leave="transition duration-75 ease-out"
+                leaveFrom="transform scale-100 opacity-100"
+                leaveTo="transform scale-95 opacity-0">
+                <Popover.Panel className="absolute z-50 mt-2 w-48 -right-0">
+                  {columnConfig}
+                </Popover.Panel>
+              </Common.Transition>
+            </Popover>
+          </div>
+        </div>
         <p>
           {"You can apply filters to all asteroids by expanding the filter widget. Copy the URL to share your current filter and sorting setup."->React.string}
         </p>
@@ -107,14 +179,18 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?) => {
           <span className="text-cyan font-bold"> {"Disclaimer: "->React.string} </span>
           {"The shown prices are calculated of a base price of $75 and were not provided by official data. Therefore they cannot be guaranteed to be correct."->React.string}
         </p>
-        <AsteroidFilters
-          className="mb-3"
-          filters=filters.current
-          onChange=onFilterChange
-          onApply=onFilterApply
-          onReset
-        />
-        <Table pageNum=p pageSize=ps sort=s filters=filters.applied />
+        <div className="flex flex-row mb-3">
+          <AsteroidFilters
+            className="flex flex-grow"
+            filters=filters.current
+            onChange=onFilterChange
+            onApply=onFilterApply
+            onReset
+          />
+        </div>
+        <div className="-z-10">
+          <Table pageNum=p pageSize=ps sort=s filters=filters.applied columns=activeCols />
+        </div>
       </div>
     }
   | _ => React.null

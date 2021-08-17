@@ -15,6 +15,17 @@
     @apply text-xl;
     @apply text-cyan !important;
     @apply bg-gray !important;
+    @apply leading-8 !important;
+  }
+
+  .rdt_TableHeadRow {
+    @apply bg-gray !important;
+    @apply border-white !important;
+  }
+
+  .rdt_TableRow {
+    @apply bg-gray-dark !important;
+    @apply border-white !important;
   }
 
   .datatable-loading {

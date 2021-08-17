@@ -5,8 +5,8 @@ module Item = {
 }
 @react.component
 let make = (~className="") =>
-  <nav className={`bg-gray py-2 px-4 ${className}`}>
-    <div className="container mx-auto flex flex-row">
+  <nav className={`bg-gray py-2 ${className}`}>
+    <div className="container mx-auto px-4 flex flex-row">
       <ul className="flex flex-row items-center space-x-9 flex-grow">
         <Item to_=Link.Internal(Route.Home) bold=true className="text-2xl">
           <Icon kind={Icon.Fas("sun")}> {"adalia.info"->React.string} </Icon>
