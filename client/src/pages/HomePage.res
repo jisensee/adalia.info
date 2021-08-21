@@ -11,6 +11,7 @@ let make = () => {
         spectralTypes: None,
         radius: None,
         surfaceArea: None,
+        sizes: None,
         orbitalPeriod: None,
         semiMajorAxis: None,
         inclination: None,

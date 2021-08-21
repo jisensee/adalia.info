@@ -70,6 +70,7 @@ let getDefaultFilter = filters => {
     spectralTypes: getDefault(f => f.spectralTypes, []),
     radius: getDefault(f => f.radius, Defaults.radiusBounds),
     surfaceArea: getDefault(f => f.surfaceArea, Defaults.surfaceBounds),
+    sizes: getDefault(f => f.sizes, []),
     orbitalPeriod: getDefault(f => f.orbitalPeriod, Defaults.orbitalPeriodBounds),
     semiMajorAxis: getDefault(f => f.semiMajorAxis, Defaults.semiMajorAxisBounds),
     inclination: getDefault(f => f.inclination, Defaults.inclinationBounds),
@@ -88,7 +89,8 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
     AsteroidTableColumn.Owner,
     Name,
     SpectralType,
-    Radius,
+    Size,
+    SurfaceArea,
     OrbitalPeriod,
     EstimatedPrice,
   ]
@@ -96,6 +98,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
     AsteroidTableColumn.Owner,
     Name,
     SpectralType,
+    Size,
     Radius,
     SurfaceArea,
     OrbitalPeriod,
@@ -118,8 +121,6 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
     | false => None
     }
   )
-
-  Js.log2("selected cols", selectedColumns)
 
   useInitialRouteEffect(
     ~pageNum,
@@ -188,9 +189,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
             onReset
           />
         </div>
-        <div className="-z-10">
-          <Table pageNum=p pageSize=ps sort=s filters=filters.applied columns=activeCols />
-        </div>
+        <Table pageNum=p pageSize=ps sort=s filters=filters.applied columns=activeCols />
       </div>
     }
   | _ => React.null

@@ -54,6 +54,7 @@ input AsteroidFilterInput {
   spectralTypes: [SpectralType!]
   radius: RangeInput
   surfaceArea: RangeInput
+  sizes: [AsteroidSize!]
   orbitalPeriod: RangeInput
   semiMajorAxis: RangeInput
   inclination: RangeInput
@@ -78,6 +79,7 @@ enum AsteroidField {
   SCANNED
   RADIUS
   SURFACE_AREA
+  SIZE
   ORBITAL_PERIOD
   SEMI_MAJOR_AXIS
   INCLINATION

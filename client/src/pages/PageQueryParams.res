@@ -3,10 +3,21 @@ module AsteroidPageParamType = {
 
   module AsteroidTableColumnsParam = MakeParam({
     type t = array<AsteroidTableColumn.t>
-    let toString = colums =>
-      colums->Belt.Array.map(AsteroidTableColumn.toString)->Js.Array2.joinWith(_, ",")
+
+    let toString = columns =>
+      columns->Belt.Array.map(AsteroidTableColumn.toString)->Js.Array2.joinWith(_, ",")
+
     let fromString = str =>
       str->Js.String2.split(_, ",")->Belt.Array.keepMap(AsteroidTableColumn.fromString)->Some
+  })
+
+  module AsteroidSizesParam = MakeParam({
+    type t = array<Fragments.AsteroidSize.t_size>
+
+    let toString = sizes => sizes->Belt.Array.map(EnumUtils.sizeToString)->Js.Array2.joinWith(",")
+
+    let fromString = str =>
+      str->Js.String2.split(",")->Belt.Array.keepMap(EnumUtils.sizeFromString)->Some
   })
 
   type filters = {
@@ -14,6 +25,7 @@ module AsteroidPageParamType = {
     scanned: option<bool>,
     radius: option<(float, float)>,
     spectralTypes: option<array<SpectralType.t>>,
+    sizes: option<array<Fragments.AsteroidSize.t_size>>,
     surfaceArea: option<(float, float)>,
     orbitalPeriod: option<(float, float)>,
     semiMajorAxis: option<(float, float)>,
@@ -38,6 +50,7 @@ module AsteroidPageParamType = {
       radius: dict->FloatRangeParam.fromDict("radius"),
       spectralTypes: dict->SpectralTypesParam.fromDict("spectralTypes"),
       surfaceArea: dict->FloatRangeParam.fromDict("surfaceArea"),
+      sizes: dict->AsteroidSizesParam.fromDict("sizes"),
       orbitalPeriod: dict->FloatRangeParam.fromDict("orbitalPeriod"),
       semiMajorAxis: dict->FloatRangeParam.fromDict("semiMajorAxis"),
       inclination: dict->FloatRangeParam.fromDict("inclination"),
@@ -57,6 +70,7 @@ module AsteroidPageParamType = {
       FloatRangeParam.toParam("radius", getFilter(f => f.radius)),
       SpectralTypesParam.toParam("spectralTypes", getFilter(f => f.spectralTypes)),
       FloatRangeParam.toParam("surfaceArea", getFilter(f => f.surfaceArea)),
+      AsteroidSizesParam.toParam("sizes", getFilter(f => f.sizes)),
       FloatRangeParam.toParam("orbitalPeriod", getFilter(f => f.orbitalPeriod)),
       FloatRangeParam.toParam("semiMajorAxis", getFilter(f => f.semiMajorAxis)),
       FloatRangeParam.toParam("inclination", getFilter(f => f.inclination)),

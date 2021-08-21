@@ -648,6 +648,24 @@
             "defaultValue": null
           },
           {
+            "name": "sizes",
+            "description": null,
+            "type": {
+              "kind": "LIST",
+              "name": null,
+              "ofType": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "AsteroidSize",
+                  "ofType": null
+                }
+              }
+            },
+            "defaultValue": null
+          },
+          {
             "name": "orbitalPeriod",
             "description": null,
             "type": {
@@ -804,6 +822,12 @@
           },
           {
             "name": "SURFACE_AREA",
+            "description": null,
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "SIZE",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
