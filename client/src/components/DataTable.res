@@ -33,7 +33,6 @@ type column = {
 module Binding = {
   @module("react-data-table-component") @react.component
   external make: (
-    ~className: string=?,
     ~columns: array<column>,
     ~data: data=?,
     ~noHeader: bool=?,

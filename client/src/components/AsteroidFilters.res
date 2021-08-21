@@ -40,6 +40,7 @@ type t = {
   spectralTypes: Filter.t<array<SpectralType.t>>,
   radius: Filter.t<(float, float)>,
   surfaceArea: Filter.t<(float, float)>,
+  sizes: Filter.t<array<Fragments.AsteroidSize.t_size>>,
   orbitalPeriod: Filter.t<(float, float)>,
   semiMajorAxis: Filter.t<(float, float)>,
   inclination: Filter.t<(float, float)>,
@@ -51,6 +52,7 @@ let disableAll = filter => {
   scanned: filter.scanned->Filter.disable,
   spectralTypes: filter.spectralTypes->Filter.disable,
   radius: filter.radius->Filter.disable,
+  sizes: filter.sizes->Filter.disable,
   surfaceArea: filter.surfaceArea->Filter.disable,
   orbitalPeriod: filter.orbitalPeriod->Filter.disable,
   semiMajorAxis: filter.semiMajorAxis->Filter.disable,
@@ -64,6 +66,7 @@ let toQueryParamFilter = asteroidFilter => {
   radius: asteroidFilter.radius->Filter.toOption,
   spectralTypes: asteroidFilter.spectralTypes->Filter.toOption,
   surfaceArea: asteroidFilter.surfaceArea->Filter.toOption,
+  sizes: asteroidFilter.sizes->Filter.toOption,
   orbitalPeriod: asteroidFilter.orbitalPeriod->Filter.toOption,
   semiMajorAxis: asteroidFilter.semiMajorAxis->Filter.toOption,
   inclination: asteroidFilter.inclination->Filter.toOption,
@@ -110,6 +113,7 @@ let isActive = f =>
     f.scanned.active,
     f.radius.active,
     f.surfaceArea.active,
+    f.sizes.active,
     f.orbitalPeriod.active,
     f.semiMajorAxis.active,
     f.inclination.active,
@@ -138,6 +142,24 @@ module BoolFilter = {
   }
 }
 
+module SpectralTypePicker = {
+  @react.component
+  let make = (~selected, ~onChange, ~enabled) => {
+    let optionToString = (option: SpectralType.t) => (option :> string)
+    let options: array<SpectralType.t> = [#C, #CI, #CIS, #CM, #CMS, #CS, #I, #M, #S, #SI, #SM]
+    <ListSelect options selected onChange optionToString enabled />
+  }
+}
+
+module SizePicker = {
+  @react.component
+  let make = (~selected, ~onChange, ~enabled) => {
+    let optionToString = EnumUtils.sizeToString
+    let options: array<Fragments.AsteroidSize.t_size> = [#SMALL, #MEDIUM, #LARGE, #HUGE]
+    <ListSelect options selected onChange optionToString enabled elementWidth="w-20" />
+  }
+}
+
 module NumberRangeFilter = {
   @react.component
   let make = (~filter, ~onChange, ~label) => {
@@ -152,6 +174,14 @@ module SpectralTypeFilter = {
   let make = (~filter, ~onChange) => {
     let makeFilterComp = (v, oc, enabled) => <SpectralTypePicker selected=v onChange=oc enabled />
     <Filter label="Spectral types" filter onChange makeFilterComp />
+  }
+}
+
+module SizeFilter = {
+  @react.component
+  let make = (~filter, ~onChange) => {
+    let makeFilterComp = (v, oc, enabled) => <SizePicker selected=v onChange=oc enabled />
+    <Filter label="Size" filter onChange makeFilterComp />
   }
 }
 
@@ -181,21 +211,22 @@ module FilterCategory = {
 module GeneralFilters = {
   @react.component
   let make = (~filters, ~onChange: t => unit) => {
-    let initialIsOpen =
+    let allOthersDisabled =
       [
-        filters.radius,
-        filters.surfaceArea,
-        filters.orbitalPeriod,
-        filters.inclination,
-        filters.semiMajorAxis,
-        filters.eccentricity,
-        filters.estimatedPrice,
-      ]->Array.every(f => f.active === false) ||
-        [
-          filters.owned.active,
-          filters.scanned.active,
-          filters.spectralTypes.active,
-        ]->Array.some(a => a)
+        filters.radius.active,
+        filters.surfaceArea.active,
+        filters.orbitalPeriod.active,
+        filters.inclination.active,
+        filters.semiMajorAxis.active,
+        filters.eccentricity.active,
+        filters.estimatedPrice.active,
+        filters.sizes.active,
+      ]->Array.every(active => active === false)
+    let anyGeneralEnabled =
+      [filters.owned.active, filters.scanned.active, filters.spectralTypes.active]->Array.some(a =>
+        a
+      )
+    let initialIsOpen = allOthersDisabled || anyGeneralEnabled
     let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
     <FilterCategory title="General" isOpen onOpenChange={o => setOpen(_ => o)}>
       <BoolFilter
@@ -228,6 +259,7 @@ module SizeFilters = {
         filters.radius.active,
         filters.surfaceArea.active,
         filters.estimatedPrice.active,
+        filters.sizes.active,
       ]->Array.some(a => a)
 
     let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
@@ -248,6 +280,7 @@ module SizeFilters = {
         onChange={estimatedPrice => onChange({...filters, estimatedPrice: estimatedPrice})}
         label="Estimated price ($)"
       />
+      <SizeFilter filter=filters.sizes onChange={sizes => onChange({...filters, sizes: sizes})} />
     </FilterCategory>
   }
 }

@@ -5,6 +5,7 @@ type t =
   | Name
   | Radius
   | SurfaceArea
+  | Size
   | OrbitalPeriod
   | SemiMajorAxis
   | Inclination
@@ -20,6 +21,7 @@ let toString = t =>
   | Name => "name"
   | Radius => "radius"
   | SurfaceArea => "surfaceArea"
+  | Size => "size"
   | OrbitalPeriod => "orbitalPeriod"
   | SemiMajorAxis => "semiMajorAxis"
   | Inclination => "inclination"
@@ -36,6 +38,7 @@ let fromString = str =>
   | "name" => Some(Name)
   | "radius" => Some(Radius)
   | "surfaceArea" => Some(SurfaceArea)
+  | "size" => Some(Size)
   | "orbitalPeriod" => Some(OrbitalPeriod)
   | "semiMajorAxis" => Some(SemiMajorAxis)
   | "inclination" => Some(Inclination)
@@ -53,10 +56,11 @@ let toName = t =>
   | Name => "Name"
   | Radius => "Radius"
   | SurfaceArea => "Surface area"
+  | Size => "Size"
   | OrbitalPeriod => "Orbital period"
   | SemiMajorAxis => "Semi major axis"
   | Inclination => "Inclination"
   | SpectralType => "Type"
   | Eccentricity => "Eccentricity"
-  | EstimatedPrice => "Estimated price"
+  | EstimatedPrice => "Est. price"
   }

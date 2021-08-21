@@ -1,4 +1,12 @@
 %graphql(`
+fragment AsteroidSize on Asteroid {
+  size @ppxOmitFutureValue
+}
+
+fragment AsteroidType on Asteroid {
+  spectralType @ppxOmitFutureValue
+}
+
 fragment DataTableAsteroid on Asteroid {
   id
   name
@@ -12,6 +20,7 @@ fragment DataTableAsteroid on Asteroid {
   eccentricity
   scanned
   estimatedPrice
+  ...AsteroidSize
 }
 
 fragment FullAsteroid on Asteroid {

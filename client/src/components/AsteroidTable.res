@@ -26,11 +26,12 @@ let makeColumn = column => {
   | Column.Id => (Some(idCell), "9rem", 0)
   | Column.Owner => (Some(ownerCell), "8rem", 0)
   | Column.Name => (None, "", 1)
-  | Column.SpectralType => (Some(spectralTypeCell), "7rem", 0)
-  | Column.EstimatedPrice => (None, "13rem", 0)
+  | Column.SpectralType => (Some(spectralTypeCell), "8rem", 0)
+  | Column.EstimatedPrice => (None, "9rem", 0)
   | Column.Scanned => (None, "9rem", 0)
   | Column.Radius => (None, "8rem", 0)
   | Column.SurfaceArea => (None, "12rem", 0)
+  | Column.Size => (None, "10rem", 0)
   | Column.OrbitalPeriod => (None, "12rem", 0)
   | Column.SemiMajorAxis => (None, "12rem", 0)
   | Column.Inclination => (None, "10rem", 0)
@@ -105,7 +106,8 @@ let make = (
       cell(Column.Scanned, a.scanned, scanned => scanned ? "Yes" : "No"),
       cell(Column.Radius, a.radius, Format.bigFloat, ~unit=" m"),
       cell(Column.SurfaceArea, a.surfaceArea, Format.bigFloat, ~unit=` km²`),
-      cell(Column.OrbitalPeriod, a.orbitalPeriod, Format.orbitalPeriod, ~unit=" d"),
+      cell(Column.Size, a.asteroidSize.size, EnumUtils.sizeToString),
+      cell(Column.OrbitalPeriod, a.orbitalPeriod, Format.orbitalPeriod, ~unit=" days"),
       cell(Column.SemiMajorAxis, a.semiMajorAxis, Format.semiMajorAxis, ~unit=" AU"),
       cell(Column.Inclination, a.inclination, Format.inclination, ~unit=`°`),
       cell(Column.Eccentricity, a.eccentricity, Format.eccentricity),

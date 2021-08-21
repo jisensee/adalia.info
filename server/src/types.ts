@@ -43,6 +43,7 @@ export enum AsteroidField {
   Scanned = 'SCANNED',
   Radius = 'RADIUS',
   SurfaceArea = 'SURFACE_AREA',
+  Size = 'SIZE',
   OrbitalPeriod = 'ORBITAL_PERIOD',
   SemiMajorAxis = 'SEMI_MAJOR_AXIS',
   Inclination = 'INCLINATION',
@@ -57,6 +58,7 @@ export type AsteroidFilterInput = {
   readonly spectralTypes: Maybe<ReadonlyArray<SpectralType>>;
   readonly radius: Maybe<RangeInput>;
   readonly surfaceArea: Maybe<RangeInput>;
+  readonly sizes: Maybe<ReadonlyArray<AsteroidSize>>;
   readonly orbitalPeriod: Maybe<RangeInput>;
   readonly semiMajorAxis: Maybe<RangeInput>;
   readonly inclination: Maybe<RangeInput>;

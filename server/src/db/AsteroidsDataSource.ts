@@ -6,6 +6,7 @@ import {
   AsteroidField,
   AsteroidFilterInput,
   AsteroidPage,
+  AsteroidSize,
   AsteroidSortingInput,
   Maybe,
   PageInput,
@@ -36,6 +37,8 @@ const fieldToSortName = (field: AsteroidField): keyof Asteroid => {
       return 'spectralType'
     case AsteroidField.SurfaceArea:
       return 'surfaceArea'
+    case AsteroidField.Size:
+      return 'size'
     case AsteroidField.Eccentricity:
       return 'eccentricity'
     case AsteroidField.EstimatedPrice:
@@ -68,6 +71,10 @@ const rangeFilter = (range: RangeInput, fieldName: keyof Asteroid) => ({
   },
 })
 
+const sizesFilter = (sizes: AsteroidSize[]) => ({
+  size: { $in: sizes },
+})
+
 const filterToQuery = (filter: AsteroidFilterInput) => {
   const owned = filter.owned == null ? {} : ownedFilter(filter.owned)
   const scanned = filter.scanned == null ? {} : { scanned: filter.scanned }
@@ -78,6 +85,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
   const surface = filter.surfaceArea
     ? rangeFilter(filter.surfaceArea, 'surfaceArea')
     : {}
+  const sizes = filter.sizes ? sizesFilter([...filter.sizes]) : {}
   const orbitalPeriod = filter.orbitalPeriod
     ? rangeFilter(filter.orbitalPeriod, 'orbitalPeriod')
     : {}
@@ -101,6 +109,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
       spectralTypes,
       radius,
       surface,
+      sizes,
       orbitalPeriod,
       semiMajorAxis,
       inclination,
