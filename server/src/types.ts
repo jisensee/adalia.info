@@ -28,7 +28,25 @@ export type Asteroid = {
   readonly spectralType: SpectralType;
   readonly scanned: Scalars['Boolean'];
   readonly estimatedPrice: Maybe<Scalars['Float']>;
+  readonly rarity: Maybe<AsteroidRarity>;
+  readonly bonuses: ReadonlyArray<AsteroidBonus>;
 };
+
+export type AsteroidBonus = {
+  readonly __typename?: 'AsteroidBonus';
+  readonly level: Maybe<Scalars['Int']>;
+  readonly modifier: Maybe<Scalars['Int']>;
+  readonly type: Maybe<AsteroidBonusType>;
+};
+
+export enum AsteroidBonusType {
+  Yield = 'YIELD',
+  Volantile = 'VOLANTILE',
+  Metal = 'METAL',
+  Organic = 'ORGANIC',
+  RareEarth = 'RARE_EARTH',
+  Fissile = 'FISSILE'
+}
 
 export type AsteroidCount = {
   readonly __typename?: 'AsteroidCount';
@@ -49,7 +67,8 @@ export enum AsteroidField {
   Inclination = 'INCLINATION',
   SpectralType = 'SPECTRAL_TYPE',
   Eccentricity = 'ECCENTRICITY',
-  EstimatedPrice = 'ESTIMATED_PRICE'
+  EstimatedPrice = 'ESTIMATED_PRICE',
+  Rarity = 'RARITY'
 }
 
 export type AsteroidFilterInput = {
@@ -64,6 +83,7 @@ export type AsteroidFilterInput = {
   readonly inclination: Maybe<RangeInput>;
   readonly eccentricity: Maybe<RangeInput>;
   readonly estimatedPrice: Maybe<RangeInput>;
+  readonly rarities: Maybe<ReadonlyArray<AsteroidRarity>>;
 };
 
 export type AsteroidPage = {
@@ -71,6 +91,15 @@ export type AsteroidPage = {
   readonly rows: ReadonlyArray<Asteroid>;
   readonly totalRows: Scalars['Int'];
 };
+
+export enum AsteroidRarity {
+  Common = 'COMMON',
+  Uncommon = 'UNCOMMON',
+  Rare = 'RARE',
+  Superior = 'SUPERIOR',
+  Exceptional = 'EXCEPTIONAL',
+  Incomparable = 'INCOMPARABLE'
+}
 
 export enum AsteroidSize {
   Small = 'SMALL',

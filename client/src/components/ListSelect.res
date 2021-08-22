@@ -1,6 +1,6 @@
 module Button = {
   @react.component
-  let make = (~option, ~onActiveChange, ~optionToString, ~active, ~enabled, ~width) => {
+  let make = (~option, ~onActiveChange, ~optionToString, ~active, ~enabled, ~width="") => {
     let onClick = _ =>
       switch enabled {
       | true => onActiveChange(!active)
@@ -18,7 +18,7 @@ module Button = {
 
     <div className="p-1">
       <div
-        className={`${width} text-center py-1 border border-solid rounded-2xl ${borderColor} ${enabledStyle}`}
+        className={`${width} p-4 text-center py-1 border border-solid rounded-2xl ${borderColor} ${enabledStyle}`}
         onClick>
         {option->optionToString->React.string}
       </div>
@@ -27,7 +27,7 @@ module Button = {
 }
 
 @react.component
-let make = (~options, ~selected, ~onChange, ~optionToString, ~enabled, ~elementWidth="w-12") => {
+let make = (~options, ~selected, ~onChange, ~optionToString, ~enabled, ~elementWidth="") => {
   let onActiveChange = (option, active) =>
     onChange(
       switch active {

@@ -1,4 +1,11 @@
-import { Asteroid, AsteroidSize, SpectralType } from '../types'
+import {
+  Asteroid,
+  AsteroidBonus,
+  AsteroidBonusType,
+  AsteroidRarity,
+  AsteroidSize,
+  SpectralType,
+} from '../types'
 import {
   KeplerianOrbit,
   OrbitalElements,
@@ -7,6 +14,11 @@ import {
   toSize,
   toSpectralType,
   isScanned,
+  toBonuses,
+  Bonus,
+  BonusType,
+  Rarity,
+  toRarity,
 } from 'influence-utils'
 
 export interface ApiAsteroid {
@@ -72,12 +84,58 @@ const estimatePrice = (radius: number) => {
   return basePrice + (basePrice / 10) * lots
 }
 
+const convertBonusType = (t: BonusType) => {
+  switch (t) {
+    case BonusType.Yield:
+      return AsteroidBonusType.Yield
+    case BonusType.Fissile:
+      return AsteroidBonusType.Fissile
+    case BonusType.Metal:
+      return AsteroidBonusType.Metal
+    case BonusType.Organic:
+      return AsteroidBonusType.Organic
+    case BonusType.RareEarth:
+      return AsteroidBonusType.RareEarth
+    case BonusType.Volantile:
+      return AsteroidBonusType.Volantile
+  }
+}
+const convertBonus = (bonus: Bonus): AsteroidBonus => ({
+  level: bonus.level,
+  modifier: bonus.modifier,
+  type: convertBonusType(bonus.type),
+})
+
+const convertRarity = (r: Rarity) => {
+  switch (r) {
+    case Rarity.Common:
+      return AsteroidRarity.Common
+    case Rarity.Uncommon:
+      return AsteroidRarity.Uncommon
+    case Rarity.Rare:
+      return AsteroidRarity.Rare
+    case Rarity.Superior:
+      return AsteroidRarity.Superior
+    case Rarity.Exceptional:
+      return AsteroidRarity.Exceptional
+    case Rarity.Incomparable:
+      return AsteroidRarity.Incomparable
+  }
+}
+
 export const convertApiAsteroidToInternal = (
   apiAsteroid: ApiAsteroid
 ): Asteroid => {
   const orbit = new KeplerianOrbit(apiAsteroid.orbital)
   const radius = apiAsteroid.r
   const owner = apiAsteroid.owner
+  const apiBonuses = apiAsteroid.rawBonuses
+    ? toBonuses(apiAsteroid.rawBonuses, apiAsteroid.spectralType)
+    : []
+  const rarity = apiAsteroid.rawBonuses
+    ? convertRarity(toRarity(apiBonuses))
+    : null
+
   return {
     id: apiAsteroid.i,
     baseName: apiAsteroid.baseName,
@@ -93,5 +151,7 @@ export const convertApiAsteroidToInternal = (
     semiMajorAxis: apiAsteroid.orbital.a,
     orbitalPeriod: orbit.getPeriod(),
     estimatedPrice: owner ? null : estimatePrice(radius),
+    rarity,
+    bonuses: apiBonuses.map(convertBonus),
   }
 }

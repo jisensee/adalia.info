@@ -44,6 +44,7 @@ let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters, ~colum
           inclination: appliedFilters.inclination->AsteroidFilters.Filter.toOption,
           eccentricity: appliedFilters.eccentricity->AsteroidFilters.Filter.toOption,
           estimatedPrice: appliedFilters.estimatedPrice->AsteroidFilters.Filter.toOption,
+          rarities: appliedFilters.rarities->AsteroidFilters.Filter.toOption,
         }),
         columns: Some(columns),
       })
@@ -95,6 +96,7 @@ let useAsteroidPageQuery = (
   | "spectralType" => #SPECTRAL_TYPE
   | "eccentricity" => #ECCENTRICITY
   | "estimatedPrice" => #ESTIMATED_PRICE
+  | "rarity" => #RARITY
   | _ => #ID
   }
   let ({Hooks.response: response}, _) = Hooks.useQuery(
@@ -113,6 +115,7 @@ let useAsteroidPageQuery = (
         scanned: filters.scanned,
         spectralTypes: filters.spectralTypes,
         sizes: filters.sizes,
+        rarities: filters.rarities,
         radius: filters.radius->Option.map(((from, to_)) => {
           Queries.DataTableAsteroids.from: from,
           to_: to_,

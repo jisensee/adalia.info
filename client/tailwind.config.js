@@ -28,8 +28,12 @@ module.exports = {
         DEFAULT: colors.coolGray[800],
         dark: colors.coolGray[900],
       },
+      blue: colors.blue[300],
       red: colors.red[500],
       white: colors.white,
+      purple: colors.purple[500],
+      yellow: colors.yellow[400],
+      orange: colors.orange[400],
     },
     extend: {
       maxHeight: {

@@ -46,6 +46,7 @@ type t = {
   inclination: Filter.t<(float, float)>,
   eccentricity: Filter.t<(float, float)>,
   estimatedPrice: Filter.t<(float, float)>,
+  rarities: Filter.t<array<Fragments.AsteroidRarity.t_rarity>>,
 }
 let disableAll = filter => {
   owned: filter.owned->Filter.disable,
@@ -59,6 +60,7 @@ let disableAll = filter => {
   inclination: filter.inclination->Filter.disable,
   eccentricity: filter.eccentricity->Filter.disable,
   estimatedPrice: filter.estimatedPrice->Filter.disable,
+  rarities: filter.rarities->Filter.disable,
 }
 let toQueryParamFilter = asteroidFilter => {
   PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
@@ -72,6 +74,7 @@ let toQueryParamFilter = asteroidFilter => {
   inclination: asteroidFilter.inclination->Filter.toOption,
   eccentricity: asteroidFilter.eccentricity->Filter.toOption,
   estimatedPrice: asteroidFilter.estimatedPrice->Filter.toOption,
+  rarities: asteroidFilter.rarities->Filter.toOption,
 }
 
 let correctValue = ((from, to_), (min, max)) => (
@@ -142,15 +145,6 @@ module BoolFilter = {
   }
 }
 
-module SpectralTypePicker = {
-  @react.component
-  let make = (~selected, ~onChange, ~enabled) => {
-    let optionToString = (option: SpectralType.t) => (option :> string)
-    let options: array<SpectralType.t> = [#C, #CI, #CIS, #CM, #CMS, #CS, #I, #M, #S, #SI, #SM]
-    <ListSelect options selected onChange optionToString enabled />
-  }
-}
-
 module SizePicker = {
   @react.component
   let make = (~selected, ~onChange, ~enabled) => {
@@ -169,6 +163,33 @@ module NumberRangeFilter = {
   }
 }
 
+module RaritiesFilter = {
+  @react.component
+  let make = (~filter, ~onChange) => {
+    let makeFilterComp = (v, oc, enabled) => {
+      let optionToString = EnumUtils.rarityToString
+      let options: array<Fragments.AsteroidRarity.t_rarity> = [
+        #COMMON,
+        #UNCOMMON,
+        #RARE,
+        #SUPERIOR,
+        #EXCEPTIONAL,
+        #INCOMPARABLE,
+      ]
+      <ListSelect options selected=v onChange=oc optionToString enabled />
+    }
+    <Filter label="Rarity" filter onChange makeFilterComp />
+  }
+}
+
+module SpectralTypePicker = {
+  @react.component
+  let make = (~selected, ~onChange, ~enabled) => {
+    let optionToString = (option: SpectralType.t) => (option :> string)
+    let options: array<SpectralType.t> = [#C, #CI, #CIS, #CM, #CMS, #CS, #I, #M, #S, #SI, #SM]
+    <ListSelect options selected onChange optionToString enabled />
+  }
+}
 module SpectralTypeFilter = {
   @react.component
   let make = (~filter, ~onChange) => {
@@ -222,12 +243,18 @@ module GeneralFilters = {
         filters.estimatedPrice.active,
         filters.sizes.active,
       ]->Array.every(active => active === false)
+
     let anyGeneralEnabled =
-      [filters.owned.active, filters.scanned.active, filters.spectralTypes.active]->Array.some(a =>
-        a
-      )
+      [
+        filters.owned.active,
+        filters.scanned.active,
+        filters.spectralTypes.active,
+        filters.rarities.active,
+      ]->Array.some(a => a)
+
     let initialIsOpen = allOthersDisabled || anyGeneralEnabled
     let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+
     <FilterCategory title="General" isOpen onOpenChange={o => setOpen(_ => o)}>
       <BoolFilter
         filter=filters.owned
@@ -242,6 +269,9 @@ module GeneralFilters = {
         label="Scanned"
         trueText="Yes"
         falseText="No"
+      />
+      <RaritiesFilter
+        filter=filters.rarities onChange={rarities => onChange({...filters, rarities: rarities})}
       />
       <SpectralTypeFilter
         filter=filters.spectralTypes

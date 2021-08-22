@@ -6,6 +6,7 @@ import {
   AsteroidField,
   AsteroidFilterInput,
   AsteroidPage,
+  AsteroidRarity,
   AsteroidSize,
   AsteroidSortingInput,
   Maybe,
@@ -43,6 +44,8 @@ const fieldToSortName = (field: AsteroidField): keyof Asteroid => {
       return 'eccentricity'
     case AsteroidField.EstimatedPrice:
       return 'estimatedPrice'
+    case AsteroidField.Rarity:
+      return 'rarity'
   }
 }
 
@@ -75,6 +78,10 @@ const sizesFilter = (sizes: AsteroidSize[]) => ({
   size: { $in: sizes },
 })
 
+const raritiesFiletr = (rarities: AsteroidRarity[]) => ({
+  rarity: { $in: rarities },
+})
+
 const filterToQuery = (filter: AsteroidFilterInput) => {
   const owned = filter.owned == null ? {} : ownedFilter(filter.owned)
   const scanned = filter.scanned == null ? {} : { scanned: filter.scanned }
@@ -101,6 +108,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
   const priceEstimate = filter.estimatedPrice
     ? rangeFilter(filter.estimatedPrice, 'estimatedPrice')
     : {}
+  const rarities = filter.rarities ? raritiesFiletr([...filter.rarities]) : {}
 
   return {
     $and: [
@@ -115,6 +123,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
       inclination,
       eccentricity,
       priceEstimate,
+      rarities,
     ],
   }
 }

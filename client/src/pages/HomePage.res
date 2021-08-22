@@ -17,6 +17,7 @@ let make = () => {
         inclination: None,
         eccentricity: None,
         estimatedPrice: None,
+        rarities: None,
       }),
     },
   )

@@ -19,6 +19,8 @@ const setupIndices = async (collection: Collection<Asteroid>) => {
     'size',
     'baseName',
     'scanned',
+    'rarity',
+    'bonuses',
   ]
   await collection.createIndexes(keys.map((key) => ({ key: { [key]: 1 } })))
 }
@@ -99,9 +101,7 @@ export const runImport = async (db: Db) => {
     const writeResult = await asteroidCollection.bulkWrite(writeOperations)
     const batchTime = (new Date().getTime() - batchStartTime) / 1000
     console.log(
-      `Updated batch of ${
-        writeResult.upsertedCount ?? 0
-      } asteroids in ${batchTime} seconds`
+      `Updated batch of ${asteroids.length} asteroids in ${batchTime} seconds`
     )
     totalUpdated += asteroids.length
     console.log(`Total processed asteroids: ${totalUpdated}`)

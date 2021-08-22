@@ -13,6 +13,9 @@
   ],
   "suffix": ".bs.js",
   "reason": {"react-jsx": 3},
+  "warnings": {
+    "error": "+4+8"
+  },
   "bs-dependencies": ["@rescript/react", "@urql/rescript", "wonka", "@reasonml-community/graphql-ppx", "@ryyppy/rescript-promise"],
   "ppx-flags": ["@reasonml-community/graphql-ppx/ppx"]
 }

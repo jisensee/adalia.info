@@ -21,6 +21,8 @@ let spectralTypeCell = DataTable.CellRenderer.make("spectralType", st =>
   </span>
 )
 
+let rarityCell = DataTable.CellRenderer.make("rarity", rarity => <AsteroidRarity rarity />)
+
 let makeColumn = column => {
   let (cell, minWidth, grow) = switch column {
   | Column.Id => (Some(idCell), "9rem", 0)
@@ -36,6 +38,7 @@ let makeColumn = column => {
   | Column.SemiMajorAxis => (None, "12rem", 0)
   | Column.Inclination => (None, "10rem", 0)
   | Column.Eccentricity => (None, "11rem", 0)
+  | Column.Rarity => (Some(rarityCell), "10rem", 0)
   }
   DataTable.column(
     ~id=column->Column.toString,
@@ -111,6 +114,9 @@ let make = (
       cell(Column.SemiMajorAxis, a.semiMajorAxis, Format.semiMajorAxis, ~unit=" AU"),
       cell(Column.Inclination, a.inclination, Format.inclination, ~unit=`°`),
       cell(Column.Eccentricity, a.eccentricity, Format.eccentricity),
+      cell(Column.Rarity, a.asteroidRarity.rarity, r =>
+        r->Option.mapWithDefault("", EnumUtils.rarityToString)
+      ),
     ])
     ->Array.map(Js.Dict.fromArray)
   let pagination: DataTable.pagination = {
