@@ -1,4 +1,4 @@
-import { Asteroid, AsteroidSize, SpectralType } from '../types'
+import { Asteroid, AsteroidRarity, AsteroidSize, SpectralType } from '../types'
 import { AsteroidImporter, ImportType } from './asteroid-import'
 
 const randomInt = (min: number, max: number) =>
@@ -27,6 +27,16 @@ const randomSize = () =>
     AsteroidSize.Huge,
   ][randomInt(0, 4)]
 
+const randomRarity = () =>
+  [
+    AsteroidRarity.Common,
+    AsteroidRarity.Uncommon,
+    AsteroidRarity.Rare,
+    AsteroidRarity.Superior,
+    AsteroidRarity.Exceptional,
+    AsteroidRarity.Incomparable,
+  ][randomInt(0, 6)]
+
 const randomRoid = (id: number): Asteroid => ({
   id: id,
   baseName: `baseName ${id}`,
@@ -42,6 +52,8 @@ const randomRoid = (id: number): Asteroid => ({
   spectralType: randomSpectraltype(),
   eccentricity: randomInt(0, 5),
   estimatedPrice: randomInt(75, 5_000_000),
+  rarity: randomRarity(),
+  bonuses: [],
 })
 
 const randomImporter: AsteroidImporter = {

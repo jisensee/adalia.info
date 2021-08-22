@@ -6,10 +6,7 @@
         "esModuleInterop": true,
         "outDir": "dist",
         "sourceMap": true,
-        "strictNullChecks": true,
-        "typeRoots": [
-            "./src/typings"
-        ]
+        "strictNullChecks": true
     },
     "include": [
         "src/**/*.ts"

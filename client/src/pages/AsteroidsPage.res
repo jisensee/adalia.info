@@ -76,6 +76,7 @@ let getDefaultFilter = filters => {
     inclination: getDefault(f => f.inclination, Defaults.inclinationBounds),
     eccentricity: getDefault(f => f.eccentricity, Defaults.eccentricityBounds),
     estimatedPrice: getDefault(f => f.estimatedPrice, Defaults.estimatedPriceBounds),
+    rarities: getDefault(f => f.rarities, []),
   }
 }
 
@@ -93,14 +94,16 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
     SurfaceArea,
     OrbitalPeriod,
     EstimatedPrice,
+    Rarity,
   ]
   let allCols = [
     AsteroidTableColumn.Owner,
     Name,
     SpectralType,
     Size,
-    Radius,
+    Rarity,
     SurfaceArea,
+    Radius,
     OrbitalPeriod,
     SemiMajorAxis,
     Inclination,

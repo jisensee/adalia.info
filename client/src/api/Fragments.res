@@ -7,6 +7,10 @@ fragment AsteroidType on Asteroid {
   spectralType @ppxOmitFutureValue
 }
 
+fragment AsteroidRarity on Asteroid {
+  rarity @ppxOmitFutureValue
+}
+
 fragment DataTableAsteroid on Asteroid {
   id
   name
@@ -21,6 +25,7 @@ fragment DataTableAsteroid on Asteroid {
   scanned
   estimatedPrice
   ...AsteroidSize
+  ...AsteroidRarity
 }
 
 fragment FullAsteroid on Asteroid {

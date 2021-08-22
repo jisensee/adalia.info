@@ -12,6 +12,7 @@ type t =
   | SpectralType
   | Eccentricity
   | EstimatedPrice
+  | Rarity
 
 let toString = t =>
   switch t {
@@ -28,6 +29,7 @@ let toString = t =>
   | SpectralType => "spectralType"
   | Eccentricity => "eccentricity"
   | EstimatedPrice => "estimatedPrice"
+  | Rarity => "rarity"
   }
 
 let fromString = str =>
@@ -45,6 +47,7 @@ let fromString = str =>
   | "spectralType" => Some(SpectralType)
   | "eccentricity" => Some(Eccentricity)
   | "estimatedPrice" => Some(EstimatedPrice)
+  | "rarity" => Some(Rarity)
   | _ => None
   }
 
@@ -63,4 +66,5 @@ let toName = t =>
   | SpectralType => "Type"
   | Eccentricity => "Eccentricity"
   | EstimatedPrice => "Est. price"
+  | Rarity => "Rarity"
   }

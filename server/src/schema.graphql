@@ -36,6 +36,14 @@ type Asteroid {
   spectralType: SpectralType!
   scanned: Boolean!
   estimatedPrice: Float
+  rarity: AsteroidRarity
+  bonuses: [AsteroidBonus!]!
+}
+
+type AsteroidBonus {
+  level: Int
+  modifier: Int
+  type: AsteroidBonusType
 }
 
 input PageInput {
@@ -60,6 +68,7 @@ input AsteroidFilterInput {
   inclination: RangeInput
   eccentricity: RangeInput
   estimatedPrice: RangeInput
+  rarities: [AsteroidRarity!]
 }
 
 input RangeInput {
@@ -86,6 +95,7 @@ enum AsteroidField {
   SPECTRAL_TYPE
   ECCENTRICITY
   ESTIMATED_PRICE
+  RARITY
 }
 
 enum SpectralType {
@@ -107,4 +117,22 @@ enum AsteroidSize {
   MEDIUM
   LARGE
   HUGE
+}
+
+enum AsteroidRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  SUPERIOR
+  EXCEPTIONAL
+  INCOMPARABLE
+}
+
+enum AsteroidBonusType {
+  YIELD
+  VOLANTILE
+  METAL
+  ORGANIC
+  RARE_EARTH
+  FISSILE
 }
