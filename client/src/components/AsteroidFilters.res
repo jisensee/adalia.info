@@ -145,15 +145,6 @@ module BoolFilter = {
   }
 }
 
-module SizePicker = {
-  @react.component
-  let make = (~selected, ~onChange, ~enabled) => {
-    let optionToString = EnumUtils.sizeToString
-    let options: array<Fragments.AsteroidSize.t_size> = [#SMALL, #MEDIUM, #LARGE, #HUGE]
-    <ListSelect options selected onChange optionToString enabled elementWidth="w-20" />
-  }
-}
-
 module NumberRangeFilter = {
   @react.component
   let make = (~filter, ~onChange, ~label) => {
@@ -182,18 +173,15 @@ module RaritiesFilter = {
   }
 }
 
-module SpectralTypePicker = {
-  @react.component
-  let make = (~selected, ~onChange, ~enabled) => {
-    let optionToString = (option: SpectralType.t) => (option :> string)
-    let options: array<SpectralType.t> = [#C, #CI, #CIS, #CM, #CMS, #CS, #I, #M, #S, #SI, #SM]
-    <ListSelect options selected onChange optionToString enabled />
-  }
-}
 module SpectralTypeFilter = {
   @react.component
   let make = (~filter, ~onChange) => {
-    let makeFilterComp = (v, oc, enabled) => <SpectralTypePicker selected=v onChange=oc enabled />
+    let makeFilterComp = (v, oc, enabled) => {
+      let optionToString = (option: SpectralType.t) => (option :> string)
+      let options: array<SpectralType.t> = [#C, #CI, #CIS, #CM, #CMS, #CS, #I, #M, #S, #SI, #SM]
+
+      <ListSelect options selected=v onChange=oc optionToString enabled />
+    }
     <Filter label="Spectral types" filter onChange makeFilterComp />
   }
 }
@@ -201,7 +189,12 @@ module SpectralTypeFilter = {
 module SizeFilter = {
   @react.component
   let make = (~filter, ~onChange) => {
-    let makeFilterComp = (v, oc, enabled) => <SizePicker selected=v onChange=oc enabled />
+    let makeFilterComp = (v, oc, enabled) => {
+      let optionToString = EnumUtils.sizeToString
+      let options: array<Fragments.AsteroidSize.t_size> = [#SMALL, #MEDIUM, #LARGE, #HUGE]
+      <ListSelect options selected=v onChange=oc optionToString enabled />
+    }
+
     <Filter label="Size" filter onChange makeFilterComp />
   }
 }
