@@ -6,8 +6,17 @@
     @apply text-lg;
   }
 
-  .rdt_TableCol {
+  .rdt_TableHeader {
     @apply bg-gray !important;
+    @apply text-white !important;
+    @apply border-b !important;
+    @apply border-cyan !important;
+    @apply py-3 !important;
+    @apply overflow-visible !important;
+  }
+
+  .rdt_TableHeader > :last-child {
+    @apply hidden !important;
   }
 
   .rdt_TableCol_Sortable {

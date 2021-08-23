@@ -122,6 +122,7 @@ let isActive = f =>
     f.inclination.active,
     f.eccentricity.active,
     f.estimatedPrice.active,
+    f.rarities.active,
   ]->Array.some(active => active)
 
 module BoolFilter = {

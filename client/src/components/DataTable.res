@@ -33,6 +33,8 @@ type column = {
 module Binding = {
   @module("react-data-table-component") @react.component
   external make: (
+    ~title: React.element=?,
+    ~actions: React.element=?,
     ~columns: array<column>,
     ~data: data=?,
     ~noHeader: bool=?,
@@ -101,7 +103,16 @@ module NoDataComponent = {
 }
 
 @react.component
-let make = (~columns, ~data, ~pagination=?, ~sorting=?, ~header=?, ~noDataText=?) => {
+let make = (
+  ~columns,
+  ~data,
+  ~pagination=?,
+  ~sorting=?,
+  ~header=?,
+  ~noDataText=?,
+  ~title=?,
+  ~actions=?,
+) => {
   let (
     usePagination,
     paginationServer,
@@ -133,9 +144,10 @@ let make = (~columns, ~data, ~pagination=?, ~sorting=?, ~header=?, ~noDataText=?
   | Some(h) => (h.fixed->Some, h.scrollHeight->Some)
   }
   <Binding
+    ?title
+    ?actions
     columns
     data
-    noHeader={true}
     ?fixedHeader
     ?fixedHeaderScrollHeight
     ?sortServer
