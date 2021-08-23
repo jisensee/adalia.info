@@ -14,6 +14,7 @@ module Table = {
     ~sort: QueryParams.SortingParamType.t,
     ~filters: AsteroidFilters.t,
     ~columns,
+    ~actions,
   ) => {
     let (pageData, setPageData) = usePageData(~pageNum, ~pageSize)
     let (sortData, setSortData) = React.useState(() => sort)
@@ -43,6 +44,7 @@ module Table = {
     | Data({asteroids}) =>
       <AsteroidTable
         pageData=asteroids
+        actions
         defaultSortFieldId=sort.field
         pageSize=pageData.pageSize
         columns
@@ -153,29 +155,28 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
           columnToString={AsteroidTableColumn.toName}
         />
       module Popover = Common.Popover
+      let actions =
+        <div className="z-20 text-lg">
+          <Popover className="relative">
+            <Popover.Button className="">
+              <Icon kind={Icon.Fas("list")} breakpoint={Icon.Sm}> {"Columns"->React.string} </Icon>
+            </Popover.Button>
+            <Common.Transition
+              enter="transition duration-100 ease-out"
+              enterFrom="transform scale-95 opacity-0"
+              enterTo="transform scale-100 opacity-100"
+              leave="transition duration-75 ease-out"
+              leaveFrom="transform scale-100 opacity-100"
+              leaveTo="transform scale-95 opacity-0">
+              <Popover.Panel className="absolute z-50 mt-3 w-48 -right-0">
+                {columnConfig}
+              </Popover.Panel>
+            </Common.Transition>
+          </Popover>
+        </div>
 
       <div className="flex flex-col h-full">
-        <div className="flex flex-row">
-          <h1> {"Asteroids"->React.string} </h1>
-          <div className="flex flex-row flex-grow justify-end items-center pb-2">
-            <Popover className="relative">
-              <Popover.Button className="">
-                <Icon kind={Icon.Fas("list")}> {"Columns"->React.string} </Icon>
-              </Popover.Button>
-              <Common.Transition
-                enter="transition duration-100 ease-out"
-                enterFrom="transform scale-95 opacity-0"
-                enterTo="transform scale-100 opacity-100"
-                leave="transition duration-75 ease-out"
-                leaveFrom="transform scale-100 opacity-100"
-                leaveTo="transform scale-95 opacity-0">
-                <Popover.Panel className="absolute z-50 mt-2 w-48 -right-0">
-                  {columnConfig}
-                </Popover.Panel>
-              </Common.Transition>
-            </Popover>
-          </div>
-        </div>
+        <h1> {"Asteroids"->React.string} </h1>
         <p>
           {"You can apply filters to all asteroids by expanding the filter widget. Copy the URL to share your current filter and sorting setup."->React.string}
         </p>
@@ -192,7 +193,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
             onReset
           />
         </div>
-        <Table pageNum=p pageSize=ps sort=s filters=filters.applied columns=activeCols />
+        <Table actions pageNum=p pageSize=ps sort=s filters=filters.applied columns=activeCols />
       </div>
     }
   | _ => React.null

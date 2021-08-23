@@ -90,6 +90,7 @@ let make = (
   ~onPageChange,
   ~onSort,
   ~columns: array<Column.t>,
+  ~actions,
 ) => {
   open Belt
   let data =
@@ -131,9 +132,17 @@ let make = (
     defaultSortFieldId: defaultSortFieldId,
     onChange: onSort,
   }
+  let title =
+    <h3>
+      <span className="hidden sm:inline"> {"Found "->React.string} </span>
+      {`${pageData.totalRows->Int.toFloat->Format.formatFloat(0)} asteroids`->React.string}
+    </h3>
   <DataTable
+    title
+    actions
     columns={makeDataTableColumns(columns)}
     data
+    header={{DataTable.fixed: true, scrollHeight: "43rem"}}
     pagination
     sorting
     noDataText="No asteroids are matching your query. Try widening or removing some filters."

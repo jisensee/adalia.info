@@ -5,6 +5,11 @@ type kind =
 
 type rotation = Rotate90 | Rotate180 | Rotate270
 
+type breakpoint =
+  | None
+  | Sm
+  | Lg
+
 @react.component
 let make = (
   ~children=?,
@@ -14,7 +19,7 @@ let make = (
   ~kind,
   ~large=false,
   ~rotation=?,
-  ~mobile=false,
+  ~breakpoint=None,
 ) => {
   let size = switch large {
   | true => "text-4xl"
@@ -34,9 +39,13 @@ let make = (
   | Custom(icon) => <img className=imageClassName src={`/icons/${icon}`} />
   }
   let makeWithChildren = c => {
-    let mobileClassName = mobile ? "hidden lg:block" : ""
+    let responsiveClassName = switch breakpoint {
+    | None => ""
+    | Sm => "hidden sm:inline"
+    | Lg => "hidden lg:inline"
+    }
     <div className="flex flex-row space-x-3 items-center">
-      icon <span className={`${mobileClassName} ml-2`}> c </span>
+      icon <span className={`${responsiveClassName} ml-2`}> c </span>
     </div>
   }
   switch (children, text) {
