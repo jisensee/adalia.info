@@ -1,5 +1,3 @@
-external spectralTypeToStr: Fragments.DataTableAsteroid.t_spectralType => string = "%identity"
-
 module Column = AsteroidTableColumn
 
 let idCell = DataTable.CellRenderer.make("id", id =>
@@ -14,11 +12,8 @@ let ownerCell = DataTable.CellRenderer.make("owner", address =>
   <AsteroidOwner address shortAddress={true} />
 )
 
-let spectralTypeCell = DataTable.CellRenderer.make("spectralType", st =>
-  <span>
-    <span className="text-cyan text-xl font-bold"> {st->React.string} </span>
-    {"-Type"->React.string}
-  </span>
+let spectralTypeCell = DataTable.CellRenderer.make("spectralType", spectralType =>
+  <AsteroidSpectralType spectralType />
 )
 
 let rarityCell = DataTable.CellRenderer.make("rarity", rarity => <AsteroidRarity rarity />)
@@ -99,7 +94,7 @@ let make = (
       cell(Column.Id, a.id, Int.toString),
       cell(Column.Name, a.name, s => s),
       cell(Column.Owner, a.owner, Option.getWithDefault(_, "")),
-      cell(Column.SpectralType, a.spectralType, spectralTypeToStr),
+      cell(Column.SpectralType, a.asteroidType.spectralType, EnumUtils.spectralTypeToString),
       cell(
         Column.EstimatedPrice,
         a.estimatedPrice,

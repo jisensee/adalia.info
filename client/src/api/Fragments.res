@@ -20,10 +20,10 @@ fragment DataTableAsteroid on Asteroid {
   orbitalPeriod
   semiMajorAxis
   inclination
-  spectralType
   eccentricity
   scanned
   estimatedPrice
+  ...AsteroidType
   ...AsteroidSize
   ...AsteroidRarity
 }
@@ -41,6 +41,9 @@ fragment FullAsteroid on Asteroid {
   eccentricity
   scanned
   estimatedPrice
+  ...AsteroidType
+  ...AsteroidSize
+  ...AsteroidRarity
 }
 
 fragment DataTableAsteroidPage on AsteroidPage {
