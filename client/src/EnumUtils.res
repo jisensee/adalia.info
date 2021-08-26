@@ -35,3 +35,34 @@ let rarityFromString: string => option<Fragments.AsteroidRarity.t_rarity> = str 
   | "Incomparable" => Some(#INCOMPARABLE)
   | _ => None
   }
+
+let spectralTypeToString = (spectralType: Fragments.AsteroidType.t_spectralType) =>
+  switch spectralType {
+  | #C => "C"
+  | #CI => "CI"
+  | #CIS => "CIS"
+  | #CM => "CM"
+  | #CMS => "CMS"
+  | #CS => "CS"
+  | #I => "I"
+  | #M => "M"
+  | #S => "S"
+  | #SI => "SI"
+  | #SM => "SM"
+  }
+
+let spectralTypeFromString: string => option<Fragments.AsteroidType.t_spectralType> = str =>
+  switch str {
+  | "C" => Some(#C)
+  | "CI" => Some(#CI)
+  | "CIS" => Some(#CIS)
+  | "CM" => Some(#CM)
+  | "CMS" => Some(#CMS)
+  | "CS" => Some(#CS)
+  | "I" => Some(#I)
+  | "M" => Some(#M)
+  | "S" => Some(#S)
+  | "SI" => Some(#SI)
+  | "SM" => Some(#SM)
+  | _ => None
+  }

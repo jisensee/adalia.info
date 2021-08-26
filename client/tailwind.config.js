@@ -16,6 +16,7 @@ module.exports = {
         'rdt_TableBody',
         'rdt_TableExpanderRow',
         'rdt_Pagination',
+        'rdt_TableHeader',
       ],
     },
   },
@@ -48,7 +49,9 @@ module.exports = {
     },
   },
   variants: {
-    extend: {},
+    extend: {
+      margin: ['last'],
+    },
   },
   plugins: [require('@tailwindcss/forms')],
 };
