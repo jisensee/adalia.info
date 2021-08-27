@@ -43,6 +43,20 @@ module AsteroidPageParamType = {
     estimatedPrice: option<(float, float)>,
     rarities: option<array<Fragments.AsteroidRarity.t_rarity>>,
   }
+  let emptyFilters = {
+    owned: None,
+    scanned: None,
+    radius: None,
+    spectralTypes: None,
+    sizes: None,
+    surfaceArea: None,
+    orbitalPeriod: None,
+    semiMajorAxis: None,
+    inclination: None,
+    eccentricity: None,
+    estimatedPrice: None,
+    rarities: None,
+  }
   type t = {
     pageNum: option<int>,
     pageSize: option<int>,

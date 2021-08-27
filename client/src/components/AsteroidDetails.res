@@ -7,7 +7,7 @@ module Category = {
   let make = (~title, ~items, ~initialOpen=false) => {
     let (isOpen, setOpen) = React.useState(() => initialOpen)
     let titleComp = <h2> {title->React.string} </h2>
-    <div className="bg-gray flex py-2 px-5 rounded-xl">
+    <div className="bg-gray flex py-2 px-5 rounded-2xl">
       <CollapsibleContent
         className="flex flex-col sm:grid sm:grid-cols-2 sm:gap-x-7"
         titleComp
@@ -15,12 +15,12 @@ module Category = {
         onOpenChange={o => setOpen(_ => o)}>
         {items
         ->Array.keepMap(t => t)
-        ->Array.map(((label, content, unit)) => //<div className="flex flex-col">
-        <>
-          <h3 className="flex"> {label->React.string} </h3>
-          <div className="flex text-xl mb-5 last:mb-2"> content {` ${unit}`->React.string} </div>
-        </>)
-        //</div>
+        ->Array.map(((label, content, unit)) =>
+          <React.Fragment key=label>
+            <h3 className="flex"> {label->React.string} </h3>
+            <div className="flex text-xl mb-5 last:mb-2"> content {` ${unit}`->React.string} </div>
+          </React.Fragment>
+        )
         ->React.array}
       </CollapsibleContent>
     </div>
@@ -80,10 +80,15 @@ let make = (~asteroid: Fragments.FullAsteroid.t) => {
   <>
     <h1> {`Asteroid '${asteroid.name}'`->React.string} </h1>
     <div className="flex flex-col sm:flex-row sm:space-x-5">
-      <img
-        src=cardUrl
-        className="w-full sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12  object-contain object-top mb-5"
-      />
+      <div className="mb-5 sm:mb-1 w-full sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12">
+        <img src=cardUrl className="object-contain object-top mb-5" />
+        <AsteroidActions
+          id={asteroid.id->Belt.Int.toString}
+          orbitalPeriod=asteroid.orbitalPeriod
+          owned={asteroid.owner != None}
+          actionTextBreakpoint={Icon.Lg}
+        />
+      </div>
       <div className="flex flex-col space-y-5">
         <Category title="General" items=generalItems initialOpen={true} />
         <Category title="Size" items=sizeItems />

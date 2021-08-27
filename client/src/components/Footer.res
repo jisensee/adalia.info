@@ -24,7 +24,7 @@ module ExternalLinks = {
         <Icon kind={Icon.Fab("github")} large={true} />
       </Link>
       <Link className="text-cyan" to_=Link.influence highlight={false}>
-        <Icon imageClassName="h-12" kind={Icon.Custom("influence.svg")} large={true} />
+        <Icon kind=Icon.influence large={true} />
       </Link>
     </div>
 }
