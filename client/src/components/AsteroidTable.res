@@ -2,9 +2,7 @@ module Column = AsteroidTableColumn
 
 let idCell = DataTable.CellRenderer.make("id", id =>
   <div className="flex flex-row space-x-5 items-center">
-    <Link to_={Link.makeGameRoidLink(id)}>
-      <Icon imageClassName="h-5" kind=Icon.Custom("influence.svg") />
-    </Link>
+    <Link to_={Link.makeGameRoidLink(id)}> <Icon imageClassName="h-5" kind=Icon.influence /> </Link>
     <Link to_=Link.Internal(Route.Asteroid(id)) className="font-bold"> {id->React.string} </Link>
   </div>
 )
