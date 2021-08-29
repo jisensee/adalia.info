@@ -14,7 +14,7 @@ module.exports = {
         'rdt_TableHead',
         'rdt_TableHeadRow',
         'rdt_TableBody',
-        'rdt_TableExpanderRow',
+        'rdt_ExpanderRow',
         'rdt_Pagination',
         'rdt_TableHeader',
       ],
