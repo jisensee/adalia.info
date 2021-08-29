@@ -6,6 +6,10 @@
     @apply text-lg;
   }
 
+  .rdt_ExpanderRow {
+    @apply bg-gray-dark !important;
+  }
+
   .rdt_TableHeader {
     @apply bg-gray !important;
     @apply text-white !important;

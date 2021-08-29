@@ -84,7 +84,11 @@ module Popover = {
 
   module Panel = {
     @module("@headlessui/react") @scope("Popover") @react.component
-    external make: (~className: string=?, ~children: React.element) => React.element = "Panel"
+    external make: (
+      ~className: string=?,
+      ~static: bool=?,
+      ~children: React.element,
+    ) => React.element = "Panel"
   }
 }
 

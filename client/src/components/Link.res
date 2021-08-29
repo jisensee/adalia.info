@@ -1,3 +1,5 @@
+@val @scope("location") external reload: unit => unit = "reload"
+
 type kind =
   | Internal(Route.t)
   | External(string)
@@ -29,6 +31,7 @@ let make = (
   ~hover=true,
   ~titleText=?,
   ~className="",
+  ~forceReload=false,
 ) => {
   let title = switch (titleText, text) {
   | (Some(title), _) => title
@@ -49,6 +52,9 @@ let make = (
     if internal {
       event->ReactEvent.Mouse.preventDefault
       href->RescriptReactRouter.push
+    }
+    if forceReload {
+      reload()
     }
   }
   let hoverClass = switch hover {
