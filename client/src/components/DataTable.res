@@ -30,6 +30,13 @@ type column = {
   @optional minWidth: string,
 }
 
+type expandableIcon = {
+  collapsed: React.element,
+  expanded: React.element,
+}
+
+type rowExpanderData = {data: Js.Dict.t<string>}
+
 module Binding = {
   @module("react-data-table-component") @react.component
   external make: (
@@ -61,6 +68,9 @@ module Binding = {
     ~sortFunction: (data, string, sortDirection) => data=?,
     ~noDataComponent: React.element=?,
     ~responsive: bool=?,
+    ~expandableRows: bool=?,
+    ~expandableRowsComponent: rowExpanderData => React.element=?,
+    ~expandableIcon: expandableIcon=?,
   ) => React.element = "default"
 }
 
@@ -112,6 +122,7 @@ let make = (
   ~noDataText=?,
   ~title=?,
   ~actions=?,
+  ~expandableRowsComponent=?,
 ) => {
   let (
     usePagination,
@@ -167,5 +178,11 @@ let make = (
     paginationIconLastPage={<Icon kind={Icon.Fas("step-forward")} />}
     noDataComponent={<NoDataComponent text=?noDataText />}
     responsive=true
+    expandableRows={expandableRowsComponent->Belt.Option.isSome}
+    ?expandableRowsComponent
+    expandableIcon={{
+      collapsed: <Icon className="text-cyan" kind={Icon.Fas("chevron-right")} />,
+      expanded: <Icon className="text-cyan" kind={Icon.Fas("chevron-down")} />,
+    }}
   />
 }

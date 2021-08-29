@@ -82,37 +82,38 @@ let getDefaultFilter = filters => {
   }
 }
 
+let defaultCols = [
+  AsteroidTableColumn.Owner,
+  Name,
+  SpectralType,
+  Size,
+  SurfaceArea,
+  OrbitalPeriod,
+  EstimatedPrice,
+  Rarity,
+]
+let allCols = [
+  AsteroidTableColumn.Owner,
+  Name,
+  SpectralType,
+  Size,
+  Rarity,
+  SurfaceArea,
+  Radius,
+  OrbitalPeriod,
+  SemiMajorAxis,
+  Inclination,
+  Eccentricity,
+  EstimatedPrice,
+  Scanned,
+]
+
 @react.component
 let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
   let defaultFilters = getDefaultFilter(filters)
   let filteredPageSize = pageSize->Option.keep(Js.Array2.includes(pageSizeOptions))
 
   let (filters, setFilters) = useFilters(defaultFilters)
-  let defaultCols = [
-    AsteroidTableColumn.Owner,
-    Name,
-    SpectralType,
-    Size,
-    SurfaceArea,
-    OrbitalPeriod,
-    EstimatedPrice,
-    Rarity,
-  ]
-  let allCols = [
-    AsteroidTableColumn.Owner,
-    Name,
-    SpectralType,
-    Size,
-    Rarity,
-    SurfaceArea,
-    Radius,
-    OrbitalPeriod,
-    SemiMajorAxis,
-    Inclination,
-    Eccentricity,
-    EstimatedPrice,
-    Scanned,
-  ]
   let makeColumnMap = active => allCols->Array.map(c => (c, active->Array.some(a => a === c)))
   let (selectedColumns, setSelectedColumns) = React.useState(_ =>
     switch columns {

@@ -10,6 +10,7 @@ type breakpoint =
   | Sm
   | Md
   | Lg
+  | Never
 
 let openSea = Custom("opensea.svg")
 let influence = Custom("influence.svg")
@@ -54,6 +55,7 @@ let make = (
     | Sm => "hidden sm:inline"
     | Md => "hidden md:inline"
     | Lg => "hidden lg:inline"
+    | Never => "hidden"
     }
     <div className="flex flex-row space-x-3 items-center">
       icon <span className={`${responsiveClassName} ml-2`}> c </span>

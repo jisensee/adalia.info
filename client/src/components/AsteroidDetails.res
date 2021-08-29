@@ -83,9 +83,8 @@ let make = (~asteroid: Fragments.FullAsteroid.t) => {
       <div className="mb-5 sm:mb-1 w-full sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12">
         <img src=cardUrl className="object-contain object-top mb-5" />
         <AsteroidActions
-          id={asteroid.id->Belt.Int.toString}
-          orbitalPeriod=asteroid.orbitalPeriod
-          owned={asteroid.owner != None}
+          className="flex flex-row space-x-5 justify-center"
+          id={asteroid.id}
           actionTextBreakpoint={Icon.Lg}
         />
       </div>

@@ -1,10 +1,7 @@
 module Column = AsteroidTableColumn
 
 let idCell = DataTable.CellRenderer.make("id", id =>
-  <div className="flex flex-row space-x-5 items-center">
-    <Link to_={Link.makeGameRoidLink(id)}> <Icon imageClassName="h-5" kind=Icon.influence /> </Link>
-    <Link to_=Link.Internal(Route.Asteroid(id)) className="font-bold"> {id->React.string} </Link>
-  </div>
+  <Link to_={Link.Internal(Route.Asteroid(id))}> {id->React.string} </Link>
 )
 let ownerCell = DataTable.CellRenderer.make("owner", address =>
   <AsteroidOwner address shortAddress={true} />
@@ -16,9 +13,32 @@ let spectralTypeCell = DataTable.CellRenderer.make("spectralType", spectralType 
 
 let rarityCell = DataTable.CellRenderer.make("rarity", rarity => <AsteroidRarity rarity />)
 
+module ExpandedRow = {
+  @react.component
+  let make = (~data: DataTable.rowExpanderData) => {
+    let id =
+      data.data
+      ->Js.Dict.get("id")
+      ->Belt.Option.flatMap(Belt.Int.fromString)
+      ->Belt.Option.getWithDefault(1)
+
+    let cardUrl = `https://api.influenceth.io/metadata/asteroids/${id->Belt.Int.toString}/card.svg`
+    <div className="flex flex-row space-x-5">
+      <img src=cardUrl className="w-56 sm:w-72 lg:w-96" />
+      <AsteroidActions
+        className="flex flex-col space-y-3 justify-center"
+        id
+        actionTextBreakpoint={Icon.Sm}
+        showInternalLink={true}
+        reloadOnCoorbital={true}
+      />
+    </div>
+  }
+}
+
 let makeColumn = column => {
   let (cell, minWidth, grow) = switch column {
-  | Column.Id => (Some(idCell), "9rem", 0)
+  | Column.Id => (Some(idCell), "7rem", 0)
   | Column.Owner => (Some(ownerCell), "8rem", 0)
   | Column.Name => (None, "", 1)
   | Column.SpectralType => (Some(spectralTypeCell), "8rem", 0)
@@ -139,5 +159,6 @@ let make = (
     pagination
     sorting
     noDataText="No asteroids are matching your query. Try widening or removing some filters."
+    expandableRowsComponent={data => <ExpandedRow data />}
   />
 }
