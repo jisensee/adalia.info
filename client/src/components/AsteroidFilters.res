@@ -47,6 +47,7 @@ type t = {
   eccentricity: Filter.t<(float, float)>,
   estimatedPrice: Filter.t<(float, float)>,
   rarities: Filter.t<array<Fragments.AsteroidRarity.t_rarity>>,
+  bonuses: Filter.t<AsteroidBonusFilter.t>,
 }
 let disableAll = filter => {
   owned: filter.owned->Filter.disable,
@@ -61,6 +62,13 @@ let disableAll = filter => {
   eccentricity: filter.eccentricity->Filter.disable,
   estimatedPrice: filter.estimatedPrice->Filter.disable,
   rarities: filter.rarities->Filter.disable,
+  bonuses: {
+    active: false,
+    value: {
+      ...filter.bonuses.value,
+      conditions: [],
+    },
+  },
 }
 let toQueryParamFilter = asteroidFilter => {
   PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
@@ -75,6 +83,7 @@ let toQueryParamFilter = asteroidFilter => {
   eccentricity: asteroidFilter.eccentricity->Filter.toOption,
   estimatedPrice: asteroidFilter.estimatedPrice->Filter.toOption,
   rarities: asteroidFilter.rarities->Filter.toOption,
+  bonuses: asteroidFilter.bonuses->Filter.toOption,
 }
 
 let correctValue = ((from, to_), (min, max)) => (
@@ -123,6 +132,7 @@ let isActive = f =>
     f.eccentricity.active,
     f.estimatedPrice.active,
     f.rarities.active,
+    f.bonuses.active,
   ]->Array.some(active => active)
 
 module BoolFilter = {
@@ -213,14 +223,170 @@ module Buttons = {
 
 module FilterCategory = {
   @react.component
-  let make = (~children, ~title, ~isOpen, ~onOpenChange) =>
+  let make = (~children, ~title, ~isOpen, ~onOpenChange, ~autoLayout=true) =>
     <CollapsibleContent
-      className="flex flex-row flex-wrap -ml-5"
+      className={autoLayout ? "flex flex-row flex-wrap -ml-5" : ""}
       titleComp={<h3> {title->React.string} </h3>}
       isOpen
       onOpenChange>
-      {children->React.Children.map(c => <div className="pr-5 pl-5 pb-3"> c </div>)}
+      {switch autoLayout {
+      | true => children->React.Children.map(c => <div className="pr-5 pl-5 pb-3"> c </div>)
+      | false => children
+      }}
     </CollapsibleContent>
+}
+
+module BonusesFilter = {
+  type bonusType = Fragments.AsteroidBonuses.t_bonuses_type
+  module BonusCondition = {
+    @react.component
+    let make = (~condition: AsteroidBonusFilter.Condition.t, ~onChange, ~onClose) => {
+      let optionToString = o =>
+        switch o {
+        | None => "all"
+        | Some(t) => EnumUtils.bonusTypeToString(t)
+        }
+      let optionFromString = s =>
+        switch s {
+        | "all" => None
+        | _ => EnumUtils.bonusTypeFromString(s)
+        }
+      let options = [
+        ("all", "All types"),
+        (EnumUtils.bonusTypeToString(#YIELD), "Yield"),
+        (EnumUtils.bonusTypeToString(#VOLATILE), "Volatile"),
+        (EnumUtils.bonusTypeToString(#METAL), "Metals"),
+        (EnumUtils.bonusTypeToString(#ORGANIC), "Organic"),
+        (EnumUtils.bonusTypeToString(#FISSILE), "Fissile"),
+        (EnumUtils.bonusTypeToString(#RARE_EARTH), "Rare Earth"),
+      ]
+      let levels = switch condition.type_ {
+      | Some(#FISSILE) | Some(#RARE_EARTH) =>
+        <span className="italic"> {"Has only one level"->React.string} </span>
+      | _ =>
+        <ListSelect
+          options={[1, 2, 3]}
+          optionToString={Int.toString}
+          selected={condition.levels}
+          onChange={levels => onChange({...condition, levels: levels})}
+          enabled={true}
+        />
+      }
+      <div className="flex flex-col space-y-3">
+        <div className="flex flex-row space-x-5">
+          <Common.Select
+            value=condition.type_
+            onChange={type_ => onChange({...condition, type_: type_})}
+            options
+            toString=optionToString
+            fromString=optionFromString
+          />
+          <div className="flex flex-grow justify-end">
+            <button className="hover:bg-gray-dark" onClick={_ => onClose()}>
+              <Icon kind={Icon.Fas("trash")} />
+            </button>
+          </div>
+        </div>
+        levels
+      </div>
+    }
+  }
+
+  @react.component
+  let make = (~filters, ~onChange: t => unit) => {
+    module Mode = AsteroidBonusFilter.Mode
+    module Condition = AsteroidBonusFilter.Condition
+    let updateBonuses = f =>
+      onChange({
+        ...filters,
+        bonuses: {
+          ...filters.bonuses,
+          value: f(filters.bonuses.value),
+        },
+      })
+    let onModeChange = mode =>
+      updateBonuses(b => {
+        ...b,
+        mode: mode,
+      })
+
+    let conditionCount = filters.bonuses.value.conditions->Array.length
+    React.useEffect1(() => {
+      onChange({
+        ...filters,
+        bonuses: {
+          ...filters.bonuses,
+          active: conditionCount > 0,
+        },
+      })
+      None
+    }, [conditionCount])
+
+    let currentMode = filters.bonuses.value.mode
+    let options = [(Mode.toString(#AND), "Match all"), (Mode.toString(#OR), "Match some")]
+    let modeSelect =
+      <Common.Select
+        value=currentMode
+        onChange=onModeChange
+        options
+        toString={m => m->Mode.toString}
+        fromString={s => s->Mode.fromString->Option.getWithDefault(#AND)}
+      />
+    let initialOpen = filters.bonuses.active && conditionCount > 0
+    let (isOpen, setOpen) = React.useState(() => initialOpen)
+    let addCondition = () =>
+      updateBonuses(b => {
+        ...b,
+        conditions: b.conditions->Array.concat([
+          {
+            Condition.type_: None,
+            levels: [],
+          },
+        ]),
+      })
+    let removeCondition = index =>
+      updateBonuses(b => {
+        ...b,
+        conditions: b.conditions->Array.keepWithIndex((_, i) => i !== index),
+      })
+
+    let updateCondition = (newCondition, index) =>
+      updateBonuses(b => {
+        ...b,
+        conditions: b.conditions->Array.mapWithIndex((i, c) =>
+          switch index == i {
+          | true => newCondition
+          | false => c
+          }
+        ),
+      })
+
+    <FilterCategory title="Bonuses" isOpen onOpenChange={o => setOpen(_ => o)} autoLayout={false}>
+      <div className="flex flex-col space-y-3 mt-1">
+        <div className="flex flex-row space-x-5">
+          {modeSelect}
+          <button onClick={_ => addCondition()}>
+            <Icon kind={Icon.Fas("plus")} breakpoint={Icon.None} text="Add" />
+          </button>
+        </div>
+        <div className="flex flex-row flex-wrap">
+          {filters.bonuses.value.conditions
+          ->Array.mapWithIndex((index, condition) =>
+            <div className="py-2 pr-4">
+              <div key={Int.toString(index)} className="bg-gray rounded-2xl p-4 h-full">
+                <BonusCondition
+                  condition
+                  onChange={updateCondition(_, index)}
+                  onClose={() => removeCondition(index)}
+                />
+              </div>
+            </div>
+          )
+          ->React.array}
+        </div>
+      </div>
+    </FilterCategory>
+  }
 }
 
 module GeneralFilters = {
@@ -236,6 +402,7 @@ module GeneralFilters = {
         filters.eccentricity.active,
         filters.estimatedPrice.active,
         filters.sizes.active,
+        filters.bonuses.active,
       ]->Array.every(active => active === false)
 
     let anyGeneralEnabled =
@@ -247,7 +414,7 @@ module GeneralFilters = {
       ]->Array.some(a => a)
 
     let initialIsOpen = allOthersDisabled || anyGeneralEnabled
-    let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+    let (isOpen, setOpen) = React.useState(() => initialIsOpen)
 
     <FilterCategory title="General" isOpen onOpenChange={o => setOpen(_ => o)}>
       <BoolFilter
@@ -357,6 +524,7 @@ let make = (~className="", ~filters, ~onChange, ~onApply, ~onReset) => {
     onOpenChange={isOpen => setFiltersVisible(_ => isOpen)}>
     <form className="flex flex-col space-y-3" onSubmit={ReactEvent.Form.preventDefault}>
       <GeneralFilters filters onChange />
+      <BonusesFilter filters onChange />
       <SizeFilters filters onChange />
       <OrbitalFilters filters onChange />
       <div />

@@ -28,7 +28,7 @@
     "express": "^4.17.1",
     "follow-redirects": "^1.14.1",
     "graphql": "^15.4.0",
-    "influence-utils": "^0.10.0",
+    "influence-utils": "^1.0.0",
     "mongodb": "^3.6.6"
   },
   "devDependencies": {

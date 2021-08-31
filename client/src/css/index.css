@@ -37,14 +37,14 @@
   select {
     @apply bg-gray-dark;
     @apply border-cyan;
-    @apply rounded-3xl;
+    @apply rounded-2xl;
   }
 
   input {
     @apply bg-gray-dark !important;
     @apply text-white;
     @apply border-cyan !important;
-    @apply rounded-3xl !important;
+    @apply rounded-2xl !important;
   }
 
   button {

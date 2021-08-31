@@ -22,9 +22,8 @@ module ExpandedRow = {
       ->Belt.Option.flatMap(Belt.Int.fromString)
       ->Belt.Option.getWithDefault(1)
 
-    let cardUrl = `https://api.influenceth.io/metadata/asteroids/${id->Belt.Int.toString}/card.svg`
     <div className="flex flex-row space-x-5">
-      <img src=cardUrl className="w-56 sm:w-72 lg:w-96" />
+      <AsteroidCard id={id->Belt.Int.toString} className="w-56 sm:w-72 lg:w-96" />
       <AsteroidActions
         className="flex flex-col space-y-3 justify-center"
         id
