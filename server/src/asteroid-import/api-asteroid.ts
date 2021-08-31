@@ -97,7 +97,7 @@ const convertBonusType = (t: BonusType) => {
     case BonusType.RareEarth:
       return AsteroidBonusType.RareEarth
     case BonusType.Volantile:
-      return AsteroidBonusType.Volantile
+      return AsteroidBonusType.Volatile
   }
 }
 const convertBonus = (bonus: Bonus): AsteroidBonus => ({
@@ -130,7 +130,9 @@ export const convertApiAsteroidToInternal = (
   const radius = apiAsteroid.r
   const owner = apiAsteroid.owner
   const apiBonuses = apiAsteroid.rawBonuses
-    ? toBonuses(apiAsteroid.rawBonuses, apiAsteroid.spectralType)
+    ? toBonuses(apiAsteroid.rawBonuses, apiAsteroid.spectralType).filter(
+        (b) => b.level > 0
+      )
     : []
   const rarity = apiAsteroid.rawBonuses
     ? convertRarity(toRarity(apiBonuses))

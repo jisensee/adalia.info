@@ -34,18 +34,33 @@ export type Asteroid = {
 
 export type AsteroidBonus = {
   readonly __typename?: 'AsteroidBonus';
-  readonly level: Maybe<Scalars['Int']>;
-  readonly modifier: Maybe<Scalars['Int']>;
+  readonly level: Scalars['Int'];
+  readonly modifier: Scalars['Int'];
+  readonly type: AsteroidBonusType;
+};
+
+export type AsteroidBonusConditionInput = {
   readonly type: Maybe<AsteroidBonusType>;
+  readonly levels: Maybe<ReadonlyArray<Scalars['Int']>>;
 };
 
 export enum AsteroidBonusType {
   Yield = 'YIELD',
-  Volantile = 'VOLANTILE',
+  Volatile = 'VOLATILE',
   Metal = 'METAL',
   Organic = 'ORGANIC',
   RareEarth = 'RARE_EARTH',
   Fissile = 'FISSILE'
+}
+
+export type AsteroidBonusesFilterInput = {
+  readonly conditions: ReadonlyArray<AsteroidBonusConditionInput>;
+  readonly mode: AsteroidBonusesFilterMode;
+};
+
+export enum AsteroidBonusesFilterMode {
+  And = 'AND',
+  Or = 'OR'
 }
 
 export type AsteroidCount = {
@@ -84,6 +99,7 @@ export type AsteroidFilterInput = {
   readonly eccentricity: Maybe<RangeInput>;
   readonly estimatedPrice: Maybe<RangeInput>;
   readonly rarities: Maybe<ReadonlyArray<AsteroidRarity>>;
+  readonly bonuses: Maybe<AsteroidBonusesFilterInput>;
 };
 
 export type AsteroidPage = {

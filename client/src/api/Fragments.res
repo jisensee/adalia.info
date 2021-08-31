@@ -11,6 +11,14 @@ fragment AsteroidRarity on Asteroid {
   rarity @ppxOmitFutureValue
 }
 
+fragment AsteroidBonuses on Asteroid {
+  bonuses {
+    level
+    modifier
+    type @ppxOmitFutureValue
+  }
+}
+
 fragment DataTableAsteroid on Asteroid {
   id
   name
@@ -44,6 +52,7 @@ fragment FullAsteroid on Asteroid {
   ...AsteroidType
   ...AsteroidSize
   ...AsteroidRarity
+  ... AsteroidBonuses
 }
 
 fragment DataTableAsteroidPage on AsteroidPage {

@@ -66,3 +66,34 @@ let spectralTypeFromString: string => option<Fragments.AsteroidType.t_spectralTy
   | "SM" => Some(#SM)
   | _ => None
   }
+
+let bonusTypeFromString: string => option<Fragments.AsteroidBonuses.t_bonuses_type> = str =>
+  switch str->Js.String2.toLowerCase {
+  | "yield" => Some(#YIELD)
+  | "volatile" => Some(#VOLATILE)
+  | "metal" => Some(#METAL)
+  | "organic" => Some(#ORGANIC)
+  | "fissile" => Some(#FISSILE)
+  | "rare_earth" => Some(#RARE_EARTH)
+  | _ => None
+  }
+
+let bonusTypeToString = (bonusType: Fragments.AsteroidBonuses.t_bonuses_type) =>
+  switch bonusType {
+  | #YIELD => "yield"
+  | #VOLATILE => "volatile"
+  | #METAL => "metal"
+  | #ORGANIC => "organic"
+  | #FISSILE => "fissile"
+  | #RARE_EARTH => "rare_earth"
+  }
+
+let bonusTypeToName = (bonusType: Fragments.AsteroidBonuses.t_bonuses_type) =>
+  switch bonusType {
+  | #YIELD => "Overall"
+  | #VOLATILE => "Volatiles"
+  | #METAL => "Metals"
+  | #ORGANIC => "Organics"
+  | #FISSILE => "Fissile"
+  | #RARE_EARTH => "Rare Earth"
+  }

@@ -2,6 +2,8 @@ import { MongoDataSource } from 'apollo-datasource-mongodb'
 import { Collection } from 'mongodb'
 import {
   Asteroid,
+  AsteroidBonusesFilterInput,
+  AsteroidBonusesFilterMode,
   AsteroidCount,
   AsteroidField,
   AsteroidFilterInput,
@@ -82,6 +84,35 @@ const raritiesFiletr = (rarities: AsteroidRarity[]) => ({
   rarity: { $in: rarities },
 })
 
+const bonusesFilter = (filter: AsteroidBonusesFilterInput) => {
+  const mode = filter.mode == AsteroidBonusesFilterMode.And ? '$and' : '$or'
+  const conditions = filter.conditions
+    .filter(
+      (condition) => condition.type || (condition.levels?.length ?? 0) > 0
+    )
+    .map((condition) => {
+      const elemMatch: any = {}
+      if (condition.type) {
+        elemMatch.type = condition.type
+      }
+      if (condition.levels && condition.levels.length > 0) {
+        elemMatch.level = {
+          $in: condition.levels,
+        }
+      }
+      return {
+        bonuses: {
+          $elemMatch: elemMatch,
+        },
+      }
+    })
+  return conditions.length > 0
+    ? {
+        [mode]: conditions,
+      }
+    : {}
+}
+
 const filterToQuery = (filter: AsteroidFilterInput) => {
   const owned = filter.owned == null ? {} : ownedFilter(filter.owned)
   const scanned = filter.scanned == null ? {} : { scanned: filter.scanned }
@@ -109,6 +140,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
     ? rangeFilter(filter.estimatedPrice, 'estimatedPrice')
     : {}
   const rarities = filter.rarities ? raritiesFiletr([...filter.rarities]) : {}
+  const bonuses = filter.bonuses ? bonusesFilter(filter.bonuses) : {}
 
   return {
     $and: [
@@ -124,6 +156,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
       eccentricity,
       priceEstimate,
       rarities,
+      bonuses,
     ],
   }
 }

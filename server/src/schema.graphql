@@ -41,9 +41,9 @@ type Asteroid {
 }
 
 type AsteroidBonus {
-  level: Int
-  modifier: Int
-  type: AsteroidBonusType
+  level: Int!
+  modifier: Int!
+  type: AsteroidBonusType!
 }
 
 input PageInput {
@@ -69,11 +69,27 @@ input AsteroidFilterInput {
   eccentricity: RangeInput
   estimatedPrice: RangeInput
   rarities: [AsteroidRarity!]
+  bonuses: AsteroidBonusesFilterInput
 }
 
 input RangeInput {
   from: Float!
   to: Float!
+}
+
+input AsteroidBonusesFilterInput {
+  conditions: [AsteroidBonusConditionInput!]!
+  mode: AsteroidBonusesFilterMode!
+}
+
+enum AsteroidBonusesFilterMode {
+  AND
+  OR
+}
+
+input AsteroidBonusConditionInput {
+  type: AsteroidBonusType
+  levels: [Int!]
 }
 
 enum SortingMode {
@@ -130,7 +146,7 @@ enum AsteroidRarity {
 
 enum AsteroidBonusType {
   YIELD
-  VOLANTILE
+  VOLATILE
   METAL
   ORGANIC
   RARE_EARTH

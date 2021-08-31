@@ -1,6 +1,6 @@
 open ReScriptUrql
 
-let makeCoorbitalLink = orbitalPeriod => {
+let makeCoorbitalLink = sma => {
   open PageQueryParams.AsteroidPageParamType
   Link.Internal(
     Route.Asteroids({
@@ -10,10 +10,7 @@ let makeCoorbitalLink = orbitalPeriod => {
       columns: None,
       filters: Some({
         ...emptyFilters,
-        orbitalPeriod: Some((
-          Js.Math.round(orbitalPeriod -. 1.),
-          Js.Math.round(orbitalPeriod +. 1.),
-        )),
+        semiMajorAxis: Some((sma, sma)),
       }),
     }),
   )
@@ -46,7 +43,7 @@ let make = (
         ),
         makeAction(Link.makeGameRoidLink(strId), Icon.influence, "Game")->Some,
         makeAction(
-          makeCoorbitalLink(rock.orbitalPeriod),
+          makeCoorbitalLink(rock.semiMajorAxis),
           Icon.Fas("globe"),
           "Co-Orbitals",
           ~iconWidth="w-6",

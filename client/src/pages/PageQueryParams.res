@@ -29,6 +29,12 @@ module AsteroidPageParamType = {
       str->Js.String2.split(",")->Belt.Array.keepMap(EnumUtils.rarityFromString)->Some
   })
 
+  module AsteroidBonusesParam = MakeParam({
+    type t = AsteroidBonusFilter.t
+    let toString = AsteroidBonusFilter.toString
+    let fromString = AsteroidBonusFilter.fromString
+  })
+
   type filters = {
     owned: option<bool>,
     scanned: option<bool>,
@@ -42,6 +48,7 @@ module AsteroidPageParamType = {
     eccentricity: option<(float, float)>,
     estimatedPrice: option<(float, float)>,
     rarities: option<array<Fragments.AsteroidRarity.t_rarity>>,
+    bonuses: option<AsteroidBonusFilter.t>,
   }
   let emptyFilters = {
     owned: None,
@@ -56,6 +63,7 @@ module AsteroidPageParamType = {
     eccentricity: None,
     estimatedPrice: None,
     rarities: None,
+    bonuses: None,
   }
   type t = {
     pageNum: option<int>,
@@ -81,6 +89,7 @@ module AsteroidPageParamType = {
       eccentricity: dict->FloatRangeParam.fromDict("eccentricity"),
       estimatedPrice: dict->FloatRangeParam.fromDict("estimatedPrice"),
       rarities: dict->AsteroidRaritiesParam.fromDict("rarities"),
+      bonuses: dict->AsteroidBonusesParam.fromDict("bonuses"),
     }),
     columns: dict->AsteroidTableColumnsParam.fromDict("columns"),
   }
@@ -102,6 +111,7 @@ module AsteroidPageParamType = {
       FloatRangeParam.toParam("eccentricity", getFilter(f => f.eccentricity)),
       FloatRangeParam.toParam("estimatedPrice", getFilter(f => f.estimatedPrice)),
       AsteroidRaritiesParam.toParam("rarities", getFilter(f => f.rarities)),
+      AsteroidBonusesParam.toParam("bonuses", getFilter(f => f.bonuses)),
       AsteroidTableColumnsParam.toParam("columns", columns),
     ]
   }

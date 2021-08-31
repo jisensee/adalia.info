@@ -79,6 +79,7 @@ let getDefaultFilter = filters => {
     eccentricity: getDefault(f => f.eccentricity, Defaults.eccentricityBounds),
     estimatedPrice: getDefault(f => f.estimatedPrice, Defaults.estimatedPriceBounds),
     rarities: getDefault(f => f.rarities, []),
+    bonuses: getDefault(f => f.bonuses, {AsteroidBonusFilter.mode: #AND, conditions: []}),
   }
 }
 

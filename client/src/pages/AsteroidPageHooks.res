@@ -45,6 +45,7 @@ let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters, ~colum
           eccentricity: appliedFilters.eccentricity->AsteroidFilters.Filter.toOption,
           estimatedPrice: appliedFilters.estimatedPrice->AsteroidFilters.Filter.toOption,
           rarities: appliedFilters.rarities->AsteroidFilters.Filter.toOption,
+          bonuses: appliedFilters.bonuses->AsteroidFilters.Filter.toOption,
         }),
         columns: Some(columns),
       })
@@ -143,6 +144,16 @@ let useAsteroidPageQuery = (
         estimatedPrice: filters.estimatedPrice->Option.map(((from, to_)) => {
           Queries.DataTableAsteroids.from: from,
           to_: to_,
+        }),
+        bonuses: filters.bonuses->Option.map(bonuses => {
+          Queries.DataTableAsteroids.mode: bonuses.mode,
+          conditions: bonuses.conditions->Array.map(b =>
+            Queries.DataTableAsteroids.makeInputObjectAsteroidBonusConditionInput(
+              ~type_=?b.type_,
+              ~levels=b.levels,
+              (),
+            )
+          ),
         }),
       },
     },
