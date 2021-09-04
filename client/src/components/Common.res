@@ -10,6 +10,7 @@ module LoadingSpinner = {
 }
 
 module Select = {
+  // Option is (<key>, <display>)
   @react.component
   let make = (
     ~className="",
@@ -18,13 +19,20 @@ module Select = {
     ~options,
     ~toString,
     ~fromString,
+    ~compact=false,
     ~enabled=true,
   ) => {
     let onSelectChange = e => {
       ReactEvent.Form.currentTarget(e)["value"]->fromString->onChange
       e->ReactEvent.Form.preventDefault->ignore
     }
-    <select className value={value->toString} onChange=onSelectChange disabled={!enabled}>
+    let class =
+      switch compact {
+      | true => "py-1"
+      | false => ""
+      } ++
+      className
+    <select className=class value={value->toString} onChange=onSelectChange disabled={!enabled}>
       {options
       ->Belt.Array.map(((val, display)) =>
         <option key=val value=val> {display->React.string} </option>

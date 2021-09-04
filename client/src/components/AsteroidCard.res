@@ -1,5 +1,5 @@
 @react.component
 let make = (~id, ~className="") => {
-  let src = `https://images-staging.influenceth.io/v1/asteroids/${id}/image.svg`
+  let src = `https://api.influenceth.io/metadata/asteroids/${id}/card.svg`
   <img src className />
 }

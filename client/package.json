@@ -35,6 +35,7 @@
     "@ryyppy/rescript-promise": "^2.1.0",
     "@tailwindcss/forms": "^0.3.2",
     "@urql/rescript": "^4.0.0",
+    "bs-fetch": "^0.6.2",
     "graphql": "^15.5.0",
     "react": "^17.0.2",
     "react-data-table-component": "^7.0.0-rc6",

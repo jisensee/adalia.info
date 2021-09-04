@@ -32,6 +32,7 @@ let make = (
   ~titleText=?,
   ~className="",
   ~forceReload=false,
+  ~onClick=() => (),
 ) => {
   let title = switch (titleText, text) {
   | (Some(title), _) => title
@@ -56,10 +57,11 @@ let make = (
     if forceReload {
       reload()
     }
+    onClick()
   }
   let hoverClass = switch hover {
   | false => ""
-  | true => "hover:text-blue-400"
+  | true => "hover:text-blue-dark"
   }
   <a href target title className={`${highlightClass} ${hoverClass} ${className}`} onClick>
     {switch (children, text) {
