@@ -13,6 +13,9 @@ let makeGameRoidLink = id => External("https://game.influenceth.io/" ++ id ++ re
 let githubRepo = External("https://github.com/jisensee/adalia.info")
 let discord = External("https://discord.gg/XynYK5yCQy")
 
+let openSea = External("https://opensea.io")
+let etherscan = External("https://etherscan.io")
+
 let makeAsteroidOpenSeaLink = id => External(
   `https://opensea.io/assets/0x6e4c6d9b0930073e958abd2aba516b885260b8ff/${id}`,
 )

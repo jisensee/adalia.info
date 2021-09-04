@@ -58,12 +58,20 @@ module VersionDisplay = {
 @react.component
 let make = (~version, ~linkRelease, ~lastDataUpdateAt=?) => {
   <div className="border-t-2 border-gray-600">
-    <div className="container mx-auto p-4 flex flex-col space-y-3">
+    <div className="container mx-auto p-4 flex flex-col space-y-2">
       <div className="flex flex-row justify-center space-x-20">
         <InternalLinks /> <ExternalLinks />
       </div>
-      <LastDataUpdateDisplay ?lastDataUpdateAt />
       <VersionDisplay version linkRelease />
+      <LastDataUpdateDisplay ?lastDataUpdateAt />
+      <div className="text-center">
+        {"Powered by "->React.string}
+        <Link to_={Link.influence} text="Influence" />
+        {", "->React.string}
+        <Link to_={Link.openSea} text="OpenSea" />
+        {" and "->React.string}
+        <Link to_={Link.influence} text="Etherscan" />
+      </div>
     </div>
   </div>
 }
