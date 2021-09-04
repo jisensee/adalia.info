@@ -5,7 +5,7 @@
 switch ReactDOM.querySelector("#root") {
 | Some(root) =>
   ReactDOM.render(
-    <React.StrictMode> <ContextProvider> <App /> </ContextProvider> </React.StrictMode>,
+    <React.StrictMode> <UrqlContext.Provider> <App /> </UrqlContext.Provider> </React.StrictMode>,
     root,
   )
 | None => ()

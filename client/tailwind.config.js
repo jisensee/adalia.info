@@ -1,4 +1,5 @@
 const colors = require('tailwindcss/colors');
+const defaultTheme = require('tailwindcss/defaultTheme');
 
 module.exports = {
   purge: {
@@ -29,12 +30,19 @@ module.exports = {
         DEFAULT: colors.coolGray[800],
         dark: colors.coolGray[900],
       },
-      blue: colors.blue[300],
+      blue: {
+        DEFAULT: colors.blue[300],
+        dark: colors.blue[500],
+      },
       red: colors.red[500],
       white: colors.white,
       purple: colors.purple[500],
       yellow: colors.yellow[400],
       orange: colors.orange[400],
+    },
+    screens: {
+      xs: '450px',
+      ...defaultTheme.screens,
     },
     extend: {
       maxHeight: {
@@ -45,6 +53,7 @@ module.exports = {
       },
       transitionProperty: {
         'max-h': 'max-height',
+        p: 'padding',
       },
     },
   },

@@ -31,6 +31,7 @@ module Category = {
 
 @react.component
 let make = (~asteroid: Fragments.FullAsteroid.t) => {
+  let (currency, exchangeRate) = ExchangeRate.Context.useWithCurrency()
   let generalItems = [
     (
       "Owner",
@@ -66,7 +67,7 @@ let make = (~asteroid: Fragments.FullAsteroid.t) => {
     ("Radius", asteroid.radius->Format.radius->React.string, "m")->Some,
     asteroid.estimatedPrice->Option.map(price => (
       "Estimated price",
-      ("$" ++ price->Format.price)->React.string,
+      price->ExchangeRate.convertAndFormat(exchangeRate, currency)->React.string,
       "",
     )),
   ]

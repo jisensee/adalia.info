@@ -12,9 +12,16 @@ let make = () => {
   }
   let pageComp = RescriptReactRouter.useUrl()->Route.fromUrl->Pages.fromRoute
   let linkRelease = versionInfo.version !== "dev"
+  let (currency, setCurrency) = Currency.useState()
+  let exchangeRate = ExchangeRate.useState()
+
   <>
-    <Navbar className="sticky top-0 z-50" />
-    <div className="container mx-auto p-4"> {pageComp} </div>
-    <Footer version=versionInfo.version linkRelease ?lastDataUpdateAt />
+    <ExchangeRate.Context.Provider value=exchangeRate>
+      <Currency.Context.Provider value=currency>
+        <Navbar className="sticky top-0 z-50" setCurrency />
+        <div className="md:container md:mx-auto p-4"> {pageComp} </div>
+        <Footer version=versionInfo.version linkRelease ?lastDataUpdateAt />
+      </Currency.Context.Provider>
+    </ExchangeRate.Context.Provider>
   </>
 }
