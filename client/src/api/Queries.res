@@ -37,4 +37,10 @@ query PriceBounds {
     max
   }
 }
+
+query ExchangeRates {
+  exchangeRates {
+    oneEthInUsd
+  }
+}
 `)

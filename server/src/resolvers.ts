@@ -1,5 +1,6 @@
 import { IResolvers } from 'graphql-tools'
 import { Context, DataSources } from './context'
+import getExchangeRates from './exchange-rates'
 import { dateScalar } from './scalars'
 import {
   QueryAsteroidArgs,
@@ -27,6 +28,7 @@ const resolvers: IResolvers<DataSources, Context> = {
       dataSources.asteroidImports.getLast().then((imp) => imp?.lastRun),
     priceBounds: (_, _args, { dataSources }) =>
       dataSources.asteroids.getPriceBounds(),
+    exchangeRates: () => getExchangeRates(),
   },
 }
 

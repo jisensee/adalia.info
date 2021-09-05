@@ -130,6 +130,11 @@ export type AsteroidSortingInput = {
 };
 
 
+export type ExchangeRates = {
+  readonly __typename?: 'ExchangeRates';
+  readonly oneEthInUsd: Scalars['Float'];
+};
+
 export type PageInput = {
   readonly size: Scalars['Int'];
   readonly num: Scalars['Int'];
@@ -148,6 +153,7 @@ export type Query = {
   readonly asteroid: Maybe<Asteroid>;
   readonly lastDataUpdateAt: Maybe<Scalars['Date']>;
   readonly priceBounds: PriceBounds;
+  readonly exchangeRates: ExchangeRates;
 };
 
 

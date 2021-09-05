@@ -29,13 +29,15 @@
     "follow-redirects": "^1.14.1",
     "graphql": "^15.4.0",
     "influence-utils": "^1.0.0",
-    "mongodb": "^3.6.6"
+    "mongodb": "^3.6.6",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.1.1",
     "@graphql-codegen/typescript": "^2.1.0",
     "@types/follow-redirects": "^1.13.1",
     "@types/node": "^14.14.7",
+    "@types/node-fetch": "^2.5.7",
     "graphql-import-node": "^0.0.4",
     "graphql-tools": "^4.0.8",
     "typescript": "^4.0.5"
