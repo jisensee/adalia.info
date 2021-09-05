@@ -44,10 +44,31 @@ let make = () => {
       {"This project is run by the community and is not directly affiliated with the developers. It does however use the official Influence-API to retrieve game-specific up-to-date data."->React.string}
     </p>
     {switch response {
-    | Data({asteroidCount}) =>
-      <ProgressBar
-        count=asteroidCount.count total=asteroidCount.total prefixText="Owned asteroids: "
-      />
+    | Data({asteroidCount}) => {
+        open Belt
+        let count = asteroidCount.count->Int.toFloat
+        let total = asteroidCount.total->Int.toFloat
+        let percentage = (count /. total *. 100.)->Format.formatFloat(1) ++ "%"
+        let formattedCount = count->Float.toString
+        let formattedTotal = total->Format.bigFloat
+
+        module Pb = ProgressBar
+        let textConfigs = [
+          {
+            Pb.className: "xs:hidden",
+            content: `Owned Asteroids: ${formattedCount}`,
+          },
+          {
+            Pb.className: "hidden xs:inline sm:hidden",
+            content: `Owned asteroids: ${formattedCount} (${percentage})`,
+          },
+          {
+            Pb.className: "hidden sm:inline",
+            content: `Owned asteroids: ${formattedCount} / ${formattedTotal} (${percentage})`,
+          },
+        ]
+        <ProgressBar count=asteroidCount.count total=asteroidCount.total textConfigs />
+      }
     | _ => React.null
     }}
   </>
