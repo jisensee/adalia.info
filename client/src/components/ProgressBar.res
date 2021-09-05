@@ -30,7 +30,7 @@ let make = (~count, ~total, ~prefixText) => {
       y="50%"
       dominantBaseline="middle"
       textAnchor="middle"
-      className="text-black fill-current text-xl text-gray-dark">
+      className="text-black fill-current text-xl">
       {text->React.string}
     </text>
   </svg>

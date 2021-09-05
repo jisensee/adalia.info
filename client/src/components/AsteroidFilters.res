@@ -485,8 +485,8 @@ module SizeFilters = {
   let make = (~filters, ~onChange: t => unit) => {
     let priceBounds = PriceBounds.Context.use()
 
-    let (currency, exchangeRate) = ExchangeRate.Context.useWithCurrency()
-    let convert = p => p->ExchangeRate.convert(exchangeRate, currency)
+    let (currency, exchangeRates) = ExchangeRates.Context.useWithCurrency()
+    let convert = p => p->ExchangeRates.convert(exchangeRates, currency)
 
     let initialIsOpen =
       [

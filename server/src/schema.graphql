@@ -10,6 +10,7 @@ type Query {
   asteroid(id: Int!): Asteroid
   lastDataUpdateAt: Date
   priceBounds: PriceBounds!
+  exchangeRates: ExchangeRates!
 }
 
 type AsteroidPage {
@@ -44,6 +45,10 @@ type Asteroid {
 type PriceBounds {
   min: Float!
   max: Float!
+}
+
+type ExchangeRates {
+  oneEthInUsd: Float!
 }
 
 type AsteroidBonus {

@@ -35,7 +35,7 @@ module LastDataUpdateDisplay = {
     switch lastDataUpdateAt {
     | None => React.null
     | Some(_timestamp) =>
-      <div className="flex justify-center text-base">
+      <div className="flex justify-center text-center">
         {/* {`Last data update: ${timestamp->Js.Date.toLocaleString}`->React.string} */
         "Data is currently static from a snapshot of 2021-08-10"->React.string}
       </div>
@@ -46,7 +46,7 @@ module VersionDisplay = {
   @react.component
   let make = (~version, ~linkRelease) => {
     let versionText = `Version: ${version}`->React.string
-    <div className="flex justify-center text-base">
+    <div className="flex justify-center">
       {switch linkRelease {
       | false => versionText
       | true => <Link to_={Link.makeReleaseLink(version)}> versionText </Link>
@@ -62,15 +62,17 @@ let make = (~version, ~linkRelease, ~lastDataUpdateAt=?) => {
       <div className="flex flex-row justify-center space-x-20">
         <InternalLinks /> <ExternalLinks />
       </div>
-      <VersionDisplay version linkRelease />
-      <LastDataUpdateDisplay ?lastDataUpdateAt />
-      <div className="text-center">
-        {"Powered by "->React.string}
-        <Link to_={Link.influence} text="Influence" />
-        {", "->React.string}
-        <Link to_={Link.openSea} text="OpenSea" />
-        {" and "->React.string}
-        <Link to_={Link.influence} text="Etherscan" />
+      <div className="text-base">
+        <VersionDisplay version linkRelease />
+        <LastDataUpdateDisplay ?lastDataUpdateAt />
+        <div className="text-center">
+          {"Powered by "->React.string}
+          <Link to_={Link.influence} text="Influence" />
+          {", "->React.string}
+          <Link to_={Link.openSea} text="OpenSea" />
+          {" and "->React.string}
+          <Link to_={Link.influence} text="Etherscan" />
+        </div>
       </div>
     </div>
   </div>

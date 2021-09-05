@@ -105,7 +105,7 @@ let make = (
   ~actions,
 ) => {
   open Belt
-  let (currency, exchangeRate) = ExchangeRate.Context.useWithCurrency()
+  let (currency, exchangeRates) = ExchangeRates.Context.useWithCurrency()
   let data =
     pageData.rows
     ->Array.map(a => [
@@ -116,7 +116,11 @@ let make = (
       cell(
         Column.EstimatedPrice,
         a.estimatedPrice,
-        Belt.Option.mapWithDefault(_, "", ExchangeRate.convertAndFormat(_, exchangeRate, currency)),
+        Belt.Option.mapWithDefault(
+          _,
+          "",
+          ExchangeRates.convertAndFormat(_, exchangeRates, currency),
+        ),
       ),
       cell(Column.Scanned, a.scanned, scanned => scanned ? "Yes" : "No"),
       cell(Column.Radius, a.radius, Format.radius, ~unit=" m"),
