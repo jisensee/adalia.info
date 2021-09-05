@@ -71,7 +71,7 @@ let make = (~version, ~linkRelease, ~lastDataUpdateAt=?) => {
           {", "->React.string}
           <Link to_={Link.openSea} text="OpenSea" />
           {" and "->React.string}
-          <Link to_={Link.influence} text="Etherscan" />
+          <Link to_={Link.etherscan} text="Etherscan" />
         </div>
       </div>
     </div>
