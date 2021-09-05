@@ -14,21 +14,27 @@ let bigFloat = n => {
   trimmed->formatFloat(decimals) ++ suffix
 }
 
-let radius = formatFloat(_, 0)
-let surfaceArea = formatFloat(_, 0)
+let radius = bigFloat
+let surfaceArea = bigFloat
 let semiMajorAxis = formatFloat(_, 3)
 let inclination = formatFloat(_, 2)
 let orbitalPeriod = formatFloat(_, 0)
 let eccentricity = formatFloat(_, 3)
-let price = (value, currency) => {
+let price = (~showSymbol=true, value, currency) => {
   let getEthDigits = () =>
     switch value {
     | v if v >= 100. => 1
     | v if v >= 10. => 2
     | _ => 3
     }
-  switch currency {
-  | Currency.ETH => `${formatFloat(value, getEthDigits())} ETH`
-  | Currency.USD => `$${bigFloat(value)}`
+  let symbol = currency->Currency.toSymbol
+  let formatted = switch currency {
+  | Currency.ETH => formatFloat(value, getEthDigits())
+  | Currency.USD => bigFloat(value)
+  }
+  switch (currency, showSymbol) {
+  | (Currency.ETH, true) => `${formatted} ${symbol}`
+  | (Currency.USD, true) => `${symbol}${formatted}`
+  | (_, false) => formatted
   }
 }

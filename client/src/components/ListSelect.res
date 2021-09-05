@@ -13,7 +13,7 @@ module Button = {
     }
     let enabledStyle = switch enabled {
     | true => "opacity-100 cursor-pointer"
-    | false => "opacity-30"
+    | false => "opacity-disabled"
     }
 
     <div className="p-1">

@@ -24,6 +24,7 @@ module.exports = {
   theme: {
     colors: {
       cyan: '#69ebf4',
+      black: colors.black,
       gray: {
         lighter: colors.coolGray[400],
         light: colors.coolGray[600],
@@ -47,6 +48,12 @@ module.exports = {
     extend: {
       maxHeight: {
         all: '100rem',
+      },
+      backgroundColor: {
+        transparent: 'transparent',
+      },
+      opacity: {
+        disabled: '.3',
       },
       zIndex: {
         '-10': '-10',

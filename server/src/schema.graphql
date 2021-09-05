@@ -9,6 +9,7 @@ type Query {
   asteroidCount(filter: AsteroidFilterInput): AsteroidCount!
   asteroid(id: Int!): Asteroid
   lastDataUpdateAt: Date
+  priceBounds: PriceBounds!
 }
 
 type AsteroidPage {
@@ -38,6 +39,11 @@ type Asteroid {
   estimatedPrice: Float
   rarity: AsteroidRarity
   bonuses: [AsteroidBonus!]!
+}
+
+type PriceBounds {
+  min: Float!
+  max: Float!
 }
 
 type AsteroidBonus {
