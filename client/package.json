@@ -11,6 +11,7 @@
     "start": "run-p res:watch vite:dev",
     "res:build": "rescript build",
     "vite:build": "vite build",
+    "vite:preview": "vite preview",
     "build": "run-s clean res:build vite:build"
   },
   "author": "",
