@@ -31,14 +31,17 @@ module Context = {
   let useWithCurrency = () => (Currency.Context.use(), use())
 }
 
-let convertAndFormat = (price, exchangeRate, targetCurrency) =>
+let convert = (price, exchangeRate, targetCurrency) =>
   switch (exchangeRate, targetCurrency) {
   | (None, _) => price
 
   | (Some(rate), Currency.ETH) => price *. (1. /. rate.oneEthInUsd)
 
   | (Some(_), Currency.USD) => price
-  }->Format.price(targetCurrency)
+  }
+
+let convertAndFormat = (~showSymbol=?, price, exchangeRate, targetCurrency) =>
+  price->convert(exchangeRate, targetCurrency)->Format.price(targetCurrency, ~showSymbol?)
 
 let useState = () => {
   let (rate: option<t>, setRate) = React.useState(() => None)

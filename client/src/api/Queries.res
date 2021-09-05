@@ -30,4 +30,11 @@ query Asteroid($id: Int!) {
 query LastDataUpdateAt {
   lastDataUpdateAt @ppxCustom(module: "Date")
 }
+
+query PriceBounds {
+  priceBounds {
+    min
+    max
+  }
+}
 `)

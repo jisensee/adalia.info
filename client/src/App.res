@@ -14,14 +14,17 @@ let make = () => {
   let linkRelease = versionInfo.version !== "dev"
   let (currency, setCurrency) = Currency.useState()
   let exchangeRate = ExchangeRate.useState()
+  let priceBounds = PriceBounds.useState()
 
   <>
-    <ExchangeRate.Context.Provider value=exchangeRate>
-      <Currency.Context.Provider value=currency>
-        <Navbar className="sticky top-0 z-50" setCurrency />
-        <div className="md:container md:mx-auto p-4"> {pageComp} </div>
-        <Footer version=versionInfo.version linkRelease ?lastDataUpdateAt />
-      </Currency.Context.Provider>
-    </ExchangeRate.Context.Provider>
+    <PriceBounds.Context.Provider value=priceBounds>
+      <ExchangeRate.Context.Provider value=exchangeRate>
+        <Currency.Context.Provider value=currency>
+          <Navbar className="sticky top-0 z-50" setCurrency />
+          <div className="md:container md:mx-auto p-4"> {pageComp} </div>
+          <Footer version=versionInfo.version linkRelease ?lastDataUpdateAt />
+        </Currency.Context.Provider>
+      </ExchangeRate.Context.Provider>
+    </PriceBounds.Context.Provider>
   </>
 }

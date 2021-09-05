@@ -1,4 +1,5 @@
 @import url('datatable.css');
+@import url('slider.css');
 
 @tailwind base;
 @tailwind components;
@@ -61,7 +62,7 @@
 
   select[disabled],
   input[disabled] {
-    @apply opacity-30 !important;
+    @apply opacity-disabled !important;
   }
 
   p {

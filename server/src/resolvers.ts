@@ -25,6 +25,8 @@ const resolvers: IResolvers<DataSources, Context> = {
       dataSources.asteroids.getByRockId(args.id),
     lastDataUpdateAt: (_, _args, { dataSources }) =>
       dataSources.asteroidImports.getLast().then((imp) => imp?.lastRun),
+    priceBounds: (_, _args, { dataSources }) =>
+      dataSources.asteroids.getPriceBounds(),
   },
 }
 

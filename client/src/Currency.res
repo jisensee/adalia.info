@@ -12,6 +12,12 @@ let fromString = s =>
   | _ => None
   }
 
+let toSymbol = c =>
+  switch c {
+  | USD => "$"
+  | ETH => `ETH`
+  }
+
 module LocalStorage = {
   let key = "currency"
 

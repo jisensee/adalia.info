@@ -13,6 +13,7 @@ import {
   AsteroidSortingInput,
   Maybe,
   PageInput,
+  PriceBounds,
   RangeInput,
   SortingMode,
   SpectralType,
@@ -202,5 +203,28 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
 
   public async getByRockId(id: number) {
     return this.collection.find({ id }).next()
+  }
+
+  public async getPriceBounds(): Promise<PriceBounds> {
+    const r = await this.collection
+      .aggregate<PriceBounds>([
+        {
+          $group: {
+            _id: 'bounds',
+            min: {
+              $min: '$estimatedPrice',
+            },
+            max: {
+              $max: '$estimatedPrice',
+            },
+          },
+        },
+      ])
+      .next()
+
+    if (!r) {
+      throw Error()
+    }
+    return r
   }
 }

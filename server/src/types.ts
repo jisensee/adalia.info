@@ -135,12 +135,19 @@ export type PageInput = {
   readonly num: Scalars['Int'];
 };
 
+export type PriceBounds = {
+  readonly __typename?: 'PriceBounds';
+  readonly min: Scalars['Float'];
+  readonly max: Scalars['Float'];
+};
+
 export type Query = {
   readonly __typename?: 'Query';
   readonly asteroids: AsteroidPage;
   readonly asteroidCount: AsteroidCount;
   readonly asteroid: Maybe<Asteroid>;
   readonly lastDataUpdateAt: Maybe<Scalars['Date']>;
+  readonly priceBounds: PriceBounds;
 };
 
 

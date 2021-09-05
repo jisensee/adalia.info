@@ -157,10 +157,48 @@ module BoolFilter = {
 }
 
 module NumberRangeFilter = {
+  type step = Static(float) | Log
+
+  let getProps = (~min, ~max, ~value, ~step) =>
+    switch step {
+    | Static(s) => {
+        Slider.min: min,
+        max: max,
+        value: value,
+        revertValue: v => v,
+        step: s,
+      }
+    | Log => Slider.getLogProps(~min, ~max, ~value)
+    }
+
   @react.component
-  let make = (~filter, ~onChange, ~label) => {
-    let makeFilterComp = (value, oc, enabled) =>
-      <Common.NumberRangeInput value onChange=oc enabled inputClassName="w-32" />
+  let make = (~filter, ~onChange, ~label, ~bounds, ~step, ~formatValue) => {
+    let (min, max) = bounds
+    let makeFilterComp = (value, oc, enabled) => {
+      let (left, right) = value
+      let leftStr = left->formatValue
+      let rightStr = right->formatValue
+
+      let props = getProps(~min, ~max, ~value, ~step)
+      let opacity = switch enabled {
+      | true => ""
+      | false => "opacity-disabled"
+      }
+
+      <div className={`w-72 ml-3 ${opacity}`}>
+        <Slider
+          value=props.value
+          onChange={v => v->props.revertValue->oc}
+          min=props.min
+          max=props.max
+          step=props.step
+          disabled={!enabled}
+          allowCross={false}
+        />
+        {`${leftStr} - ${rightStr}`->React.string}
+      </div>
+    }
+
     <Filter label filter onChange makeFilterComp />
   }
 }
@@ -445,6 +483,11 @@ module GeneralFilters = {
 module SizeFilters = {
   @react.component
   let make = (~filters, ~onChange: t => unit) => {
+    let priceBounds = PriceBounds.Context.use()
+
+    let (currency, exchangeRate) = ExchangeRate.Context.useWithCurrency()
+    let convert = p => p->ExchangeRate.convert(exchangeRate, currency)
+
     let initialIsOpen =
       [
         filters.radius.active,
@@ -454,23 +497,38 @@ module SizeFilters = {
       ]->Array.some(a => a)
 
     let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+    let priceLabel = `Estimated price (${currency->Currency.toSymbol})`
+    let formatPrice = p => p->convert->Format.price(currency, ~showSymbol=false)
 
     <FilterCategory title="Size" isOpen onOpenChange={o => setOpen(_ => o)}>
       <NumberRangeFilter
         filter=filters.radius
         onChange={radius => onChange({...filters, radius: radius})}
         label="Radius (m)"
+        bounds=Defaults.radiusBounds
+        step=NumberRangeFilter.Log
+        formatValue=Format.radius
       />
       <NumberRangeFilter
         filter=filters.surfaceArea
         onChange={surfaceArea => onChange({...filters, surfaceArea: surfaceArea})}
         label=`Surface area (km²)`
+        bounds=Defaults.surfaceBounds
+        step=NumberRangeFilter.Log
+        formatValue=Format.surfaceArea
       />
-      <NumberRangeFilter
-        filter=filters.estimatedPrice
-        onChange={estimatedPrice => onChange({...filters, estimatedPrice: estimatedPrice})}
-        label="Estimated price ($)"
-      />
+      {switch priceBounds {
+      | None => React.null
+      | Some({Queries.PriceBounds.min: min, max}) =>
+        <NumberRangeFilter
+          filter=filters.estimatedPrice
+          onChange={estimatedPrice => onChange({...filters, estimatedPrice: estimatedPrice})}
+          label=priceLabel
+          bounds={(min, max)}
+          step=NumberRangeFilter.Log
+          formatValue=formatPrice
+        />
+      }}
       <SizeFilter filter=filters.sizes onChange={sizes => onChange({...filters, sizes: sizes})} />
     </FilterCategory>
   }
@@ -494,21 +552,33 @@ module OrbitalFilters = {
         filter=filters.semiMajorAxis
         onChange={semiMajorAxis => onChange({...filters, semiMajorAxis: semiMajorAxis})}
         label="Semi major axis (AU)"
+        bounds=Defaults.semiMajorAxisBounds
+        step=NumberRangeFilter.Static(0.001)
+        formatValue=Format.semiMajorAxis
       />
       <NumberRangeFilter
         filter=filters.inclination
         onChange={inclination => onChange({...filters, inclination: inclination})}
         label="Inclination (degrees)"
+        bounds=Defaults.inclinationBounds
+        step=NumberRangeFilter.Static(0.01)
+        formatValue=Format.inclination
       />
       <NumberRangeFilter
         filter=filters.orbitalPeriod
         onChange={orbitalPeriod => onChange({...filters, orbitalPeriod: orbitalPeriod})}
         label="Orbital period (days)"
+        bounds=Defaults.orbitalPeriodBounds
+        step=NumberRangeFilter.Static(1.)
+        formatValue=Format.orbitalPeriod
       />
       <NumberRangeFilter
         filter=filters.eccentricity
         onChange={eccentricity => onChange({...filters, eccentricity: eccentricity})}
         label="Eccentricity"
+        bounds=Defaults.eccentricityBounds
+        step=NumberRangeFilter.Static(0.001)
+        formatValue=Format.eccentricity
       />
     </FilterCategory>
   }
