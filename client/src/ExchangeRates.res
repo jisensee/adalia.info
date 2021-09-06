@@ -18,8 +18,8 @@ module Context = {
 let convert = (price, exchangeRate, targetCurrency) =>
   switch (exchangeRate, targetCurrency) {
   | (None, _) => price
-  | (Some(rate), Currency.ETH) => price *. (1. /. rate.Queries.ExchangeRates.oneEthInUsd)
-  | (Some(_), Currency.USD) => price
+  | (Some(_), Currency.ETH) => price
+  | (Some(rate), Currency.USD) => price *. rate.Queries.ExchangeRates.oneEthInUsd
   }
 
 let convertAndFormat = (~showSymbol=?, price, exchangeRate, targetCurrency) =>
