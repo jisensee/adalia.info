@@ -8,7 +8,9 @@ let referralParam = "?r=0xD90b1056F1E5DA3d81D09D643e6AC092ec3a7871"
 
 let influence = External("https://influenceth.io")
 let influenceGame = External("https://game.influenceth.io" ++ referralParam)
-let makeGameRoidLink = id => External("https://game.influenceth.io/" ++ id ++ referralParam)
+let makeGameRoidLink = id => External(
+  "https://game.influenceth.io/asteroids/" ++ id ++ referralParam,
+)
 
 let githubRepo = External("https://github.com/jisensee/adalia.info")
 let discord = External("https://discord.gg/XynYK5yCQy")
