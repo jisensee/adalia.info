@@ -49,6 +49,117 @@ type t = {
   rarities: Filter.t<array<Fragments.AsteroidRarity.t_rarity>>,
   bonuses: Filter.t<AsteroidBonusFilter.t>,
 }
+
+let isActive = f =>
+  [
+    f.owned.active,
+    f.scanned.active,
+    f.radius.active,
+    f.surfaceArea.active,
+    f.sizes.active,
+    f.orbitalPeriod.active,
+    f.semiMajorAxis.active,
+    f.inclination.active,
+    f.eccentricity.active,
+    f.estimatedPrice.active,
+    f.rarities.active,
+    f.bonuses.active,
+  ]->Array.some(active => active)
+
+module FilterFormatter = {
+  let bool = value =>
+    switch value {
+    | true => "Yes"
+    | false => "No"
+    }
+  let range = (~formatValue=Format.bigFloat, ~unit="", (from, to_)) => {
+    let fromFormatted = `${formatValue(from)} ${unit}`
+    let toFormatted = `${formatValue(to_)} ${unit}`
+    `${fromFormatted} - ${toFormatted}`
+  }
+  let list = (items, formatItem) => items->Array.map(formatItem)->Js.Array2.joinWith(", ")
+
+  let owned = bool(_)
+  let scanned = bool(_)
+  let radius = range(_, ~unit="m")
+  let surfaceArea = range(_, ~unit="km²")
+  let orbitalPeriod = range(_, ~unit="days")
+  let semiMajorAxis = range(_, ~unit="AU")
+  let inclination = range(_, ~unit="°")
+  let eccentricity = range(_)
+  let price = (value, currency) => range(value, ~formatValue=Format.price(_, currency))
+  let spectralTypes = list(_, EnumUtils.spectralTypeToString)
+  let rarities = list(_, EnumUtils.rarityToString)
+  let sizes = list(_, EnumUtils.sizeToString)
+  let bonuses = value => {
+    open AsteroidBonusFilter
+    let mode = switch value.mode {
+    | #AND => "AND"
+    | #OR => "OR"
+    }
+    let formatCondition = bonus => {
+      let name =
+        bonus.Condition.type_->Option.map(EnumUtils.bonusTypeToName)->Option.getWithDefault("")
+      let levels = switch List.fromArray(bonus.Condition.levels) {
+      | list{} => ""
+      | items => `[${items->List.map(Int.toString)->List.toArray->Js.Array2.joinWith(", ")}]`
+      }
+      name ++ levels
+    }
+    value.conditions->Array.map(formatCondition)->Js.Array2.joinWith(` ${mode} `)
+  }
+}
+
+module Summary = {
+  @react.component
+  let make = (~filters) => {
+    let currency = Currency.Context.use()
+    let getFilter = (filter, prefix, formatter) =>
+      switch filter.Filter.active {
+      | true =>
+        Some(
+          <div className="inline font-bold">
+            <span className="text-cyan"> {React.string(prefix ++ ": ")} </span>
+            {filter.Filter.value->formatter->React.string}
+          </div>,
+        )
+      | false => None
+      }
+
+    switch filters->isActive {
+    | false => React.null
+    | true =>
+      let elements =
+        [
+          getFilter(filters.owned, "Owned", FilterFormatter.owned),
+          getFilter(filters.scanned, "Scanned", FilterFormatter.scanned),
+          getFilter(filters.spectralTypes, "Spectral types", FilterFormatter.spectralTypes),
+          getFilter(filters.radius, "Radius", FilterFormatter.radius),
+          getFilter(filters.sizes, "Sizes", FilterFormatter.sizes),
+          getFilter(filters.surfaceArea, "Surface area", FilterFormatter.surfaceArea),
+          getFilter(filters.orbitalPeriod, "Orbital period", FilterFormatter.orbitalPeriod),
+          getFilter(filters.semiMajorAxis, "Semi major axis", FilterFormatter.semiMajorAxis),
+          getFilter(filters.inclination, "Inclination", FilterFormatter.inclination),
+          getFilter(filters.eccentricity, "Eccentricity", FilterFormatter.eccentricity),
+          getFilter(filters.estimatedPrice, "Last sale price", FilterFormatter.price(_, currency)),
+          getFilter(filters.rarities, "Rarities", FilterFormatter.rarities),
+          getFilter(filters.bonuses, "Bonuses", FilterFormatter.bonuses),
+        ]->Array.keepMap(e => e)
+      let size = elements->Array.size
+      <p>
+        {elements
+        ->Array.mapWithIndex((index, e) =>
+          switch index < size - 1 {
+          | true => <> e {", "->React.string} </>
+          | false => e
+          }
+        )
+        ->React.array}
+      </p>
+    }
+  }
+}
+
 let disableAll = filter => {
   owned: filter.owned->Filter.disable,
   scanned: filter.scanned->Filter.disable,
@@ -118,22 +229,6 @@ let correctFilter = f => {
     value: correctValue(f.eccentricity.value, Defaults.eccentricityBounds),
   },
 }
-
-let isActive = f =>
-  [
-    f.owned.active,
-    f.scanned.active,
-    f.radius.active,
-    f.surfaceArea.active,
-    f.sizes.active,
-    f.orbitalPeriod.active,
-    f.semiMajorAxis.active,
-    f.inclination.active,
-    f.eccentricity.active,
-    f.estimatedPrice.active,
-    f.rarities.active,
-    f.bonuses.active,
-  ]->Array.some(active => active)
 
 module BoolFilter = {
   @react.component
