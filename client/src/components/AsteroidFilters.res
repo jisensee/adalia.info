@@ -356,10 +356,10 @@ module Buttons = {
 
 module FilterCategory = {
   @react.component
-  let make = (~children, ~title, ~isOpen, ~onOpenChange, ~autoLayout=true) =>
+  let make = (~children, ~title, ~isOpen, ~onOpenChange, ~isActive, ~autoLayout=true) =>
     <CollapsibleContent
       className={autoLayout ? "flex flex-row flex-wrap -ml-5" : ""}
-      titleComp={<h3> {title->React.string} </h3>}
+      titleComp={<h3 className={isActive ? "italic" : ""}> {title->React.string} </h3>}
       isOpen
       onOpenChange>
       {switch autoLayout {
@@ -465,8 +465,8 @@ module BonusesFilter = {
         toString={m => m->Mode.toString}
         fromString={s => s->Mode.fromString->Option.getWithDefault(#AND)}
       />
-    let initialOpen = filters.bonuses.active && conditionCount > 0
-    let (isOpen, setOpen) = React.useState(() => initialOpen)
+    let isActive = filters.bonuses.active && conditionCount > 0
+    let (isOpen, setOpen) = React.useState(() => false)
     let addCondition = () =>
       updateBonuses(b => {
         ...b,
@@ -494,7 +494,8 @@ module BonusesFilter = {
         ),
       })
 
-    <FilterCategory title="Bonuses" isOpen onOpenChange={o => setOpen(_ => o)} autoLayout={false}>
+    <FilterCategory
+      title="Bonuses" isActive isOpen onOpenChange={o => setOpen(_ => o)} autoLayout={false}>
       <div className="flex flex-col space-y-3 mt-1">
         <div className="flex flex-row space-x-5">
           {modeSelect}
@@ -525,31 +526,16 @@ module BonusesFilter = {
 module GeneralFilters = {
   @react.component
   let make = (~filters, ~onChange: t => unit) => {
-    let allOthersDisabled =
-      [
-        filters.radius.active,
-        filters.surfaceArea.active,
-        filters.orbitalPeriod.active,
-        filters.inclination.active,
-        filters.semiMajorAxis.active,
-        filters.eccentricity.active,
-        filters.estimatedPrice.active,
-        filters.sizes.active,
-        filters.bonuses.active,
-      ]->Array.every(active => active === false)
-
-    let anyGeneralEnabled =
+    let isActive =
       [
         filters.owned.active,
         filters.scanned.active,
         filters.spectralTypes.active,
         filters.rarities.active,
       ]->Array.some(a => a)
+    let (isOpen, setOpen) = React.useState(() => false)
 
-    let initialIsOpen = allOthersDisabled || anyGeneralEnabled
-    let (isOpen, setOpen) = React.useState(() => initialIsOpen)
-
-    <FilterCategory title="General" isOpen onOpenChange={o => setOpen(_ => o)}>
+    <FilterCategory title="General" isActive isOpen onOpenChange={o => setOpen(_ => o)}>
       <BoolFilter
         filter=filters.owned
         onChange={owned => onChange({...filters, owned: owned})}
@@ -583,7 +569,7 @@ module SizeFilters = {
     let (currency, exchangeRates) = ExchangeRates.Context.useWithCurrency()
     let convert = p => p->ExchangeRates.convert(exchangeRates, currency)
 
-    let initialIsOpen =
+    let isActive =
       [
         filters.radius.active,
         filters.surfaceArea.active,
@@ -591,11 +577,11 @@ module SizeFilters = {
         filters.sizes.active,
       ]->Array.some(a => a)
 
-    let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+    let (isOpen, setOpen) = React.useState(_ => isActive)
     let priceLabel = `Estimated price (${currency->Currency.toSymbol})`
     let formatPrice = p => p->convert->Format.price(currency, ~showSymbol=false)
 
-    <FilterCategory title="Size" isOpen onOpenChange={o => setOpen(_ => o)}>
+    <FilterCategory title="Size" isActive isOpen onOpenChange={o => setOpen(_ => o)}>
       <NumberRangeFilter
         filter=filters.radius
         onChange={radius => onChange({...filters, radius: radius})}
@@ -632,7 +618,7 @@ module SizeFilters = {
 module OrbitalFilters = {
   @react.component
   let make = (~filters, ~onChange: t => unit) => {
-    let initialIsOpen =
+    let isActive =
       [
         filters.semiMajorAxis.active,
         filters.inclination.active,
@@ -640,9 +626,9 @@ module OrbitalFilters = {
         filters.eccentricity.active,
       ]->Array.some(a => a)
 
-    let (isOpen, setOpen) = React.useState(_ => initialIsOpen)
+    let (isOpen, setOpen) = React.useState(_ => false)
 
-    <FilterCategory title="Orbitals" isOpen onOpenChange={o => setOpen(_ => o)}>
+    <FilterCategory title="Orbitals" isActive isOpen onOpenChange={o => setOpen(_ => o)}>
       <NumberRangeFilter
         filter=filters.semiMajorAxis
         onChange={semiMajorAxis => onChange({...filters, semiMajorAxis: semiMajorAxis})}
@@ -681,10 +667,11 @@ module OrbitalFilters = {
 
 @react.component
 let make = (~className="", ~filters, ~onChange, ~onApply, ~onReset) => {
-  let (filtersVisible, setFiltersVisible) = React.useState(() => filters->isActive)
+  let (filtersVisible, setFiltersVisible) = React.useState(() => false)
+  let active = filters->isActive
   <CollapsibleContent
     className
-    titleComp={<h2> {"Filters"->React.string} </h2>}
+    titleComp={<h2 className={active ? "italic" : ""}> {"Filters"->React.string} </h2>}
     isOpen=filtersVisible
     onOpenChange={isOpen => setFiltersVisible(_ => isOpen)}>
     <form className="flex flex-col space-y-3" onSubmit={ReactEvent.Form.preventDefault}>
