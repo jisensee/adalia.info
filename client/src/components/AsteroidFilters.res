@@ -346,7 +346,7 @@ module SizeFilter = {
 module Buttons = {
   @react.component
   let make = (~onApply, ~onReset) =>
-    <div className="flex flex-row space-x-5 mt-2">
+    <div className="flex flex-row space-x-5 ">
       <button type_="submit" onClick={_ => onApply()}>
         <Icon kind={Icon.Fas("check")} text="Apply" />
       </button>
@@ -674,14 +674,12 @@ let make = (~className="", ~filters, ~onChange, ~onApply, ~onReset) => {
     titleComp={<h2 className={active ? "italic" : ""}> {"Filters"->React.string} </h2>}
     isOpen=filtersVisible
     onOpenChange={isOpen => setFiltersVisible(_ => isOpen)}>
-    <form className="flex flex-col space-y-3" onSubmit={ReactEvent.Form.preventDefault}>
+    <form className="flex flex-col space-y-3 mb-3" onSubmit={ReactEvent.Form.preventDefault}>
       <GeneralFilters filters onChange />
       <BonusesFilter filters onChange />
       <SizeFilters filters onChange />
       <OrbitalFilters filters onChange />
-      <div />
       <Buttons onApply onReset />
-      <div />
     </form>
   </CollapsibleContent>
 }
