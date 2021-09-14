@@ -22,8 +22,8 @@ import {
 } from 'influence-utils'
 
 export interface ApiAsteroid {
-  name?: string
   baseName: string
+  customName?: string
   i: number
   orbital: OrbitalElements
   r: number
@@ -142,7 +142,7 @@ export const convertApiAsteroidToInternal = (
     id: apiAsteroid.i,
     baseName: apiAsteroid.baseName,
     scanned: apiAsteroid.rawBonuses ? isScanned(apiAsteroid.rawBonuses) : false,
-    name: apiAsteroid.name ?? apiAsteroid.baseName,
+    name: apiAsteroid.customName ?? apiAsteroid.baseName,
     owner: owner ?? null,
     spectralType: convertSpectralType(toSpectralType(apiAsteroid.spectralType)),
     radius,
