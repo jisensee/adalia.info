@@ -65,6 +65,6 @@ let toName = t =>
   | Inclination => "Inclination"
   | SpectralType => "Type"
   | Eccentricity => "Eccentricity"
-  | EstimatedPrice => "Est. price"
+  | EstimatedPrice => "Sale price"
   | Rarity => "Rarity"
   }

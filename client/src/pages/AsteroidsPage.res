@@ -90,7 +90,6 @@ let defaultCols = [
   Size,
   SurfaceArea,
   OrbitalPeriod,
-  EstimatedPrice,
   Rarity,
 ]
 let allCols = [
@@ -147,7 +146,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
   )
 
   switch (pageNum, filteredPageSize, sort, columns) {
-  | (Some(p), Some(ps), Some(s), Some(_)) => {
+  | (Some(p), Some(ps), Some(s), Some(cols)) => {
       let onFilterChange = newFilters => setFilters(_ => {...filters, current: newFilters})
       let onFilterApply = () => {
         let correctedFilter = filters.current->AsteroidFilters.correctFilter
@@ -191,10 +190,6 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
         <p>
           {"You can apply filters to all asteroids by expanding the filter widget. Copy the URL to share your current filter and sorting setup."->React.string}
         </p>
-        <p>
-          <span className="text-cyan font-bold"> {"Disclaimer: "->React.string} </span>
-          {"The shown prices are calculated of a base price provided by the Influence team. Therefore they might be out of sync if the team decides to readjust the pricing due to high volatility."->React.string}
-        </p>
         <div className="flex flex-row mb-3">
           <AsteroidFilters
             className="flex flex-grow"
@@ -204,6 +199,14 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
             onReset
           />
         </div>
+        {cols
+        ->Array.getBy(c => c == AsteroidTableColumn.EstimatedPrice)
+        ->Option.mapWithDefault(React.null, _ =>
+          <p>
+            <span className="text-cyan font-bold"> {"Disclaimer: "->React.string} </span>
+            {"The shown prices were the prices from the last sale and are only provided as reference and are not intended to be a meaningful representation of an asteroids value."->React.string}
+          </p>
+        )}
         <Table actions pageNum=p pageSize=ps sort=s filters=filters.applied columns=activeCols />
       </div>
     }

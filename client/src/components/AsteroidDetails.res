@@ -66,7 +66,7 @@ let make = (~asteroid: Fragments.FullAsteroid.t) => {
     ("Surface area", asteroid.surfaceArea->Format.surfaceArea->React.string, `km²`)->Some,
     ("Radius", asteroid.radius->Format.radius->React.string, "m")->Some,
     asteroid.estimatedPrice->Option.map(price => (
-      "Estimated price",
+      "Last sale price",
       price->ExchangeRates.convertAndFormat(exchangeRates, currency)->React.string,
       "",
     )),
