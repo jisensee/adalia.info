@@ -14,14 +14,6 @@ let make = () => {
       {"If you like to claim a special donator role (and potentially more special perks) on the Discord server, please DM me before you donate so I can verify it. But it is obviously also fine if you prefer to stay anonymous."->React.string}
     </p>
     <DonateButton />
-    <h3> {"Referral"->React.string} </h3>
-    <p className="mb-0">
-      {"All links to the game on this site include my "->React.string}
-      <Link to_={Link.External(referralLink)}> {"referral address."->React.string} </Link>
-    </p>
-    <p>
-      {"Using those is no different to normal links but supports me indirectly without any cost for you."->React.string}
-    </p>
     <h3> {"Become involved"->React.string} </h3>
     <p> {"There are also a bunch of non-monatary things you can do:"->React.string} </p>
     <ul className="list-disc ml-9">
