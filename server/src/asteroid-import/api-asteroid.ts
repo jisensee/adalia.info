@@ -152,7 +152,7 @@ export const convertApiAsteroidToInternal = (
     inclination: apiAsteroid.orbital.i * (180 / Math.PI),
     semiMajorAxis: apiAsteroid.orbital.a,
     orbitalPeriod: orbit.getPeriod(),
-    estimatedPrice: owner ? null : estimatePrice(radius),
+    estimatedPrice: estimatePrice(radius),
     rarity,
     bonuses: apiBonuses.map(convertBonus),
   }
