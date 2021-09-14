@@ -190,7 +190,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
         <p>
           {"You can apply filters to all asteroids by expanding the filter widget. Copy the URL to share your current filter and sorting setup."->React.string}
         </p>
-        <div className="flex flex-row mb-3">
+        <div className="flex flex-row">
           <AsteroidFilters
             className="flex flex-grow"
             filters=filters.current
@@ -207,6 +207,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
             {"The shown prices were the prices from the last sale and are only provided as reference and are not intended to be a meaningful representation of an asteroids value."->React.string}
           </p>
         )}
+        <AsteroidFilters.Summary filters=filters.applied />
         <Table actions pageNum=p pageSize=ps sort=s filters=filters.applied columns=activeCols />
       </div>
     }

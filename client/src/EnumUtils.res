@@ -90,7 +90,7 @@ let bonusTypeToString = (bonusType: Fragments.AsteroidBonuses.t_bonuses_type) =>
 
 let bonusTypeToName = (bonusType: Fragments.AsteroidBonuses.t_bonuses_type) =>
   switch bonusType {
-  | #YIELD => "Overall"
+  | #YIELD => "Yield"
   | #VOLATILE => "Volatiles"
   | #METAL => "Metals"
   | #ORGANIC => "Organics"
