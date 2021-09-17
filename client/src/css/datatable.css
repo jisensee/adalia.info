@@ -13,8 +13,7 @@
   .rdt_TableHeader {
     @apply bg-gray !important;
     @apply text-white !important;
-    @apply border-b !important;
-    @apply border-cyan !important;
+    @apply border-b border-cyan !important;
     @apply py-3 !important;
     @apply overflow-visible !important;
   }
@@ -24,9 +23,7 @@
   }
 
   .rdt_TableCol_Sortable {
-    @apply font-bold;
-    @apply text-xl;
-    @apply text-cyan !important;
+    @apply font-bold text-xl text-cyan !important;
     @apply bg-gray !important;
     @apply leading-8 !important;
   }
@@ -48,8 +45,7 @@
 
   .rdt_Pagination {
     @apply bg-gray !important;
-    @apply text-white !important;
-    @apply text-sm !important;
+    @apply text-white text-sm !important;
   }
 
   .rdt_Pagination svg {

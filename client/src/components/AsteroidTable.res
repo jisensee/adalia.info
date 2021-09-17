@@ -147,11 +147,16 @@ let make = (
     defaultSortFieldId: defaultSortFieldId,
     onChange: onSort,
   }
+  let asteroidCount = pageData.totalRows->Int.toFloat->Format.formatFloat(0)
   let title =
     <h3>
-      <span className="hidden sm:inline"> {"Found "->React.string} </span>
-      {`${pageData.totalRows->Int.toFloat->Format.formatFloat(0)} asteroids`->React.string}
+      <span className="inline xs:hidden"> {asteroidCount->React.string} </span>
+      <div className="hidden xs:inline">
+        <span className="hidden sm:inline"> {"Found "->React.string} </span>
+        {`${asteroidCount} asteroids`->React.string}
+      </div>
     </h3>
+
   <DataTable
     title
     actions

@@ -15,6 +15,7 @@ module Table = {
     ~filters: AsteroidFilters.t,
     ~columns,
     ~actions,
+    ~onAsteroidCountChange,
   ) => {
     let (pageData, setPageData) = usePageData(~pageNum, ~pageSize)
     let (sortData, setSortData) = React.useState(() => sort)
@@ -23,6 +24,14 @@ module Table = {
     useRouteUpdateEffect(~pageData, ~sortData, ~filters, ~columns)
 
     let response = useAsteroidPageQuery(~sortData, ~pageData, ~filters=queryParamFilters)
+
+    React.useEffect1(() => {
+      switch response {
+      | Data({asteroids}) => onAsteroidCountChange(asteroids.totalRows)
+      | _ => ()
+      }
+      None
+    }, [response])
 
     let onPageChange = (newPageSize: DataTable.pageSize, newPageNum: DataTable.pageNum) => {
       setPageData(_ => {
@@ -136,6 +145,8 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
     | false => None
     }
   )
+  let (exportDialogOpen, setExportDialogOpen) = React.useState(() => false)
+  let (asteroidCount, setAsteroidCount) = React.useState(() => 0)
 
   useInitialRouteEffect(
     ~pageNum,
@@ -166,26 +177,32 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
         />
       module Popover = Common.Popover
       let actions =
-        <div className="z-20 text-lg">
-          <Popover className="relative">
-            <Popover.Button className="">
-              <Icon kind={Icon.Fas("list")} breakpoint={Icon.Sm}> {"Columns"->React.string} </Icon>
-            </Popover.Button>
-            <Common.Transition
-              enter="transition duration-100 ease-out"
-              enterFrom="transform scale-95 opacity-0"
-              enterTo="transform scale-100 opacity-100"
-              leave="transition duration-75 ease-out"
-              leaveFrom="transform scale-100 opacity-100"
-              leaveTo="transform scale-95 opacity-0">
-              <Popover.Panel className="absolute z-50 mt-3 w-48 -right-0">
-                {columnConfig}
-              </Popover.Panel>
-            </Common.Transition>
-          </Popover>
+        <div className="flex flex-row space-x-3 text-lg">
+          <button onClick={_ => setExportDialogOpen(_ => true)}>
+            <Icon kind={Icon.Fas("file-export")} breakpoint={Icon.Sm} text="Export" />
+          </button>
+          <div className="z-20">
+            <Popover className="relative">
+              <Popover.Button className="">
+                <Icon kind={Icon.Fas("list")} breakpoint={Icon.Sm} text="Columns" />
+              </Popover.Button>
+              <Common.TransitionAppear>
+                <Popover.Panel className="absolute z-50 mt-3 w-48 -right-0">
+                  {columnConfig}
+                </Popover.Panel>
+              </Common.TransitionAppear>
+            </Popover>
+          </div>
         </div>
 
       <div className="flex flex-col h-full">
+        <AsteroidExportDialog
+          isOpen=exportDialogOpen
+          onOpenChange={o => setExportDialogOpen(_ => o)}
+          filters=filters.applied
+          sorting=s
+          asteroidCount
+        />
         <h1> {"Asteroids"->React.string} </h1>
         <p>
           {"You can apply filters to all asteroids by expanding the filter widget. Copy the URL to share your current filter and sorting setup."->React.string}
@@ -207,8 +224,16 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
             {"The shown prices were the prices from the last sale and are only provided as reference and are not intended to be a meaningful representation of an asteroids value."->React.string}
           </p>
         )}
-        <AsteroidFilters.Summary filters=filters.applied />
-        <Table actions pageNum=p pageSize=ps sort=s filters=filters.applied columns=activeCols />
+        <AsteroidFilters.Summary className="mb-2" filters=filters.applied />
+        <Table
+          actions
+          pageNum=p
+          pageSize=ps
+          sort=s
+          filters=filters.applied
+          columns=activeCols
+          onAsteroidCountChange={c => setAsteroidCount(_ => c)}
+        />
       </div>
     }
   | _ => React.null

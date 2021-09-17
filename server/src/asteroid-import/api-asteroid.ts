@@ -143,7 +143,7 @@ export const convertApiAsteroidToInternal = (
     baseName: apiAsteroid.baseName,
     scanned: apiAsteroid.rawBonuses ? isScanned(apiAsteroid.rawBonuses) : false,
     name: apiAsteroid.customName ?? apiAsteroid.baseName,
-    owner: owner ?? null,
+    owner: owner?.toLowerCase() ?? null,
     spectralType: convertSpectralType(toSpectralType(apiAsteroid.spectralType)),
     radius,
     surfaceArea: calcSurface(apiAsteroid.r),
