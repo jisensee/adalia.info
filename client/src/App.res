@@ -20,7 +20,7 @@ let make = () => {
     <PriceBounds.Context.Provider value=priceBounds>
       <ExchangeRates.Context.Provider value=exchangeRates>
         <Currency.Context.Provider value=currency>
-          <Navbar className="sticky top-0 z-50" setCurrency />
+          <Navbar className="sticky top-0 z-40" setCurrency />
           <div className="md:container md:mx-auto p-4"> {pageComp} </div>
           <Footer version=versionInfo.version linkRelease ?lastDataUpdateAt />
         </Currency.Context.Provider>

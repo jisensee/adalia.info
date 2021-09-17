@@ -13,6 +13,16 @@ type Query {
   exchangeRates: ExchangeRates!
 }
 
+type Mutation {
+  exportAsteroids(
+    sorting: AsteroidSortingInput
+    filter: AsteroidFilterInput
+    format: ExportFormat!
+  ): String!
+
+  exportAllAsteroids(format: ExportFormat!): String!
+}
+
 type AsteroidPage {
   rows: [Asteroid!]!
   totalRows: Int!
@@ -162,4 +172,9 @@ enum AsteroidBonusType {
   ORGANIC
   RARE_EARTH
   FISSILE
+}
+
+enum ExportFormat {
+  JSON
+  CSV
 }

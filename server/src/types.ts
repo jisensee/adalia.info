@@ -135,6 +135,29 @@ export type ExchangeRates = {
   readonly oneEthInUsd: Scalars['Float'];
 };
 
+export enum ExportFormat {
+  Json = 'JSON',
+  Csv = 'CSV'
+}
+
+export type Mutation = {
+  readonly __typename?: 'Mutation';
+  readonly exportAsteroids: Scalars['String'];
+  readonly exportAllAsteroids: Scalars['String'];
+};
+
+
+export type MutationExportAsteroidsArgs = {
+  sorting: Maybe<AsteroidSortingInput>;
+  filter: Maybe<AsteroidFilterInput>;
+  format: ExportFormat;
+};
+
+
+export type MutationExportAllAsteroidsArgs = {
+  format: ExportFormat;
+};
+
 export type PageInput = {
   readonly size: Scalars['Int'];
   readonly num: Scalars['Int'];

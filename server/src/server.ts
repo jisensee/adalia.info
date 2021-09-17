@@ -5,6 +5,7 @@ import AsteroidsDataSource from './db/AsteroidsDataSource'
 import schema from './schema'
 import { runImport } from './asteroid-import/asteroid-importer'
 import AsteroidImportInfoDataSource from './db/AsteroidImportInfoDataSource'
+import { getExportPath, init as initExporter } from './exporter'
 
 const app = express()
 
@@ -16,7 +17,10 @@ const client = new MongoClient(mongoConnectionStr, {
 client
   .connect()
   .then((client) => client.db())
-  .then(runImport)
+  .then(async (db) => {
+    await runImport(db)
+    initExporter(db)
+  })
 
 const server = new ApolloServer({
   schema,
@@ -33,3 +37,8 @@ const server = new ApolloServer({
 server.applyMiddleware({ app, path: '/graphql' })
 
 app.listen(5000, () => console.log('Server started on port 5000'))
+
+app.get('/exports/:filename', (req, res) => {
+  const filename = req.params['filename']
+  res.download(getExportPath(filename))
+})

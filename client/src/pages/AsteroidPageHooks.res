@@ -75,16 +75,53 @@ let usePageData = (~pageNum, ~pageSize) =>
     pageSize: pageSize,
   })
 
-let useAsteroidPageQuery = (
-  ~sortData: QueryParams.SortingParamType.t,
-  ~pageData,
-  ~filters: PageQueryParams.AsteroidPageParamType.filters,
-) => {
-  let gqlSortingMode = switch sortData.mode {
-  | QueryParams.SortMode.Ascending => #ASCENDING
-  | QueryParams.SortMode.Descending => #DESCENDING
-  }
-  let gqlSortingField = switch sortData.field {
+let makeFilterVariable = (filters: PageQueryParams.AsteroidPageParamType.filters) => {
+  Queries.DataTableAsteroids.owned: filters.owned,
+  scanned: filters.scanned,
+  spectralTypes: filters.spectralTypes,
+  sizes: filters.sizes,
+  rarities: filters.rarities,
+  radius: filters.radius->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  surfaceArea: filters.surfaceArea->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  orbitalPeriod: filters.orbitalPeriod->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  semiMajorAxis: filters.semiMajorAxis->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  inclination: filters.inclination->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  eccentricity: filters.eccentricity->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  estimatedPrice: filters.estimatedPrice->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  bonuses: filters.bonuses->Option.map(bonuses => {
+    Queries.DataTableAsteroids.mode: bonuses.mode,
+    conditions: bonuses.conditions->Array.map(b =>
+      Queries.DataTableAsteroids.makeInputObjectAsteroidBonusConditionInput(
+        ~type_=?b.type_,
+        ~levels=b.levels,
+        (),
+      )
+    ),
+  }),
+}
+let getGqlSortingField = field =>
+  switch field {
   | "id" => #ID
   | "name" => #NAME
   | "owner" => #OWNER
@@ -100,6 +137,20 @@ let useAsteroidPageQuery = (
   | "rarity" => #RARITY
   | _ => #ID
   }
+
+let getSortingMode = mode =>
+  switch mode {
+  | QueryParams.SortMode.Ascending => #ASCENDING
+  | QueryParams.SortMode.Descending => #DESCENDING
+  }
+
+let useAsteroidPageQuery = (
+  ~sortData: QueryParams.SortingParamType.t,
+  ~pageData,
+  ~filters: PageQueryParams.AsteroidPageParamType.filters,
+) => {
+  let gqlSortingMode = getSortingMode(sortData.mode)
+  let gqlSortingField = getGqlSortingField(sortData.field)
   let ({Hooks.response: response}, _) = Hooks.useQuery(
     ~query=module(Queries.DataTableAsteroids),
     {
@@ -111,51 +162,7 @@ let useAsteroidPageQuery = (
         field: gqlSortingField,
         mode: gqlSortingMode,
       },
-      filter: {
-        owned: filters.owned,
-        scanned: filters.scanned,
-        spectralTypes: filters.spectralTypes,
-        sizes: filters.sizes,
-        rarities: filters.rarities,
-        radius: filters.radius->Option.map(((from, to_)) => {
-          Queries.DataTableAsteroids.from: from,
-          to_: to_,
-        }),
-        surfaceArea: filters.surfaceArea->Option.map(((from, to_)) => {
-          Queries.DataTableAsteroids.from: from,
-          to_: to_,
-        }),
-        orbitalPeriod: filters.orbitalPeriod->Option.map(((from, to_)) => {
-          Queries.DataTableAsteroids.from: from,
-          to_: to_,
-        }),
-        semiMajorAxis: filters.semiMajorAxis->Option.map(((from, to_)) => {
-          Queries.DataTableAsteroids.from: from,
-          to_: to_,
-        }),
-        inclination: filters.inclination->Option.map(((from, to_)) => {
-          Queries.DataTableAsteroids.from: from,
-          to_: to_,
-        }),
-        eccentricity: filters.eccentricity->Option.map(((from, to_)) => {
-          Queries.DataTableAsteroids.from: from,
-          to_: to_,
-        }),
-        estimatedPrice: filters.estimatedPrice->Option.map(((from, to_)) => {
-          Queries.DataTableAsteroids.from: from,
-          to_: to_,
-        }),
-        bonuses: filters.bonuses->Option.map(bonuses => {
-          Queries.DataTableAsteroids.mode: bonuses.mode,
-          conditions: bonuses.conditions->Array.map(b =>
-            Queries.DataTableAsteroids.makeInputObjectAsteroidBonusConditionInput(
-              ~type_=?b.type_,
-              ~levels=b.levels,
-              (),
-            )
-          ),
-        }),
-      },
+      filter: makeFilterVariable(filters),
     },
   )
   response

@@ -3,7 +3,7 @@ module InternalLinks = {
   let make = () =>
     <div className="flex flex-col">
       <Link className="text-cyan" to_=Link.Internal(Route.Support)>
-        <Icon kind={Icon.Fas("hands-helping")}> {"Support"->React.string} </Icon>
+        <Icon kind={Icon.Fas("thumbs-up")}> {"Support"->React.string} </Icon>
       </Link>
       <Link className="text-cyan" to_=Link.Internal(Route.Privacy)>
         <Icon kind={Icon.Fas("lock")}>
@@ -37,7 +37,7 @@ module LastDataUpdateDisplay = {
     | Some(_timestamp) =>
       <div className="flex justify-center text-center">
         {/* {`Last data update: ${timestamp->Js.Date.toLocaleString}`->React.string} */
-        "Data is currently static from a snapshot of 2021-08-10"->React.string}
+        "Data is currently static from a snapshot of 2021-09-18"->React.string}
       </div>
     }
 }

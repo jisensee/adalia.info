@@ -2,7 +2,10 @@ import { IResolvers } from 'graphql-tools'
 import { Context, DataSources } from './context'
 import getExchangeRates from './exchange-rates'
 import { dateScalar } from './scalars'
+import * as exporter from './exporter'
 import {
+  MutationExportAllAsteroidsArgs,
+  MutationExportAsteroidsArgs,
   QueryAsteroidArgs,
   QueryAsteroidCountArgs,
   QueryAsteroidsArgs,
@@ -29,6 +32,61 @@ const resolvers: IResolvers<DataSources, Context> = {
     priceBounds: (_, _args, { dataSources }) =>
       dataSources.asteroids.getPriceBounds(),
     exchangeRates: () => getExchangeRates(),
+  },
+  Mutation: {
+    exportAsteroids: async (
+      _,
+      args: MutationExportAsteroidsArgs,
+      { dataSources }
+    ) => {
+      const exportPath = exporter.getPath(
+        args.filter,
+        args.sorting,
+        args.format
+      )
+      if (await exporter.doesExportExist(exportPath)) {
+        return exportPath
+      }
+      const writeStream = exporter.writeStream(
+        args.filter,
+        args.sorting,
+        args.format
+      )
+      const fullExport = !args.filter && !args.sorting
+      dataSources.asteroids.exportAsteroids(
+        args.filter,
+        args.sorting,
+        args.format,
+        fullExport,
+        writeStream
+      )
+      return new Promise((resolve, reject) => {
+        writeStream.on('finish', () => resolve(exportPath))
+        writeStream.on('error', reject)
+      })
+    },
+    exportAllAsteroids: async (
+      _,
+      args: MutationExportAllAsteroidsArgs,
+      { dataSources }
+    ) => {
+      const exportPath = exporter.getFullExportPath(args.format)
+      if (await exporter.doesExportExist(exportPath)) {
+        return exportPath
+      }
+      const writeStream = exporter.writeStreamFull(args.format)
+      dataSources.asteroids.exportAsteroids(
+        null,
+        null,
+        args.format,
+        true,
+        writeStream
+      )
+      return new Promise((resolve, reject) => {
+        writeStream.on('finish', () => resolve(exportPath))
+        writeStream.on('error', reject)
+      })
+    },
   },
 }
 

@@ -25,6 +25,7 @@ let make = (
   ~large=false,
   ~rotation=?,
   ~breakpoint=None,
+  ~onClick=?,
 ) => {
   let size = switch large {
   | true => "text-4xl"
@@ -36,17 +37,24 @@ let make = (
   | Some(Rotate180) => "fa-rotate-180"
   | Some(Rotate270) => "fa-rotate-270"
   }
+  let (handleClick, cursorClass) = switch onClick {
+  | Some(oc) => (oc, "cursor-pointer")
+  | None => (() => (), "")
+  }
   let makeFaIcon = (icon, class) =>
-    <i className={`${className} ${class} fa-${icon} ${rotationClass} ${size}`} />
+    <i
+      className={`${class} fa-${icon} ${rotationClass} ${size} ${cursorClass} ${className}`}
+      onClick={_ => handleClick()}
+    />
   let icon = switch kind {
   | Fas(icon) => makeFaIcon(icon, "fas")
   | Fab(icon) => makeFaIcon(icon, "fab")
   | Custom(icon) => {
-      let width = switch large {
+      let height = switch large {
       | true => "h-10"
       | false => "h-6"
       }
-      <img className={`${width} ${imageClassName}`} src={`/icons/${icon}`} />
+      <img className={`${height} ${imageClassName}`} src={`/icons/${icon}`} />
     }
   }
   let makeWithChildren = c => {
@@ -57,7 +65,9 @@ let make = (
     | Lg => "hidden lg:inline"
     | Never => "hidden"
     }
-    <div className="flex flex-row space-x-3 items-center">
+    <div
+      className={`flex flex-row space-x-3 items-center ${cursorClass}`}
+      onClick={_ => handleClick()}>
       icon <span className={`${responsiveClassName} ml-2`}> c </span>
     </div>
   }

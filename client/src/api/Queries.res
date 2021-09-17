@@ -43,4 +43,16 @@ query ExchangeRates {
     oneEthInUsd
   }
 }
+
+mutation ExportAllAsteroids($format: ExportFormat!) {
+  exportAllAsteroids(format: $format)
+}
+
+mutation ExportAsteroids(
+  $sort: AsteroidSortingInput,
+  $filter: AsteroidFilterInput,
+  $format: ExportFormat!
+) {
+  exportAsteroids(sorting: $sort, filter: $filter, format: $format)
+}
 `)

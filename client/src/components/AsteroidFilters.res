@@ -54,6 +54,7 @@ let isActive = f =>
   [
     f.owned.active,
     f.scanned.active,
+    f.spectralTypes.active,
     f.radius.active,
     f.surfaceArea.active,
     f.sizes.active,
@@ -112,13 +113,13 @@ module FilterFormatter = {
 
 module Summary = {
   @react.component
-  let make = (~filters) => {
+  let make = (~className="", ~filters) => {
     let currency = Currency.Context.use()
     let getFilter = (filter, prefix, formatter) =>
       switch filter.Filter.active {
       | true =>
         Some(
-          <div className="inline font-bold">
+          <div key=prefix className="inline font-bold">
             <span className="text-cyan"> {React.string(prefix ++ ": ")} </span>
             {filter.Filter.value->formatter->React.string}
           </div>,
@@ -146,7 +147,7 @@ module Summary = {
           getFilter(filters.bonuses, "Bonuses", FilterFormatter.bonuses),
         ]->Array.keepMap(e => e)
       let size = elements->Array.size
-      <p>
+      <div className>
         {elements
         ->Array.mapWithIndex((index, e) =>
           switch index < size - 1 {
@@ -155,7 +156,7 @@ module Summary = {
           }
         )
         ->React.array}
-      </p>
+      </div>
     }
   }
 }

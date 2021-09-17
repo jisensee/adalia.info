@@ -1,4 +1,5 @@
 import { MongoDataSource } from 'apollo-datasource-mongodb'
+import { Transform } from 'json2csv'
 import { Collection } from 'mongodb'
 import {
   Asteroid,
@@ -11,6 +12,7 @@ import {
   AsteroidRarity,
   AsteroidSize,
   AsteroidSortingInput,
+  ExportFormat,
   Maybe,
   PageInput,
   PriceBounds,
@@ -18,6 +20,24 @@ import {
   SortingMode,
   SpectralType,
 } from '../types'
+
+const asteroidFields: (keyof Asteroid)[] = [
+  'id',
+  'name',
+  'baseName',
+  'owner',
+  'scanned',
+  'size',
+  'rarity',
+  'estimatedPrice',
+  'radius',
+  'surfaceArea',
+  'semiMajorAxis',
+  'orbitalPeriod',
+  'inclination',
+  'eccentricity',
+  'bonuses',
+]
 
 const fieldToSortName = (field: AsteroidField): keyof Asteroid => {
   switch (field) {
@@ -226,5 +246,39 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
       throw Error()
     }
     return r
+  }
+
+  public exportAsteroids(
+    filter: Maybe<AsteroidFilterInput>,
+    sorting: Maybe<AsteroidSortingInput>,
+    format: ExportFormat,
+    full: boolean,
+    writer: NodeJS.WritableStream
+  ) {
+    const getSortParam = () => {
+      if (full || !sorting) {
+        return { id: 1 }
+      }
+      return createSortParam(sorting)
+    }
+    const getQuery = () => {
+      if (full || !filter) {
+        return {}
+      }
+      return filterToQuery(filter)
+    }
+    const stream = this.collection
+      .find(getQuery())
+      .sort(getSortParam())
+      .stream({ transform: JSON.stringify })
+
+    switch (format) {
+      case ExportFormat.Json:
+        return stream.pipe(writer)
+      case ExportFormat.Csv:
+        return stream
+          .pipe(new Transform({ fields: asteroidFields }))
+          .pipe(writer)
+    }
   }
 }

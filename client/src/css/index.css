@@ -8,56 +8,53 @@
 @layer base {
   body {
     @apply bg-gray-dark;
-    @apply text-white;
-    @apply text-lg;
+    @apply text-white text-lg;
   }
 
   h1 {
-    @apply text-4xl;
-    @apply text-cyan;
-    @apply font-bold;
+    @apply text-4xl text-cyan font-bold;
     @apply mb-4;
   }
 
   h2 {
-    @apply text-3xl;
-    @apply text-cyan;
+    @apply text-3xl text-cyan;
   }
 
   h3 {
-    @apply text-2xl;
-    @apply text-cyan;
+    @apply text-2xl text-cyan;
   }
 
   h4 {
-    @apply text-xl;
-    @apply text-cyan;
+    @apply text-xl text-cyan font-bold;
+  }
+
+  label {
     @apply font-bold;
   }
 
   select {
     @apply bg-gray-dark;
-    @apply border-cyan;
-    @apply rounded-2xl;
+    @apply border-cyan rounded-2xl;
   }
 
   input {
     @apply bg-gray-dark !important;
     @apply text-white;
-    @apply border-cyan !important;
-    @apply rounded-2xl !important;
+    @apply border-cyan rounded-2xl !important;
   }
 
   button {
-    @apply border;
-    @apply border-cyan;
-    @apply py-2;
-    @apply px-3;
-    @apply rounded-xl;
+    @apply border border-cyan rounded-xl;
+    @apply py-2 px-3;
+    @apply bg-gray-dark;
   }
 
   button:hover {
     @apply bg-gray;
+  }
+
+  button:disabled {
+    @apply opacity-disabled;
   }
 
   select[disabled],
