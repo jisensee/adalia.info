@@ -36,6 +36,7 @@ module Filter = {
 
 type t = {
   owned: Filter.t<bool>,
+  owners: Filter.t<array<string>>,
   scanned: Filter.t<bool>,
   spectralTypes: Filter.t<array<SpectralType.t>>,
   radius: Filter.t<(float, float)>,
@@ -53,6 +54,7 @@ type t = {
 let isActive = f =>
   [
     f.owned.active,
+    f.owners.active,
     f.scanned.active,
     f.spectralTypes.active,
     f.radius.active,
@@ -112,6 +114,7 @@ module FilterFormatter = {
 }
 
 module Summary = {
+  type formatter<'a> = Str('a => string) | Element('a => React.element)
   @react.component
   let make = (~className="", ~filters) => {
     let currency = Currency.Context.use()
@@ -121,30 +124,42 @@ module Summary = {
         Some(
           <div key=prefix className="inline font-bold">
             <span className="text-cyan"> {React.string(prefix ++ ": ")} </span>
-            {filter.Filter.value->formatter->React.string}
+            {switch formatter {
+            | Str(f) => filter.value->f->React.string
+            | Element(f) => filter.value->f
+            }}
           </div>,
         )
       | false => None
       }
 
+    let formatOwners = owners => {
+      let address = owners->Array.get(0)->Option.getWithDefault("")
+      <AsteroidOwner address shortAddress={true} />
+    }
     switch filters->isActive {
     | false => React.null
     | true =>
       let elements =
         [
-          getFilter(filters.owned, "Owned", FilterFormatter.owned),
-          getFilter(filters.scanned, "Scanned", FilterFormatter.scanned),
-          getFilter(filters.spectralTypes, "Spectral types", FilterFormatter.spectralTypes),
-          getFilter(filters.radius, "Radius", FilterFormatter.radius),
-          getFilter(filters.sizes, "Sizes", FilterFormatter.sizes),
-          getFilter(filters.surfaceArea, "Surface area", FilterFormatter.surfaceArea),
-          getFilter(filters.orbitalPeriod, "Orbital period", FilterFormatter.orbitalPeriod),
-          getFilter(filters.semiMajorAxis, "Semi major axis", FilterFormatter.semiMajorAxis),
-          getFilter(filters.inclination, "Inclination", FilterFormatter.inclination),
-          getFilter(filters.eccentricity, "Eccentricity", FilterFormatter.eccentricity),
-          getFilter(filters.estimatedPrice, "Last sale price", FilterFormatter.price(_, currency)),
-          getFilter(filters.rarities, "Rarities", FilterFormatter.rarities),
-          getFilter(filters.bonuses, "Bonuses", FilterFormatter.bonuses),
+          getFilter(filters.owned, "Owned", Str(FilterFormatter.owned)),
+          getFilter(filters.owners, "Owner", Element(formatOwners)),
+          getFilter(filters.scanned, "Scanned", Str(FilterFormatter.scanned)),
+          getFilter(filters.spectralTypes, "Spectral types", Str(FilterFormatter.spectralTypes)),
+          getFilter(filters.radius, "Radius", Str(FilterFormatter.radius)),
+          getFilter(filters.sizes, "Sizes", Str(FilterFormatter.sizes)),
+          getFilter(filters.surfaceArea, "Surface area", Str(FilterFormatter.surfaceArea)),
+          getFilter(filters.orbitalPeriod, "Orbital period", Str(FilterFormatter.orbitalPeriod)),
+          getFilter(filters.semiMajorAxis, "Semi major axis", Str(FilterFormatter.semiMajorAxis)),
+          getFilter(filters.inclination, "Inclination", Str(FilterFormatter.inclination)),
+          getFilter(filters.eccentricity, "Eccentricity", Str(FilterFormatter.eccentricity)),
+          getFilter(
+            filters.estimatedPrice,
+            "Last sale price",
+            Str(FilterFormatter.price(_, currency)),
+          ),
+          getFilter(filters.rarities, "Rarities", Str(FilterFormatter.rarities)),
+          getFilter(filters.bonuses, "Bonuses", Str(FilterFormatter.bonuses)),
         ]->Array.keepMap(e => e)
       let size = elements->Array.size
       <div className>
@@ -163,6 +178,7 @@ module Summary = {
 
 let disableAll = filter => {
   owned: filter.owned->Filter.disable,
+  owners: filter.owners->Filter.disable,
   scanned: filter.scanned->Filter.disable,
   spectralTypes: filter.spectralTypes->Filter.disable,
   radius: filter.radius->Filter.disable,
@@ -184,6 +200,7 @@ let disableAll = filter => {
 }
 let toQueryParamFilter = asteroidFilter => {
   PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
+  owners: asteroidFilter.owners->Filter.toOption,
   scanned: asteroidFilter.scanned->Filter.toOption,
   radius: asteroidFilter.radius->Filter.toOption,
   spectralTypes: asteroidFilter.spectralTypes->Filter.toOption,
@@ -341,6 +358,21 @@ module SizeFilter = {
     }
 
     <Filter label="Size" filter onChange makeFilterComp />
+  }
+}
+
+module OwnersFilter = {
+  @react.component
+  let make = (~filter, ~onChange) => {
+    let makeFilterComp = (v, oc, enabled) => {
+      let value = v->Array.get(0)->Option.getWithDefault("")
+      let handleChange = e => {
+        let address = ReactEvent.Form.currentTarget(e)["value"]
+        oc([address])
+      }
+      <input type_="text" value onChange=handleChange disabled={!enabled} />
+    }
+    <Filter label="Owner" filter onChange makeFilterComp />
   }
 }
 
@@ -530,6 +562,7 @@ module GeneralFilters = {
     let isActive =
       [
         filters.owned.active,
+        filters.owners.active,
         filters.scanned.active,
         filters.spectralTypes.active,
         filters.rarities.active,
@@ -543,6 +576,9 @@ module GeneralFilters = {
         label="Ownership"
         trueText="Owned"
         falseText="Unowned"
+      />
+      <OwnersFilter
+        filter=filters.owners onChange={owners => onChange({...filters, owners: owners})}
       />
       <BoolFilter
         filter=filters.scanned

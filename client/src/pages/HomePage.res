@@ -7,6 +7,7 @@ let make = () => {
     {
       filter: Some({
         owned: Some(true),
+        owners: None,
         scanned: None,
         spectralTypes: None,
         radius: None,

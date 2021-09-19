@@ -42,6 +42,12 @@ module FloatRangeParam = MakeParam({
     }
 })
 
+module StringListParam = MakeParam({
+  type t = array<string>
+  let toString = (a: t) => a->Js.Array2.joinWith("")
+  let fromString = s => s->Js.String2.split(_, ",")->Some
+})
+
 module SortMode = {
   type t = Ascending | Descending
   let toString = mode =>

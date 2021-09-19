@@ -88,6 +88,7 @@ export enum AsteroidField {
 
 export type AsteroidFilterInput = {
   readonly owned: Maybe<Scalars['Boolean']>;
+  readonly owners: Maybe<ReadonlyArray<Scalars['String']>>;
   readonly scanned: Maybe<Scalars['Boolean']>;
   readonly spectralTypes: Maybe<ReadonlyArray<SpectralType>>;
   readonly radius: Maybe<RangeInput>;
