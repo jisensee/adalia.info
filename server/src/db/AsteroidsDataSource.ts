@@ -27,6 +27,7 @@ const asteroidFields: (keyof Asteroid)[] = [
   'baseName',
   'owner',
   'scanned',
+  'spectralType',
   'size',
   'rarity',
   'estimatedPrice',
@@ -278,7 +279,7 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
     const stream = this.collection
       .find(getQuery())
       .sort(getSortParam())
-      .stream({ transform: JSON.stringify })
+      .stream({ transform: (o) => JSON.stringify(o) + `\n` })
 
     switch (format) {
       case ExportFormat.Json:
