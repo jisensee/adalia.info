@@ -5,6 +5,7 @@ open Belt
 
 let makeFilterVariable = (filters: PageQueryParams.AsteroidPageParamType.filters) => {
   Queries.ExportAsteroids.owned: filters.owned,
+  owners: filters.owners,
   scanned: filters.scanned,
   spectralTypes: filters.spectralTypes,
   sizes: filters.sizes,

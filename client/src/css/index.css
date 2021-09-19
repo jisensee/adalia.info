@@ -37,7 +37,13 @@
     @apply border-cyan rounded-2xl;
   }
 
-  input {
+  input[type='text'] {
+    @apply bg-gray-dark !important;
+    @apply text-white;
+    @apply border-cyan rounded-2xl !important;
+  }
+
+  input[type='checkbox'] {
     @apply bg-gray-dark !important;
     @apply text-white;
     @apply border-cyan rounded-2xl !important;

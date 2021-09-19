@@ -86,6 +86,12 @@ const ownedFilter = (owned: boolean) => ({
   },
 })
 
+const ownersFilter = (owners: String[]) => ({
+  owner: {
+    $in: owners.map((o) => o.substr(0, 50)).map((o) => o.toLowerCase()),
+  },
+})
+
 const spectralTypesFilter = (spectralTypes: SpectralType[]) => ({
   spectralType: { $in: spectralTypes },
 })
@@ -136,6 +142,7 @@ const bonusesFilter = (filter: AsteroidBonusesFilterInput) => {
 
 const filterToQuery = (filter: AsteroidFilterInput) => {
   const owned = filter.owned == null ? {} : ownedFilter(filter.owned)
+  const owners = filter.owners == null ? {} : ownersFilter([...filter.owners])
   const scanned = filter.scanned == null ? {} : { scanned: filter.scanned }
   const spectralTypes = filter.spectralTypes
     ? spectralTypesFilter([...filter.spectralTypes])
@@ -166,6 +173,7 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
   return {
     $and: [
       owned,
+      owners,
       scanned,
       spectralTypes,
       radius,

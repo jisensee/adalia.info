@@ -79,6 +79,7 @@ input AsteroidSortingInput {
 
 input AsteroidFilterInput {
   owned: Boolean
+  owners: [String!]
   scanned: Boolean
   spectralTypes: [SpectralType!]
   radius: RangeInput
