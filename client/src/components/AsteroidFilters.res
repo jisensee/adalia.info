@@ -370,7 +370,9 @@ module OwnersFilter = {
         let address = ReactEvent.Form.currentTarget(e)["value"]
         oc([address])
       }
-      <input type_="text" value onChange=handleChange disabled={!enabled} />
+      <input
+        type_="text" placeholder="ETH address" value onChange=handleChange disabled={!enabled}
+      />
     }
     <Filter label="Owner" filter onChange makeFilterComp />
   }
