@@ -1,6 +1,6 @@
 import { MongoDataSource } from 'apollo-datasource-mongodb'
 import { Transform } from 'json2csv'
-import { Collection } from 'mongodb'
+import { BulkWriteUpdateOneOperation, Collection } from 'mongodb'
 import {
   Asteroid,
   AsteroidBonusesFilterInput,
@@ -289,5 +289,43 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
           .pipe(new Transform({ fields: asteroidFields }))
           .pipe(writer)
     }
+  }
+
+  public createIndexes() {
+    const keys: Array<keyof Asteroid> = [
+      'id',
+      'name',
+      'owner',
+      'radius',
+      'surfaceArea',
+      'semiMajorAxis',
+      'inclination',
+      'orbitalPeriod',
+      'spectralType',
+      'eccentricity',
+      'size',
+      'baseName',
+      'scanned',
+      'rarity',
+      'bonuses',
+    ]
+    return this.collection.createIndexes(
+      keys.map((key) => ({ key: { [key]: 1 } }))
+    )
+  }
+
+  public async updateAsteroids(asteroids: Asteroid[]) {
+    const getUpdateOperation = (
+      asteroid: Asteroid
+    ): BulkWriteUpdateOneOperation<Asteroid> => ({
+      updateOne: {
+        filter: { id: asteroid.id },
+        update: { $set: asteroid },
+        upsert: true,
+      },
+    })
+    const writeOperations = asteroids.map(getUpdateOperation)
+    await this.collection.bulkWrite(writeOperations)
+    return asteroids.length
   }
 }

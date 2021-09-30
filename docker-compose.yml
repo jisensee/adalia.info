@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   proxy:
@@ -9,7 +9,7 @@ services:
       - server
       - client
     ports:
-      - "80:80"
+      - '80:80'
 
   mongodb:
     # port 27017
@@ -31,6 +31,8 @@ services:
     environment:
       - MONGO_URL=mongodb:27017
       - ASTEROID_DATA_DUMP_URL=${ASTEROID_DATA_DUMP_URL}
+      - INFLUENCE_CLIENT_ID=${INFLUENCE_CLIENT_ID}
+      - INFLUENCE_CLIENT_SECRET=${INFLUENCE_CLIENT_SECRET}
 
   client:
     # port 80

@@ -23,6 +23,7 @@ const getDataDumpAsteroidImporter = (
     })
     let i = 0
     let asteroids = []
+    let batchStart = new Date().getTime()
     for await (const line of rl) {
       const apiAsteroid: ApiAsteroid = JSON.parse(line)
       const asteroid = convertApiAsteroidToInternal(apiAsteroid)
@@ -30,6 +31,11 @@ const getDataDumpAsteroidImporter = (
       i++
       if (i % BATCH_SIZE === 0) {
         await persist(asteroids)
+        const batchDuration = (new Date().getTime() - batchStart) / 1000
+        console.log(
+          `Imported ${asteroids.length} asteroid from data dump in ${batchDuration} seconds`
+        )
+        batchStart = new Date().getTime()
         asteroids = []
       }
     }

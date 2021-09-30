@@ -1,29 +1,9 @@
-import { BulkWriteUpdateOneOperation, Collection, Db } from 'mongodb'
-import { Asteroid } from '../types'
-import { AsteroidImportInfo, ImportType } from './asteroid-import'
+import { CronJob } from 'cron'
+import { DataSources } from '../context'
+import { getApiImporter } from './api-asteroid-importer'
+import { AsteroidImportInfo } from './asteroid-import'
 import getDataDumpAsteroidImporter from './data-dump-asteroid-importer'
 import randomImporter from './random-asteroid-importer'
-
-const setupIndices = async (collection: Collection<Asteroid>) => {
-  const keys: Array<keyof Asteroid> = [
-    'id',
-    'name',
-    'owner',
-    'radius',
-    'surfaceArea',
-    'semiMajorAxis',
-    'inclination',
-    'orbitalPeriod',
-    'spectralType',
-    'eccentricity',
-    'size',
-    'baseName',
-    'scanned',
-    'rarity',
-    'bonuses',
-  ]
-  await collection.createIndexes(keys.map((key) => ({ key: { [key]: 1 } })))
-}
 
 const getImporter = (lastImport: AsteroidImportInfo | null) => {
   const dataDumpUrl = process.env.ASTEROID_DATA_DUMP_URL
@@ -34,7 +14,7 @@ const getImporter = (lastImport: AsteroidImportInfo | null) => {
 
   if (!lastImport) {
     console.log(
-      'No previous import found, using mock data import since no api key or data dump url provided.'
+      'No previous import found, using mock data import since no data dump url provided.'
     )
     return randomImporter
   }
@@ -43,34 +23,11 @@ const getImporter = (lastImport: AsteroidImportInfo | null) => {
   return null
 }
 
-const updateImportInfo = async (
-  importInfoCollection: Collection<AsteroidImportInfo>,
-  importType: ImportType
-) => {
-  const query = { type: importType }
-  const lastRun = new Date()
-  const update = { $set: { lastRun } }
-  await importInfoCollection.updateOne(query, update, { upsert: true })
-  console.log(`Saving last asteroid run at ${lastRun.toISOString()}`)
-}
-
-const getLastImport = async (
-  importInfoCollection: Collection<AsteroidImportInfo>
-) => {
-  const lastImports = await importInfoCollection
-    .find({})
-    .sort({ lastRun: -1 })
-    .limit(1)
-    .toArray()
-  return lastImports.length === 0 ? null : lastImports[0]
-}
-
-export const runImport = async (db: Db) => {
-  const asteroidCollection = db.collection('asteroids')
-  const importInfoCollection = db.collection<AsteroidImportInfo>(
-    'asteroid-import-info'
-  )
-  const lastImport = await getLastImport(importInfoCollection)
+export const runInitialDataImport = async ({
+  asteroids,
+  asteroidImports,
+}: DataSources) => {
+  const lastImport = await asteroidImports.getLast()
 
   const importer = getImporter(lastImport)
   if (!importer) {
@@ -79,34 +36,57 @@ export const runImport = async (db: Db) => {
 
   if (!lastImport) {
     console.log('No previous asteroid import found, setting up indexes...')
-    await setupIndices(asteroidCollection)
+    await asteroids.createIndexes()
     console.log('Indexes created!')
   }
 
   console.log('Running asteroid import...')
   const importStartTime = new Date().getTime()
   let totalUpdated = 0
-  await importer.run(async (asteroids) => {
-    const batchStartTime = new Date().getTime()
-    const getUpdateOperation = (
-      asteroid: Asteroid
-    ): BulkWriteUpdateOneOperation<Asteroid> => ({
-      updateOne: {
-        filter: { id: asteroid.id },
-        update: { $set: asteroid },
-        upsert: true,
-      },
-    })
-    const writeOperations = asteroids.map(getUpdateOperation)
-    const writeResult = await asteroidCollection.bulkWrite(writeOperations)
-    const batchTime = (new Date().getTime() - batchStartTime) / 1000
-    console.log(
-      `Updated batch of ${asteroids.length} asteroids in ${batchTime} seconds`
-    )
-    totalUpdated += asteroids.length
-    console.log(`Total processed asteroids: ${totalUpdated}`)
+  await importer.run(async (rocks) => {
+    const updated = await asteroids.updateAsteroids(rocks)
+    totalUpdated += updated
   })
   const totalTime = (new Date().getTime() - importStartTime) / 1000
   console.log(`Finished asteroid import in ${totalTime} seconds!`)
-  await updateImportInfo(importInfoCollection, importer.type)
+  await asteroidImports.updateImportInfo(importer.type)
+}
+
+export const startApiImportJob = async (
+  { asteroids, asteroidImports }: DataSources,
+  afterRun: () => void
+) => {
+  const apiImporter = getApiImporter()
+  if (!apiImporter) {
+    console.log('Api importer is not active')
+    return
+  }
+
+  const updateFromApi = async () => {
+    let totalUpdated = 0
+    const start = new Date().getTime()
+    await apiImporter.run(async (rocks) => {
+      const updated = await asteroids.updateAsteroids(rocks)
+      totalUpdated += updated
+    })
+    const duration = (new Date().getTime() - start) / 1000
+    console.log(
+      `Updated ${totalUpdated} asteroids from the influence API in ${duration} seconds`
+    )
+    await asteroidImports.updateImportInfo(apiImporter.type)
+  }
+
+  await updateFromApi()
+
+  // Run daily 08:00 UTC
+  const job = new CronJob({
+    cronTime: '0 8 * * *',
+    onTick: async () => {
+      await updateFromApi()
+      afterRun()
+    },
+    utcOffset: 0,
+  })
+  job.start()
+  console.log('Started asteroid API import job')
 }

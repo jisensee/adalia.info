@@ -2,7 +2,6 @@ import { CronJob } from 'cron'
 import crypto from 'crypto'
 import { createWriteStream } from 'fs'
 import * as fs from 'fs/promises'
-import { Db } from 'mongodb'
 import path from 'path'
 import AsteroidsDataSource from './db/AsteroidsDataSource'
 import {
@@ -76,16 +75,24 @@ const writeStream = (
 const writeStreamFull = (format: ExportFormat) =>
   createWriteStream(getFullExportPath(format))
 
-const cleanup = async () => {
+const cleanup = async (all = false) => {
+  console.log(`Cleaning up ${all ? 'all' : 'old'} exports...`)
   const exports = await fs.readdir(exportDir)
   const nowEpoch = new Date().valueOf()
+
+  // Filter out full exports, those should not get cleaned up
   const toCheck = exports
     .filter((f) => !fullExports.includes(f))
     .map(getExportPath)
+
   let deleted = 0
   const shouldDelete = async (f: string) => {
-    const s = await fs.stat(f)
-    const fileEpoch = s.birthtime.valueOf()
+    // If we do a full cleanup, age is irrelevant, just mark with true
+    if (all) {
+      return true
+    }
+    const stat = await fs.stat(f)
+    const fileEpoch = stat.birthtime.valueOf()
     return nowEpoch - fileEpoch > maxExportAge
   }
 
@@ -114,16 +121,13 @@ const startCleanupJob = () => {
   console.log('Started export cleanup job')
 }
 
-const init = async (db: Db) => {
-  const ds = new AsteroidsDataSource(db.collection('asteroids'))
-  await fs.mkdir(exportDir)
-
+const generateFullExports = (asteroids: AsteroidsDataSource) => {
   const genExport = (format: ExportFormat) => {
     const writer = createWriteStream(
       getExportPath(`${fullAsteroidExportFilename}.${getExtension(format)}`)
     )
-    console.log(`Generating initial full ${format} asteroid export...`)
-    ds.exportAsteroids(null, null, format, true, writer)
+    console.log(`Generating full ${format} asteroid export...`)
+    asteroids.exportAsteroids(null, null, format, true, writer)
     return new Promise((resolve, reject) => {
       writer.on('finish', () => {
         console.log(`Finished full ${format} export generation`)
@@ -136,9 +140,20 @@ const init = async (db: Db) => {
     })
   }
 
-  await Promise.all([ExportFormat.Json, ExportFormat.Csv].map(genExport))
+  return Promise.all([ExportFormat.Json, ExportFormat.Csv].map(genExport))
+}
+
+const initExporter = async (asteroids: AsteroidsDataSource) => {
+  await fs.mkdir(exportDir)
+  await generateFullExports(asteroids)
 
   startCleanupJob()
+}
+
+const resetExports = async (asteroids: AsteroidsDataSource) => {
+  console.log('Resetting cached exports...')
+  await cleanup(true)
+  await generateFullExports(asteroids)
 }
 
 export {
@@ -148,5 +163,6 @@ export {
   doesExportExist,
   writeStream,
   writeStreamFull,
-  init,
+  initExporter,
+  resetExports,
 }
