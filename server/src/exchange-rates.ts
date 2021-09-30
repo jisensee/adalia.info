@@ -1,5 +1,6 @@
-import { ExchangeRates } from './types'
+import { CronJob } from 'cron'
 import fetch from 'node-fetch'
+import { ExchangeRates } from './types'
 
 interface EtherscanResponse {
   result: {
@@ -29,8 +30,7 @@ const updateExchangeRates = async () => {
 
 updateExchangeRates()
 
-const minutes = (m: number) => m * 60 * 1000
-setInterval(updateExchangeRates, minutes(10))
+const job = new CronJob('0 * * * *', updateExchangeRates)
 
 const getExchangeRates = () => currentExchangeRates
 export default getExchangeRates

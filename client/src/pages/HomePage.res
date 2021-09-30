@@ -50,7 +50,7 @@ let make = () => {
         let count = asteroidCount.count->Int.toFloat
         let total = asteroidCount.total->Int.toFloat
         let percentage = (count /. total *. 100.)->Format.formatFloat(1) ++ "%"
-        let formattedCount = count->Float.toString
+        let formattedCount = count->Format.formatFloat(0)
         let formattedTotal = total->Format.bigFloat
 
         module Pb = ProgressBar
