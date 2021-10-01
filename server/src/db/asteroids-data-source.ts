@@ -1,10 +1,11 @@
 import { MongoDataSource } from 'apollo-datasource-mongodb'
 import { Transform } from 'json2csv'
-import { BulkWriteUpdateOneOperation, Collection } from 'mongodb'
+import { BulkWriteUpdateOneOperation, Collection, Cursor } from 'mongodb'
 import {
   Asteroid,
   AsteroidBonusesFilterInput,
   AsteroidBonusesFilterMode,
+  AsteroidBonusType,
   AsteroidCount,
   AsteroidField,
   AsteroidFilterInput,
@@ -21,7 +22,7 @@ import {
   SpectralType,
 } from '../types'
 
-const asteroidFields: (keyof Asteroid)[] = [
+const csvBaseFields: (keyof Asteroid)[] = [
   'id',
   'name',
   'baseName',
@@ -37,6 +38,21 @@ const asteroidFields: (keyof Asteroid)[] = [
   'orbitalPeriod',
   'inclination',
   'eccentricity',
+]
+const csvFieldYield = 'bonus:Yield'
+const csvFieldVolatile = 'bonus:Volatile'
+const csvFieldOrganic = 'bonus:Organic'
+const csvFieldMetal = 'bonus:Metal'
+const csvFieldRareEart = 'bonus:RareEarth'
+const csvFieldFissile = 'bonus:Fissile'
+const csvFields = [
+  ...csvBaseFields,
+  csvFieldYield,
+  csvFieldVolatile,
+  csvFieldOrganic,
+  csvFieldMetal,
+  csvFieldRareEart,
+  csvFieldFissile,
   'bonuses',
 ]
 
@@ -257,6 +273,31 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
     return r
   }
 
+  private transformToCsv(
+    cursor: Cursor<Asteroid>,
+    writer: NodeJS.WritableStream
+  ) {
+    return cursor
+      .stream({
+        transform: (asteroid) => {
+          const getMod = (type: AsteroidBonusType) =>
+            asteroid.bonuses.find((b) => b.type === type)?.modifier
+          const obj = {
+            ...asteroid,
+            [csvFieldYield]: getMod(AsteroidBonusType.Yield),
+            [csvFieldVolatile]: getMod(AsteroidBonusType.Volatile),
+            [csvFieldOrganic]: getMod(AsteroidBonusType.Organic),
+            [csvFieldMetal]: getMod(AsteroidBonusType.Metal),
+            [csvFieldRareEart]: getMod(AsteroidBonusType.RareEarth),
+            [csvFieldFissile]: getMod(AsteroidBonusType.Fissile),
+          } as any
+          return JSON.stringify(obj) + `\n`
+        },
+      })
+      .pipe(new Transform({ fields: csvFields }))
+      .pipe(writer)
+  }
+
   public exportAsteroids(
     filter: Maybe<AsteroidFilterInput>,
     sorting: Maybe<AsteroidSortingInput>,
@@ -276,18 +317,15 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
       }
       return filterToQuery(filter)
     }
-    const stream = this.collection
-      .find(getQuery())
-      .sort(getSortParam())
-      .stream({ transform: (o) => JSON.stringify(o) + `\n` })
+    const cursor = this.collection.find(getQuery()).sort(getSortParam())
 
     switch (format) {
       case ExportFormat.Json:
-        return stream.pipe(writer)
-      case ExportFormat.Csv:
-        return stream
-          .pipe(new Transform({ fields: asteroidFields }))
+        return cursor
+          .stream({ transform: (o) => JSON.stringify(o) + `\n` })
           .pipe(writer)
+      case ExportFormat.Csv:
+        return this.transformToCsv(cursor, writer)
     }
   }
 
