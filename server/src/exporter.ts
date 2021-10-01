@@ -3,7 +3,7 @@ import crypto from 'crypto'
 import { createWriteStream } from 'fs'
 import * as fs from 'fs/promises'
 import path from 'path'
-import AsteroidsDataSource from './db/AsteroidsDataSource'
+import AsteroidsDataSource from './db/asteroids-data-source'
 import {
   AsteroidFilterInput,
   AsteroidSortingInput,

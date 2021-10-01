@@ -6,8 +6,8 @@ import {
   startApiImportJob,
 } from './asteroid-import/asteroid-importer'
 import { DataSources } from './context'
-import AsteroidImportInfoDataSource from './db/AsteroidImportInfoDataSource'
-import AsteroidsDataSource from './db/AsteroidsDataSource'
+import AsteroidImportInfoDataSource from './db/asteroid-import-info-data-source'
+import AsteroidsDataSource from './db/asteroids-data-source'
 import { getExportPath, initExporter, resetExports } from './exporter'
 import schema from './schema'
 
