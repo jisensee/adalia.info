@@ -79,12 +79,12 @@ const importer: AsteroidImporter = {
           1000
         ).toFixed(2)
 
+        totalUpdated += rocks.length
         console.log(
           `Updated ${rocks.length} (page ${page}) rocks for a total of ${totalUpdated} in ${batchDuration} seconds.`
         )
-
         page += 1
-        totalUpdated += rocks.length
+
         // If we get less rocks than we requested, we got all and can exit
         if (rocks.length < pageSize) {
           page = 0
