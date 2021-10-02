@@ -105,6 +105,8 @@ const cleanup = async (all = false) => {
 
   if (deleted > 0) {
     console.log(`Deleted ${deleted} old exports`)
+  } else {
+    console.log('There were no exports to clean up')
   }
 }
 
