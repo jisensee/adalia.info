@@ -5,6 +5,7 @@ let fromRoute = r =>
   | Route.Asteroids({pageNum, pageSize, sort, filters, columns}) =>
     <AsteroidsPage ?pageNum ?pageSize ?sort ?filters ?columns />
   | Route.GlobalStats => <GlobalStatsPage />
+  | Route.Resources => <ResourcesPage />
   | Route.Privacy => <PrivacyPage />
   | Route.Support => <SupportPage />
   | Route.NotFound => <NotFoundPage />

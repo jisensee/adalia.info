@@ -66,7 +66,7 @@ module IconText = {
     | true => "xs:inline"
     | false => "xs:hidden"
     }
-    <span className={`inline lg:inline ${rightClass}`}> {text->React.string} </span>
+    <span className={`inline xl:inline ${rightClass}`}> {text->React.string} </span>
   }
 }
 
@@ -102,13 +102,18 @@ let make = (~className="", ~setCurrency) => {
       <Icon kind={Icon.Fas("sun")}> {"adalia.info"->React.string} </Icon>
     </Item>
 
-  let left = <> asteroidsItem statsItem </>
+  let resourcesItem =
+    <Item to_=Link.Internal(Route.Resources) onClick={closeDropdown}>
+      <Icon kind={Icon.Fas("users")}> <IconText text="Resources" /> </Icon>
+    </Item>
+
+  let left = <> asteroidsItem statsItem resourcesItem </>
 
   let right = <> currencyItem supportItem </>
   let dropdownRight = <> supportItem currencyItem </>
 
   <nav className={`bg-gray py-2 ${className}`}>
-    <div className="md:container md:mx-auto px-4 flex flex-row items-center space-x-9">
+    <div className="2xl:container 2xl:mx-auto px-4 flex flex-row items-center space-x-9">
       homeItem <Menu left right toggleDropdown={() => setDropdownOpen(o => !o)} />
     </div>
     <div className="hidden xs:flex md:hidden">

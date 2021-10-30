@@ -14,6 +14,7 @@ type breakpoint =
 
 let openSea = Custom("opensea.svg")
 let influence = Custom("influence.svg")
+let cosmos = Custom("cosmos.png")
 
 @react.component
 let make = (

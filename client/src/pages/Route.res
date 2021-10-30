@@ -3,6 +3,7 @@ type t =
   | Asteroids(PageQueryParams.AsteroidPage.t)
   | Asteroid(string)
   | GlobalStats
+  | Resources
   | Support
   | Privacy
   | NotFound
@@ -21,6 +22,7 @@ let toUrl = r =>
   | Asteroids(params) => `/asteroids/${params->PageQueryParams.AsteroidPage.toString}`
   | Asteroid(id) => `/asteroids/${id}`
   | GlobalStats => "/global-stats"
+  | Resources => "/resources"
   | Support => "/support"
   | Privacy => "/privacy"
   | NotFound => "/404"
@@ -34,6 +36,7 @@ let fromUrl = (url: RescriptReactRouter.url) =>
   | {path: list{"asteroids", id}} => Asteroid(id)
   | {path: list{"asteroids"}, search} => Asteroids(search->PageQueryParams.AsteroidPage.fromString)
   | {path: list{"global-stats"}} => GlobalStats
+  | {path: list{"resources"}} => Resources
   | {path: list{"support"}} => Support
   | {path: list{"privacy"}} => Privacy
   | _ => NotFound
