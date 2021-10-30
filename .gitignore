@@ -6,3 +6,4 @@ client/lib
 .merlin
 .graphql_ppx_cache
 lib
+.vscode

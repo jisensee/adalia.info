@@ -8,10 +8,19 @@ let influence = External("https://influenceth.io")
 let influenceGame = External("https://game.influenceth.io")
 let makeGameRoidLink = id => External("https://game.influenceth.io/asteroids/" ++ id)
 
+let wiki = External("https://wiki.influenceth.io/")
 let githubRepo = External("https://github.com/jisensee/adalia.info")
 let discord = External("https://discord.gg/XynYK5yCQy")
+let influenceAssetExport = External("https://github.com/jisensee/influence-asset-export")
+let discoverAdalia = External("https://discover.adalia.id")
+let influenceInternationalDiscord = External("https://discord.gg/gX3r2BDNwR")
+let influenceSalesSpace = External("https://influence-sales.space")
+let cosmos = External("https://github.com/ScreamingHawk/cosmos-influence-bot")
+let influenceUtils = External("https://github.com/Influenceth/influence-utils")
 
 let openSea = External("https://opensea.io")
+let openSeaAsteroids = External("https://opensea.io/collection/influenceth-asteroids")
+let openSeaCrew = External("https://opensea.io/collection/influence-crew")
 let etherscan = External("https://etherscan.io")
 
 let makeAsteroidOpenSeaLink = id => External(
