@@ -35,7 +35,7 @@
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^2.1.1",
+    "@graphql-codegen/cli": "^1.9.0",
     "@graphql-codegen/typescript": "^2.1.0",
     "@types/cron": "^1.7.3",
     "@types/follow-redirects": "^1.13.1",

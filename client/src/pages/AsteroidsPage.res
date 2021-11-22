@@ -92,7 +92,7 @@ let make = () => {
   module Popover = Common.Popover
   let actions =
     <div className="flex flex-row space-x-3 text-lg">
-      <AsteroidQuickFilters />
+      <AsteroidQuickFilters iconBreakpoint={Icon.Md} />
       <Vechai.Button
         className="btn-inverted" size={#lg} onClick={_ => setExportDialogOpen(_ => true)}>
         <Icon kind={Icon.Fas("file-export")} breakpoint={Icon.Md} text="Export" />

@@ -57,9 +57,8 @@ let make = (~className="", ~readonly=false) => {
     let make = (~filter, ~prefix, ~formatter, ~onClose) =>
       switch filter.Filter.active {
       | true =>
-        <Vechai.Tag
-          className="!border-primary-std flex flex-row space-x-3 mr-2 mb-2" key=prefix size={#xl}>
-          <Vechai.Tag.Label className="text-ellipsis">
+        <Vechai.Tag className="!border-primary-std flex flex-row space-x-3" key=prefix size={#xl}>
+          <Vechai.Tag.Label className="truncate ...">
             <span className="text-primary-std"> {React.string(prefix ++ ": ")} </span>
             {switch formatter {
             | Str(f) => filter.value->f->React.string
@@ -84,114 +83,123 @@ let make = (~className="", ~readonly=false) => {
   }
   let disableFilter = AsteroidFilters.Filter.disable
 
-  <div className={`flex flex-row flex-wrap items-center -mb-2 ${className}`}>
-    <FilterTag
-      filter=filters.owned
-      prefix="Owned"
-      formatter={Str(FilterFormatter.owned)}
-      onClose={() => setFilters({...filters, AsteroidFilters.owned: filters.owned->disableFilter})}
-    />
-    <FilterTag
-      filter=filters.owners
-      prefix="Owner"
-      formatter={Element(formatOwners)}
-      onClose={() =>
-        setFilters({...filters, AsteroidFilters.owners: filters.owners->disableFilter})}
-    />
-    <FilterTag
-      filter=filters.scanned
-      prefix="Scanned"
-      formatter={Str(FilterFormatter.scanned)}
-      onClose={() =>
-        setFilters({...filters, AsteroidFilters.scanned: filters.scanned->disableFilter})}
-    />
-    <FilterTag
-      filter=filters.spectralTypes
-      prefix="Spectral types"
-      formatter={Str(FilterFormatter.spectralTypes)}
-      onClose={() =>
-        setFilters({
-          ...filters,
-          AsteroidFilters.spectralTypes: filters.spectralTypes->disableFilter,
-        })}
-    />
-    <FilterTag
-      filter=filters.radius
-      prefix="Radius"
-      formatter={Str(FilterFormatter.radius)}
-      onClose={() =>
-        setFilters({...filters, AsteroidFilters.radius: filters.radius->disableFilter})}
-    />
-    <FilterTag
-      filter=filters.sizes
-      prefix="Sizes"
-      formatter={Str(FilterFormatter.sizes)}
-      onClose={() => setFilters({...filters, AsteroidFilters.sizes: filters.sizes->disableFilter})}
-    />
-    <FilterTag
-      filter=filters.surfaceArea
-      prefix="Surface area"
-      formatter={Str(FilterFormatter.surfaceArea)}
-      onClose={() =>
-        setFilters({...filters, AsteroidFilters.surfaceArea: filters.surfaceArea->disableFilter})}
-    />
-    <FilterTag
-      filter=filters.orbitalPeriod
-      prefix="Orbital period"
-      formatter={Str(FilterFormatter.orbitalPeriod)}
-      onClose={() =>
-        setFilters({
-          ...filters,
-          AsteroidFilters.orbitalPeriod: filters.orbitalPeriod->disableFilter,
-        })}
-    />
-    <FilterTag
-      filter=filters.semiMajorAxis
-      prefix="Semi major axis"
-      formatter={Str(FilterFormatter.semiMajorAxis)}
-      onClose={() =>
-        setFilters({
-          ...filters,
-          AsteroidFilters.semiMajorAxis: filters.semiMajorAxis->disableFilter,
-        })}
-    />
-    <FilterTag
-      filter=filters.inclination
-      prefix="Inclination"
-      formatter={Str(FilterFormatter.inclination)}
-      onClose={() =>
-        setFilters({...filters, AsteroidFilters.inclination: filters.inclination->disableFilter})}
-    />
-    <FilterTag
-      filter=filters.eccentricity
-      prefix="Eccentricity"
-      formatter={Str(FilterFormatter.eccentricity)}
-      onClose={() =>
-        setFilters({...filters, AsteroidFilters.eccentricity: filters.eccentricity->disableFilter})}
-    />
-    <FilterTag
-      filter=filters.estimatedPrice
-      prefix="Last sale price"
-      formatter={Str(FilterFormatter.price(_, currency))}
-      onClose={() =>
-        setFilters({
-          ...filters,
-          AsteroidFilters.estimatedPrice: filters.estimatedPrice->disableFilter,
-        })}
-    />
-    <FilterTag
-      filter=filters.rarities
-      prefix="Owned"
-      formatter={Str(FilterFormatter.rarities)}
-      onClose={() =>
-        setFilters({...filters, AsteroidFilters.rarities: filters.rarities->disableFilter})}
-    />
-    <FilterTag
-      filter=filters.bonuses
-      prefix="Bonuses"
-      formatter={Str(FilterFormatter.bonuses)}
-      onClose={() =>
-        setFilters({...filters, AsteroidFilters.bonuses: filters.bonuses->disableFilter})}
-    />
-  </div>
+  switch filters->AsteroidFilters.isActive {
+  | false => React.null
+  | true =>
+    <div className={`flex flex-row flex-wrap items-center gap-3 ${className}`}>
+      <FilterTag
+        filter=filters.owned
+        prefix="Owned"
+        formatter={Str(FilterFormatter.owned)}
+        onClose={() =>
+          setFilters({...filters, AsteroidFilters.owned: filters.owned->disableFilter})}
+      />
+      <FilterTag
+        filter=filters.owners
+        prefix="Owner"
+        formatter={Element(formatOwners)}
+        onClose={() =>
+          setFilters({...filters, AsteroidFilters.owners: filters.owners->disableFilter})}
+      />
+      <FilterTag
+        filter=filters.scanned
+        prefix="Scanned"
+        formatter={Str(FilterFormatter.scanned)}
+        onClose={() =>
+          setFilters({...filters, AsteroidFilters.scanned: filters.scanned->disableFilter})}
+      />
+      <FilterTag
+        filter=filters.spectralTypes
+        prefix="Spectral types"
+        formatter={Str(FilterFormatter.spectralTypes)}
+        onClose={() =>
+          setFilters({
+            ...filters,
+            AsteroidFilters.spectralTypes: filters.spectralTypes->disableFilter,
+          })}
+      />
+      <FilterTag
+        filter=filters.radius
+        prefix="Radius"
+        formatter={Str(FilterFormatter.radius)}
+        onClose={() =>
+          setFilters({...filters, AsteroidFilters.radius: filters.radius->disableFilter})}
+      />
+      <FilterTag
+        filter=filters.sizes
+        prefix="Sizes"
+        formatter={Str(FilterFormatter.sizes)}
+        onClose={() =>
+          setFilters({...filters, AsteroidFilters.sizes: filters.sizes->disableFilter})}
+      />
+      <FilterTag
+        filter=filters.surfaceArea
+        prefix="Surface area"
+        formatter={Str(FilterFormatter.surfaceArea)}
+        onClose={() =>
+          setFilters({...filters, AsteroidFilters.surfaceArea: filters.surfaceArea->disableFilter})}
+      />
+      <FilterTag
+        filter=filters.orbitalPeriod
+        prefix="Orbital period"
+        formatter={Str(FilterFormatter.orbitalPeriod)}
+        onClose={() =>
+          setFilters({
+            ...filters,
+            AsteroidFilters.orbitalPeriod: filters.orbitalPeriod->disableFilter,
+          })}
+      />
+      <FilterTag
+        filter=filters.semiMajorAxis
+        prefix="Semi major axis"
+        formatter={Str(FilterFormatter.semiMajorAxis)}
+        onClose={() =>
+          setFilters({
+            ...filters,
+            AsteroidFilters.semiMajorAxis: filters.semiMajorAxis->disableFilter,
+          })}
+      />
+      <FilterTag
+        filter=filters.inclination
+        prefix="Inclination"
+        formatter={Str(FilterFormatter.inclination)}
+        onClose={() =>
+          setFilters({...filters, AsteroidFilters.inclination: filters.inclination->disableFilter})}
+      />
+      <FilterTag
+        filter=filters.eccentricity
+        prefix="Eccentricity"
+        formatter={Str(FilterFormatter.eccentricity)}
+        onClose={() =>
+          setFilters({
+            ...filters,
+            AsteroidFilters.eccentricity: filters.eccentricity->disableFilter,
+          })}
+      />
+      <FilterTag
+        filter=filters.estimatedPrice
+        prefix="Last sale price"
+        formatter={Str(FilterFormatter.price(_, currency))}
+        onClose={() =>
+          setFilters({
+            ...filters,
+            AsteroidFilters.estimatedPrice: filters.estimatedPrice->disableFilter,
+          })}
+      />
+      <FilterTag
+        filter=filters.rarities
+        prefix="Owned"
+        formatter={Str(FilterFormatter.rarities)}
+        onClose={() =>
+          setFilters({...filters, AsteroidFilters.rarities: filters.rarities->disableFilter})}
+      />
+      <FilterTag
+        filter=filters.bonuses
+        prefix="Bonuses"
+        formatter={Str(FilterFormatter.bonuses)}
+        onClose={() =>
+          setFilters({...filters, AsteroidFilters.bonuses: filters.bonuses->disableFilter})}
+      />
+    </div>
+  }
 }

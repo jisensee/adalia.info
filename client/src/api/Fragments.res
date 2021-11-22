@@ -62,8 +62,46 @@ fragment DataTableAsteroidPage on AsteroidPage {
   totalRows
 }
 
-fragment AsteroidCount on AsteroidCount {
+fragment SpectralTypeCounts on SpectralTypeCounts {
+  c
+  cm
+  ci
+  cs
+  cms
+  cis
+  s
+  sm
+  si
+  m
+  i
+}
+
+fragment RarityCounts on RarityCounts {
+  common
+  uncommon
+  rare
+  superior
+  exceptional
+  incomparable
+}
+
+fragment BasicAsteroidStats on BasicAsteroidStats {
   count
-  total
+  totalCount
+  owned
+  scanned
+  surfaceArea
+}
+
+fragment AsteroidStats on AsteroidStats {
+  basicStats {
+    ...BasicAsteroidStats
+  }
+  bySpectralType {
+    ...SpectralTypeCounts
+  }
+  byRarity {
+    ...RarityCounts  
+  }
 }
 `)

@@ -1,71 +1,12 @@
 open ReScriptUrql
-open Belt
+
+external convertFilter: AsteroidFilters.queryFilter => Queries.ExportAsteroids.t_variables_AsteroidFilterInput =
+  "%identity"
 
 @val external windowOpen: string => unit = "open"
 
 module Filter = AsteroidFilters.Filter
-let makeFilterVariable = (filters: AsteroidFilters.t) => {
-  Queries.ExportAsteroids.owned: filters.owned->Filter.toOption,
-  owners: filters.owners->Filter.toOption,
-  scanned: filters.scanned->Filter.toOption,
-  spectralTypes: filters.spectralTypes->Filter.toOption,
-  sizes: filters.sizes->Filter.toOption,
-  rarities: filters.rarities->Filter.toOption,
-  radius: filters.radius
-  ->Filter.toOption
-  ->Option.map(((from, to_)) => {
-    Queries.ExportAsteroids.from: from,
-    to_: to_,
-  }),
-  surfaceArea: filters.surfaceArea
-  ->Filter.toOption
-  ->Option.map(((from, to_)) => {
-    Queries.ExportAsteroids.from: from,
-    to_: to_,
-  }),
-  orbitalPeriod: filters.orbitalPeriod
-  ->Filter.toOption
-  ->Option.map(((from, to_)) => {
-    Queries.ExportAsteroids.from: from,
-    to_: to_,
-  }),
-  semiMajorAxis: filters.semiMajorAxis
-  ->Filter.toOption
-  ->Option.map(((from, to_)) => {
-    Queries.ExportAsteroids.from: from,
-    to_: to_,
-  }),
-  inclination: filters.inclination
-  ->Filter.toOption
-  ->Option.map(((from, to_)) => {
-    Queries.ExportAsteroids.from: from,
-    to_: to_,
-  }),
-  eccentricity: filters.eccentricity
-  ->Filter.toOption
-  ->Option.map(((from, to_)) => {
-    Queries.ExportAsteroids.from: from,
-    to_: to_,
-  }),
-  estimatedPrice: filters.estimatedPrice
-  ->Filter.toOption
-  ->Option.map(((from, to_)) => {
-    Queries.ExportAsteroids.from: from,
-    to_: to_,
-  }),
-  bonuses: filters.bonuses
-  ->Filter.toOption
-  ->Option.map(bonuses => {
-    Queries.ExportAsteroids.mode: bonuses.mode,
-    conditions: bonuses.conditions->Array.map(b =>
-      Queries.ExportAsteroids.makeInputObjectAsteroidBonusConditionInput(
-        ~type_=?b.type_,
-        ~levels=b.levels,
-        (),
-      )
-    ),
-  }),
-}
+let makeFilterVariable = f => f->AsteroidFilters.makeFilterVariable->convertFilter
 
 module FormatSelect = {
   @react.component

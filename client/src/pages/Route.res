@@ -2,7 +2,7 @@ type t =
   | Home
   | Asteroids
   | Asteroid(string)
-  | GlobalStats
+  | Stats
   | Resources
   | Support
   | Privacy
@@ -13,7 +13,7 @@ let toUrl = r =>
   | Home => "/"
   | Asteroids => "/asteroids"
   | Asteroid(id) => `/asteroids/${id}`
-  | GlobalStats => "/global-stats"
+  | Stats => "/stats"
   | Resources => "/resources"
   | Support => "/support"
   | Privacy => "/privacy"
@@ -27,7 +27,7 @@ let fromUrl = (url: RescriptReactRouter.url) =>
     Home
   | {path: list{"asteroids", id}} => Asteroid(id)
   | {path: list{"asteroids"}} => Asteroids
-  | {path: list{"global-stats"}} => GlobalStats
+  | {path: list{"stats"}} => Stats
   | {path: list{"resources"}} => Resources
   | {path: list{"support"}} => Support
   | {path: list{"privacy"}} => Privacy
@@ -37,4 +37,4 @@ let fromUrl = (url: RescriptReactRouter.url) =>
 let go = route => route->toUrl->RescriptReactRouter.push
 let update = route => route->toUrl->RescriptReactRouter.replace
 
-let hasAsteroidFilters = Js.Array2.includes([Asteroids])
+let hasAsteroidFilters = Js.Array2.includes([Asteroids, Stats])

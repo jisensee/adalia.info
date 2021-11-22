@@ -6,7 +6,7 @@ type Query {
     sorting: AsteroidSortingInput
     filter: AsteroidFilterInput
   ): AsteroidPage!
-  asteroidCount(filter: AsteroidFilterInput): AsteroidCount!
+  asteroidStats(filter: AsteroidFilterInput): AsteroidStats!
   asteroid(id: Int!): Asteroid
   lastDataUpdateAt: Date
   priceBounds: PriceBounds!
@@ -28,9 +28,10 @@ type AsteroidPage {
   totalRows: Int!
 }
 
-type AsteroidCount {
-  count: Int!
-  total: Int!
+type AsteroidStats {
+  basicStats: BasicAsteroidStats!
+  bySpectralType: SpectralTypeCounts!
+  byRarity: RarityCounts!
 }
 
 type Asteroid {
@@ -65,6 +66,37 @@ type AsteroidBonus {
   level: Int!
   modifier: Int!
   type: AsteroidBonusType!
+}
+
+type BasicAsteroidStats {
+  count: Int!
+  totalCount: Int!
+  owned: Int!
+  scanned: Int!
+  surfaceArea: Float!
+}
+
+type SpectralTypeCounts {
+  c: Int!
+  cm: Int!
+  ci: Int!
+  cs: Int!
+  cms: Int!
+  cis: Int!
+  s: Int!
+  sm: Int!
+  si: Int!
+  m: Int!
+  i: Int!
+}
+
+type RarityCounts {
+  common: Int!
+  uncommon: Int!
+  rare: Int!
+  superior: Int!
+  exceptional: Int!
+  incomparable: Int!
 }
 
 input PageInput {

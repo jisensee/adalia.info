@@ -6,20 +6,23 @@ import {
   AsteroidBonusesFilterInput,
   AsteroidBonusesFilterMode,
   AsteroidBonusType,
-  AsteroidCount,
   AsteroidField,
   AsteroidFilterInput,
   AsteroidPage,
   AsteroidRarity,
   AsteroidSize,
   AsteroidSortingInput,
+  AsteroidStats,
+  BasicAsteroidStats,
   ExportFormat,
   Maybe,
   PageInput,
   PriceBounds,
   RangeInput,
+  RarityCounts,
   SortingMode,
   SpectralType,
+  SpectralTypeCounts,
 } from '../types'
 
 const csvBaseFields: (keyof Asteroid)[] = [
@@ -232,17 +235,44 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
     return { rows, totalRows }
   }
 
-  public async count(
+  public async basicStats(
     filter: Maybe<AsteroidFilterInput>
-  ): Promise<AsteroidCount> {
-    const total = await this.collection.countDocuments()
+  ): Promise<BasicAsteroidStats> {
+    const totalCount = await this.collection.countDocuments()
     const count = filter
       ? await this.collection.countDocuments(filterToQuery(filter))
-      : total
+      : totalCount
+
+    const query = filter ? filterToQuery(filter) : {}
+    type aggRes = {
+      surfaceArea: number
+      unowned: number
+      scanned: number
+    }
+    const sums = (
+      await this.collection
+        .aggregate<aggRes>([
+          {
+            $match: query,
+          },
+          {
+            $group: {
+              _id: 'sum',
+              surfaceArea: { $sum: '$surfaceArea' },
+              unowned: { $sum: { $ifNull: ['$owner', 1, 0] } },
+              scanned: { $sum: { $cond: ['$scanned', 1, 0] } },
+            },
+          },
+        ])
+        .toArray()
+    )[0]
 
     return {
       count,
-      total,
+      totalCount,
+      surfaceArea: sums.surfaceArea,
+      owned: count - sums.unowned,
+      scanned: sums.scanned,
     }
   }
 
@@ -326,6 +356,79 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
           .pipe(writer)
       case ExportFormat.Csv:
         return this.transformToCsv(cursor, writer)
+    }
+  }
+
+  public async countByType(
+    filter: Maybe<AsteroidFilterInput>
+  ): Promise<SpectralTypeCounts> {
+    const query = filter ? filterToQuery(filter) : {}
+
+    type aggRes = { _id: SpectralType; count: number }
+
+    const result = await this.collection
+      .aggregate<aggRes>([
+        {
+          $match: query,
+        },
+        {
+          $group: {
+            _id: '$spectralType',
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+      ])
+      .toArray()
+
+    const findCount = (t: SpectralType) =>
+      result.find((r) => r._id === t)?.count ?? 0
+
+    return {
+      c: findCount(SpectralType.C),
+      cs: findCount(SpectralType.Cs),
+      ci: findCount(SpectralType.Ci),
+      cm: findCount(SpectralType.Cm),
+      cis: findCount(SpectralType.Cis),
+      cms: findCount(SpectralType.Cms),
+      s: findCount(SpectralType.S),
+      si: findCount(SpectralType.Si),
+      sm: findCount(SpectralType.Sm),
+      m: findCount(SpectralType.M),
+      i: findCount(SpectralType.I),
+    }
+  }
+
+  public async countByRarity(
+    filter: Maybe<AsteroidFilterInput>
+  ): Promise<RarityCounts> {
+    const query = filter ? filterToQuery(filter) : {}
+    type aggRes = { _id: AsteroidRarity; count: number }
+
+    const result = await this.collection
+      .aggregate<aggRes>([
+        { $match: query },
+        {
+          $group: {
+            _id: '$rarity',
+            count: {
+              $sum: 1,
+            },
+          },
+        },
+      ])
+      .toArray()
+    const findCount = (t: AsteroidRarity) =>
+      result.find((r) => r._id === t)?.count ?? 0
+
+    return {
+      common: findCount(AsteroidRarity.Common),
+      uncommon: findCount(AsteroidRarity.Uncommon),
+      rare: findCount(AsteroidRarity.Rare),
+      superior: findCount(AsteroidRarity.Superior),
+      exceptional: findCount(AsteroidRarity.Exceptional),
+      incomparable: findCount(AsteroidRarity.Incomparable),
     }
   }
 
