@@ -84,8 +84,8 @@ let make = (~className="") => {
       <Icon kind={Icon.Fas("meteor")}> <IconText text="Asteroids" /> </Icon>
     </Item>
   let statsItem =
-    <Item to_=Link.Internal(Route.GlobalStats) onClick={closeDropdown}>
-      <Icon kind={Icon.Fas("chart-pie")}> <IconText text="Global stats" /> </Icon>
+    <Item to_=Link.Internal(Route.Stats) onClick={closeDropdown}>
+      <Icon kind={Icon.Fas("chart-pie")}> <IconText text="Stats" /> </Icon>
     </Item>
 
   let currencyItem =

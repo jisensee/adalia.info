@@ -72,7 +72,7 @@ let asteroidBonusesParam = {
 let use = () => {
   let default = AsteroidFilters.defaultFilters
 
-  let (owned, setOwned) = QP.useWithDefault("owned", QP.boolParam->filterParam, default.owned)
+  let (owned, setOwned) = QP.useWithDefault("owned", QP.legacyBoolParam->filterParam, default.owned)
   let (owners, setOwners) = QP.useWithDefault(
     "owners",
     QP.stringArrayParam->filterParam,
@@ -80,7 +80,7 @@ let use = () => {
   )
   let (scanned, setScanned) = QP.useWithDefault(
     "scanned",
-    QP.boolParam->filterParam,
+    QP.legacyBoolParam->filterParam,
     default.scanned,
   )
   let (spectralTypes, setSpectralTypes) = QP.useWithDefault(

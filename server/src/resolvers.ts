@@ -1,14 +1,16 @@
 import { IResolvers } from 'graphql-tools'
 import { Context, DataSources } from './context'
 import getExchangeRates from './exchange-rates'
-import { dateScalar } from './scalars'
 import * as exporter from './exporter'
+import { dateScalar } from './scalars'
 import {
+  Asteroid,
+  AsteroidStats,
   MutationExportAllAsteroidsArgs,
   MutationExportAsteroidsArgs,
   QueryAsteroidArgs,
-  QueryAsteroidCountArgs,
   QueryAsteroidsArgs,
+  QueryAsteroidStatsArgs,
 } from './types'
 
 const resolvers: IResolvers<DataSources, Context> = {
@@ -23,8 +25,25 @@ const resolvers: IResolvers<DataSources, Context> = {
         args.sorting,
         args.filter
       ),
-    asteroidCount: (_, args: QueryAsteroidCountArgs, { dataSources }) =>
-      dataSources.asteroids.count(args.filter),
+    asteroidStats: async (
+      _,
+      args: QueryAsteroidStatsArgs,
+      { dataSources },
+      info
+    ): Promise<AsteroidStats> => {
+      const ds = dataSources.asteroids
+      const f = args.filter
+      const [stats, spTypes, rarities] = await Promise.all([
+        ds.basicStats(f),
+        ds.countByType(f),
+        ds.countByRarity(f),
+      ])
+      return {
+        basicStats: stats,
+        bySpectralType: spTypes,
+        byRarity: rarities,
+      }
+    },
     asteroid: (_, args: QueryAsteroidArgs, { dataSources }) =>
       dataSources.asteroids.getByRockId(args.id),
     lastDataUpdateAt: (_, _args, { dataSources }) =>

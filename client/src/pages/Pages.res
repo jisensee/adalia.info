@@ -3,7 +3,7 @@ let fromRoute = r =>
   | Route.Home => <HomePage />
   | Route.Asteroid(id) => <AsteroidPage id />
   | Route.Asteroids => <AsteroidsPage />
-  | Route.GlobalStats => <GlobalStatsPage />
+  | Route.Stats => <StatsPage />
   | Route.Resources => <ResourcesPage />
   | Route.Privacy => <PrivacyPage />
   | Route.Support => <SupportPage />

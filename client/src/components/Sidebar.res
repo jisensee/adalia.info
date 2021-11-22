@@ -29,7 +29,7 @@ let make = (
 
   let expander =
     <Vechai.Button
-      className="flex items-center justify-center w-full h-full p-4 text-xl font-bold text-primary-300 !border-0"
+      className="flex items-center justify-center w-full h-full p-4 text-xl font-bold text-primary-300 !border-0 !rounded-l-md !rounded-r-2xl"
       onClick={_ => onExpandedChange(true)}>
       <span className="text-vertical transform rotate-180 text-primary-300">
         {title->React.string}

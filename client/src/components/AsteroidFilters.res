@@ -116,6 +116,70 @@ module Store = {
   }
 }
 
+type queryFilter = Queries.DataTableAsteroids.t_variables_AsteroidFilterInput
+let makeFilterVariable = (filters: t) => {
+  Queries.DataTableAsteroids.owned: filters.owned->Filter.toOption,
+  owners: filters.owners->Filter.toOption,
+  scanned: filters.scanned->Filter.toOption,
+  spectralTypes: filters.spectralTypes->Filter.toOption,
+  sizes: filters.sizes->Filter.toOption,
+  rarities: filters.rarities->Filter.toOption,
+  radius: filters.radius
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  surfaceArea: filters.surfaceArea
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  orbitalPeriod: filters.orbitalPeriod
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  semiMajorAxis: filters.semiMajorAxis
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  inclination: filters.inclination
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  eccentricity: filters.eccentricity
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  estimatedPrice: filters.estimatedPrice
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
+    Queries.DataTableAsteroids.from: from,
+    to_: to_,
+  }),
+  bonuses: filters.bonuses
+  ->Filter.toOption
+  ->Option.map(bonuses => {
+    Queries.DataTableAsteroids.mode: bonuses.mode,
+    conditions: bonuses.conditions->Array.map(b =>
+      Queries.DataTableAsteroids.makeInputObjectAsteroidBonusConditionInput(
+        ~type_=?b.type_,
+        ~levels=b.levels,
+        (),
+      )
+    ),
+  }),
+}
+
 let isActive = f =>
   [
     f.owned.active,
@@ -240,7 +304,7 @@ module NumberRangeFilter = {
       | false => "opacity-disabled"
       }
 
-      <div className={`w-72 ml-3 ${opacity}`}>
+      <div className={`w-72 md:w-48 lg:w-96 ml-3 ${opacity}`}>
         <Slider
           value=props.value
           onChange={v => v->props.revertValue->oc}

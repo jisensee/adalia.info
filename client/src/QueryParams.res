@@ -80,6 +80,16 @@ let floatRangeParam: paramType<(float, float)> = {
   ),
 }
 
+let legacyBoolParam: paramType<bool> = {
+  encode: encoder(b => Some(b ? "1" : "0")),
+  decode: decoder(str =>
+    switch str {
+    | "true" | "1" => Some(true)
+    | _ => Some(false)
+    }
+  ),
+}
+
 module SortMode = {
   type t = Ascending | Descending
   let toString = mode =>

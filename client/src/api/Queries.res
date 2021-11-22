@@ -15,9 +15,9 @@ query DataTableAsteroids($page: PageInput!, $sort: AsteroidSortingInput!, $filte
   }
 }
 
-query AsteroidCount($filter: AsteroidFilterInput) {
-  asteroidCount(filter: $filter) {
-    ...AsteroidCount
+query AsteroidStats($filter: AsteroidFilterInput) {
+  asteroidStats(filter: $filter) {
+    ...AsteroidStats
   }
 }
 
@@ -41,6 +41,14 @@ query PriceBounds {
 query ExchangeRates {
   exchangeRates {
     oneEthInUsd
+  }
+}
+
+query AsteroidCountsByType($filter: AsteroidFilterInput) {
+  asteroidStats(filter: $filter) {
+    bySpectralType {
+      ...SpectralTypeCounts 
+    }
   }
 }
 

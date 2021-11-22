@@ -1,5 +1,5 @@
 @react.component
-let make = () => {
+let make = (~iconBreakpoint=?) => {
   let {filters, setFilters} = AsteroidFilters.Store.use()
 
   module FilterButton = {
@@ -16,7 +16,7 @@ let make = () => {
     <Popover className="relative">
       <Popover.Button _as={React.Fragment.make}>
         <Vechai.Button className="btn-inverted" size={#lg}>
-          <Icon kind={Icon.Fas("filter")} breakpoint={Icon.Md} text="Quick Filters" />
+          <Icon kind={Icon.Fas("filter")} breakpoint=?iconBreakpoint text="Quick Filters" />
         </Vechai.Button>
       </Popover.Button>
       <Common.Transitions.Appear>

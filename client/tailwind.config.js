@@ -18,6 +18,7 @@ module.exports = {
       colors: {
         current: 'currentColor',
         transparent: 'transparent',
+        blue: colors.blue[400],
         black: colors.black,
         'primary-std': colors.cyan['300'],
         red: colors.red[500],
