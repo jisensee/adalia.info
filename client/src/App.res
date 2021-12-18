@@ -16,7 +16,7 @@ let make = () => {
   let exchangeRates = ExchangeRates.useState()
   let priceBounds = PriceBounds.useState()
 
-  <>
+  <Vechai.Provider theme={Vechai.theme} colorScheme={Vechai.defaultColorScheme}>
     <PriceBounds.Context.Provider value=priceBounds>
       <ExchangeRates.Context.Provider value=exchangeRates>
         <Currency.Context.Provider value=currency>
@@ -26,5 +26,5 @@ let make = () => {
         </Currency.Context.Provider>
       </ExchangeRates.Context.Provider>
     </PriceBounds.Context.Provider>
-  </>
+  </Vechai.Provider>
 }

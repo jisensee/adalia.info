@@ -18,3 +18,15 @@ module LocalStorage = {
   @val @scope("localStorage") external set: (~key: string, ~value: string) => unit = "setItem"
   @val @scope("localStorage") external get: string => option<string> = "getItem"
 }
+
+module Location = {
+  @val @scope("location") external reload: unit => unit = "reload"
+}
+
+module Document = {
+  type keyEventHandler = ReactEvent.Keyboard.t => unit
+  @val @scope("document")
+  external addKeyEventListener: (string, keyEventHandler, bool) => unit = "addEventListener"
+
+  let onKeyDown = handler => addKeyEventListener("keydown", handler, false)
+}

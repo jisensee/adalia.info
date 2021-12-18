@@ -40,7 +40,7 @@
   input[type='text'] {
     @apply bg-gray-dark !important;
     @apply text-white;
-    @apply border-cyan rounded-2xl !important;
+    @apply rounded-2xl;
   }
 
   input[type='checkbox'] {

@@ -30,8 +30,9 @@ module CurrencyToggle = {
 
 module Menu = {
   @react.component
-  let make = (~left, ~right, ~toggleDropdown) => {
-    <>
+  let make = (~left, ~right, ~search, ~toggleDropdown) => {
+    <div className="flex flex-row space-x-9 items-center w-full">
+      search
       <div className="hidden xs:flex w-full">
         <div className="flex flex-row items-center space-x-9 flex-grow"> left </div>
         <div className="hidden md:flex flex-row items-center space-x-9"> right </div>
@@ -41,7 +42,7 @@ module Menu = {
           <Icon kind={Icon.Fas("bars")} />
         </button>
       </div>
-    </>
+    </div>
   }
 }
 
@@ -107,14 +108,39 @@ let make = (~className="", ~setCurrency) => {
       <Icon kind={Icon.Fas("users")}> <IconText text="Resources" /> </Icon>
     </Item>
 
+  let (searchOpen, setSearchOpen) = React.useState(() => false)
+
+  React.useEffect0(() => {
+    Bindings.Document.onKeyDown(event => {
+      let isCtrl = event->ReactEvent.Keyboard.ctrlKey
+      let isK = event->ReactEvent.Keyboard.key === "k"
+      if isCtrl && isK {
+        event->ReactEvent.Keyboard.preventDefault
+        setSearchOpen(_ => true)
+      }
+    })
+    None
+  })
+
+  let search =
+    <div className="text-cyan hover:text-blue-dark">
+      <Icon
+        className="hover:text-blue-dark"
+        kind={Icon.Fas("search")}
+        onClick={() => setSearchOpen(_ => true)}>
+        <IconText text="Search" />
+      </Icon>
+    </div>
+
   let left = <> asteroidsItem statsItem resourcesItem </>
 
   let right = <> currencyItem supportItem </>
   let dropdownRight = <> supportItem currencyItem </>
 
   <nav className={`bg-gray py-2 ${className}`}>
+    <Search.Dialog isOpen=searchOpen onOpenChange={o => setSearchOpen(_ => o)} />
     <div className="2xl:container 2xl:mx-auto px-4 flex flex-row items-center space-x-9">
-      homeItem <Menu left right toggleDropdown={() => setDropdownOpen(o => !o)} />
+      homeItem <Menu search left right toggleDropdown={() => setDropdownOpen(o => !o)} />
     </div>
     <div className="hidden xs:flex md:hidden">
       <MenuDropdown isOpen=isDropdownOpen> dropdownRight </MenuDropdown>
