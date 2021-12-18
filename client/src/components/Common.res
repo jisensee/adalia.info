@@ -156,7 +156,15 @@ module Dialog = {
   }
 
   @react.component
-  let make = (~className="", ~title, ~description, ~children, ~isOpen, ~onOpenChange) => {
+  let make = (
+    ~className="",
+    ~title,
+    ~description,
+    ~children,
+    ~isOpen,
+    ~onOpenChange,
+    ~showCloseButton=true,
+  ) => {
     <TransitionAppear show=isOpen>
       <Binding
         className={`fixed inset-0 z-50 overflow-y-auto mx-4 flex justify-center items-center md:container md:mx-auto p-4 ${className}`}
@@ -166,12 +174,16 @@ module Dialog = {
           className="relative z-20 flex-col py-2 px-4 bg-gray-dark rounded-2xl border-cyan border">
           <div className="flex flex-row items-center justify-center">
             <Title className="flex flex-grow"> title </Title>
-            <Icon
-              className="text-3xl"
-              kind={Icon.Fas("times")}
-              large={false}
-              onClick={() => onOpenChange(false)}
-            />
+            {switch showCloseButton {
+            | false => React.null
+            | true =>
+              <Icon
+                className="text-3xl"
+                kind={Icon.Fas("times")}
+                large={false}
+                onClick={() => onOpenChange(false)}
+              />
+            }}
           </div>
           <Description> description </Description>
           children

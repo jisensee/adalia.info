@@ -1,17 +1,15 @@
-@layer base {
-  .rc-slider-handle {
-    @apply bg-cyan border-black !important;
-  }
+.rc-slider-handle {
+  @apply bg-cyan border-black !important;
+}
 
-  .rc-slider-handle-dragging {
-    @apply shadow-none !important;
-  }
+.rc-slider-handle-dragging {
+  @apply shadow-none !important;
+}
 
-  .rc-slider-disabled {
-    @apply bg-transparent opacity-disabled !important;
-  }
+.rc-slider-disabled {
+  @apply bg-transparent opacity-disabled !important;
+}
 
-  .rc-slider-track-1 {
-    @apply bg-cyan !important;
-  }
+.rc-slider-track-1 {
+  @apply bg-cyan !important;
 }

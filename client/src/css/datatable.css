@@ -1,62 +1,60 @@
-@layer base {
-  .rdt_TableCell,
-  .rdt_TableExpanderRow {
-    @apply bg-gray-dark;
-    @apply text-white;
-    @apply text-lg;
-  }
+.rdt_TableCell,
+.rdt_TableExpanderRow {
+  @apply bg-gray-dark;
+  @apply text-white;
+  @apply text-lg;
+}
 
-  .rdt_ExpanderRow {
-    @apply bg-gray-dark !important;
-  }
+.rdt_ExpanderRow {
+  @apply bg-gray-dark !important;
+}
 
-  .rdt_TableHeader {
-    @apply bg-gray !important;
-    @apply text-white !important;
-    @apply border-b border-cyan !important;
-    @apply py-3 !important;
-    @apply overflow-visible !important;
-  }
+.rdt_TableHeader {
+  @apply bg-gray !important;
+  @apply text-white !important;
+  @apply border-b border-cyan !important;
+  @apply py-3 !important;
+  @apply overflow-visible !important;
+}
 
-  .rdt_TableHeader > :last-child {
-    @apply hidden !important;
-  }
+.rdt_TableHeader > :last-child {
+  @apply hidden !important;
+}
 
-  .rdt_TableCol_Sortable {
-    @apply font-bold text-xl text-cyan !important;
-    @apply bg-gray !important;
-    @apply leading-8 !important;
-  }
+.rdt_TableCol_Sortable {
+  @apply font-bold text-xl text-cyan !important;
+  @apply bg-gray !important;
+  @apply leading-8 !important;
+}
 
-  .rdt_TableHeadRow {
-    @apply bg-gray !important;
-    @apply border-white !important;
-  }
+.rdt_TableHeadRow {
+  @apply bg-gray !important;
+  @apply border-white !important;
+}
 
-  .rdt_TableRow {
-    @apply bg-gray-dark !important;
-    @apply border-white !important;
-  }
+.rdt_TableRow {
+  @apply bg-gray-dark !important;
+  @apply border-white !important;
+}
 
-  .datatable-loading {
-    @apply bg-gray-dark;
-    @apply text-white;
-  }
+.datatable-loading {
+  @apply bg-gray-dark;
+  @apply text-white;
+}
 
-  .rdt_Pagination {
-    @apply bg-gray !important;
-    @apply text-white text-sm !important;
-  }
+.rdt_Pagination {
+  @apply bg-gray !important;
+  @apply text-white text-sm !important;
+}
 
-  .rdt_Pagination svg {
-    @apply hidden !important;
-  }
+.rdt_Pagination svg {
+  @apply hidden !important;
+}
 
-  .rdt_Pagination button:enabled {
-    @apply text-white !important;
-  }
+.rdt_Pagination button:enabled {
+  @apply text-white !important;
+}
 
-  .rdt_Pagination button:disabled {
-    @apply text-gray-light !important;
-  }
+.rdt_Pagination button:disabled {
+  @apply text-gray-light !important;
 }

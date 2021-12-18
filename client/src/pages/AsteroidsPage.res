@@ -184,7 +184,7 @@ let make = (~pageNum=?, ~pageSize=?, ~sort=?, ~filters=?, ~columns=?) => {
           </button>
           <div className="z-20">
             <Popover className="relative">
-              <Popover.Button className="">
+              <Popover.Button className="bg-gray-dark">
                 <Icon kind={Icon.Fas("list")} breakpoint={Icon.Sm} text="Columns" />
               </Popover.Button>
               <Common.TransitionAppear>
