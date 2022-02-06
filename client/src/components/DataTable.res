@@ -109,7 +109,7 @@ module Loading = {
 module NoDataComponent = {
   @react.component
   let make = (~text="No records found") =>
-    <div className="w-full text-center bg-gray-dark text-white"> {text->React.string} </div>
+    <div className="w-full md:text-center bg-base text-white"> {text->React.string} </div>
 }
 
 @react.component
@@ -181,8 +181,8 @@ let make = (
     expandableRows={expandableRowsComponent->Belt.Option.isSome}
     ?expandableRowsComponent
     expandableIcon={{
-      collapsed: <Icon className="text-cyan" kind={Icon.Fas("chevron-right")} />,
-      expanded: <Icon className="text-cyan" kind={Icon.Fas("chevron-down")} />,
+      collapsed: <Icon className="text-primary-std" kind={Icon.Fas("chevron-right")} />,
+      expanded: <Icon className="text-primary-std" kind={Icon.Fas("chevron-down")} />,
     }}
   />
 }

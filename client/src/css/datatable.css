@@ -1,60 +1,54 @@
 .rdt_TableCell,
 .rdt_TableExpanderRow {
-  @apply bg-gray-dark;
-  @apply text-white;
-  @apply text-lg;
+  @apply !bg-base text-foreground text-lg;
 }
 
 .rdt_ExpanderRow {
-  @apply bg-gray-dark !important;
+  @apply !bg-base;
 }
 
 .rdt_TableHeader {
-  @apply bg-gray !important;
-  @apply text-white !important;
-  @apply border-b border-cyan !important;
-  @apply py-3 !important;
-  @apply overflow-visible !important;
+  @apply !bg-fill text-foreground py-2;
+  @apply border-b border-primary-std;
+  @apply !overflow-visible flex-grow-0;
 }
 
 .rdt_TableHeader > :last-child {
-  @apply hidden !important;
+  @apply hidden;
 }
 
 .rdt_TableCol_Sortable {
-  @apply font-bold text-xl text-cyan !important;
-  @apply bg-gray !important;
-  @apply leading-8 !important;
+  @apply font-bold text-xl text-primary-std !bg-fill leading-8;
 }
 
 .rdt_TableHeadRow {
-  @apply bg-gray !important;
-  @apply border-white !important;
+  @apply !bg-fill !border-white;
 }
 
 .rdt_TableRow {
-  @apply bg-gray-dark !important;
-  @apply border-white !important;
+  @apply !bg-base !border-white;
 }
 
 .datatable-loading {
-  @apply bg-gray-dark;
-  @apply text-white;
+  @apply !bg-base text-foreground;
 }
 
 .rdt_Pagination {
-  @apply bg-gray !important;
-  @apply text-white text-sm !important;
+  @apply !bg-base !text-foreground !text-sm;
+}
+
+.rdt_Pagination select {
+  @apply rounded-full;
 }
 
 .rdt_Pagination svg {
-  @apply hidden !important;
+  @apply !hidden;
 }
 
 .rdt_Pagination button:enabled {
-  @apply text-white !important;
+  @apply text-foreground hover:text-primary-std;
 }
 
 .rdt_Pagination button:disabled {
-  @apply text-gray-light !important;
+  @apply !text-muted;
 }

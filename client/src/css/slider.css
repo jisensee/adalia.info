@@ -1,5 +1,5 @@
 .rc-slider-handle {
-  @apply bg-cyan border-black !important;
+  @apply bg-primary-std border-black !important;
 }
 
 .rc-slider-handle-dragging {
@@ -11,5 +11,5 @@
 }
 
 .rc-slider-track-1 {
-  @apply bg-cyan !important;
+  @apply bg-primary-std !important;
 }

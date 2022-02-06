@@ -68,3 +68,21 @@ let toName = t =>
   | EstimatedPrice => "Sale price"
   | Rarity => "Rarity"
   }
+
+let allCols = [
+  Owner,
+  Name,
+  SpectralType,
+  Size,
+  Rarity,
+  SurfaceArea,
+  Radius,
+  OrbitalPeriod,
+  SemiMajorAxis,
+  Inclination,
+  Eccentricity,
+  EstimatedPrice,
+  Scanned,
+]
+
+let defaultColumns = [Owner, Name, SpectralType, Size, SurfaceArea, OrbitalPeriod, Rarity]

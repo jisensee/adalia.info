@@ -10,11 +10,11 @@ module Item = {
   let make = (~item) => {
     <Link
       to_=item.link
-      className="flex text-white hover:text-white hover:bg-gray flex-col border-cyan border rounded-xl p-3">
+      className="flex flex-col border-primary-std hover:bg-fill border rounded-xl p-3">
       <div className="flex flex-row space-x-4">
         <Icon kind=item.icon large={true} /> <h2> {item.title->React.string} </h2>
       </div>
-      <p> {item.description->React.string} </p>
+      <p className="text-foreground"> {item.description->React.string} </p>
     </Link>
   }
 }

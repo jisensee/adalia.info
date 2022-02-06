@@ -1,6 +1,6 @@
 type t =
   | Home
-  | Asteroids(PageQueryParams.AsteroidPage.t)
+  | Asteroids
   | Asteroid(string)
   | GlobalStats
   | Resources
@@ -8,18 +8,10 @@ type t =
   | Privacy
   | NotFound
 
-let defaultAsteroidsRoute = Asteroids({
-  pageNum: None,
-  pageSize: None,
-  sort: None,
-  filters: None,
-  columns: None,
-})
-
 let toUrl = r =>
   switch r {
   | Home => "/"
-  | Asteroids(params) => `/asteroids/${params->PageQueryParams.AsteroidPage.toString}`
+  | Asteroids => "/asteroids"
   | Asteroid(id) => `/asteroids/${id}`
   | GlobalStats => "/global-stats"
   | Resources => "/resources"
@@ -34,7 +26,7 @@ let fromUrl = (url: RescriptReactRouter.url) =>
   | {path: list{"/"}} =>
     Home
   | {path: list{"asteroids", id}} => Asteroid(id)
-  | {path: list{"asteroids"}, search} => Asteroids(search->PageQueryParams.AsteroidPage.fromString)
+  | {path: list{"asteroids"}} => Asteroids
   | {path: list{"global-stats"}} => GlobalStats
   | {path: list{"resources"}} => Resources
   | {path: list{"support"}} => Support
@@ -44,3 +36,5 @@ let fromUrl = (url: RescriptReactRouter.url) =>
 
 let go = route => route->toUrl->RescriptReactRouter.push
 let update = route => route->toUrl->RescriptReactRouter.replace
+
+let hasAsteroidFilters = Js.Array2.includes([Asteroids])

@@ -1,14 +1,14 @@
 const colors = require('tailwindcss/colors');
 const defaultTheme = require('tailwindcss/defaultTheme');
 
-/** @type {import('tailwindcss/tailwind-config').TailwindTheme} */
+/** @type {import('tailwindcss/tailwind-config').TailwindConfig} */
 module.exports = {
   content: [
     './index.html',
-    // './src/css/index.css',
     './src/**/*.js',
     './node_modules/@vechaiui/**/*.{js,ts,jsx,tsx}',
   ],
+  darkMode: 'class',
   theme: {
     screens: {
       xs: '450px',
@@ -18,18 +18,8 @@ module.exports = {
       colors: {
         current: 'currentColor',
         transparent: 'transparent',
-        cyan: '#69ebf4',
         black: colors.black,
-        gray: {
-          lighter: colors.gray[400],
-          light: colors.gray[600],
-          DEFAULT: colors.gray[800],
-          dark: colors.gray[900],
-        },
-        blue: {
-          DEFAULT: colors.blue[300],
-          dark: colors.blue[500],
-        },
+        'primary-std': colors.cyan['300'],
         red: colors.red[500],
         white: colors.white,
         purple: colors.purple[500],

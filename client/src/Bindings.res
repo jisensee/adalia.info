@@ -20,8 +20,16 @@ module LocalStorage = {
 }
 
 module Location = {
-  @val @scope("location") external reload: unit => unit = "reload"
+  type t = {reload: unit => unit, pathname: string, search: string}
 }
+
+@val external location: Location.t = "location"
+
+// module Location : = {
+// @val @scope("location") external reload: unit => unit = "reload"
+// @val @scope("location") external pathname: string = "pathname"
+// @val @scope("location") external search: string = "search"
+// }
 
 module Document = {
   type keyEventHandler = ReactEvent.Keyboard.t => unit

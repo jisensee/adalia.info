@@ -7,7 +7,7 @@ module Category = {
   let make = (~title, ~items, ~initialOpen=false) => {
     let (isOpen, setOpen) = React.useState(() => initialOpen)
     let titleComp = <h2> {title->React.string} </h2>
-    <div className="bg-gray flex py-2 px-5 rounded-2xl">
+    <div className="flex py-2 px-5 rounded-2xl bg-fill">
       <CollapsibleContent
         className="flex flex-col md:grid md:grid-cols-3 md:gap-x-7"
         titleComp
@@ -31,7 +31,9 @@ module Category = {
 
 @react.component
 let make = (~asteroid: Fragments.FullAsteroid.t) => {
-  let (currency, exchangeRates) = ExchangeRates.Context.useWithCurrency()
+  let {currency} = Currency.Store.use()
+  let {exchangeRates} = ExchangeRates.Store.use()
+
   let generalItems = [
     (
       "Owner",
@@ -90,7 +92,7 @@ let make = (~asteroid: Fragments.FullAsteroid.t) => {
     let modifier = bonus.modifier->Belt.Int.toString
     let bonusText =
       <>
-        <span className="text-cyan font-bold mr-1"> {`+${modifier}%`->React.string} </span>
+        <span className="text-primary-std font-bold mr-1"> {`+${modifier}%`->React.string} </span>
         {text->React.string}
       </>
     (name, bonusText, "")->Some
@@ -99,7 +101,7 @@ let make = (~asteroid: Fragments.FullAsteroid.t) => {
   <>
     <h1> {`Asteroid '${asteroid.name}'`->React.string} </h1>
     <div className="flex flex-col sm:flex-row sm:space-x-5">
-      <div className="mb-5 sm:mb-1 w-full sm:w-10/12 md:w-8/12 lg:w-6/12 xl:w-5/12">
+      <div className="mb-5 sm:mb-1 w-full sm:w-10/12 md:w-6/12 lg:w-4/12 xl:w-3/12">
         <AsteroidCard id={asteroid.id->Int.toString} className="object-contain object-top mb-5" />
         <AsteroidActions
           className="flex flex-row space-x-5 justify-center"

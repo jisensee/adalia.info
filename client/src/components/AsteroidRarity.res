@@ -2,7 +2,7 @@
 let make = (~rarity: string) => {
   let color = switch EnumUtils.rarityFromString(rarity) {
   | None | Some(#COMMON) => ""
-  | Some(#UNCOMMON) => "text-cyan"
+  | Some(#UNCOMMON) => "text-primary-std"
   | Some(#RARE) => "text-blue"
   | Some(#SUPERIOR) => "text-purple"
   | Some(#EXCEPTIONAL) => "text-orange"

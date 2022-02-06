@@ -1,117 +1,60 @@
 open Belt
 open ReScriptUrql
 
-type pageData = {
-  pageNum: int,
-  pageSize: int,
-}
+module Filter = AsteroidFilters.Filter
 
-type filterState = {
-  current: AsteroidFilters.t,
-  applied: AsteroidFilters.t,
-}
-
-let useFilters = defaultFilters =>
-  React.useState(() => {
-    current: defaultFilters,
-    applied: defaultFilters,
-  })
-
-let useInitialRouteEffect = (~pageNum, ~pageSize, ~sort, ~appliedFilters, ~columns) =>
-  React.useEffect5(() => {
-    let initialSortField = AsteroidTableColumn.Id
-    switch (pageNum, pageSize, sort) {
-    | (Some(_), Some(_), Some(_)) => ()
-    | _ =>
-      Route.Asteroids({
-        pageNum: pageNum->Option.getWithDefault(1)->Some,
-        pageSize: pageSize->Option.getWithDefault(15)->Some,
-        sort: sort
-        ->Option.getWithDefault({
-          QueryParams.field: initialSortField->AsteroidTableColumn.toString,
-          mode: QueryParams.SortMode.Ascending,
-        })
-        ->Some,
-        filters: Some({
-          owned: appliedFilters.AsteroidFilters.owned->AsteroidFilters.Filter.toOption,
-          owners: appliedFilters.owners->AsteroidFilters.Filter.toOption,
-          scanned: appliedFilters.AsteroidFilters.scanned->AsteroidFilters.Filter.toOption,
-          radius: appliedFilters.radius->AsteroidFilters.Filter.toOption,
-          spectralTypes: appliedFilters.spectralTypes->AsteroidFilters.Filter.toOption,
-          surfaceArea: appliedFilters.surfaceArea->AsteroidFilters.Filter.toOption,
-          sizes: appliedFilters.sizes->AsteroidFilters.Filter.toOption,
-          orbitalPeriod: appliedFilters.orbitalPeriod->AsteroidFilters.Filter.toOption,
-          semiMajorAxis: appliedFilters.semiMajorAxis->AsteroidFilters.Filter.toOption,
-          inclination: appliedFilters.inclination->AsteroidFilters.Filter.toOption,
-          eccentricity: appliedFilters.eccentricity->AsteroidFilters.Filter.toOption,
-          estimatedPrice: appliedFilters.estimatedPrice->AsteroidFilters.Filter.toOption,
-          rarities: appliedFilters.rarities->AsteroidFilters.Filter.toOption,
-          bonuses: appliedFilters.bonuses->AsteroidFilters.Filter.toOption,
-        }),
-        columns: Some(columns),
-      })
-      ->Route.update
-      ->ignore
-    }
-    None
-  }, (pageNum, pageSize, sort, appliedFilters, columns->Belt.Array.length))
-
-let useRouteUpdateEffect = (~pageData, ~sortData, ~filters, ~columns) => React.useEffect4(() => {
-    let filters = filters->AsteroidFilters.toQueryParamFilter
-    Route.Asteroids({
-      pageNum: Some(pageData.pageNum),
-      pageSize: Some(pageData.pageSize),
-      sort: Some(sortData),
-      filters: Some(filters),
-      columns: Some(columns),
-    })
-    ->Route.update
-    ->ignore
-    None
-  }, (pageData, sortData, filters, columns->Belt.Array.length))
-
-let usePageData = (~pageNum, ~pageSize) =>
-  React.useState(() => {
-    pageNum: pageNum,
-    pageSize: pageSize,
-  })
-
-let makeFilterVariable = (filters: PageQueryParams.AsteroidPageParamType.filters) => {
-  Queries.DataTableAsteroids.owned: filters.owned,
-  owners: filters.owners,
-  scanned: filters.scanned,
-  spectralTypes: filters.spectralTypes,
-  sizes: filters.sizes,
-  rarities: filters.rarities,
-  radius: filters.radius->Option.map(((from, to_)) => {
+let makeFilterVariable = (filters: AsteroidFilters.t) => {
+  Queries.DataTableAsteroids.owned: filters.owned->Filter.toOption,
+  owners: filters.owners->Filter.toOption,
+  scanned: filters.scanned->Filter.toOption,
+  spectralTypes: filters.spectralTypes->Filter.toOption,
+  sizes: filters.sizes->Filter.toOption,
+  rarities: filters.rarities->Filter.toOption,
+  radius: filters.radius
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.DataTableAsteroids.from: from,
     to_: to_,
   }),
-  surfaceArea: filters.surfaceArea->Option.map(((from, to_)) => {
+  surfaceArea: filters.surfaceArea
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.DataTableAsteroids.from: from,
     to_: to_,
   }),
-  orbitalPeriod: filters.orbitalPeriod->Option.map(((from, to_)) => {
+  orbitalPeriod: filters.orbitalPeriod
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.DataTableAsteroids.from: from,
     to_: to_,
   }),
-  semiMajorAxis: filters.semiMajorAxis->Option.map(((from, to_)) => {
+  semiMajorAxis: filters.semiMajorAxis
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.DataTableAsteroids.from: from,
     to_: to_,
   }),
-  inclination: filters.inclination->Option.map(((from, to_)) => {
+  inclination: filters.inclination
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.DataTableAsteroids.from: from,
     to_: to_,
   }),
-  eccentricity: filters.eccentricity->Option.map(((from, to_)) => {
+  eccentricity: filters.eccentricity
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.DataTableAsteroids.from: from,
     to_: to_,
   }),
-  estimatedPrice: filters.estimatedPrice->Option.map(((from, to_)) => {
+  estimatedPrice: filters.estimatedPrice
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.DataTableAsteroids.from: from,
     to_: to_,
   }),
-  bonuses: filters.bonuses->Option.map(bonuses => {
+  bonuses: filters.bonuses
+  ->Filter.toOption
+  ->Option.map(bonuses => {
     Queries.DataTableAsteroids.mode: bonuses.mode,
     conditions: bonuses.conditions->Array.map(b =>
       Queries.DataTableAsteroids.makeInputObjectAsteroidBonusConditionInput(
@@ -146,19 +89,25 @@ let getSortingMode = mode =>
   | QueryParams.SortMode.Descending => #DESCENDING
   }
 
+type pageData = {
+  pageNum: int,
+  pageSize: int,
+}
+
 let useAsteroidPageQuery = (
-  ~sortData: QueryParams.SortingParamType.t,
-  ~pageData,
-  ~filters: PageQueryParams.AsteroidPageParamType.filters,
+  ~sortData: QueryParams.sortingType,
+  ~pageNum,
+  ~pageSize,
+  ~filters: AsteroidFilters.t,
 ) => {
-  let gqlSortingMode = getSortingMode(sortData.mode)
-  let gqlSortingField = getGqlSortingField(sortData.field)
+  let gqlSortingMode = getSortingMode(sortData.QueryParams.mode)
+  let gqlSortingField = getGqlSortingField(sortData.QueryParams.field)
   let ({Hooks.response: response}, _) = Hooks.useQuery(
     ~query=module(Queries.DataTableAsteroids),
     {
       page: {
-        num: pageData.pageNum,
-        size: pageData.pageSize,
+        num: pageNum,
+        size: pageSize,
       },
       sort: {
         field: gqlSortingField,

@@ -30,13 +30,14 @@ module Select = {
       | false => ""
       } ++
       className
-    <select className=class value={value->toString} onChange=onSelectChange disabled={!enabled}>
+    <Vechai.Select
+      className=class value={value->toString} onChange=onSelectChange disabled={!enabled}>
       {options
       ->Belt.Array.map(((val, display)) =>
         <option key=val value=val> {display->React.string} </option>
       )
       ->React.array}
-    </select>
+    </Vechai.Select>
   }
 }
 
@@ -68,7 +69,7 @@ module NumberRangeInput = {
         onChange={newLower => onChange((newLower, upper))}
         enabled
       />
-      <Icon className="text-cyan" kind={Icon.Fas("minus")} />
+      <Icon className="text-primary-stdary-std" kind={Icon.Fas("minus")} />
       <NumberInput
         className=inputClassName
         value=upper
@@ -85,7 +86,11 @@ module Popover = {
 
   module Button = {
     @module("@headlessui/react") @scope("Popover") @react.component
-    external make: (~className: string=?, ~children: React.element) => React.element = "Button"
+    external make: (
+      ~className: string=?,
+      ~children: React.element,
+      ~_as: React.component<_>=?,
+    ) => React.element = "Button"
   }
 
   module Panel = {
@@ -114,19 +119,35 @@ module Transition = {
   ) => React.element = "Transition"
 }
 
-module TransitionAppear = {
-  @react.component
-  let make = (~show=?, ~children) =>
-    <Transition
-      ?show
-      enter="transition duration-100 ease-out"
-      enterFrom="transform scale-95 opacity-0"
-      enterTo="transform scale-100 opacity-100"
-      leave="transition duration-75 ease-out"
-      leaveFrom="transform scale-100 opacity-100"
-      leaveTo="transform scale-95 opacity-0">
-      children
-    </Transition>
+module Transitions = {
+  module Appear = {
+    @react.component
+    let make = (~show=?, ~children) =>
+      <Transition
+        ?show
+        enter="transition duration-100 ease-out"
+        enterFrom="transform scale-95 opacity-0"
+        enterTo="transform scale-100 opacity-100"
+        leave="transition duration-75 ease-out"
+        leaveFrom="transform scale-100 opacity-100"
+        leaveTo="transform scale-95 opacity-0">
+        children
+      </Transition>
+  }
+  module HorizontalSlide = {
+    @react.component
+    let make = (~show=?, ~children) =>
+      <Transition
+        ?show
+        enter="transition ease-in-out duration-200"
+        enterFrom="transform scale-x-0 -translate-x-1/2"
+        enterTo="transform scale-x-100 translate-x-0"
+        leave="transition ease-out duration-100"
+        leaveFrom="transform scale-x-100 translate-x-0"
+        leaveTo="transform scale-x-0 -translate-x-1/2">
+        {children}
+      </Transition>
+  }
 }
 
 module Dialog = {
@@ -165,20 +186,20 @@ module Dialog = {
     ~onOpenChange,
     ~showCloseButton=true,
   ) => {
-    <TransitionAppear show=isOpen>
+    <Transitions.Appear show=isOpen>
       <Binding
         className={`fixed inset-0 z-50 overflow-y-auto mx-4 flex justify-center items-center md:container md:mx-auto p-4 ${className}`}
         onClose={() => onOpenChange(false)}>
-        <Overlay className="z-10 fixed inset-0 bg-black opacity-disabled" />
+        <Overlay className="z-10 fixed inset-0 opacity-disabled" />
         <div
-          className="relative z-20 flex-col py-2 px-4 bg-gray-dark rounded-2xl border-cyan border">
+          className="relative z-20 flex-col py-2 px-4 rounded-2xl border-primary-200 border-2 bg-base">
           <div className="flex flex-row items-center justify-center">
             <Title className="flex flex-grow"> title </Title>
             {switch showCloseButton {
             | false => React.null
             | true =>
               <Icon
-                className="text-3xl"
+                className="text-3xl hover:text-primary-std"
                 kind={Icon.Fas("times")}
                 large={false}
                 onClick={() => onOpenChange(false)}
@@ -189,7 +210,7 @@ module Dialog = {
           children
         </div>
       </Binding>
-    </TransitionAppear>
+    </Transitions.Appear>
   }
 }
 

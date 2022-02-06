@@ -7,6 +7,7 @@ type rotation = Rotate90 | Rotate180 | Rotate270
 
 type breakpoint =
   | None
+  | Xs
   | Sm
   | Md
   | Lg
@@ -61,6 +62,7 @@ let make = (
   let makeWithChildren = c => {
     let responsiveClassName = switch breakpoint {
     | None => ""
+    | Xs => "hidden xs:inline"
     | Sm => "hidden sm:inline"
     | Md => "hidden md:inline"
     | Lg => "hidden lg:inline"
