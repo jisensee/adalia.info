@@ -12,7 +12,23 @@ module Filter = {
     | false => None
     }
 
+  let fromOption = (op, default) =>
+    switch op {
+    | Some(value) => {
+        active: true,
+        value: value,
+      }
+    | None => {
+        active: false,
+        value: default,
+      }
+    }
+
   let disable = f => {...f, active: false}
+  let makeActive = v => {
+    active: true,
+    value: v,
+  }
 
   @react.component
   let make = (~className="", ~label, ~filter, ~onChange, ~makeFilterComp) => {
@@ -22,13 +38,10 @@ module Filter = {
     }
     let onFilterChange = newFilterValue => onChange({...filter, value: newFilterValue})->ignore
 
-    <div className={`${className} flex flex-col`}>
-      <label className="mb-3 font-bold">
-        <input
-          className="ml-1 mr-3" type_="checkbox" checked={filter.active} onChange=onCheckboxChange
-        />
+    <div className={`${className} flex flex-col space-y-2 pt-1`}>
+      <Vechai.Checkbox size={#md} checked={filter.active} onChange=onCheckboxChange>
         {label->React.string}
-      </label>
+      </Vechai.Checkbox>
       {makeFilterComp(filter.value, onFilterChange, filter.active)}
     </div>
   }
@@ -38,7 +51,7 @@ type t = {
   owned: Filter.t<bool>,
   owners: Filter.t<array<string>>,
   scanned: Filter.t<bool>,
-  spectralTypes: Filter.t<array<SpectralType.t>>,
+  spectralTypes: Filter.t<array<Fragments.AsteroidType.t_spectralType>>,
   radius: Filter.t<(float, float)>,
   surfaceArea: Filter.t<(float, float)>,
   sizes: Filter.t<array<Fragments.AsteroidSize.t_size>>,
@@ -49,6 +62,58 @@ type t = {
   estimatedPrice: Filter.t<(float, float)>,
   rarities: Filter.t<array<Fragments.AsteroidRarity.t_rarity>>,
   bonuses: Filter.t<AsteroidBonusFilter.t>,
+}
+
+let init = v => {Filter.active: false, value: v}
+let defaultFilters = {
+  owned: init(true),
+  owners: init([]),
+  scanned: init(true),
+  spectralTypes: init([]),
+  radius: init(Defaults.radiusBounds),
+  surfaceArea: init(Defaults.surfaceBounds),
+  sizes: init([]),
+  orbitalPeriod: init(Defaults.orbitalPeriodBounds),
+  semiMajorAxis: init(Defaults.semiMajorAxisBounds),
+  inclination: init(Defaults.inclinationBounds),
+  eccentricity: init(Defaults.eccentricityBounds),
+  estimatedPrice: init((0., 0.)),
+  rarities: init([]),
+  bonuses: init({AsteroidBonusFilter.mode: #AND, conditions: []}),
+}
+
+module Store = {
+  type t = {
+    filters: t,
+    setFilters: t => unit,
+  }
+  let use = Zustand.create(set => {
+    filters: defaultFilters,
+    setFilters: newFilters => set(state => {
+        ...state,
+        filters: newFilters,
+      }, false),
+  })
+
+  let useWithPriceBounds = () => {
+    let priceBounds = PriceBounds.Context.use()
+    let {filters, setFilters} = use()
+    React.useEffect1(() => {
+      switch priceBounds {
+      | Some({min, max}) if !filters.estimatedPrice.active =>
+        setFilters({
+          ...filters,
+          estimatedPrice: {
+            active: false,
+            value: (min, max),
+          },
+        })
+      | _ => ()
+      }
+      None
+    }, [priceBounds])
+    {filters: filters, setFilters: setFilters}
+  }
 }
 
 let isActive = f =>
@@ -68,113 +133,6 @@ let isActive = f =>
     f.rarities.active,
     f.bonuses.active,
   ]->Array.some(active => active)
-
-module FilterFormatter = {
-  let bool = value =>
-    switch value {
-    | true => "Yes"
-    | false => "No"
-    }
-  let range = (~formatValue=Format.bigFloat, ~unit="", (from, to_)) => {
-    let fromFormatted = `${formatValue(from)} ${unit}`
-    let toFormatted = `${formatValue(to_)} ${unit}`
-    `${fromFormatted} - ${toFormatted}`
-  }
-  let list = (items, formatItem) => items->Array.map(formatItem)->Js.Array2.joinWith(", ")
-
-  let owned = bool(_)
-  let scanned = bool(_)
-  let radius = range(_, ~unit="m")
-  let surfaceArea = range(_, ~unit="km²")
-  let orbitalPeriod = range(_, ~unit="days")
-  let semiMajorAxis = range(_, ~unit="AU")
-  let inclination = range(_, ~unit="°")
-  let eccentricity = range(_)
-  let price = (value, currency) => range(value, ~formatValue=Format.price(_, currency))
-  let spectralTypes = list(_, EnumUtils.spectralTypeToString)
-  let rarities = list(_, EnumUtils.rarityToString)
-  let sizes = list(_, EnumUtils.sizeToString)
-  let bonuses = value => {
-    open AsteroidBonusFilter
-    let mode = switch value.mode {
-    | #AND => "AND"
-    | #OR => "OR"
-    }
-    let formatCondition = bonus => {
-      let name =
-        bonus.Condition.type_->Option.map(EnumUtils.bonusTypeToName)->Option.getWithDefault("")
-      let levels = switch List.fromArray(bonus.Condition.levels) {
-      | list{} => ""
-      | items => `[${items->List.map(Int.toString)->List.toArray->Js.Array2.joinWith(", ")}]`
-      }
-      name ++ levels
-    }
-    value.conditions->Array.map(formatCondition)->Js.Array2.joinWith(` ${mode} `)
-  }
-}
-
-module Summary = {
-  type formatter<'a> = Str('a => string) | Element('a => React.element)
-  @react.component
-  let make = (~className="", ~filters) => {
-    let currency = Currency.Context.use()
-    let getFilter = (filter, prefix, formatter) =>
-      switch filter.Filter.active {
-      | true =>
-        Some(
-          <div key=prefix className="inline font-bold">
-            <span className="text-cyan"> {React.string(prefix ++ ": ")} </span>
-            {switch formatter {
-            | Str(f) => filter.value->f->React.string
-            | Element(f) => filter.value->f
-            }}
-          </div>,
-        )
-      | false => None
-      }
-
-    let formatOwners = owners => {
-      let address = owners->Array.get(0)->Option.getWithDefault("")
-      <AsteroidOwner address shortAddress={true} />
-    }
-    switch filters->isActive {
-    | false => React.null
-    | true =>
-      let elements =
-        [
-          getFilter(filters.owned, "Owned", Str(FilterFormatter.owned)),
-          getFilter(filters.owners, "Owner", Element(formatOwners)),
-          getFilter(filters.scanned, "Scanned", Str(FilterFormatter.scanned)),
-          getFilter(filters.spectralTypes, "Spectral types", Str(FilterFormatter.spectralTypes)),
-          getFilter(filters.radius, "Radius", Str(FilterFormatter.radius)),
-          getFilter(filters.sizes, "Sizes", Str(FilterFormatter.sizes)),
-          getFilter(filters.surfaceArea, "Surface area", Str(FilterFormatter.surfaceArea)),
-          getFilter(filters.orbitalPeriod, "Orbital period", Str(FilterFormatter.orbitalPeriod)),
-          getFilter(filters.semiMajorAxis, "Semi major axis", Str(FilterFormatter.semiMajorAxis)),
-          getFilter(filters.inclination, "Inclination", Str(FilterFormatter.inclination)),
-          getFilter(filters.eccentricity, "Eccentricity", Str(FilterFormatter.eccentricity)),
-          getFilter(
-            filters.estimatedPrice,
-            "Last sale price",
-            Str(FilterFormatter.price(_, currency)),
-          ),
-          getFilter(filters.rarities, "Rarities", Str(FilterFormatter.rarities)),
-          getFilter(filters.bonuses, "Bonuses", Str(FilterFormatter.bonuses)),
-        ]->Array.keepMap(e => e)
-      let size = elements->Array.size
-      <div className>
-        {elements
-        ->Array.mapWithIndex((index, e) =>
-          switch index < size - 1 {
-          | true => <> e {", "->React.string} </>
-          | false => e
-          }
-        )
-        ->React.array}
-      </div>
-    }
-  }
-}
 
 let disableAll = filter => {
   owned: filter.owned->Filter.disable,
@@ -197,22 +155,6 @@ let disableAll = filter => {
       conditions: [],
     },
   },
-}
-let toQueryParamFilter = asteroidFilter => {
-  PageQueryParams.AsteroidPageParamType.owned: asteroidFilter.owned->Filter.toOption,
-  owners: asteroidFilter.owners->Filter.toOption,
-  scanned: asteroidFilter.scanned->Filter.toOption,
-  radius: asteroidFilter.radius->Filter.toOption,
-  spectralTypes: asteroidFilter.spectralTypes->Filter.toOption,
-  surfaceArea: asteroidFilter.surfaceArea->Filter.toOption,
-  sizes: asteroidFilter.sizes->Filter.toOption,
-  orbitalPeriod: asteroidFilter.orbitalPeriod->Filter.toOption,
-  semiMajorAxis: asteroidFilter.semiMajorAxis->Filter.toOption,
-  inclination: asteroidFilter.inclination->Filter.toOption,
-  eccentricity: asteroidFilter.eccentricity->Filter.toOption,
-  estimatedPrice: asteroidFilter.estimatedPrice->Filter.toOption,
-  rarities: asteroidFilter.rarities->Filter.toOption,
-  bonuses: asteroidFilter.bonuses->Filter.toOption,
 }
 
 let correctValue = ((from, to_), (min, max)) => (
@@ -339,8 +281,20 @@ module SpectralTypeFilter = {
   @react.component
   let make = (~filter, ~onChange) => {
     let makeFilterComp = (v, oc, enabled) => {
-      let optionToString = (option: SpectralType.t) => (option :> string)
-      let options: array<SpectralType.t> = [#C, #CI, #CIS, #CM, #CMS, #CS, #I, #M, #S, #SI, #SM]
+      let optionToString = (option: Fragments.AsteroidType.t_spectralType) => (option :> string)
+      let options: array<Fragments.AsteroidType.t_spectralType> = [
+        #C,
+        #CI,
+        #CIS,
+        #CM,
+        #CMS,
+        #CS,
+        #I,
+        #M,
+        #S,
+        #SI,
+        #SM,
+      ]
 
       <ListSelect options selected=v onChange=oc optionToString enabled />
     }
@@ -370,23 +324,10 @@ module OwnersFilter = {
         let address = ReactEvent.Form.currentTarget(e)["value"]
         oc([address])
       }
-      <input
-        type_="text" placeholder="ETH address" value onChange=handleChange disabled={!enabled}
-      />
+      <Vechai.Input placeholder="ETH address" value onChange=handleChange disabled={!enabled} />
     }
     <Filter label="Owner" filter onChange makeFilterComp />
   }
-}
-
-module Buttons = {
-  @react.component
-  let make = (~onApply, ~onReset) =>
-    <div className="flex flex-row space-x-5 ">
-      <button type_="submit" onClick={_ => onApply()}>
-        <Icon kind={Icon.Fas("check")} text="Apply" />
-      </button>
-      <button onClick={_ => onReset()}> <Icon kind={Icon.Fas("times")} text="Reset" /> </button>
-    </div>
 }
 
 module FilterCategory = {
@@ -450,9 +391,9 @@ module BonusesFilter = {
             fromString=optionFromString
           />
           <div className="flex flex-grow justify-end">
-            <button className="hover:bg-gray-dark" onClick={_ => onClose()}>
+            <Vechai.Button className="btn-inverted" onClick={_ => onClose()}>
               <Icon kind={Icon.Fas("trash")} />
-            </button>
+            </Vechai.Button>
           </div>
         </div>
         levels
@@ -494,6 +435,7 @@ module BonusesFilter = {
     let options = [(Mode.toString(#AND), "Match all"), (Mode.toString(#OR), "Match some")]
     let modeSelect =
       <Common.Select
+        className="w-32"
         value=currentMode
         onChange=onModeChange
         options
@@ -534,15 +476,15 @@ module BonusesFilter = {
       <div className="flex flex-col space-y-3 mt-1">
         <div className="flex flex-row space-x-5">
           {modeSelect}
-          <button onClick={_ => addCondition()}>
+          <Vechai.Button onClick={_ => addCondition()}>
             <Icon kind={Icon.Fas("plus")} breakpoint={Icon.None} text="Add" />
-          </button>
+          </Vechai.Button>
         </div>
         <div className="flex flex-row flex-wrap">
           {filters.bonuses.value.conditions
           ->Array.mapWithIndex((index, condition) =>
-            <div className="py-2 pr-4">
-              <div key={Int.toString(index)} className="bg-gray rounded-2xl p-4 h-full">
+            <div key={Int.toString(index)} className="pr-3 pt-3">
+              <div className="rounded-2xl p-2 h-full bg-fill">
                 <BonusCondition
                   condition
                   onChange={updateCondition(_, index)}
@@ -561,7 +503,7 @@ module BonusesFilter = {
 module GeneralFilters = {
   @react.component
   let make = (~filters, ~onChange: t => unit) => {
-    let isActive =
+    let active =
       [
         filters.owned.active,
         filters.owners.active,
@@ -570,8 +512,14 @@ module GeneralFilters = {
         filters.rarities.active,
       ]->Array.some(a => a)
     let (isOpen, setOpen) = React.useState(() => false)
+    React.useEffect0(() => {
+      if !isActive(filters) {
+        setOpen(_ => true)
+      }
+      None
+    })
 
-    <FilterCategory title="General" isActive isOpen onOpenChange={o => setOpen(_ => o)}>
+    <FilterCategory title="General" isActive={active} isOpen onOpenChange={o => setOpen(_ => o)}>
       <BoolFilter
         filter=filters.owned
         onChange={owned => onChange({...filters, owned: owned})}
@@ -605,7 +553,8 @@ module SizeFilters = {
   let make = (~filters, ~onChange: t => unit) => {
     let priceBounds = PriceBounds.Context.use()
 
-    let (currency, exchangeRates) = ExchangeRates.Context.useWithCurrency()
+    let {currency} = Currency.Store.use()
+    let {exchangeRates} = ExchangeRates.Store.use()
     let convert = p => p->ExchangeRates.convert(exchangeRates, currency)
 
     let isActive =
@@ -705,20 +654,65 @@ module OrbitalFilters = {
 }
 
 @react.component
-let make = (~className="", ~filters, ~onChange, ~onApply, ~onReset) => {
-  let (filtersVisible, setFiltersVisible) = React.useState(() => false)
-  let active = filters->isActive
-  <CollapsibleContent
+let make = (~className="") => {
+  let (expanded, setExpanded) = React.useState(() => false)
+  let {filters, setFilters} = Store.use()
+  let (currentFilters, setCurrentFilters) = React.useState(() => filters)
+  let onChange = f => setCurrentFilters(_ => f)
+
+  let onApply = autoCollapse => {
+    setFilters(currentFilters)
+    if autoCollapse {
+      setExpanded(_ => false)
+    }
+  }
+  let onReset = autoCollapse => {
+    setFilters(defaultFilters)
+    if autoCollapse {
+      setExpanded(_ => false)
+    }
+  }
+  let filtersApplied = filters->isActive
+
+  React.useEffect1(() => {
+    setCurrentFilters(_ => filters)
+    None
+  }, [filters])
+
+  let applyButton = (className, autoCollapse) =>
+    <Vechai.Button
+      variant={#outline} size={#xl} className type_="submit" onClick={_ => onApply(autoCollapse)}>
+      <Icon kind={Icon.Fas("check")} text="Apply" />
+    </Vechai.Button>
+  let resetButton = (className, autoCollapse) =>
+    <Vechai.Button
+      className={`!border-red ${className}`}
+      size={#xl}
+      onClick={_ => onReset(autoCollapse)}
+      disabled={!filtersApplied}>
+      <Icon kind={Icon.Fas("times")} text="Reset" />
+    </Vechai.Button>
+
+  let footer =
+    <div className="flex flex-row space-x-5 ">
+      {applyButton("hidden md:flex", false)}
+      {applyButton("flex md:hidden", true)}
+      {resetButton("hidden md:flex", false)}
+      {resetButton("flex md:hidden", true)}
+    </div>
+
+  <Sidebar
     className
-    titleComp={<h2 className={active ? "italic" : ""}> {"Filters"->React.string} </h2>}
-    isOpen=filtersVisible
-    onOpenChange={isOpen => setFiltersVisible(_ => isOpen)}>
-    <form className="flex flex-col space-y-3 mb-3" onSubmit={ReactEvent.Form.preventDefault}>
-      <GeneralFilters filters onChange />
-      <BonusesFilter filters onChange />
-      <SizeFilters filters onChange />
-      <OrbitalFilters filters onChange />
-      <Buttons onApply onReset />
-    </form>
-  </CollapsibleContent>
+    title="Asteroid filters"
+    footer
+    useForm={true}
+    expanded
+    onExpandedChange={e => setExpanded(_ => e)}>
+    <div className="flex flex-col space-y-2 p-1">
+      <GeneralFilters filters={currentFilters} onChange />
+      <BonusesFilter filters=currentFilters onChange />
+      <SizeFilters filters=currentFilters onChange />
+      <OrbitalFilters filters=currentFilters onChange />
+    </div>
+  </Sidebar>
 }

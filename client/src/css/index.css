@@ -7,25 +7,24 @@
 
 @layer base {
   body {
-    @apply bg-gray-dark;
-    @apply text-white text-lg;
+    @apply text-lg;
   }
 
   h1 {
-    @apply text-4xl text-cyan font-bold;
-    @apply mb-4;
+    @apply text-4xl font-bold text-primary-std;
   }
 
   h2 {
-    @apply text-3xl text-cyan;
+    @apply text-3xl text-primary-std;
   }
 
   h3 {
-    @apply text-2xl text-cyan;
+    @apply text-2xl text-primary-std;
+    @apply !mb-0;
   }
 
   h4 {
-    @apply text-xl text-cyan font-bold;
+    @apply text-xl font-bold text-primary-std;
   }
 
   label {
@@ -33,42 +32,24 @@
   }
 
   select {
-    @apply bg-gray-dark;
-    @apply border-cyan rounded-2xl;
-  }
-
-  input[type='text'] {
-    @apply bg-gray-dark !important;
-    @apply text-white;
-    @apply rounded-2xl;
-  }
-
-  input[type='checkbox'] {
-    @apply bg-gray-dark !important;
-    @apply text-white;
-    @apply border-cyan rounded-2xl !important;
+    @apply border-primary-std !important;
   }
 
   button {
-    @apply border border-cyan rounded-xl;
-    @apply py-2 px-3;
-    @apply bg-gray-dark;
-  }
-
-  button:hover {
-    @apply bg-gray;
-  }
-
-  button:disabled {
-    @apply opacity-disabled;
-  }
-
-  select[disabled],
-  input[disabled] {
-    @apply opacity-disabled !important;
+    @apply border border-primary-std !important;
   }
 
   p {
     @apply mb-3;
+  }
+}
+
+@layer utilities {
+  .text-vertical {
+    writing-mode: vertical-lr;
+  }
+
+  .btn-inverted {
+    @apply !bg-base hover:!bg-fill;
   }
 }

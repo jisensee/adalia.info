@@ -6,10 +6,10 @@ let make = (~className="", ~titleClassName="", ~children, ~titleComp, ~isOpen, ~
   }
   <div className="w-full">
     <a
-      className={`cursor-pointer flex w-full mb-2 ${titleClassName}`}
+      className={`cursor-pointer flex w-full ${titleClassName}`}
       onClick={_ => onOpenChange(!isOpen)}>
       <Icon
-        className="text-cyan w-3 transition-all duration-300 mr-2"
+        className="text-primary-std w-3 transition-all duration-300 mr-2"
         kind={Icon.Fas("chevron-right")}
         rotation=?iconRotation>
         titleComp

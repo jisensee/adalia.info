@@ -38,9 +38,9 @@ module Menu = {
         <div className="hidden md:flex flex-row items-center space-x-9"> right </div>
       </div>
       <div className="flex md:hidden w-full justify-end">
-        <button className="flex" onClick={_ => toggleDropdown()}>
+        <Vechai.Button className="flex !rounded-xl" onClick={_ => toggleDropdown()}>
           <Icon kind={Icon.Fas("bars")} />
-        </button>
+        </Vechai.Button>
       </div>
     </div>
   }
@@ -62,24 +62,25 @@ module MenuDropdown = {
 
 module IconText = {
   @react.component
-  let make = (~text, ~right=false) => {
+  let make = (~text, ~className="", ~right=false) => {
     let rightClass = switch right {
     | true => "xs:inline"
     | false => "xs:hidden"
     }
-    <span className={`inline xl:inline ${rightClass}`}> {text->React.string} </span>
+    <span className={`inline xl:inline ${rightClass} ${className}`}> {text->React.string} </span>
   }
 }
 
 @react.component
-let make = (~className="", ~setCurrency) => {
-  let currency = Currency.Context.use()
+let make = (~className="") => {
+  let {currency, setCurrency} = Currency.Store.use()
+
   let (isDropdownOpen, setDropdownOpen) = React.useState(() => false)
 
   let closeDropdown = () => setDropdownOpen(_ => false)
 
   let asteroidsItem =
-    <Item to_=Link.Internal(Route.defaultAsteroidsRoute) onClick={closeDropdown}>
+    <Item to_=Link.Internal(Route.Asteroids) onClick={closeDropdown}>
       <Icon kind={Icon.Fas("meteor")}> <IconText text="Asteroids" /> </Icon>
     </Item>
   let statsItem =
@@ -89,7 +90,9 @@ let make = (~className="", ~setCurrency) => {
 
   let currencyItem =
     <div className="flex flex-row items-center space-x-4">
-      <span className="text-cyan text-xl"> <Icon kind={Icon.Fas("cog")} text="Prices in" /> </span>
+      <span className="text-primary-std text-xl">
+        <Icon kind={Icon.Fas("cog")} text="Currency" />
+      </span>
       <CurrencyToggle selected=currency onChange=setCurrency />
     </div>
 
@@ -123,11 +126,8 @@ let make = (~className="", ~setCurrency) => {
   })
 
   let search =
-    <div className="text-cyan hover:text-blue-dark">
-      <Icon
-        className="hover:text-blue-dark"
-        kind={Icon.Fas("search")}
-        onClick={() => setSearchOpen(_ => true)}>
+    <div className="text-primary-std hover:text-primary-500">
+      <Icon kind={Icon.Fas("search")} breakpoint={Icon.Xs} onClick={() => setSearchOpen(_ => true)}>
         <IconText text="Search" />
       </Icon>
     </div>
@@ -137,9 +137,9 @@ let make = (~className="", ~setCurrency) => {
   let right = <> currencyItem supportItem </>
   let dropdownRight = <> supportItem currencyItem </>
 
-  <nav className={`bg-gray py-2 ${className}`}>
+  <nav className={`bg-fill py-2 ${className}`}>
     <Search.Dialog isOpen=searchOpen onOpenChange={o => setSearchOpen(_ => o)} />
-    <div className="2xl:container 2xl:mx-auto px-4 flex flex-row items-center space-x-9">
+    <div className="px-4 flex flex-row items-center space-x-9">
       homeItem <Menu search left right toggleDropdown={() => setDropdownOpen(o => !o)} />
     </div>
     <div className="hidden xs:flex md:hidden">

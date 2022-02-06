@@ -37,7 +37,7 @@ let make = () => {
       {"."->React.string}
       <br />
       {"For the start, you can head over to the "->React.string}
-      <Link to_=Link.Internal(Route.defaultAsteroidsRoute) text="asteroids page" />
+      <Link to_=Link.Internal(Route.Asteroids) text="asteroids page" />
       {" to view, sort and filter all asteroids in the game."->React.string}
     </p>
     <p>

@@ -20,6 +20,7 @@ let semiMajorAxis = formatFloat(_, 3)
 let inclination = formatFloat(_, 2)
 let orbitalPeriod = formatFloat(_, 0)
 let eccentricity = formatFloat(_, 3)
+
 let price = (~showSymbol=true, value, currency) => {
   let getEthDigits = () =>
     switch value {

@@ -26,7 +26,7 @@ let make = (~count, ~total, ~textConfigs) => {
 
   <svg className="w-full h-10">
     <rect width="100%" height="100%" className=" text-gray-lighter fill-current" />
-    <rect width height="100%" className="text-cyan fill-current">
+    <rect width height="100%" className="text-primary-std fill-current">
       <animate attributeName="width" from="0" to_=width dur="0.5s" />
     </rect>
     {textConfigs

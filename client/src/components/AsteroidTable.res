@@ -29,7 +29,6 @@ module ExpandedRow = {
         id
         actionTextBreakpoint={Icon.Sm}
         showInternalLink={true}
-        reloadOnCoorbital={true}
       />
     </div>
   }
@@ -105,7 +104,8 @@ let make = (
   ~actions,
 ) => {
   open Belt
-  let (currency, exchangeRates) = ExchangeRates.Context.useWithCurrency()
+  let {currency} = Currency.Store.use()
+  let {exchangeRates} = ExchangeRates.Store.use()
   let data =
     pageData.rows
     ->Array.map(a => [
@@ -150,9 +150,9 @@ let make = (
   let asteroidCount = pageData.totalRows->Int.toFloat->Format.formatFloat(0)
   let title =
     <h3>
-      <span className="inline xs:hidden"> {asteroidCount->React.string} </span>
-      <div className="hidden xs:inline">
-        <span className="hidden sm:inline"> {"Found "->React.string} </span>
+      <span className="inline sm:hidden"> {asteroidCount->React.string} </span>
+      <div className="hidden sm:inline">
+        <span className="hidden mdsm:inline"> {"Found "->React.string} </span>
         {`${asteroidCount} asteroids`->React.string}
       </div>
     </h3>
@@ -162,7 +162,6 @@ let make = (
     actions
     columns={makeDataTableColumns(columns)}
     data
-    header={{DataTable.fixed: true, scrollHeight: "43rem"}}
     pagination
     sorting
     noDataText="No asteroids are matching your query. Try widening or removing some filters."

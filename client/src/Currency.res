@@ -25,30 +25,23 @@ module LocalStorage = {
   let set = value => Bindings.LocalStorage.set(~key, ~value=value->toString)
 }
 
-let currencyKey = "currency"
 let default = USD
 let initial = LocalStorage.get()->Belt.Option.getWithDefault(default)
 
-module Context = {
-  let context = React.createContext(default)
-
-  module Provider = {
-    let provider = React.Context.provider(context)
-
-    @react.component
-    let make = (~value, ~children) =>
-      React.createElement(provider, {"value": value, "children": children})
+module Store = {
+  type state = {
+    currency: t,
+    setCurrency: t => unit,
   }
 
-  let use = () => React.useContext(context)
-}
-
-let useState = () => {
-  let (currency, setCurrency) = React.useState(() => initial)
-
-  let updateCurrency = c => {
-    setCurrency(_ => c)
-    LocalStorage.set(c)
-  }
-  (currency, updateCurrency)
+  let use = Zustand.create(set => {
+    currency: initial,
+    setCurrency: c => set(state => {
+        LocalStorage.set(c)
+        {
+          ...state,
+          currency: c,
+        }
+      }, false),
+  })
 }

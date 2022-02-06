@@ -3,42 +3,59 @@ open Belt
 
 @val external windowOpen: string => unit = "open"
 
-let makeFilterVariable = (filters: PageQueryParams.AsteroidPageParamType.filters) => {
-  Queries.ExportAsteroids.owned: filters.owned,
-  owners: filters.owners,
-  scanned: filters.scanned,
-  spectralTypes: filters.spectralTypes,
-  sizes: filters.sizes,
-  rarities: filters.rarities,
-  radius: filters.radius->Option.map(((from, to_)) => {
+module Filter = AsteroidFilters.Filter
+let makeFilterVariable = (filters: AsteroidFilters.t) => {
+  Queries.ExportAsteroids.owned: filters.owned->Filter.toOption,
+  owners: filters.owners->Filter.toOption,
+  scanned: filters.scanned->Filter.toOption,
+  spectralTypes: filters.spectralTypes->Filter.toOption,
+  sizes: filters.sizes->Filter.toOption,
+  rarities: filters.rarities->Filter.toOption,
+  radius: filters.radius
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.ExportAsteroids.from: from,
     to_: to_,
   }),
-  surfaceArea: filters.surfaceArea->Option.map(((from, to_)) => {
+  surfaceArea: filters.surfaceArea
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.ExportAsteroids.from: from,
     to_: to_,
   }),
-  orbitalPeriod: filters.orbitalPeriod->Option.map(((from, to_)) => {
+  orbitalPeriod: filters.orbitalPeriod
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.ExportAsteroids.from: from,
     to_: to_,
   }),
-  semiMajorAxis: filters.semiMajorAxis->Option.map(((from, to_)) => {
+  semiMajorAxis: filters.semiMajorAxis
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.ExportAsteroids.from: from,
     to_: to_,
   }),
-  inclination: filters.inclination->Option.map(((from, to_)) => {
+  inclination: filters.inclination
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.ExportAsteroids.from: from,
     to_: to_,
   }),
-  eccentricity: filters.eccentricity->Option.map(((from, to_)) => {
+  eccentricity: filters.eccentricity
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.ExportAsteroids.from: from,
     to_: to_,
   }),
-  estimatedPrice: filters.estimatedPrice->Option.map(((from, to_)) => {
+  estimatedPrice: filters.estimatedPrice
+  ->Filter.toOption
+  ->Option.map(((from, to_)) => {
     Queries.ExportAsteroids.from: from,
     to_: to_,
   }),
-  bonuses: filters.bonuses->Option.map(bonuses => {
+  bonuses: filters.bonuses
+  ->Filter.toOption
+  ->Option.map(bonuses => {
     Queries.ExportAsteroids.mode: bonuses.mode,
     conditions: bonuses.conditions->Array.map(b =>
       Queries.ExportAsteroids.makeInputObjectAsteroidBonusConditionInput(
@@ -89,12 +106,12 @@ module ExportTypeSelect = {
             | false => "cursor-not-allowed opacity-disabled hover:border-opacity-disabled"
             | true => "cursor-pointer"
             }
-            `flex flex-col  p-2 border border-cyan rounded-2xl hover:border-opacity-100 ${checkedClass} ${enabledClass}`
+            `flex flex-col  p-2 border border-primary-std rounded-2xl hover:border-opacity-100 ${checkedClass} ${enabledClass}`
           }}
           disabled={!enabled}
           value>
           {props => <>
-            {<RadioGroup.Label _as="div" className="font-bold text-cyan">
+            {<RadioGroup.Label _as="div" className="font-bold text-primary-std">
               {label->React.string}
             </RadioGroup.Label>}
             <RadioGroup.Description _as="div"> children </RadioGroup.Description>
@@ -112,7 +129,7 @@ module ExportTypeSelect = {
         <Option value=Filtered label="Filtered export" enabled=filtersActive>
           {`Export all currently selected ${count} asteroids.`->React.string}
           {switch filtersActive {
-          | true => <AsteroidFilters.Summary filters />
+          | true => <AsteroidFiltersSummary readonly={true} />
           | false => React.null
           }}
         </Option>
@@ -125,12 +142,11 @@ module ExportTypeSelect = {
 let make = (
   ~asteroidCount,
   ~filters,
-  ~sorting: QueryParams.SortingParamType.t,
+  ~sorting: QueryParams.sortingType,
   ~isOpen,
   ~onOpenChange,
 ) => {
   let filtersActive = filters->AsteroidFilters.isActive
-  let filterParam = filters->AsteroidFilters.toQueryParamFilter
 
   let (exportResult, exportAsteroids) = Hooks.useMutation(~mutation=module(Queries.ExportAsteroids))
   let (exportAllResult, exportAllAsteroids) = Hooks.useMutation(
@@ -138,7 +154,7 @@ let make = (
   )
   let fetching = exportResult.fetching || exportAllResult.fetching
 
-  let f = makeFilterVariable(filterParam)
+  let f = makeFilterVariable(filters)
   let sortField = AsteroidPageHooks.getGqlSortingField(sorting.field)
   let sortMode = AsteroidPageHooks.getSortingMode(sorting.mode)
 
@@ -202,12 +218,12 @@ let make = (
   }, [downloadUrl])
 
   let exportButton =
-    <button type_="submit" onClick={_ => onExportClick()} disabled=fetching>
+    <Vechai.Button size={#xl} type_="submit" onClick={_ => onExportClick()} disabled=fetching>
       {switch fetching {
       | true => <Common.LoadingSpinner text="Exporting..." />
       | false => <Icon kind={Icon.Fas("file-export")} text="Export" />
       }}
-    </button>
+    </Vechai.Button>
 
   <Common.Dialog
     isOpen

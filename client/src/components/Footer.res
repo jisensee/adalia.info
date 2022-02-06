@@ -2,10 +2,10 @@ module InternalLinks = {
   @react.component
   let make = () =>
     <div className="flex flex-col">
-      <Link className="text-cyan" to_=Link.Internal(Route.Support)>
+      <Link className="text-primary-std" to_=Link.Internal(Route.Support)>
         <Icon kind={Icon.Fas("thumbs-up")}> {"Support"->React.string} </Icon>
       </Link>
-      <Link className="text-cyan" to_=Link.Internal(Route.Privacy)>
+      <Link className="text-primary-std" to_=Link.Internal(Route.Privacy)>
         <Icon kind={Icon.Fas("lock")}>
           <span className="ml-2"> {"Privacy"->React.string} </span>
         </Icon>
@@ -23,7 +23,7 @@ module ExternalLinks = {
       <Link to_=Link.githubRepo highlight={false} hover={false}>
         <Icon kind={Icon.Fab("github")} large={true} />
       </Link>
-      <Link className="text-cyan" to_=Link.influence highlight={false}>
+      <Link className="text-primary-std" to_=Link.influence highlight={false}>
         <Icon kind=Icon.influence large={true} />
       </Link>
     </div>

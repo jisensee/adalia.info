@@ -8,7 +8,7 @@ module Button = {
       }
 
     let borderColor = switch active {
-    | true => "border-cyan"
+    | true => "border-primary-std"
     | false => "border-gray-500 "
     }
     let enabledStyle = switch enabled {

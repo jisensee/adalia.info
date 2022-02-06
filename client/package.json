@@ -24,15 +24,14 @@
     "get-graphql-schema": "^2.1.2",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.5",
-    "rescript": "^9.1.4",
     "tailwindcss": "^3.0.7",
-    "vite": "^2.7.3"
+    "vite": "^2.8.2"
   },
   "dependencies": {
     "@fontsource/jura": "^4.3.0",
-    "@fortawesome/fontawesome-free": "^5.15.3",
+    "@fortawesome/fontawesome-free": "^6.0.0",
     "@headlessui/react": "^1.4.2",
-    "@rescript/react": "^0.10.2",
+    "@rescript/react": "^0.10.3",
     "@ryyppy/rescript-promise": "^2.1.0",
     "@tailwindcss/forms": "^0.4.0",
     "@urql/rescript": "^4.0.0",
@@ -40,12 +39,16 @@
     "@vechaiui/react": "^0.2.1",
     "bs-fetch": "^0.6.2",
     "graphql": "^15.5.0",
+    "query-string": "^7.1.1",
+    "rescript": "^9.1.4",
     "rc-slider": "^9.7.2",
     "react": "^17.0.2",
     "react-data-table-component": "^7.0.0-rc6",
     "react-dom": "^17.0.2",
     "react-tiny-popover": "^6.0.10",
     "styled-components": "^5.3.0",
-    "urql": "^2.0.2"
+    "urql": "^2.0.2",
+    "use-query-params": "^1.2.3",
+    "zustand": "^3.6.9"
   }
 }

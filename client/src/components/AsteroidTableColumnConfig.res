@@ -11,12 +11,16 @@ let make = (~className="", ~columns, ~onChange, ~columnToString) => {
     ->onChange
 
   let makeCheckbox = ((key, active)) =>
-    <label className="font-bold" key={key->columnToString}>
-      <input className="mr-2" type_="checkbox" checked={active} onChange={_ => toggleActive(key)} />
+    <Vechai.Checkbox
+      size={#lg}
+      key={key->columnToString}
+      className="mr-2"
+      checked={active}
+      onChange={_ => toggleActive(key)}>
       {key->columnToString->React.string}
-    </label>
+    </Vechai.Checkbox>
 
-  <div className={`bg-gray border-cyan border rounded-xl p-2 flex flex-col ${className}`}>
+  <div className={`border-primary-std border rounded-xl p-2 flex flex-col space-y-1 ${className}`}>
     {columns->Belt.Array.map(makeCheckbox)->React.array}
   </div>
 }

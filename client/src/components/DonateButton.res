@@ -26,7 +26,7 @@ let make = (~className="") => {
 
   let donationStateMessage = switch state {
   | DonationSuccess =>
-    <p className="text-cyan"> {"Thanks for your contribution!"->React.string} </p>
+    <p className="text-primary-std"> {"Thanks for your contribution!"->React.string} </p>
   | DonationError =>
     <p className="text-red">
       {"Something went wrong...please try again or use the wallet address directly."->React.string}

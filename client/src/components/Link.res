@@ -54,8 +54,8 @@ let make = (
   | External(url) => (url, "_blank", false)
   }
   let highlightClass = switch (highlight, bold) {
-  | (true, true) => "text-cyan font-bold"
-  | (true, false) => "text-cyan"
+  | (true, true) => "text-primary-std font-bold"
+  | (true, false) => "text-primary-std"
   | (false, true) => "font-bold"
   | (false, false) => ""
   }
@@ -65,13 +65,13 @@ let make = (
       href->RescriptReactRouter.push
     }
     if forceReload {
-      Bindings.Location.reload()
+      Bindings.location.reload()
     }
     onClick()
   }
   let hoverClass = switch hover {
   | false => ""
-  | true => "hover:text-blue-dark"
+  | true => "hover:text-primary-500"
   }
   <a href target title className={`${highlightClass} ${hoverClass} ${className}`} onClick>
     {switch (children, text) {
