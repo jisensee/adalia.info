@@ -25,25 +25,8 @@ const resolvers: IResolvers<DataSources, Context> = {
         args.sorting,
         args.filter
       ),
-    asteroidStats: async (
-      _,
-      args: QueryAsteroidStatsArgs,
-      { dataSources },
-      info
-    ): Promise<AsteroidStats> => {
-      const ds = dataSources.asteroids
-      const f = args.filter
-      const [stats, spTypes, rarities] = await Promise.all([
-        ds.basicStats(f),
-        ds.countByType(f),
-        ds.countByRarity(f),
-      ])
-      return {
-        basicStats: stats,
-        bySpectralType: spTypes,
-        byRarity: rarities,
-      }
-    },
+    asteroidStats: async (_, args: QueryAsteroidStatsArgs, { dataSources }) =>
+      dataSources.asteroids.stats(args.filter),
     asteroid: (_, args: QueryAsteroidArgs, { dataSources }) =>
       dataSources.asteroids.getByRockId(args.id),
     lastDataUpdateAt: (_, _args, { dataSources }) =>

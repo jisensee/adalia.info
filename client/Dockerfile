@@ -13,7 +13,7 @@ COPY . /app
 RUN npm run build
 
 # RUN
-FROM nginx:1.17.1-alpine
+FROM nginx:1.21.6
 
 LABEL org.opencontainers.image.source="https://github.com/jisensee/adalia.info"
 

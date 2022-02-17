@@ -3,7 +3,10 @@ open Belt
 module LoadingSpinner = {
   @react.component
   let make = (~className="", ~text) => {
-    <Icon kind={Icon.Fas("spinner")} className={`${className} animate-spin`} text />
+    <div className={`flex flex-col gap-y-3 p-4 items-center justify-center ${className}`}>
+      <Icon kind={Icon.Fas("hourglass")} className={"text-9xl animate-bounce"} />
+      <span className="text-2xl"> {text->React.string} </span>
+    </div>
   }
 }
 
