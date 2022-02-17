@@ -34,6 +34,7 @@ let make = () => {
         open Belt
         let value = asteroidStats.basicStats.owned->Int.toFloat
         let max = 250_000.
+        Js.log2("stats", asteroidStats)
 
         <ProgressBar
           value

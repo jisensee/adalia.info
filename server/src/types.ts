@@ -1,4 +1,5 @@
 export type Maybe<T> = T | null;
+export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
@@ -14,22 +15,22 @@ export type Scalars = {
 
 export type Asteroid = {
   readonly __typename?: 'Asteroid';
-  readonly baseName: Scalars['String'];
-  readonly bonuses: ReadonlyArray<AsteroidBonus>;
-  readonly eccentricity: Scalars['Float'];
-  readonly estimatedPrice: Maybe<Scalars['Float']>;
   readonly id: Scalars['Int'];
-  readonly inclination: Scalars['Float'];
+  readonly baseName: Scalars['String'];
   readonly name: Scalars['String'];
-  readonly orbitalPeriod: Scalars['Float'];
   readonly owner: Maybe<Scalars['String']>;
   readonly radius: Scalars['Float'];
-  readonly rarity: Maybe<AsteroidRarity>;
-  readonly scanned: Scalars['Boolean'];
-  readonly semiMajorAxis: Scalars['Float'];
-  readonly size: AsteroidSize;
-  readonly spectralType: SpectralType;
   readonly surfaceArea: Scalars['Float'];
+  readonly size: AsteroidSize;
+  readonly orbitalPeriod: Scalars['Float'];
+  readonly semiMajorAxis: Scalars['Float'];
+  readonly inclination: Scalars['Float'];
+  readonly eccentricity: Scalars['Float'];
+  readonly spectralType: SpectralType;
+  readonly scanned: Scalars['Boolean'];
+  readonly estimatedPrice: Maybe<Scalars['Float']>;
+  readonly rarity: Maybe<AsteroidRarity>;
+  readonly bonuses: ReadonlyArray<AsteroidBonus>;
 };
 
 export type AsteroidBonus = {
@@ -40,17 +41,17 @@ export type AsteroidBonus = {
 };
 
 export type AsteroidBonusConditionInput = {
-  readonly levels: Maybe<ReadonlyArray<Scalars['Int']>>;
-  readonly type: Maybe<AsteroidBonusType>;
+  readonly type: InputMaybe<AsteroidBonusType>;
+  readonly levels: InputMaybe<ReadonlyArray<Scalars['Int']>>;
 };
 
 export enum AsteroidBonusType {
-  Fissile = 'FISSILE',
+  Yield = 'YIELD',
+  Volatile = 'VOLATILE',
   Metal = 'METAL',
   Organic = 'ORGANIC',
   RareEarth = 'RARE_EARTH',
-  Volatile = 'VOLATILE',
-  Yield = 'YIELD'
+  Fissile = 'FISSILE'
 }
 
 export type AsteroidBonusesFilterInput = {
@@ -64,37 +65,37 @@ export enum AsteroidBonusesFilterMode {
 }
 
 export enum AsteroidField {
+  Id = 'ID',
+  Name = 'NAME',
+  Owner = 'OWNER',
+  Scanned = 'SCANNED',
+  Radius = 'RADIUS',
+  SurfaceArea = 'SURFACE_AREA',
+  Size = 'SIZE',
+  OrbitalPeriod = 'ORBITAL_PERIOD',
+  SemiMajorAxis = 'SEMI_MAJOR_AXIS',
+  Inclination = 'INCLINATION',
+  SpectralType = 'SPECTRAL_TYPE',
   Eccentricity = 'ECCENTRICITY',
   EstimatedPrice = 'ESTIMATED_PRICE',
-  Id = 'ID',
-  Inclination = 'INCLINATION',
-  Name = 'NAME',
-  OrbitalPeriod = 'ORBITAL_PERIOD',
-  Owner = 'OWNER',
-  Radius = 'RADIUS',
-  Rarity = 'RARITY',
-  Scanned = 'SCANNED',
-  SemiMajorAxis = 'SEMI_MAJOR_AXIS',
-  Size = 'SIZE',
-  SpectralType = 'SPECTRAL_TYPE',
-  SurfaceArea = 'SURFACE_AREA'
+  Rarity = 'RARITY'
 }
 
 export type AsteroidFilterInput = {
-  readonly bonuses: Maybe<AsteroidBonusesFilterInput>;
-  readonly eccentricity: Maybe<RangeInput>;
-  readonly estimatedPrice: Maybe<RangeInput>;
-  readonly inclination: Maybe<RangeInput>;
-  readonly orbitalPeriod: Maybe<RangeInput>;
-  readonly owned: Maybe<Scalars['Boolean']>;
-  readonly owners: Maybe<ReadonlyArray<Scalars['String']>>;
-  readonly radius: Maybe<RangeInput>;
-  readonly rarities: Maybe<ReadonlyArray<AsteroidRarity>>;
-  readonly scanned: Maybe<Scalars['Boolean']>;
-  readonly semiMajorAxis: Maybe<RangeInput>;
-  readonly sizes: Maybe<ReadonlyArray<AsteroidSize>>;
-  readonly spectralTypes: Maybe<ReadonlyArray<SpectralType>>;
-  readonly surfaceArea: Maybe<RangeInput>;
+  readonly owned: InputMaybe<Scalars['Boolean']>;
+  readonly owners: InputMaybe<ReadonlyArray<Scalars['String']>>;
+  readonly scanned: InputMaybe<Scalars['Boolean']>;
+  readonly spectralTypes: InputMaybe<ReadonlyArray<SpectralType>>;
+  readonly radius: InputMaybe<RangeInput>;
+  readonly surfaceArea: InputMaybe<RangeInput>;
+  readonly sizes: InputMaybe<ReadonlyArray<AsteroidSize>>;
+  readonly orbitalPeriod: InputMaybe<RangeInput>;
+  readonly semiMajorAxis: InputMaybe<RangeInput>;
+  readonly inclination: InputMaybe<RangeInput>;
+  readonly eccentricity: InputMaybe<RangeInput>;
+  readonly estimatedPrice: InputMaybe<RangeInput>;
+  readonly rarities: InputMaybe<ReadonlyArray<AsteroidRarity>>;
+  readonly bonuses: InputMaybe<AsteroidBonusesFilterInput>;
 };
 
 export type AsteroidPage = {
@@ -105,18 +106,18 @@ export type AsteroidPage = {
 
 export enum AsteroidRarity {
   Common = 'COMMON',
-  Exceptional = 'EXCEPTIONAL',
-  Incomparable = 'INCOMPARABLE',
+  Uncommon = 'UNCOMMON',
   Rare = 'RARE',
   Superior = 'SUPERIOR',
-  Uncommon = 'UNCOMMON'
+  Exceptional = 'EXCEPTIONAL',
+  Incomparable = 'INCOMPARABLE'
 }
 
 export enum AsteroidSize {
-  Huge = 'HUGE',
-  Large = 'LARGE',
+  Small = 'SMALL',
   Medium = 'MEDIUM',
-  Small = 'SMALL'
+  Large = 'LARGE',
+  Huge = 'HUGE'
 }
 
 export type AsteroidSortingInput = {
@@ -127,8 +128,8 @@ export type AsteroidSortingInput = {
 export type AsteroidStats = {
   readonly __typename?: 'AsteroidStats';
   readonly basicStats: BasicAsteroidStats;
-  readonly byRarity: RarityCounts;
   readonly bySpectralType: SpectralTypeCounts;
+  readonly byRarity: RarityCounts;
 };
 
 export type BasicAsteroidStats = {
@@ -137,9 +138,7 @@ export type BasicAsteroidStats = {
   readonly owned: Scalars['Int'];
   readonly scanned: Scalars['Int'];
   readonly surfaceArea: Scalars['Float'];
-  readonly totalCount: Scalars['Int'];
 };
-
 
 export type ExchangeRates = {
   readonly __typename?: 'ExchangeRates';
@@ -147,14 +146,21 @@ export type ExchangeRates = {
 };
 
 export enum ExportFormat {
-  Csv = 'CSV',
-  Json = 'JSON'
+  Json = 'JSON',
+  Csv = 'CSV'
 }
 
 export type Mutation = {
   readonly __typename?: 'Mutation';
-  readonly exportAllAsteroids: Scalars['String'];
   readonly exportAsteroids: Scalars['String'];
+  readonly exportAllAsteroids: Scalars['String'];
+};
+
+
+export type MutationExportAsteroidsArgs = {
+  sorting: InputMaybe<AsteroidSortingInput>;
+  filter: InputMaybe<AsteroidFilterInput>;
+  format: ExportFormat;
 };
 
 
@@ -162,49 +168,42 @@ export type MutationExportAllAsteroidsArgs = {
   format: ExportFormat;
 };
 
-
-export type MutationExportAsteroidsArgs = {
-  filter: Maybe<AsteroidFilterInput>;
-  format: ExportFormat;
-  sorting: Maybe<AsteroidSortingInput>;
-};
-
 export type PageInput = {
-  readonly num: Scalars['Int'];
   readonly size: Scalars['Int'];
+  readonly num: Scalars['Int'];
 };
 
 export type PriceBounds = {
   readonly __typename?: 'PriceBounds';
-  readonly max: Scalars['Float'];
   readonly min: Scalars['Float'];
+  readonly max: Scalars['Float'];
 };
 
 export type Query = {
   readonly __typename?: 'Query';
-  readonly asteroid: Maybe<Asteroid>;
-  readonly asteroidStats: AsteroidStats;
   readonly asteroids: AsteroidPage;
-  readonly exchangeRates: ExchangeRates;
+  readonly asteroidStats: AsteroidStats;
+  readonly asteroid: Maybe<Asteroid>;
   readonly lastDataUpdateAt: Maybe<Scalars['Date']>;
   readonly priceBounds: PriceBounds;
+  readonly exchangeRates: ExchangeRates;
+};
+
+
+export type QueryAsteroidsArgs = {
+  page: PageInput;
+  sorting: InputMaybe<AsteroidSortingInput>;
+  filter: InputMaybe<AsteroidFilterInput>;
+};
+
+
+export type QueryAsteroidStatsArgs = {
+  filter: InputMaybe<AsteroidFilterInput>;
 };
 
 
 export type QueryAsteroidArgs = {
   id: Scalars['Int'];
-};
-
-
-export type QueryAsteroidStatsArgs = {
-  filter: Maybe<AsteroidFilterInput>;
-};
-
-
-export type QueryAsteroidsArgs = {
-  filter: Maybe<AsteroidFilterInput>;
-  page: PageInput;
-  sorting: Maybe<AsteroidSortingInput>;
 };
 
 export type RangeInput = {
@@ -215,11 +214,11 @@ export type RangeInput = {
 export type RarityCounts = {
   readonly __typename?: 'RarityCounts';
   readonly common: Scalars['Int'];
-  readonly exceptional: Scalars['Int'];
-  readonly incomparable: Scalars['Int'];
+  readonly uncommon: Scalars['Int'];
   readonly rare: Scalars['Int'];
   readonly superior: Scalars['Int'];
-  readonly uncommon: Scalars['Int'];
+  readonly exceptional: Scalars['Int'];
+  readonly incomparable: Scalars['Int'];
 };
 
 export enum SortingMode {
@@ -229,29 +228,29 @@ export enum SortingMode {
 
 export enum SpectralType {
   C = 'C',
-  Ci = 'CI',
-  Cis = 'CIS',
   Cm = 'CM',
-  Cms = 'CMS',
+  Ci = 'CI',
   Cs = 'CS',
-  I = 'I',
-  M = 'M',
+  Cms = 'CMS',
+  Cis = 'CIS',
   S = 'S',
+  Sm = 'SM',
   Si = 'SI',
-  Sm = 'SM'
+  M = 'M',
+  I = 'I'
 }
 
 export type SpectralTypeCounts = {
   readonly __typename?: 'SpectralTypeCounts';
   readonly c: Scalars['Int'];
-  readonly ci: Scalars['Int'];
-  readonly cis: Scalars['Int'];
   readonly cm: Scalars['Int'];
-  readonly cms: Scalars['Int'];
+  readonly ci: Scalars['Int'];
   readonly cs: Scalars['Int'];
-  readonly i: Scalars['Int'];
-  readonly m: Scalars['Int'];
+  readonly cms: Scalars['Int'];
+  readonly cis: Scalars['Int'];
   readonly s: Scalars['Int'];
-  readonly si: Scalars['Int'];
   readonly sm: Scalars['Int'];
+  readonly si: Scalars['Int'];
+  readonly m: Scalars['Int'];
+  readonly i: Scalars['Int'];
 };

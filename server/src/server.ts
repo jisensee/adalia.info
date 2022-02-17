@@ -16,7 +16,10 @@ app.listen(5000, () => console.log('Server started on port 5000'))
 
 const init = async (ds: DataSources) => {
   await runInitialDataImport(ds)
-  await startApiImportJob(ds, () => resetExports(ds.asteroids))
+  await startApiImportJob(ds, () => {
+    ds.asteroids.clearCache()
+    resetExports(ds.asteroids)
+  })
   await initExporter(ds.asteroids)
 }
 

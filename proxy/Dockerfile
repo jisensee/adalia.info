@@ -1,4 +1,4 @@
-FROM nginx:1.21.1
+FROM nginx:1.21.6
 
 LABEL org.opencontainers.image.source="https://github.com/jisensee/adalia.info"
 

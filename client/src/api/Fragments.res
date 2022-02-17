@@ -87,7 +87,6 @@ fragment RarityCounts on RarityCounts {
 
 fragment BasicAsteroidStats on BasicAsteroidStats {
   count
-  totalCount
   owned
   scanned
   surfaceArea

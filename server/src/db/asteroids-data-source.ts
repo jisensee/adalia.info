@@ -1,4 +1,5 @@
 import { MongoDataSource } from 'apollo-datasource-mongodb'
+import crypto from 'crypto'
 import { Transform } from 'json2csv'
 import { BulkWriteUpdateOneOperation, Collection, Cursor } from 'mongodb'
 import {
@@ -160,7 +161,10 @@ const bonusesFilter = (filter: AsteroidBonusesFilterInput) => {
     : {}
 }
 
-const filterToQuery = (filter: AsteroidFilterInput) => {
+const filterToQuery = (filter: Maybe<AsteroidFilterInput>) => {
+  if (!filter) {
+    return {}
+  }
   const owned = filter.owned == null ? {} : ownedFilter(filter.owned)
   const owners = filter.owners == null ? {} : ownersFilter([...filter.owners])
   const scanned = filter.scanned == null ? {} : { scanned: filter.scanned }
@@ -211,8 +215,35 @@ const filterToQuery = (filter: AsteroidFilterInput) => {
 }
 
 export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
+  private statsCache: { [key: string]: AsteroidStats } = {}
+
   constructor(collection: Collection<Asteroid>) {
     super(collection)
+  }
+
+  public clearCache() {
+    const size = Object.keys(this.statsCache).length
+    console.log(`Cleared stats cache of size ${size}`)
+  }
+
+  private hashFilter(filter: Maybe<AsteroidFilterInput>) {
+    return crypto
+      .createHash('md5')
+      .update(JSON.stringify(filter ?? {}))
+      .digest('hex')
+  }
+
+  private getStatsFromCache(filter: Maybe<AsteroidFilterInput>) {
+    const hash = this.hashFilter(filter)
+    if (hash in this.statsCache) {
+      return this.statsCache[hash]
+    }
+    return null
+  }
+
+  private cacheStats(filter: Maybe<AsteroidFilterInput>, stats: AsteroidStats) {
+    const hash = this.hashFilter(filter)
+    this.statsCache[hash] = stats
   }
 
   public async getPage(
@@ -222,7 +253,7 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
   ): Promise<AsteroidPage> {
     const offset = (page.num - 1) * page.size
     const sortParam = sorting != null ? createSortParam(sorting) : {}
-    const query = filter ? filterToQuery(filter) : {}
+    const query = filterToQuery(filter)
 
     const totalRows = await this.collection.countDocuments(query)
     const rows = await this.collection
@@ -235,15 +266,33 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
     return { rows, totalRows }
   }
 
+  public async stats(
+    filter: Maybe<AsteroidFilterInput>
+  ): Promise<AsteroidStats> {
+    const cached = this.getStatsFromCache(filter)
+    if (cached) {
+      return cached
+    }
+    const [stats, spTypes, rarities] = await Promise.all([
+      this.basicStats(filter),
+      this.countByType(filter),
+      this.countByRarity(filter),
+    ])
+    const fullStats = {
+      basicStats: stats,
+      bySpectralType: spTypes,
+      byRarity: rarities,
+    }
+    this.cacheStats(filter, fullStats)
+    return fullStats
+  }
+
   public async basicStats(
     filter: Maybe<AsteroidFilterInput>
   ): Promise<BasicAsteroidStats> {
-    const totalCount = await this.collection.countDocuments()
-    const count = filter
-      ? await this.collection.countDocuments(filterToQuery(filter))
-      : totalCount
+    const query = filterToQuery(filter)
+    const count = await this.collection.countDocuments(query)
 
-    const query = filter ? filterToQuery(filter) : {}
     type aggRes = {
       surfaceArea: number
       unowned: number
@@ -269,7 +318,6 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
 
     return {
       count,
-      totalCount,
       surfaceArea: sums.surfaceArea,
       owned: count - sums.unowned,
       scanned: sums.scanned,
@@ -362,7 +410,7 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
   public async countByType(
     filter: Maybe<AsteroidFilterInput>
   ): Promise<SpectralTypeCounts> {
-    const query = filter ? filterToQuery(filter) : {}
+    const query = filterToQuery(filter)
 
     type aggRes = { _id: SpectralType; count: number }
 
@@ -403,7 +451,7 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
   public async countByRarity(
     filter: Maybe<AsteroidFilterInput>
   ): Promise<RarityCounts> {
-    const query = filter ? filterToQuery(filter) : {}
+    const query = filterToQuery(filter)
     type aggRes = { _id: AsteroidRarity; count: number }
 
     const result = await this.collection
