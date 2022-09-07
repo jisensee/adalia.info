@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json /app
 COPY package-lock.json /app
 
-RUN npm ci
+RUN npm install --force
 
 COPY . /app
 
