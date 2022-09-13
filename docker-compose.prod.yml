@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   proxy:
@@ -6,6 +6,9 @@ services:
       file: docker-compose.yml
       service: proxy
     image: ghcr.io/jisensee/adalia.info/proxy:latest
+    environment:
+      - SSL_CERT=/etc/letsencrypt/live/adalia.info/fullchain.pem
+      - SSL_KEY=/etc/letsencrypt/live/adalia.info/privkey.pem
 
   mongodb:
     extends:
@@ -26,3 +29,5 @@ services:
 
 volumes:
   mongodb_data:
+  certbot_conf:
+  certbot_www:
