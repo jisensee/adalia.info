@@ -223,6 +223,7 @@ export default class AsteroidsDataSource extends MongoDataSource<Asteroid> {
 
   public clearCache() {
     const size = Object.keys(this.statsCache).length
+    this.statsCache = {}
     console.log(`Cleared stats cache of size ${size}`)
   }
 
