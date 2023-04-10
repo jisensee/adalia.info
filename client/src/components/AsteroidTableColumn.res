@@ -65,7 +65,7 @@ let toName = t =>
   | Inclination => "Inclination"
   | SpectralType => "Type"
   | Eccentricity => "Eccentricity"
-  | EstimatedPrice => "Sale price"
+  | EstimatedPrice => "Est. Sale price"
   | Rarity => "Rarity"
   }
 
@@ -85,4 +85,13 @@ let allCols = [
   Scanned,
 ]
 
-let defaultColumns = [Owner, Name, SpectralType, Size, SurfaceArea, OrbitalPeriod, Rarity]
+let defaultColumns = [
+  Owner,
+  Name,
+  SpectralType,
+  Size,
+  SurfaceArea,
+  OrbitalPeriod,
+  Rarity,
+  EstimatedPrice,
+]

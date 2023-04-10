@@ -18,7 +18,7 @@
 }
 
 .rdt_TableCol_Sortable {
-  @apply font-bold text-xl text-primary-std !bg-fill leading-8;
+  @apply font-bold text-xl !text-primary-std !bg-fill leading-8 hover:!text-opacity-90;
 }
 
 .rdt_TableHeadRow {

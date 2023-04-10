@@ -132,7 +132,7 @@ let make = () => {
       ->Option.mapWithDefault(React.null, _ =>
         <span>
           <span className="text-primary-std font-bold"> {"Disclaimer: "->React.string} </span>
-          {"The shown prices were the prices from the last sale and are only provided as reference and are not intended to be a meaningful representation of an asteroids value."->React.string}
+          {"The shown prices are estimated based of an ETH price snapshot at the start of the sale and may not be fully accurate if the Influence team adjusts pricing based on ETH volatility."->React.string}
         </span>
       )}
     </div>
