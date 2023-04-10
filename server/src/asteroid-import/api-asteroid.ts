@@ -79,9 +79,12 @@ const calcSurface = (radius: number) => {
 }
 
 const estimatePrice = (radius: number) => {
-  const lots = (radius * radius) / 250_000
-  const basePrice = 0.0165
-  return basePrice + (basePrice / 10) * lots
+  const ethPriceSnapshot = 1890
+  const basePriceUsd = 65
+  const basePriceEth = (1 / ethPriceSnapshot) * basePriceUsd
+  const basePriceEthPerLot = (1 / ethPriceSnapshot) * 2
+  const lots = calcSurface(radius)
+  return basePriceEth + lots * basePriceEthPerLot
 }
 
 const convertBonusType = (t: BonusType) => {

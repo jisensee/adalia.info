@@ -40,7 +40,7 @@ let makeColumn = column => {
   | Column.Owner => (Some(ownerCell), "8rem", 0)
   | Column.Name => (None, "", 1)
   | Column.SpectralType => (Some(spectralTypeCell), "8rem", 0)
-  | Column.EstimatedPrice => (None, "10rem", 0)
+  | Column.EstimatedPrice => (None, "12rem", 0)
   | Column.Scanned => (None, "9rem", 0)
   | Column.Radius => (None, "8rem", 0)
   | Column.SurfaceArea => (None, "12rem", 0)
