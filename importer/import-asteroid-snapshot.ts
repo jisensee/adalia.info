@@ -1,9 +1,13 @@
 import { Asteroid, AsteroidBonus } from '@prisma/client'
-import asteroidsSnapshot from '../asteroid-snapshot.json'
 import { ApiAsteroid, convertApiAsteroid } from './api-asteroid'
 import { db } from '@/server/db'
 
-const apiAsteroids = asteroidsSnapshot as ApiAsteroid[]
+const snapshotPath = process.argv[2]
+if (!snapshotPath) {
+  console.error('No snapshot path provided')
+  process.exit(1)
+}
+const apiAsteroids = (await import(snapshotPath)) as ApiAsteroid[]
 
 const BATCH_SIZE = 50_000
 
