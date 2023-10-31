@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Asteroid {
+  id            Int                  @id @default(autoincrement())
+  name          String
+  ownerAddress  String?
+  spectralType  AsteroidSpectralType
+  scanStatus    AsteroidScanStatus
+  size          AsteroidSize
+  radius        Float
+  surfaceArea   Float
+  orbitalPeriod Int
+  semiMajorAxis Float
+  inclination   Float
+  eccentricity  Float
+  rarity        AsteroidRarity?
+  bonuses       AsteroidBonus[]
+}
+
+enum AsteroidScanStatus {
+  UNSCANNED
+  LONG_RANGE_SCAN
+  RESOURCE_SCAN
+}
+
+model AsteroidBonus {
+  id         Int               @id @default(autoincrement())
+  level      Int
+  modifier   Int
+  type       AsteroidBonusType
+  Asteroid   Asteroid          @relation(fields: [asteroidId], references: [id])
+  asteroidId Int
+}
+
+enum AsteroidBonusType {
+  YIELD
+  VOLATILE
+  METAL
+  ORGANIC
+  RARE_EARTH
+  FISSILE
+}
+
+enum AsteroidSpectralType {
+  C
+  S
+  M
+  I
+  CI
+  CS
+  SI
+  CM
+  SM
+  CMS
+  CIS
+}
+
+enum AsteroidSize {
+  SMALL
+  MEDIUM
+  LARGE
+  HUGE
+}
+
+enum AsteroidRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  SUPERIOR
+  EXCEPTIONAL
+  INCOMPARABLE
+}

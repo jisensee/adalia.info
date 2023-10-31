@@ -1,6 +1,0 @@
-let radiusBounds = (1_023., 375_000.)
-let surfaceBounds = (13., 1_800_000.)
-let orbitalPeriodBounds = (307., 2827.)
-let semiMajorAxisBounds = (0.89, 3.913)
-let inclinationBounds = (0., 37.77)
-let eccentricityBounds = (0.007, 0.393)
