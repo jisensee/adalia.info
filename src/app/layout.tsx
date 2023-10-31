@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Jura } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/react'
 import { Navbar } from '../components/navbar'
 import { Providers } from './providers'
 import { cn } from '@/lib/utils'
@@ -27,6 +28,7 @@ export default function RootLayout({
             {children}
           </div>
         </Providers>
+        <Analytics />
       </body>
     </html>
   )
