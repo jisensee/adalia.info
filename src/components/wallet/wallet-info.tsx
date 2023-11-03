@@ -33,12 +33,18 @@ export const WalletInfo = () => {
     disconnect: disconnectStarknet,
   } = useConnectors()
 
+  console.log({
+    mainnetAccount,
+    starknetAccount,
+  })
+
   const isConnecting = mainnetLoading || starknetLoading
+  console.log({ isConnecting })
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>
+        <Button loading={isConnecting}>
           {mainnetAccount || starknetAccount ? (
             <AccountHeaderView
               mainnetAccount={mainnetAccount}
@@ -57,7 +63,7 @@ export const WalletInfo = () => {
         <div className='flex flex-col gap-y-4'>
           <AccountDetails
             account={mainnetAccount}
-            chainName='Etherum Mainnet'
+            chainName='Ethereum Mainnet'
             chainIcon='/ethereum-logo.svg'
             onDisconnect={disconnectMainnet}
             connectButtons={mainnetConnectors.map((connector) => {

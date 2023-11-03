@@ -4,11 +4,15 @@ import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask'
 import { StarknetConfig, InjectedConnector } from '@starknet-react/core'
 import { PropsWithChildren } from 'react'
 import { WagmiConfig, configureChains, createConfig, mainnet } from 'wagmi'
-import { publicProvider } from 'wagmi/providers/public'
+import { alchemyProvider } from 'wagmi/providers/alchemy'
 
 const { publicClient, webSocketPublicClient } = configureChains(
   [mainnet],
-  [publicProvider()]
+  [
+    alchemyProvider({
+      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ?? '',
+    }),
+  ]
 )
 const wagmiConfig = createConfig({
   autoConnect: true,
