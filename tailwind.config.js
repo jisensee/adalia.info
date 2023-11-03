@@ -22,6 +22,12 @@ module.exports = {
         ring: 'var(--ring)',
         background: 'var(--background)',
         foreground: 'var(--foreground)',
+        common: '#ffffff',
+        uncommon: '#65e4f5',
+        rare: '#5da0f4',
+        superior: '#944cde',
+        exceptional: '#e3853a',
+        incomparable: '#c7a519',
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',

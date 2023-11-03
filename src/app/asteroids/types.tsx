@@ -8,7 +8,10 @@ import {
   encodeQueryParams,
   decodeString,
   QueryParamConfig,
+  ArrayParam,
+  withDefault,
 } from 'serialize-query-params'
+import { AsteroidColumn } from './columns'
 import { asteroidFilterParamsConfig } from '@/components/asteroid-filters/filter-params'
 
 export type Sort = {
@@ -26,10 +29,22 @@ const SortParam: QueryParamConfig<Sort | undefined> = {
   },
 }
 
+export const defaultAsteroidColumns: AsteroidColumn[] = [
+  'id',
+  'name',
+  'ownerAddress',
+  'spectralType',
+  'size',
+  'surfaceArea',
+  'rarity',
+  'orbitalPeriod',
+]
+
 export const asteroidsPageParamConfig = {
   page: NumberParam,
   pageSize: NumberParam,
   sorting: SortParam,
+  columns: withDefault(ArrayParam, defaultAsteroidColumns),
   ...asteroidFilterParamsConfig,
 }
 

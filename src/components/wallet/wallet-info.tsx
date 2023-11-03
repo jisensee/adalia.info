@@ -33,13 +33,7 @@ export const WalletInfo = () => {
     disconnect: disconnectStarknet,
   } = useConnectors()
 
-  console.log({
-    mainnetAccount,
-    starknetAccount,
-  })
-
   const isConnecting = mainnetLoading || starknetLoading
-  console.log({ isConnecting })
 
   return (
     <Dialog>

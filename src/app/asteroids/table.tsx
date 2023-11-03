@@ -1,7 +1,6 @@
 'use client'
 
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -12,6 +11,7 @@ import { ArrowDown, ArrowUp } from 'lucide-react'
 import Link from 'next/link'
 import { Asteroid } from '@prisma/client'
 import { AsteroidsPageParams, Sort, buildAsteroidsUrl } from './types'
+import { AsteroidColumn, columnDef } from './columns'
 import {
   Table,
   TableBody,
@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/table'
 
 export type AsteroidTableProps = {
-  columns: ColumnDef<Asteroid, number>[]
+  columns: AsteroidColumn[]
   data: Asteroid[]
   pageParams: AsteroidsPageParams
 }
@@ -47,9 +47,19 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
   data,
   pageParams,
 }) => {
+  const visibleColumns = columnDef
+    .filter((col) => columns.includes(col.id as AsteroidColumn))
+    .sort((a, b) => {
+      if (!a.id || !b.id) {
+        return 0
+      }
+      const aIndex = columns.indexOf(a.id as AsteroidColumn)
+      const bIndex = columns.indexOf(b.id as AsteroidColumn)
+      return aIndex - bIndex
+    })
   const table = useReactTable({
     data,
-    columns,
+    columns: visibleColumns,
     getCoreRowModel: getCoreRowModel(),
   })
 

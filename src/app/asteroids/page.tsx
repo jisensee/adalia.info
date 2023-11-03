@@ -1,6 +1,5 @@
 import { decodeQueryParams } from 'serialize-query-params'
 import { Asteroid, Prisma } from '@prisma/client'
-import { columns } from './columns'
 import { AsteroidTable } from './table'
 import {
   AsteroidsPageParams,
@@ -9,6 +8,8 @@ import {
   buildAsteroidsUrl,
 } from './types'
 import { Paginator } from './paginator'
+import { ColumnConfig } from './column-config'
+import { AsteroidColumn } from './columns'
 import { db } from '@/server/db'
 import { AsteroidFilterForm } from '@/components/asteroid-filters/asteroid-filter-form'
 import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summary'
@@ -19,19 +20,38 @@ export default async function Asteroids({
   searchParams: Record<string, string | string[]>
 }) {
   const params = decodeQueryParams(asteroidsPageParamConfig, searchParams)
+  console.log({ params })
   const page = params.page ?? 1
   const pageSize = params.pageSize ?? 10
 
   const [totalCount, asteroids] = await getData(page, pageSize, params)
   const totalPages = Math.ceil(totalCount / pageSize)
 
+  const tableHeader = (
+    <div className='flex flex-row items-center justify-between'>
+      <h2>{totalCount.toLocaleString()} Asteroids</h2>
+      <div className='flex flex-row gap-x-2'>
+        <ColumnConfig params={params} />
+      </div>
+    </div>
+  )
+
   return (
     <div className='flex h-full flex-row gap-x-2 overflow-y-hidden'>
       <AsteroidFilterForm searchParams={searchParams} />
       <div className='flex w-full flex-grow flex-col gap-y-2 overflow-y-auto p-3'>
-        <h1>{totalCount.toLocaleString()} Asteroids</h1>
+        <h1>Asteroids</h1>
+        <p>
+          Select your filters in the sidebar and copy the URL to share your
+          current filter and sorting setup.
+        </p>
         <AsteroidFilterSummary searchParams={searchParams} />
-        <AsteroidTable columns={columns} data={asteroids} pageParams={params} />
+        {tableHeader}
+        <AsteroidTable
+          columns={(params.columns ?? []) as AsteroidColumn[]}
+          data={asteroids}
+          pageParams={params}
+        />
         <Paginator
           page={page}
           totalPages={totalPages}
