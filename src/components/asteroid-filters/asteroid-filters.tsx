@@ -9,6 +9,7 @@ import {
 } from '../ui/select'
 import { Slider } from '../ui/slider'
 import { Filter } from './filter'
+import { cn } from '@/lib/utils'
 
 export type AsteroidFilterProps<T> = {
   value: T | undefined | null
@@ -78,6 +79,46 @@ export const RangeFilter = ({
         <span>
           {from} {unit} - {to} {unit}
         </span>
+      </div>
+    )}
+  </Filter>
+)
+
+export type EnumFilterProps<T> = AsteroidFilterProps<T[]> & {
+  name: string
+  options: T[]
+  format: (value: T) => string
+}
+
+export const EnumFilter = <T extends string>({
+  options,
+  format,
+  ...filterProps
+}: EnumFilterProps<T>) => (
+  <Filter {...filterProps} defaultValue={[]}>
+    {({ value, onChange, disabled }) => (
+      <div className='flex flex-row flex-wrap items-center gap-2'>
+        {options.map((option) => (
+          <div
+            className={cn('cursor-pointer rounded-lg border px-3 py-2', {
+              'border-primary': value.includes(option),
+              'cursor-not-allowed opacity-50': disabled,
+            })}
+            key={option}
+            onClick={() => {
+              if (disabled) {
+                return
+              }
+              if (value.includes(option)) {
+                onChange(value.filter((v) => v !== option))
+              } else {
+                onChange([...value, option])
+              }
+            }}
+          >
+            {format(option)}
+          </div>
+        ))}
       </div>
     )}
   </Filter>

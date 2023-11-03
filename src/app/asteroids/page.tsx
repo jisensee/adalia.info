@@ -71,6 +71,14 @@ const getData = (
     semiMajorAxis: makeRangeFilter(params.semiMajorAxis),
     inclination: makeRangeFilter(params.inclination),
     eccentricity: makeRangeFilter(params.eccentricity),
+    size: makeFilter(params.size, (size) => ({ in: size })),
+    rarity: makeFilter(params.rarity, (rarity) => ({ in: rarity })),
+    spectralType: makeFilter(params.spectralType, (spectralType) => ({
+      in: spectralType,
+    })),
+    scanStatus: makeFilter(params.scanStatus, (scanStatus) => ({
+      in: scanStatus,
+    })),
   }
 
   return db.$transaction([

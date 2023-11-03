@@ -55,10 +55,23 @@ export const AsteroidFilterSummary = ({
       return format(from) + ' - ' + format(to)
     })
 
+  const enumFormatter =
+    <T,>(format: (value: T) => string) =>
+    (value: T[]) =>
+      value.map(format).join(', ')
+
   return (
-    <div className='flex flex-row items-center gap-2'>
+    <div className='flex flex-row flex-wrap items-center gap-2'>
       {tag('owned', 'Owned', (owned) => (owned ? 'Yes' : 'No'))}
       {tag('owner', 'Owner', (owner) => Format.ethAddress(owner, 4))}
+      {tag('scanStatus', 'Scan', enumFormatter(Format.asteroidScanStatus))}
+      {tag('rarity', 'Rarity', enumFormatter(Format.asteroidRarity))}
+      {tag(
+        'spectralType',
+        'Spectral type',
+        enumFormatter(Format.asteroidSpectralType)
+      )}
+      {tag('size', 'Size', enumFormatter(Format.asteroidSize))}
       {rangeTag('radius', 'Radius', Format.radius)}
       {rangeTag('surfaceArea', 'Surface area', Format.surfaceArea)}
       {rangeTag('orbitalPeriod', 'Orbital period', Format.orbitalPeriod)}
@@ -75,7 +88,7 @@ type FilterTagProps = {
 } & PropsWithChildren
 
 const FilterTag = ({ name, onRemove, children }: FilterTagProps) => (
-  <div className='flex flex-row items-center gap-x-2 rounded-lg border border-primary px-3 py-1 text-sm'>
+  <div className='flex flex-row items-center gap-x-2 rounded-lg border border-primary px-3 text-sm'>
     <span className='text-primary'>{name}:</span>
     {children}
     <Button className='p-0' variant='ghost' size='sm' onClick={onRemove}>

@@ -10,7 +10,6 @@ import {
   QueryParamConfig,
   StringParam,
   createEnumArrayParam,
-  createEnumParam,
   decodeString,
 } from 'serialize-query-params'
 
@@ -31,7 +30,7 @@ const RangeParam: QueryParamConfig<[number, number] | undefined | null> = {
 export const asteroidFilterParamsConfig = {
   owned: BooleanParam,
   owner: StringParam,
-  scanned: createEnumParam([
+  scanStatus: createEnumArrayParam([
     AsteroidScanStatus.UNSCANNED,
     AsteroidScanStatus.LONG_RANGE_SCAN,
     AsteroidScanStatus.RESOURCE_SCAN,

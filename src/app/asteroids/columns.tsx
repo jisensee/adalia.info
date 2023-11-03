@@ -26,8 +26,13 @@ export const columns: ColumnDef<Asteroid>[] = [
   col('ownerAddress', 'Owner', (asteroid) =>
     asteroid.ownerAddress ? Format.ethAddress(asteroid.ownerAddress, 4) : ''
   ),
+  col('scanStatus', 'Scan status', (asteroid) =>
+    Format.asteroidScanStatus(asteroid.scanStatus)
+  ),
+  col('size', 'Size', (asteroid) => Format.asteroidSize(asteroid.size)),
   col('radius', 'Radius', (asteroid) => Format.radius(asteroid.radius)),
   col('spectralType', 'Type', (asteroid) => asteroid.spectralType),
+  col('rarity', 'Rarity', (asteroid) => asteroid.rarity),
   col('surfaceArea', 'Area', (asteroid) =>
     Format.surfaceArea(asteroid.surfaceArea)
   ),

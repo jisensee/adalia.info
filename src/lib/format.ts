@@ -1,3 +1,9 @@
+import {
+  AsteroidRarity,
+  AsteroidScanStatus,
+  AsteroidSize,
+  AsteroidSpectralType,
+} from '@prisma/client'
 import { Constants } from './constants'
 
 const numberFormatter =
@@ -17,5 +23,20 @@ export const Format = {
     const start = address.slice(0, shownCharacters + 2)
     const end = address.slice(-shownCharacters)
     return `${start}...${end}`
+  },
+  asteroidSize: (size: AsteroidSize) =>
+    size[0]?.toUpperCase() + size.toLowerCase().slice(1),
+  asteroidRarity: (rarity: AsteroidRarity) =>
+    rarity[0]?.toUpperCase() + rarity.toLowerCase().slice(1),
+  asteroidSpectralType: (type: AsteroidSpectralType) => type.toString(),
+  asteroidScanStatus: (status: AsteroidScanStatus) => {
+    switch (status) {
+      case AsteroidScanStatus.UNSCANNED:
+        return 'Unscanned'
+      case AsteroidScanStatus.LONG_RANGE_SCAN:
+        return 'Long range scan'
+      case AsteroidScanStatus.RESOURCE_SCAN:
+        return 'Resource scan'
+    }
   },
 }

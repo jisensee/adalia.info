@@ -63,7 +63,7 @@ export const WalletInfo = () => {
         <div className='flex flex-col gap-y-4'>
           <AccountDetails
             account={mainnetAccount}
-            chainName='Ethereum Mainnet'
+            chainName='Mainnet'
             chainIcon='/ethereum-logo.svg'
             onDisconnect={disconnectMainnet}
             connectButtons={mainnetConnectors.map((connector) => {

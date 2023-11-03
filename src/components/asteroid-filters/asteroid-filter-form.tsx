@@ -5,6 +5,12 @@ import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
 import { decodeQueryParams } from 'serialize-query-params'
 import { XIcon } from 'lucide-react'
+import {
+  AsteroidRarity,
+  AsteroidScanStatus,
+  AsteroidSize,
+  AsteroidSpectralType,
+} from '@prisma/client'
 import { Form, FormField } from '../ui/form'
 import { Button } from '../ui/button'
 
@@ -18,10 +24,16 @@ import {
   AsteroidFilterParams,
   asteroidFilterParamsConfig,
 } from './filter-params'
-import { OwnedFilter, OwnerFilter, RangeFilter } from './asteroid-filters'
+import {
+  EnumFilter,
+  OwnedFilter,
+  OwnerFilter,
+  RangeFilter,
+} from './asteroid-filters'
 import { buildAsteroidsUrl } from '@/app/asteroids/types'
 import { cn } from '@/lib/utils'
 import { Constants } from '@/lib/constants'
+import { Format } from '@/lib/format'
 
 export type AsteroidFilterFormProps = {
   searchParams: Record<string, string | string[]>
@@ -57,7 +69,8 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
         rarity: null,
         surfaceArea: null,
         spectralType: null,
-        scanned: null,
+        scanStatus: null,
+        size: null,
       })
     )
 
@@ -77,12 +90,73 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
           <OwnedFilter value={field.value} onChange={field.onChange} />
         )}
       />
-
       <FormField
         control={form.control}
         name='owner'
         render={({ field }) => (
           <OwnerFilter value={field.value} onChange={field.onChange} />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='scanStatus'
+        render={({ field }) => (
+          <EnumFilter
+            name='Scan status'
+            value={field.value}
+            onChange={field.onChange}
+            format={Format.asteroidScanStatus}
+            options={[
+              AsteroidScanStatus.UNSCANNED,
+              AsteroidScanStatus.LONG_RANGE_SCAN,
+              AsteroidScanStatus.RESOURCE_SCAN,
+            ]}
+          />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='rarity'
+        render={({ field }) => (
+          <EnumFilter
+            name='Rarity'
+            value={field.value}
+            onChange={field.onChange}
+            format={Format.asteroidRarity}
+            options={[
+              AsteroidRarity.COMMON,
+              AsteroidRarity.UNCOMMON,
+              AsteroidRarity.RARE,
+              AsteroidRarity.SUPERIOR,
+              AsteroidRarity.EXCEPTIONAL,
+              AsteroidRarity.INCOMPARABLE,
+            ]}
+          />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='spectralType'
+        render={({ field }) => (
+          <EnumFilter
+            name='Spectral type'
+            value={field.value}
+            onChange={field.onChange}
+            format={Format.asteroidSpectralType}
+            options={[
+              AsteroidSpectralType.C,
+              AsteroidSpectralType.CI,
+              AsteroidSpectralType.CIS,
+              AsteroidSpectralType.CM,
+              AsteroidSpectralType.CMS,
+              AsteroidSpectralType.CS,
+              AsteroidSpectralType.I,
+              AsteroidSpectralType.M,
+              AsteroidSpectralType.S,
+              AsteroidSpectralType.SI,
+              AsteroidSpectralType.SM,
+            ]}
+          />
         )}
       />
     </div>
@@ -117,6 +191,24 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
             unit={Constants.SURFACE_AREA_UNIT}
             value={field.value}
             onChange={field.onChange}
+          />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='size'
+        render={({ field }) => (
+          <EnumFilter
+            name='Size'
+            value={field.value}
+            onChange={field.onChange}
+            format={Format.asteroidSize}
+            options={[
+              AsteroidSize.SMALL,
+              AsteroidSize.MEDIUM,
+              AsteroidSize.LARGE,
+              AsteroidSize.HUGE,
+            ]}
           />
         )}
       />
@@ -217,22 +309,24 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
     >
       {expanded && (
         <div className='flex h-full flex-col gap-y-2 rounded-l-sm rounded-r-xl px-3 py-2'>
-          <div className='flex flex-row items-center justify-between'>
-            <h2>Filters</h2>
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={() => setExpanded(false)}
-            >
-              <XIcon size='30px' />
-            </Button>
-          </div>
           <Form {...form}>
             <form
-              className='flex h-full flex-col px-2'
+              className='grid h-full grid-rows-[auto,1fr,auto] gap-3'
               onSubmit={form.handleSubmit(onSave)}
             >
-              {filters}
+              <div className='flex flex-row items-center justify-between'>
+                <h1>Filters</h1>
+                <Button
+                  variant='ghost'
+                  size='icon'
+                  onClick={() => setExpanded(false)}
+                >
+                  <XIcon size='30px' />
+                </Button>
+              </div>
+              <div className='overflow-y-auto overflow-x-hidden pr-3'>
+                {filters}
+              </div>
               <div className='grow' />
               <div className='flex flex-row gap-x-20 px-5 pb-5'>
                 <Button
