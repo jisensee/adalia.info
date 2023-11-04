@@ -52,6 +52,7 @@
     "typescript": "5.1.6",
     "viem": "^1.18.1",
     "wagmi": "^1.4.5",
+    "webpack": "^5.89.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -60,7 +61,6 @@
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-import": "^2.28.0",
     "eslint-plugin-unused-imports": "^3.0.0",
-    "prettier": "^3.0.0",
-    "webpack": "^5.89.0"
+    "prettier": "^3.0.0"
   }
 }
