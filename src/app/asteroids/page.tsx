@@ -5,11 +5,10 @@ import {
   AsteroidsPageParams,
   Sort,
   asteroidsPageParamConfig,
-  buildAsteroidsUrl,
+  defaultAsteroidColumnConfig,
 } from './types'
 import { Paginator } from './paginator'
 import { ColumnConfig } from './column-config'
-import { AsteroidColumn } from './columns'
 import { db } from '@/server/db'
 import { AsteroidFilterForm } from '@/components/asteroid-filters/asteroid-filter-form'
 import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summary'
@@ -20,7 +19,6 @@ export default async function Asteroids({
   searchParams: Record<string, string | string[]>
 }) {
   const params = decodeQueryParams(asteroidsPageParamConfig, searchParams)
-  console.log({ params })
   const page = params.page ?? 1
   const pageSize = params.pageSize ?? 10
 
@@ -48,15 +46,11 @@ export default async function Asteroids({
         <AsteroidFilterSummary searchParams={searchParams} />
         {tableHeader}
         <AsteroidTable
-          columns={(params.columns ?? []) as AsteroidColumn[]}
+          columns={params.columns ?? defaultAsteroidColumnConfig}
           data={asteroids}
           pageParams={params}
         />
-        <Paginator
-          page={page}
-          totalPages={totalPages}
-          buildUrl={(page) => buildAsteroidsUrl({ ...params, page })}
-        />
+        <Paginator params={params} totalPages={totalPages} />
       </div>
     </div>
   )

@@ -40,7 +40,7 @@ export const OwnedFilter = (props: AsteroidFilterProps<boolean>) => (
         disabled={disabled}
       >
         <SelectTrigger className='w-32'>
-          <SelectValue placeholder='owned?' />
+          <SelectValue />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value='owned'>Owned</SelectItem>

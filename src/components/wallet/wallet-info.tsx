@@ -38,7 +38,7 @@ export const WalletInfo = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button loading={isConnecting}>
+        <Button variant='outline' loading={isConnecting}>
           {mainnetAccount || starknetAccount ? (
             <AccountHeaderView
               mainnetAccount={mainnetAccount}

@@ -8,8 +8,6 @@ import {
   encodeQueryParams,
   decodeString,
   QueryParamConfig,
-  ArrayParam,
-  withDefault,
 } from 'serialize-query-params'
 import { AsteroidColumn } from './columns'
 import { asteroidFilterParamsConfig } from '@/components/asteroid-filters/filter-params'
@@ -28,23 +26,48 @@ const SortParam: QueryParamConfig<Sort | undefined> = {
       : undefined
   },
 }
+export type AsteroidColumnConfig = {
+  id: AsteroidColumn
+  active: boolean
+}
+const ColumnConfigParam: QueryParamConfig<AsteroidColumnConfig[] | undefined> =
+  {
+    encode: (value) => value?.map((c) => `${c.id}:${c.active}`).join(','),
+    decode: (value) => {
+      const str = decodeString(value)
+      if (!str) {
+        return undefined
+      }
+      return str.split(',').map((s) => {
+        const [id, active] = s.split(':')
+        return {
+          id: id as AsteroidColumn,
+          active: active === 'true',
+        }
+      })
+    },
+  }
 
-export const defaultAsteroidColumns: AsteroidColumn[] = [
-  'id',
-  'name',
-  'ownerAddress',
-  'spectralType',
-  'size',
-  'surfaceArea',
-  'rarity',
-  'orbitalPeriod',
+export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
+  { id: 'ownerAddress', active: true },
+  { id: 'name', active: true },
+  { id: 'scanStatus', active: true },
+  { id: 'spectralType', active: true },
+  { id: 'size', active: true },
+  { id: 'rarity', active: true },
+  { id: 'surfaceArea', active: true },
+  { id: 'radius', active: false },
+  { id: 'orbitalPeriod', active: true },
+  { id: 'inclination', active: false },
+  { id: 'eccentricity', active: false },
+  { id: 'semiMajorAxis', active: false },
 ]
 
 export const asteroidsPageParamConfig = {
   page: NumberParam,
   pageSize: NumberParam,
   sorting: SortParam,
-  columns: withDefault(ArrayParam, defaultAsteroidColumns),
+  columns: ColumnConfigParam,
   ...asteroidFilterParamsConfig,
 }
 

@@ -1,3 +1,5 @@
+'use client'
+
 import {
   ChevronFirst,
   ChevronLast,
@@ -7,19 +9,23 @@ import {
 import { Route } from 'next'
 import { FC, ReactNode } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { AsteroidsPageParams, buildAsteroidsUrl } from './types'
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 export type PaginatorProps = {
-  page: number
+  params: AsteroidsPageParams
   totalPages: number
-  buildUrl: (page: number) => string
 }
 
-export const Paginator: FC<PaginatorProps> = ({
-  page,
-  totalPages,
-  buildUrl,
-}) => {
+export const Paginator: FC<PaginatorProps> = ({ params, totalPages }) => {
   const paginatorButton = (button: ReactNode, href?: string) => {
     if (href) {
       return <Link href={href as Route}>{button}</Link>
@@ -27,41 +33,80 @@ export const Paginator: FC<PaginatorProps> = ({
       return button
     }
   }
+
+  const { push } = useRouter()
+
+  const page = params.page ?? 1
+  const pageSize = params.pageSize ?? 15
+
   return (
     <div className='flex flex-row items-center justify-end gap-x-5'>
+      <Select
+        defaultValue={pageSize.toString()}
+        onValueChange={(value) => {
+          const newPageSize = parseInt(value, 10)
+          push(buildAsteroidsUrl({ ...params, page: 1, pageSize: newPageSize }))
+        }}
+      >
+        Page size
+        <SelectTrigger className='w-20'>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={'15'}>15</SelectItem>
+          <SelectItem value={'25'}>25</SelectItem>
+          <SelectItem value={'50'}>50</SelectItem>
+        </SelectContent>
+      </Select>
       Page {page} / {totalPages}
       <div className='flex'>
         {paginatorButton(
-          <Button className='rounded-r-none' size='icon' disabled={page === 1}>
+          <Button
+            className='rounded-r-none'
+            variant='outline'
+            size='icon'
+            disabled={page === 1}
+          >
             <ChevronFirst />
           </Button>,
-          page > 1 ? buildUrl(1) : undefined
+          page > 1 ? buildAsteroidsUrl({ ...params, page: 1 }) : undefined
         )}
         {paginatorButton(
-          <Button className='rounded-none' size='icon' disabled={page === 1}>
+          <Button
+            className='rounded-none'
+            variant='outline'
+            size='icon'
+            disabled={page === 1}
+          >
             <ChevronLeft />
           </Button>,
-          page > 1 ? buildUrl(page - 1) : undefined
+          page > 1
+            ? buildAsteroidsUrl({ ...params, page: page - 1 })
+            : undefined
         )}
         {paginatorButton(
           <Button
             className='rounded-none'
             size='icon'
+            variant='outline'
             disabled={page === totalPages}
           >
             <ChevronRight />
           </Button>,
-          buildUrl(page + 1)
+          buildAsteroidsUrl({ ...params, page: page + 1 })
         )}
         {paginatorButton(
           <Button
             className='rounded-l-none'
             size='icon'
+            variant='outline'
             disabled={page === totalPages}
           >
             <ChevronLast />
           </Button>,
-          page < totalPages ? buildUrl(2500) : undefined
+          page < totalPages
+            ? buildAsteroidsUrl({ ...params, page: totalPages })
+            : undefined
         )}
       </div>
     </div>
