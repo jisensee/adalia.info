@@ -5,11 +5,11 @@ import { PropsWithChildren, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { XIcon } from 'lucide-react'
 import { Button } from '../ui/button'
+import { AsteroidFilterParams } from './filter-params'
 import {
-  AsteroidFilterParams,
-  asteroidFilterParamsConfig,
-} from './filter-params'
-import { buildAsteroidsUrl } from '@/app/asteroids/types'
+  asteroidsPageParamConfig,
+  buildAsteroidsUrl,
+} from '@/app/asteroids/types'
 import { Format } from '@/lib/format'
 
 export type AsteroidFilterSummaryProps = {
@@ -19,7 +19,7 @@ export type AsteroidFilterSummaryProps = {
 export const AsteroidFilterSummary = ({
   searchParams,
 }: AsteroidFilterSummaryProps) => {
-  const params = decodeQueryParams(asteroidFilterParamsConfig, searchParams)
+  const params = decodeQueryParams(asteroidsPageParamConfig, searchParams)
   const { push } = useRouter()
 
   const tag = <Key extends keyof AsteroidFilterParams>(

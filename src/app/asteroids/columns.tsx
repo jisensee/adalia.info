@@ -70,6 +70,13 @@ export const getAsteroidColumnName = (col: AsteroidColumn): string => {
   }
 }
 
+export const nonSortableColumns: AsteroidColumn[] = [
+  'ownerAddress',
+  'scanStatus',
+  'spectralType',
+  'rarity',
+]
+
 const col = (
   id: AsteroidColumn,
   render: (asteroid: Asteroid) => ReactNode

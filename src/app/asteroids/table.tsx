@@ -16,7 +16,7 @@ import {
   Sort,
   buildAsteroidsUrl,
 } from './types'
-import { columnDef } from './columns'
+import { AsteroidColumn, columnDef, nonSortableColumns } from './columns'
 import {
   Table,
   TableBody,
@@ -72,29 +72,40 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
             <TableRow key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
                 <TableHead key={header.id}>
-                  <Link
-                    className='flex flex-row items-center gap-x-2'
-                    href={buildAsteroidsUrl({
-                      ...pageParams,
-                      page: 1,
-                      pageSize: undefined,
-                      sorting: calcNextSortState(
-                        pageParams,
-                        header.column.id as keyof Asteroid
-                      ),
-                    })}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
+                  {!nonSortableColumns.includes(
+                    header.column.id as AsteroidColumn
+                  ) ? (
+                    <Link
+                      className='flex flex-row items-center gap-x-2'
+                      href={buildAsteroidsUrl({
+                        ...pageParams,
+                        page: 1,
+                        pageSize: undefined,
+                        sorting: calcNextSortState(
+                          pageParams,
+                          header.column.id as keyof Asteroid
+                        ),
+                      })}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      {pageParams.sorting?.id === header.column.id &&
+                        pageParams.sorting?.direction === 'asc' && <ArrowUp />}
+                      {pageParams.sorting?.id === header.column.id &&
+                        pageParams.sorting?.direction === 'desc' && (
+                          <ArrowDown />
                         )}
-                    {pageParams.sorting?.id === header.column.id &&
-                      pageParams.sorting?.direction === 'asc' && <ArrowUp />}
-                    {pageParams.sorting?.id === header.column.id &&
-                      pageParams.sorting?.direction === 'desc' && <ArrowDown />}
-                  </Link>
+                    </Link>
+                  ) : header.isPlaceholder ? null : (
+                    flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )
+                  )}
                 </TableHead>
               ))}
             </TableRow>

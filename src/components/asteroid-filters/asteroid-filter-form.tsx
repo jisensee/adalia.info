@@ -20,17 +20,17 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/accordion'
-import {
-  AsteroidFilterParams,
-  asteroidFilterParamsConfig,
-} from './filter-params'
+import { AsteroidFilterParams } from './filter-params'
 import {
   EnumFilter,
   OwnedFilter,
   OwnerFilter,
   RangeFilter,
 } from './asteroid-filters'
-import { buildAsteroidsUrl } from '@/app/asteroids/types'
+import {
+  asteroidsPageParamConfig,
+  buildAsteroidsUrl,
+} from '@/app/asteroids/types'
 import { cn } from '@/lib/utils'
 import { Constants } from '@/lib/constants'
 import { Format } from '@/lib/format'
@@ -43,7 +43,7 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
   searchParams,
 }) => {
   const params = useMemo(
-    () => decodeQueryParams(asteroidFilterParamsConfig, searchParams),
+    () => decodeQueryParams(asteroidsPageParamConfig, searchParams),
     [searchParams]
   )
 

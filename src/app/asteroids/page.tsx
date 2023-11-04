@@ -104,9 +104,9 @@ const getData = (
       orderBy: {
         id: getSort('id', params.sorting),
         name: getSort('name', params.sorting),
-        spectralType: getSort('spectralType', params.sorting),
         ownerAddress: getSort('ownerAddress', params.sorting),
-        radius: getSort('radius', params.sorting),
+        radius:
+          getSort('radius', params.sorting) ?? getSort('size', params.sorting),
         surfaceArea: getSort('surfaceArea', params.sorting),
         orbitalPeriod: getSort('orbitalPeriod', params.sorting),
         semiMajorAxis: getSort('semiMajorAxis', params.sorting),
