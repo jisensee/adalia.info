@@ -7,7 +7,7 @@ import {
 } from '@tanstack/react-table'
 
 import { FC } from 'react'
-import { ArrowDown, ArrowUp } from 'lucide-react'
+import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { Asteroid } from '@prisma/client'
 import {
@@ -25,6 +25,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { cn } from '@/lib/utils'
+import { AsteroidPreview } from '@/components/asteroid-preview'
 
 export type AsteroidTableProps = {
   columns: AsteroidColumnConfig[]
@@ -70,6 +72,7 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
+              <TableHead />
               {headerGroup.headers.map((header) => (
                 <TableHead key={header.id}>
                   {!nonSortableColumns.includes(
@@ -114,16 +117,36 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className='whitespace-nowrap'>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              <>
+                <TableRow key={row.id}>
+                  <TableCell>
+                    <ChevronRight
+                      className={cn(
+                        'cursor-pointer text-primary transition-all duration-100 ease-in-out',
+                        {
+                          'rotate-90 transform': row.getIsExpanded(),
+                        }
+                      )}
+                      onClick={() => row.toggleExpanded()}
+                    />
                   </TableCell>
-                ))}
-              </TableRow>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id} className='whitespace-nowrap'>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+                {row.getIsExpanded() && (
+                  <TableRow>
+                    <TableCell colSpan={columns.length + 1}>
+                      <AsteroidPreview asteroid={row.original} />
+                    </TableCell>
+                  </TableRow>
+                )}
+              </>
             ))
           ) : (
             <TableRow>

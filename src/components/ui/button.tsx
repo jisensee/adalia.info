@@ -2,6 +2,7 @@ import * as React from 'react'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 
+import { LoadingIndicator } from '../loading-indicator'
 import { cn } from '@/lib/utils'
 
 const buttonVariants = cva(
@@ -61,15 +62,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           buttonVariants({ variant, size, className }),
           'text-base',
           {
-            'animate-pulse': loading,
-            'flex flex-row items-center gap-x-2': icon,
+            'flex flex-row items-center gap-x-2': icon || loading,
           }
         )}
         ref={ref}
         disabled={disabled || loading}
         {...props}
       >
-        {icon}
+        {loading ? <LoadingIndicator className='h-5 w-5 text-current' /> : icon}
         {children}
       </Comp>
     )

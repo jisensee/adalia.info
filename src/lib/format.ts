@@ -24,6 +24,22 @@ export const Format = {
     const end = address.slice(-shownCharacters)
     return `${start}...${end}`
   },
+  asteroidRarityClassName: (rarity: AsteroidRarity) => {
+    switch (rarity) {
+      case AsteroidRarity.COMMON:
+        return 'text-common'
+      case AsteroidRarity.UNCOMMON:
+        return 'text-uncommon'
+      case AsteroidRarity.RARE:
+        return 'text-rare'
+      case AsteroidRarity.SUPERIOR:
+        return 'text-superior'
+      case AsteroidRarity.EXCEPTIONAL:
+        return 'text-exceptional'
+      case AsteroidRarity.INCOMPARABLE:
+        return 'text-incomparable'
+    }
+  },
   asteroidSize: (size: AsteroidSize) =>
     size[0]?.toUpperCase() + size.toLowerCase().slice(1),
   asteroidRarity: (rarity: AsteroidRarity) =>

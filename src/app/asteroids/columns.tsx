@@ -1,10 +1,10 @@
 'use client'
 
-import { Asteroid, AsteroidRarity } from '@prisma/client'
+import { Asteroid } from '@prisma/client'
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table'
 import { ReactNode } from 'react'
+import Link from 'next/link'
 import { Format } from '@/lib/format'
-import { cn } from '@/lib/utils'
 
 const colHelper = createColumnHelper<Asteroid>()
 
@@ -88,7 +88,14 @@ const col = (
   })
 
 export const columnDef: ColumnDef<Asteroid>[] = [
-  col('id', (asteroid) => <span className='text-primary'>{asteroid.id}</span>),
+  col('id', (asteroid) => (
+    <Link
+      className='text-primary hover:underline'
+      href={`/asteroids/${asteroid.id}`}
+    >
+      {asteroid.id}
+    </Link>
+  )),
   col('name', (asteroid) => asteroid.name),
   col('ownerAddress', (asteroid) =>
     asteroid.ownerAddress ? Format.ethAddress(asteroid.ownerAddress, 4) : ''
@@ -105,17 +112,7 @@ export const columnDef: ColumnDef<Asteroid>[] = [
     'rarity',
     (asteroid) =>
       asteroid.rarity && (
-        <span
-          className={cn({
-            'text-common': asteroid.rarity === AsteroidRarity.COMMON,
-            'text-uncommon': asteroid.rarity === AsteroidRarity.UNCOMMON,
-            'text-rare': asteroid.rarity === AsteroidRarity.RARE,
-            'text-superior': asteroid.rarity === AsteroidRarity.SUPERIOR,
-            'text-exceptional': asteroid.rarity === AsteroidRarity.EXCEPTIONAL,
-            'text-incomparable':
-              asteroid.rarity === AsteroidRarity.INCOMPARABLE,
-          })}
-        >
+        <span className={Format.asteroidRarityClassName(asteroid.rarity)}>
           {Format.asteroidRarity(asteroid.rarity)}
         </span>
       )
