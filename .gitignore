@@ -37,3 +37,6 @@ next-env.d.ts
 .env
 
 asteroid-snapshot.json
+public/workbox*
+public/sw.js
+public/sw.js.map

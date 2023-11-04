@@ -10,6 +10,7 @@ const font = Jura({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'adalia.info',
+  manifest: '/manifest.json',
 }
 
 export default function RootLayout({

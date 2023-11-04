@@ -32,7 +32,7 @@ export const ColumnConfig = ({ params }: ColumnConfigProps) => {
 
   useEffect(() => {
     push(buildAsteroidsUrl({ ...params, columns }))
-  }, [columns])
+  }, [columns, params, push])
 
   return (
     <Popover>

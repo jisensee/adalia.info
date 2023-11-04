@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className='flex gap-x-5'>
+    <div className='flex px-3'>
       <p>Hello adalians</p>
     </div>
   )
