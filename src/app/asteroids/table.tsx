@@ -6,7 +6,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 
-import { FC } from 'react'
+import { FC, Fragment } from 'react'
 import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { Asteroid } from '@prisma/client'
@@ -117,8 +117,8 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
         <TableBody>
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
-              <>
-                <TableRow key={row.id}>
+              <Fragment key={row.id}>
+                <TableRow>
                   <TableCell>
                     <ChevronRight
                       className={cn(
@@ -146,7 +146,7 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
                     </TableCell>
                   </TableRow>
                 )}
-              </>
+              </Fragment>
             ))
           ) : (
             <TableRow>
