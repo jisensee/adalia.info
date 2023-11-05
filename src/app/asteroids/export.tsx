@@ -1,7 +1,7 @@
 'use client'
 
 import { FileDown } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { objectToSearchString } from 'serialize-query-params'
 import { Button } from '@/components/ui/button'
@@ -34,6 +34,10 @@ export const Export = ({ totalCount, searchParams }: ExportProps) => {
     filtersActive ? 'filtered' : 'all'
   )
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    setMode(filtersActive ? 'filtered' : 'all')
+  }, [filtersActive])
 
   const formatSelect = (
     <Select value={format} onValueChange={setFormat}>
