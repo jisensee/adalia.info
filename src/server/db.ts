@@ -1,16 +1,19 @@
 import { PrismaClient } from '@prisma/client'
+import cursorStream from 'prisma-cursorstream'
+
+const makeClient = () =>
+  new PrismaClient({
+    log: ['error', 'info'],
+  }).$extends(cursorStream)
+
+export type PrismaClientType = ReturnType<typeof makeClient>
 
 declare global {
   // eslint-disable-next-line no-var
-  var db: PrismaClient | undefined
+  var db: PrismaClientType | undefined
 }
 
-export const db =
-  global.db ||
-  new PrismaClient({
-    log: ['error'],
-    // env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
-  })
+export const db = global.db || makeClient()
 
 if (process.env.NODE_ENV !== 'production') {
   global.db = db

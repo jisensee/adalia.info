@@ -14,10 +14,12 @@ import { Format } from '@/lib/format'
 
 export type AsteroidFilterSummaryProps = {
   searchParams: Record<string, string | string[]>
+  readonly?: boolean
 }
 
 export const AsteroidFilterSummary = ({
   searchParams,
+  readonly,
 }: AsteroidFilterSummaryProps) => {
   const params = decodeQueryParams(asteroidsPageParamConfig, searchParams)
   const { push } = useRouter()
@@ -36,7 +38,11 @@ export const AsteroidFilterSummary = ({
       value !== null && (
         <FilterTag
           name={name}
-          onRemove={() => push(buildAsteroidsUrl({ ...params, [key]: null }))}
+          onRemove={
+            readonly
+              ? undefined
+              : () => push(buildAsteroidsUrl({ ...params, [key]: null }))
+          }
         >
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {format(value as any)}
@@ -84,15 +90,17 @@ export const AsteroidFilterSummary = ({
 
 type FilterTagProps = {
   name: string
-  onRemove: () => void
+  onRemove?: () => void
 } & PropsWithChildren
 
 const FilterTag = ({ name, onRemove, children }: FilterTagProps) => (
   <div className='flex flex-row items-center gap-x-2 rounded-lg border border-primary px-3 text-sm'>
     <span className='text-primary'>{name}:</span>
     {children}
-    <Button className='p-0' variant='ghost' size='sm' onClick={onRemove}>
-      <XIcon size={20} />
-    </Button>
+    {onRemove && (
+      <Button className='p-0' variant='ghost' size='sm' onClick={onRemove}>
+        <XIcon size={20} />
+      </Button>
+    )}
   </div>
 )
