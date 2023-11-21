@@ -9,7 +9,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Format } from '@/lib/format'
-import { cn } from '@/lib/utils'
+import { cn, radiusToSurfaceArea } from '@/lib/utils'
 
 type Params = {
   params: {
@@ -73,7 +73,7 @@ export default async function AsteroidDetailPage({ params }: Params) {
             <InfoRow title='Size' value={Format.asteroidSize(asteroid.size)} />
             <InfoRow
               title='Surface area'
-              value={Format.surfaceArea(asteroid.surfaceArea)}
+              value={Format.surfaceArea(radiusToSurfaceArea(asteroid.radius))}
             />
             <InfoRow title='Radius' value={Format.radius(asteroid.radius)} />
           </div>
@@ -111,7 +111,8 @@ export default async function AsteroidDetailPage({ params }: Params) {
   return (
     <div className='flex flex-col gap-y-3 p-3'>
       <h1>
-        Asteroid {asteroid.name.length > 0 ? `'${asteroid.name}` : asteroid.id}
+        Asteroid{' '}
+        {asteroid.name?.length ?? 0 > 0 ? `'${asteroid.name}` : asteroid.id}
       </h1>
       <div className='flex flex-col items-center gap-5 sm:flex-row sm:items-start'>
         <AsteroidPreview asteroid={asteroid} alwaysVertical />

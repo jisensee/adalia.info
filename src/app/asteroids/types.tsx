@@ -49,7 +49,7 @@ const ColumnConfigParam: QueryParamConfig<AsteroidColumnConfig[] | undefined> =
   }
 
 export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
-  { id: 'ownerAddress', active: true },
+  { id: 'owner', active: true },
   { id: 'name', active: true },
   { id: 'scanStatus', active: true },
   { id: 'spectralType', active: true },

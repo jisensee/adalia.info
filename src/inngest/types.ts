@@ -1,48 +1,60 @@
+import { AsteroidBonusType, AsteroidRarity, Blockchain } from '@prisma/client'
+import { BonusType, Rarity, toBonuses } from 'influence-utils'
 import {
-  Asteroid,
-  AsteroidBonus,
-  AsteroidBonusType,
-  AsteroidRarity,
   AsteroidScanStatus,
   AsteroidSize,
   AsteroidSpectralType,
+  Prisma,
 } from '@prisma/client'
 import {
-  BonusType,
   KeplerianOrbit,
   OrbitalElements,
-  Rarity,
-  toBonuses,
-  toRarity,
   toSize,
   toSpectralType,
 } from 'influence-utils'
 
-export interface ApiAsteroid {
-  name?: string
+export interface SnapshotAsteroid {
   i: number
   orbital: OrbitalElements
-  bonuses: number
-  scanStatus: number
   r: number
   spectralType: number
-  owner?: string
+  scanStatus: number
+  purchaseOrder: number
 }
 
-const calcSurface = (radius: number) => {
-  // Radius is in meter but surface area is in kilometer
-  const radiusKm = radius / 1000
-  return 4 * radiusKm * radiusKm * Math.PI
+export type ApiAsteroid = {
+  id: number
+  Celestial: {
+    celestialType: number
+    bonuses: number
+    radius: number
+    scanStatus: number
+  }
+  Nft: {
+    owner?: string
+    chain?: string
+  }
 }
 
-const convertScanStatus = (scanStatus: number) => {
-  switch (scanStatus) {
-    case 1:
-      return AsteroidScanStatus.LONG_RANGE_SCAN
-    case 2:
-      return AsteroidScanStatus.RESOURCE_SCAN
-    default:
-      return AsteroidScanStatus.UNSCANNED
+export const convertSnapshotAsteroid = (
+  snapshotAsteroid: SnapshotAsteroid
+): Prisma.AsteroidCreateManyInput => {
+  const orbit = new KeplerianOrbit(snapshotAsteroid.orbital)
+
+  return {
+    id: snapshotAsteroid.i,
+    radius: snapshotAsteroid.r,
+    orbitalPeriod: orbit.getPeriod(),
+    eccentricity: snapshotAsteroid.orbital.e,
+    inclination: snapshotAsteroid.orbital.i * (180 / Math.PI),
+    semiMajorAxis: snapshotAsteroid.orbital.a,
+    spectralType: convertSpectralType(snapshotAsteroid.spectralType),
+    size: getSize(snapshotAsteroid.r),
+    scanStatus: convertScanStatus(snapshotAsteroid.scanStatus),
+    purchaseOrder:
+      snapshotAsteroid.purchaseOrder > 0
+        ? snapshotAsteroid.purchaseOrder
+        : undefined,
   }
 }
 
@@ -88,7 +100,18 @@ const getSize = (radius: number) => {
   }
 }
 
-const convertRarity = (apiRarity: Rarity) => {
+export const convertScanStatus = (scanStatus: number) => {
+  switch (scanStatus) {
+    case 1:
+      return AsteroidScanStatus.ORBITAL_SCAN
+    case 2:
+      return AsteroidScanStatus.LONG_RANGE_SCAN
+    default:
+      return AsteroidScanStatus.UNSCANNED
+  }
+}
+
+export const convertRarity = (apiRarity: Rarity) => {
   switch (apiRarity) {
     case 'Common':
       return AsteroidRarity.COMMON
@@ -106,7 +129,7 @@ const convertRarity = (apiRarity: Rarity) => {
   }
 }
 
-const convertBonusType = (t: BonusType) => {
+export const convertBonusType = (t: BonusType) => {
   switch (t) {
     case 'yield':
       return AsteroidBonusType.YIELD
@@ -124,40 +147,16 @@ const convertBonusType = (t: BonusType) => {
   }
 }
 
-const getApiBonuses = (asteroid: ApiAsteroid) =>
-  asteroid.bonuses
-    ? toBonuses(asteroid.bonuses, asteroid.spectralType).filter(
-        (b) => b.level > 0
-      )
-    : []
+export const getApiBonuses = ({
+  Celestial: { bonuses, celestialType },
+}: ApiAsteroid) =>
+  bonuses ? toBonuses(bonuses, celestialType).filter((b) => b.level > 0) : []
 
-export const convertApiAsteroid = (
-  apiAsteroid: ApiAsteroid
-): [Asteroid, Omit<AsteroidBonus, 'id'>[]] => {
-  const orbit = new KeplerianOrbit(apiAsteroid.orbital)
-  const bonuses = getApiBonuses(apiAsteroid)
-
-  return [
-    {
-      id: apiAsteroid.i,
-      name: apiAsteroid.name ?? '',
-      ownerAddress: apiAsteroid.owner ?? null,
-      radius: apiAsteroid.r,
-      surfaceArea: calcSurface(apiAsteroid.r),
-      orbitalPeriod: orbit.getPeriod(),
-      eccentricity: apiAsteroid.orbital.e,
-      inclination: apiAsteroid.orbital.i * (180 / Math.PI),
-      semiMajorAxis: apiAsteroid.orbital.a,
-      scanStatus: convertScanStatus(apiAsteroid.scanStatus),
-      spectralType: convertSpectralType(apiAsteroid.spectralType),
-      size: getSize(apiAsteroid.r),
-      rarity: bonuses ? convertRarity(toRarity(bonuses)) : null,
-    },
-    bonuses.map((b) => ({
-      type: convertBonusType(b.type),
-      level: b.level,
-      modifier: b.modifier,
-      asteroidId: apiAsteroid.i,
-    })),
-  ]
+export const convertChain = (chain?: string) => {
+  switch (chain) {
+    case 'ETHEREUM':
+      return Blockchain.ETHEREUM
+    case 'STARKNET':
+      return Blockchain.STARKNET
+  }
 }

@@ -1,32 +1,58 @@
 'use client'
 
-import { Asteroid } from '@prisma/client'
+import {
+  Asteroid,
+  AsteroidRarity,
+  AsteroidScanStatus,
+  AsteroidSize,
+  AsteroidSpectralType,
+} from '@prisma/client'
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table'
 import { ReactNode } from 'react'
 import Link from 'next/link'
 import { Format } from '@/lib/format'
+import { radiusToSurfaceArea } from '@/lib/utils'
 
 const colHelper = createColumnHelper<Asteroid>()
 
-export type AsteroidColumn =
-  | 'id'
-  | 'name'
-  | 'ownerAddress'
-  | 'scanStatus'
-  | 'size'
-  | 'radius'
-  | 'spectralType'
-  | 'rarity'
-  | 'surfaceArea'
-  | 'orbitalPeriod'
-  | 'inclination'
-  | 'eccentricity'
-  | 'semiMajorAxis'
+export type AsteroidRow = {
+  id: number
+  name?: string | null
+  owner?: string | null
+  scanStatus: AsteroidScanStatus
+  size: AsteroidSize
+  radius: number
+  surfaceArea: number
+  spectralType: AsteroidSpectralType
+  rarity?: AsteroidRarity | null
+  orbitalPeriod: number
+  inclination: number
+  eccentricity: number
+  semiMajorAxis: number
+}
+
+export const toAsteroidRow = (asteroid: Asteroid): AsteroidRow => ({
+  id: asteroid.id,
+  name: asteroid.name,
+  owner: asteroid.ownerAddress,
+  size: asteroid.size,
+  radius: asteroid.radius,
+  surfaceArea: radiusToSurfaceArea(asteroid.radius),
+  spectralType: asteroid.spectralType,
+  rarity: asteroid.rarity,
+  scanStatus: asteroid.scanStatus,
+  orbitalPeriod: asteroid.orbitalPeriod,
+  inclination: asteroid.inclination,
+  eccentricity: asteroid.eccentricity,
+  semiMajorAxis: asteroid.semiMajorAxis,
+})
+
+export type AsteroidColumn = keyof AsteroidRow
 
 export const allAsteroidColumns: AsteroidColumn[] = [
   'id',
   'name',
-  'ownerAddress',
+  'owner',
   'scanStatus',
   'size',
   'radius',
@@ -39,39 +65,27 @@ export const allAsteroidColumns: AsteroidColumn[] = [
   'semiMajorAxis',
 ]
 
-export const getAsteroidColumnName = (col: AsteroidColumn): string => {
-  switch (col) {
-    case 'id':
-      return 'ID'
-    case 'name':
-      return 'Name'
-    case 'ownerAddress':
-      return 'Owner'
-    case 'scanStatus':
-      return 'Scan status'
-    case 'size':
-      return 'Size'
-    case 'radius':
-      return 'Radius'
-    case 'spectralType':
-      return 'Type'
-    case 'rarity':
-      return 'Rarity'
-    case 'surfaceArea':
-      return 'Surface area'
-    case 'orbitalPeriod':
-      return 'Orbital period'
-    case 'inclination':
-      return 'Inclination'
-    case 'eccentricity':
-      return 'Eccentricity'
-    case 'semiMajorAxis':
-      return 'Semi major axis'
-  }
+const columnNames: Record<AsteroidColumn, string> = {
+  id: 'ID',
+  name: 'Name',
+  owner: 'Owner',
+  scanStatus: 'Scan status',
+  size: 'Size',
+  radius: 'Radius',
+  spectralType: 'Type',
+  rarity: 'Rarity',
+  surfaceArea: 'Surface area',
+  orbitalPeriod: 'Orbital period',
+  inclination: 'Inclination',
+  eccentricity: 'Eccentricity',
+  semiMajorAxis: 'Semi major axis',
 }
 
+export const getAsteroidColumnName = (col: AsteroidColumn): string =>
+  columnNames[col]
+
 export const nonSortableColumns: AsteroidColumn[] = [
-  'ownerAddress',
+  'owner',
   'scanStatus',
   'spectralType',
   'rarity',
@@ -97,7 +111,7 @@ export const columnDef: ColumnDef<Asteroid>[] = [
     </Link>
   )),
   col('name', (asteroid) => asteroid.name),
-  col('ownerAddress', (asteroid) =>
+  col('owner', (asteroid) =>
     asteroid.ownerAddress ? Format.ethAddress(asteroid.ownerAddress, 4) : ''
   ),
   col('scanStatus', (asteroid) =>
@@ -117,7 +131,9 @@ export const columnDef: ColumnDef<Asteroid>[] = [
         </span>
       )
   ),
-  col('surfaceArea', (asteroid) => Format.surfaceArea(asteroid.surfaceArea)),
+  col('surfaceArea', (asteroid) =>
+    Format.surfaceArea(radiusToSurfaceArea(asteroid.radius))
+  ),
   col('orbitalPeriod', (asteroid) =>
     Format.orbitalPeriod(asteroid.orbitalPeriod)
   ),

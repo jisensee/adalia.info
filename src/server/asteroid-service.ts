@@ -2,8 +2,9 @@ import { Readable } from 'stream'
 import { Asteroid, Prisma } from '@prisma/client'
 import { AsteroidsPageParams, Sort } from '@/app/asteroids/types'
 import { db } from '@/server/db'
+import { AsteroidRow } from '@/app/asteroids/columns'
 
-const getSort = (field: keyof Asteroid, sorting?: Sort) =>
+const getSort = (field: keyof AsteroidRow, sorting?: Sort) =>
   sorting?.id === field ? sorting.direction : undefined
 
 const makeFilter = <Value, Filter>(
@@ -17,14 +18,28 @@ const makeRangeFilter = (range: [number, number] | undefined | null) =>
     lte: max,
   }))
 
+const makeRadiusFilter = (
+  radius: [number, number] | undefined | null,
+  surfaceArea: [number, number] | undefined | null
+) => {
+  if (radius) {
+    return makeRangeFilter(radius)
+  } else if (surfaceArea) {
+    const [from, to] = surfaceArea
+    return makeRangeFilter([
+      Math.sqrt(from / (4 * Math.PI)),
+      Math.sqrt(to / (4 * Math.PI)),
+    ])
+  }
+}
+
 const makeWhereFilter = (
   params: AsteroidsPageParams
 ): Prisma.AsteroidWhereInput => ({
   ownerAddress:
     makeFilter(params.owner, (owner) => ({ equals: owner })) ??
     makeFilter(params.owned, (owned) => (owned ? { not: null } : null)),
-  radius: makeRangeFilter(params.radius),
-  surfaceArea: makeRangeFilter(params.surfaceArea),
+  radius: makeRadiusFilter(params.radius, params.surfaceArea),
   orbitalPeriod: makeRangeFilter(params.orbitalPeriod),
   semiMajorAxis: makeRangeFilter(params.semiMajorAxis),
   inclination: makeRangeFilter(params.inclination),
@@ -44,8 +59,10 @@ const makeOrderBy = (
 ): Prisma.AsteroidOrderByWithRelationInput => ({
   id: getSort('id', params.sorting),
   name: getSort('name', params.sorting),
-  radius: getSort('radius', params.sorting) ?? getSort('size', params.sorting),
-  surfaceArea: getSort('surfaceArea', params.sorting),
+  radius:
+    getSort('radius', params.sorting) ??
+    getSort('size', params.sorting) ??
+    getSort('surfaceArea', params.sorting),
   orbitalPeriod: getSort('orbitalPeriod', params.sorting),
   semiMajorAxis: getSort('semiMajorAxis', params.sorting),
   inclination: getSort('inclination', params.sorting),

@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build-prod": "prisma generate && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "inngest": "inngest-cli dev"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.0.8",
@@ -37,6 +38,7 @@
     "eslint-config-next": "13.4.12",
     "follow-redirects": "^1.15.3",
     "influence-utils": "^1.14.0",
+    "inngest": "^3.4.4",
     "lucide-react": "^0.290.0",
     "next": "14.0.1",
     "postcss": "8.4.27",

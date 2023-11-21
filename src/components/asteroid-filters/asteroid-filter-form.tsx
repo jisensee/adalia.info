@@ -109,7 +109,7 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
             options={[
               AsteroidScanStatus.UNSCANNED,
               AsteroidScanStatus.LONG_RANGE_SCAN,
-              AsteroidScanStatus.RESOURCE_SCAN,
+              AsteroidScanStatus.ORBITAL_SCAN,
             ]}
           />
         )}

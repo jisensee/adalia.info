@@ -51,8 +51,8 @@ export const Format = {
         return 'Unscanned'
       case AsteroidScanStatus.LONG_RANGE_SCAN:
         return 'Long range scan'
-      case AsteroidScanStatus.RESOURCE_SCAN:
-        return 'Resource scan'
+      case AsteroidScanStatus.ORBITAL_SCAN:
+        return 'Orbital scan'
     }
   },
 }

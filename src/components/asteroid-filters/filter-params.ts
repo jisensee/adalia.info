@@ -33,7 +33,7 @@ export const asteroidFilterParamsConfig = {
   scanStatus: createEnumArrayParam([
     AsteroidScanStatus.UNSCANNED,
     AsteroidScanStatus.LONG_RANGE_SCAN,
-    AsteroidScanStatus.RESOURCE_SCAN,
+    AsteroidScanStatus.ORBITAL_SCAN,
   ]),
   rarity: createEnumArrayParam([
     AsteroidRarity.COMMON,

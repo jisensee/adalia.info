@@ -13,25 +13,55 @@ datasource db {
 
 model Asteroid {
   id            Int                  @id @default(autoincrement())
-  name          String
+  name          String?
   ownerAddress  String?
+  blockchain    Blockchain?
   spectralType  AsteroidSpectralType
-  scanStatus    AsteroidScanStatus
-  size          AsteroidSize
-  radius        Float
-  surfaceArea   Float
+  rarity        AsteroidRarity?
+  purchaseOrder Int?
+
+  scanStatus AsteroidScanStatus @default(UNSCANNED)
+  lastScan   DateTime?
+
+  size   AsteroidSize
+  radius Float
+
   orbitalPeriod Int
   semiMajorAxis Float
   inclination   Float
   eccentricity  Float
-  rarity        AsteroidRarity?
-  bonuses       AsteroidBonus[]
+
+  bonuses      AsteroidBonus[]
+  ownerChanges AsteroidOwnerChange[]
+}
+
+model AsteroidOwnerChange {
+  id          Int         @id @default(autoincrement())
+  asteroid    Asteroid    @relation(fields: [asteroidId], references: [id])
+  asteroidId  Int
+  fromAddress String?
+  toAddress   String
+  fromChain   Blockchain?
+  toChain     Blockchain
+  timestamp   DateTime
+}
+
+model AsteroidImportRun {
+  id             Int       @id @default(autoincrement())
+  runningWorkers Int
+  start          DateTime
+  end            DateTime?
+}
+
+enum Blockchain {
+  ETHEREUM
+  STARKNET
 }
 
 enum AsteroidScanStatus {
   UNSCANNED
   LONG_RANGE_SCAN
-  RESOURCE_SCAN
+  ORBITAL_SCAN
 }
 
 model AsteroidBonus {

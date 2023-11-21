@@ -7,6 +7,7 @@ import {
 import { Asteroid } from '@prisma/client'
 import { asteroidsPageParamConfig } from '../types'
 import { AsteroidService } from '@/server/asteroid-service'
+import { radiusToSurfaceArea } from '@/lib/utils'
 
 const csvHeader = [
   'id',
@@ -34,7 +35,7 @@ const toCsvLine = (asteroid: Asteroid) =>
     asteroid.scanStatus,
     asteroid.size,
     asteroid.radius,
-    asteroid.surfaceArea,
+    radiusToSurfaceArea(asteroid.radius),
     asteroid.orbitalPeriod,
     asteroid.semiMajorAxis,
     asteroid.inclination,
