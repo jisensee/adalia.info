@@ -1,5 +1,5 @@
 import { Asteroid, AsteroidScanStatus } from '@prisma/client'
-import { toRarity } from 'influence-utils'
+import { Asteroid as SdkAsteroid } from '@influenceth/sdk'
 import { GetEvents } from 'inngest'
 import {
   ApiAsteroid,
@@ -17,19 +17,21 @@ import {
 import { inngest } from './client'
 import { db } from '@/server/db'
 
-const BATCH_SIZE = 50
+const BATCH_SIZE = 500
 
 type Events = GetEvents<typeof inngest>
 
 export const startAsteroidSync = inngest.createFunction(
   { id: 'start-asteroid-sync' },
-  { cron: '0 0 * * *' },
+  { cron: '0 */12 * * *' },
   async ({ step }) => {
+    if (!process.env.INFLUENCE_API_ACCESS_TOKEN) {
+      return
+    }
     const lastPurchaseOrder = await getLastPurchaseOrder()
     await updateAdaliaPrime()
 
-    // const ranges = makeRanges(lastPurchaseOrder)
-    const ranges = makeRanges(200)
+    const ranges = makeRanges(lastPurchaseOrder)
 
     const runId = (
       await db.asteroidImportRun.create({
@@ -89,6 +91,12 @@ const updateRange = async (range: [number, number], runId: number) => {
     },
   })
 
+  console.log(
+    `Updated range ${range[0]}-${range[1]} in ${
+      new Date().getTime() - start.getTime()
+    }ms`
+  )
+
   if (run.runningWorkers === 0) {
     await db.asteroidImportRun.update({
       where: { id: runId },
@@ -96,13 +104,8 @@ const updateRange = async (range: [number, number], runId: number) => {
         end: new Date(),
       },
     })
+    console.log(`Finished import run ${runId}`)
   }
-
-  console.log(
-    `Updated range ${range[0]}-${range[1]} in ${
-      new Date().getTime() - start.getTime()
-    }ms`
-  )
 }
 
 const makeRanges = (lastPurchaseOrder: number) => {
@@ -149,7 +152,7 @@ const updateAsteroid = (
   const newScanStatus = convertScanStatus(apiAsteroid.Celestial.scanStatus)
   const scanChanged = newScanStatus !== existingAsteroid.scanStatus
   const apiBonuses = getApiBonuses(apiAsteroid)
-  const newRarity = convertRarity(toRarity(apiBonuses))
+  const newRarity = convertRarity(SdkAsteroid.getRarity(apiBonuses))
 
   const wasLongRangeScanned =
     scanChanged && newScanStatus === AsteroidScanStatus.LONG_RANGE_SCAN
@@ -158,13 +161,16 @@ const updateAsteroid = (
   const newOwner = apiAsteroid.Nft.owner
 
   const ownerChanged =
-    newOwner !== undefined && newOwner !== existingAsteroid.ownerAddress
+    !!existingAsteroid.ownerAddress &&
+    !!newOwner &&
+    newOwner !== existingAsteroid.ownerAddress
 
   return db.asteroid.update({
     where: {
       id: apiAsteroid.id,
     },
     data: {
+      name: apiAsteroid?.Name?.name,
       ownerAddress: newOwner,
       blockchain: newChain,
       rarity: newRarity,

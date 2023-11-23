@@ -1,4 +1,3 @@
-import { Asteroid } from '@prisma/client'
 import { Globe, Orbit } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -8,9 +7,10 @@ import { buildAsteroidsUrl } from '../app/asteroids/types'
 import { Button } from '@/components/ui/button'
 import { AsteroidImage } from '@/components/asteroid-image'
 import { cn } from '@/lib/utils'
+import { AsteroidRow } from '@/app/asteroids/columns'
 
 export type AsteroidPreviewProps = {
-  asteroid: Asteroid
+  asteroid: AsteroidRow
   alwaysVertical?: boolean
 }
 

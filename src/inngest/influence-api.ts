@@ -1,13 +1,10 @@
 import { ApiAsteroid } from './types'
 
-const accessToken =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2MWU0MTRiYS1iNGYyLTRmYTUtOTI1OC1hMDc2ODVkZWZkNmIiLCJpYXQiOjE2OTkxOTE2Mjl9.BqiOZ9_FsMmgtmCsww-2qeAkqOYNCAszCcAAxfLD4DA'
-
 const request = (path: string, method: 'GET' | 'POST', data?: object) =>
   fetch(`https://api.influenceth.io/${path}`, {
     method,
     headers: {
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${process.env.INFLUENCE_API_ACCESS_TOKEN}`,
       'Content-Type': 'application/json',
     },
     body: data ? JSON.stringify(data) : undefined,

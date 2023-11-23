@@ -1,17 +1,18 @@
 import { AsteroidBonusType, AsteroidRarity, Blockchain } from '@prisma/client'
-import { BonusType, Rarity, toBonuses } from 'influence-utils'
 import {
   AsteroidScanStatus,
   AsteroidSize,
   AsteroidSpectralType,
   Prisma,
 } from '@prisma/client'
+
 import {
-  KeplerianOrbit,
   OrbitalElements,
-  toSize,
-  toSpectralType,
-} from 'influence-utils'
+  AdalianOrbit,
+  Asteroid,
+  BonusType,
+  Rarity,
+} from '@influenceth/sdk'
 
 export interface SnapshotAsteroid {
   i: number
@@ -24,6 +25,7 @@ export interface SnapshotAsteroid {
 
 export type ApiAsteroid = {
   id: number
+  Name?: { name: string } | null
   Celestial: {
     celestialType: number
     bonuses: number
@@ -39,7 +41,7 @@ export type ApiAsteroid = {
 export const convertSnapshotAsteroid = (
   snapshotAsteroid: SnapshotAsteroid
 ): Prisma.AsteroidCreateManyInput => {
-  const orbit = new KeplerianOrbit(snapshotAsteroid.orbital)
+  const orbit = new AdalianOrbit(snapshotAsteroid.orbital)
 
   return {
     id: snapshotAsteroid.i,
@@ -59,7 +61,7 @@ export const convertSnapshotAsteroid = (
 }
 
 const convertSpectralType = (spectralType: number) => {
-  switch (toSpectralType(spectralType)) {
+  switch (Asteroid.getSpectralType(spectralType)) {
     case 'C':
       return AsteroidSpectralType.C
     case 'S':
@@ -87,7 +89,7 @@ const convertSpectralType = (spectralType: number) => {
 }
 
 const getSize = (radius: number) => {
-  switch (toSize(radius)) {
+  switch (Asteroid.getSize(radius)) {
     case 'Small':
       return AsteroidSize.SMALL
     case 'Medium':
@@ -150,7 +152,9 @@ export const convertBonusType = (t: BonusType) => {
 export const getApiBonuses = ({
   Celestial: { bonuses, celestialType },
 }: ApiAsteroid) =>
-  bonuses ? toBonuses(bonuses, celestialType).filter((b) => b.level > 0) : []
+  bonuses
+    ? Asteroid.getBonuses(bonuses, celestialType).filter((b) => b.level > 0)
+    : []
 
 export const convertChain = (chain?: string) => {
   switch (chain) {

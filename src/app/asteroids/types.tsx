@@ -1,4 +1,3 @@
-import { Asteroid } from '@prisma/client'
 import { SortDirection } from '@tanstack/react-table'
 import { Route } from 'next'
 import {
@@ -13,7 +12,7 @@ import { AsteroidColumn } from './columns'
 import { asteroidFilterParamsConfig } from '@/components/asteroid-filters/filter-params'
 
 export type Sort = {
-  id: keyof Asteroid
+  id: AsteroidColumn
   direction: SortDirection
 }
 
@@ -22,7 +21,7 @@ const SortParam: QueryParamConfig<Sort | undefined> = {
   decode: (value) => {
     const [id, direction] = decodeString(value)?.split(':') ?? []
     return id && direction
-      ? { id: id as keyof Asteroid, direction: direction as SortDirection }
+      ? { id: id as AsteroidColumn, direction: direction as SortDirection }
       : undefined
   },
 }
@@ -52,6 +51,7 @@ export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
   { id: 'owner', active: true },
   { id: 'name', active: true },
   { id: 'scanStatus', active: true },
+  { id: 'scanBonus', active: false },
   { id: 'spectralType', active: true },
   { id: 'size', active: true },
   { id: 'rarity', active: true },

@@ -13,7 +13,7 @@ import Link from 'next/link'
 import { Format } from '@/lib/format'
 import { radiusToSurfaceArea } from '@/lib/utils'
 
-const colHelper = createColumnHelper<Asteroid>()
+const colHelper = createColumnHelper<AsteroidRow>()
 
 export type AsteroidRow = {
   id: number
@@ -29,6 +29,23 @@ export type AsteroidRow = {
   inclination: number
   eccentricity: number
   semiMajorAxis: number
+  scanBonus?: number
+}
+
+const getScanBonus = (purchaseOrder: number | null) => {
+  if (!purchaseOrder) {
+    return 1
+  }
+
+  if (purchaseOrder < 100) {
+    return 4
+  } else if (purchaseOrder < 1000) {
+    return 3
+  } else if (purchaseOrder < 10000) {
+    return 2
+  } else {
+    return 1
+  }
 }
 
 export const toAsteroidRow = (asteroid: Asteroid): AsteroidRow => ({
@@ -45,6 +62,7 @@ export const toAsteroidRow = (asteroid: Asteroid): AsteroidRow => ({
   inclination: asteroid.inclination,
   eccentricity: asteroid.eccentricity,
   semiMajorAxis: asteroid.semiMajorAxis,
+  scanBonus: getScanBonus(asteroid.purchaseOrder),
 })
 
 export type AsteroidColumn = keyof AsteroidRow
@@ -79,6 +97,7 @@ const columnNames: Record<AsteroidColumn, string> = {
   inclination: 'Inclination',
   eccentricity: 'Eccentricity',
   semiMajorAxis: 'Semi major axis',
+  scanBonus: 'Scan bonus',
 }
 
 export const getAsteroidColumnName = (col: AsteroidColumn): string =>
@@ -93,15 +112,15 @@ export const nonSortableColumns: AsteroidColumn[] = [
 
 const col = (
   id: AsteroidColumn,
-  render: (asteroid: Asteroid) => ReactNode
-): ColumnDef<Asteroid> =>
+  render: (asteroid: AsteroidRow) => ReactNode
+): ColumnDef<AsteroidRow> =>
   colHelper.display({
     id,
     header: getAsteroidColumnName(id),
     cell: (props) => render(props.row.original),
   })
 
-export const columnDef: ColumnDef<Asteroid>[] = [
+export const columnDef: ColumnDef<AsteroidRow>[] = [
   col('id', (asteroid) => (
     <Link
       className='text-primary hover:underline'
@@ -112,10 +131,13 @@ export const columnDef: ColumnDef<Asteroid>[] = [
   )),
   col('name', (asteroid) => asteroid.name),
   col('owner', (asteroid) =>
-    asteroid.ownerAddress ? Format.ethAddress(asteroid.ownerAddress, 4) : ''
+    asteroid.owner ? Format.ethAddress(asteroid.owner, 4) : ''
   ),
   col('scanStatus', (asteroid) =>
     Format.asteroidScanStatus(asteroid.scanStatus)
+  ),
+  col('scanBonus', (asteroid) =>
+    asteroid.scanBonus ? asteroid.scanBonus + 'x' : ''
   ),
   col('size', (asteroid) => Format.asteroidSize(asteroid.size)),
   col('radius', (asteroid) => Format.radius(asteroid.radius)),

@@ -16,7 +16,12 @@ import {
   Sort,
   buildAsteroidsUrl,
 } from './types'
-import { AsteroidColumn, columnDef, nonSortableColumns } from './columns'
+import {
+  AsteroidColumn,
+  columnDef,
+  nonSortableColumns,
+  toAsteroidRow,
+} from './columns'
 import {
   Table,
   TableBody,
@@ -36,7 +41,7 @@ export type AsteroidTableProps = {
 
 const calcNextSortState = (
   pageParams: AsteroidsPageParams,
-  colId: keyof Asteroid
+  colId: AsteroidColumn
 ): Sort | undefined => {
   const sort = pageParams.sorting
 
@@ -60,8 +65,9 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
       const def = columnDef.find((c) => c.id === col.id)
       return def ? [def] : []
     })
+  const rows = data.map(toAsteroidRow)
   const table = useReactTable({
-    data,
+    data: rows,
     columns: visibleColumns,
     getCoreRowModel: getCoreRowModel(),
   })
@@ -86,7 +92,7 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
                         pageSize: undefined,
                         sorting: calcNextSortState(
                           pageParams,
-                          header.column.id as keyof Asteroid
+                          header.column.id as AsteroidColumn
                         ),
                       })}
                     >
