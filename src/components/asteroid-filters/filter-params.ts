@@ -3,13 +3,15 @@ import {
   AsteroidScanStatus,
   AsteroidSize,
   AsteroidSpectralType,
+  Blockchain,
 } from '@prisma/client'
 import {
+  ArrayParam,
   BooleanParam,
   DecodedValueMap,
   QueryParamConfig,
-  StringParam,
   createEnumArrayParam,
+  createEnumParam,
   decodeString,
 } from 'serialize-query-params'
 
@@ -29,12 +31,16 @@ const RangeParam: QueryParamConfig<[number, number] | undefined | null> = {
 
 export const asteroidFilterParamsConfig = {
   owned: BooleanParam,
-  owner: StringParam,
+  owners: ArrayParam,
+  earlyAdopter: BooleanParam,
+  scanBonus: createEnumArrayParam(['1', '2', '3', '4']),
+  blockchain: createEnumParam([Blockchain.ETHEREUM, Blockchain.STARKNET]),
   scanStatus: createEnumArrayParam([
     AsteroidScanStatus.UNSCANNED,
     AsteroidScanStatus.LONG_RANGE_SCAN,
     AsteroidScanStatus.ORBITAL_SCAN,
   ]),
+  purchaseOrder: RangeParam,
   rarity: createEnumArrayParam([
     AsteroidRarity.COMMON,
     AsteroidRarity.UNCOMMON,

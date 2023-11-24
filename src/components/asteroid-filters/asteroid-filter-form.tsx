@@ -22,6 +22,8 @@ import {
 } from '../ui/accordion'
 import { AsteroidFilterParams } from './filter-params'
 import {
+  BlockchainFilter,
+  BooleanFilter,
   EnumFilter,
   OwnedFilter,
   OwnerFilter,
@@ -59,7 +61,7 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
     push(
       buildAsteroidsUrl({
         ...params,
-        owner: null,
+        owners: null,
         owned: null,
         semiMajorAxis: null,
         orbitalPeriod: null,
@@ -85,31 +87,25 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
     <div className='flex flex-col gap-y-5'>
       <FormField
         control={form.control}
-        name='owned'
-        render={({ field }) => (
-          <OwnedFilter value={field.value} onChange={field.onChange} />
-        )}
-      />
-      <FormField
-        control={form.control}
-        name='owner'
-        render={({ field }) => (
-          <OwnerFilter value={field.value} onChange={field.onChange} />
-        )}
-      />
-      <FormField
-        control={form.control}
-        name='scanStatus'
+        name='spectralType'
         render={({ field }) => (
           <EnumFilter
-            name='Scan status'
+            name='Spectral type'
             value={field.value}
             onChange={field.onChange}
-            format={Format.asteroidScanStatus}
+            format={Format.asteroidSpectralType}
             options={[
-              AsteroidScanStatus.UNSCANNED,
-              AsteroidScanStatus.LONG_RANGE_SCAN,
-              AsteroidScanStatus.ORBITAL_SCAN,
+              AsteroidSpectralType.C,
+              AsteroidSpectralType.CI,
+              AsteroidSpectralType.CIS,
+              AsteroidSpectralType.CM,
+              AsteroidSpectralType.CMS,
+              AsteroidSpectralType.CS,
+              AsteroidSpectralType.I,
+              AsteroidSpectralType.M,
+              AsteroidSpectralType.S,
+              AsteroidSpectralType.SI,
+              AsteroidSpectralType.SM,
             ]}
           />
         )}
@@ -136,26 +132,91 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
       />
       <FormField
         control={form.control}
-        name='spectralType'
+        name='scanStatus'
         render={({ field }) => (
           <EnumFilter
-            name='Spectral type'
+            name='Scan status'
             value={field.value}
             onChange={field.onChange}
-            format={Format.asteroidSpectralType}
+            format={Format.asteroidScanStatus}
             options={[
-              AsteroidSpectralType.C,
-              AsteroidSpectralType.CI,
-              AsteroidSpectralType.CIS,
-              AsteroidSpectralType.CM,
-              AsteroidSpectralType.CMS,
-              AsteroidSpectralType.CS,
-              AsteroidSpectralType.I,
-              AsteroidSpectralType.M,
-              AsteroidSpectralType.S,
-              AsteroidSpectralType.SI,
-              AsteroidSpectralType.SM,
+              AsteroidScanStatus.UNSCANNED,
+              AsteroidScanStatus.LONG_RANGE_SCAN,
+              AsteroidScanStatus.ORBITAL_SCAN,
             ]}
+          />
+        )}
+      />
+    </div>
+  )
+
+  const ownershipFilters = (
+    <div className='flex flex-col gap-y-5'>
+      <FormField
+        control={form.control}
+        name='owned'
+        render={({ field }) => (
+          <OwnedFilter value={field.value} onChange={field.onChange} />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='owners'
+        render={({ field }) => (
+          <OwnerFilter
+            value={(field.value?.filter(Boolean) ?? []) as string[]}
+            onChange={field.onChange}
+          />
+        )}
+      />
+    </div>
+  )
+
+  const saleFilters = (
+    <div className='flex flex-col gap-y-5'>
+      <FormField
+        control={form.control}
+        name='blockchain'
+        render={({ field }) => (
+          <BlockchainFilter value={field.value} onChange={field.onChange} />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='earlyAdopter'
+        render={({ field }) => (
+          <BooleanFilter
+            value={field.value}
+            onChange={field.onChange}
+            name='Early Adopter'
+          />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='scanBonus'
+        render={({ field }) => (
+          <EnumFilter
+            name='Scan bonus'
+            value={field.value}
+            onChange={field.onChange}
+            format={Format.asteroidScanBonus}
+            options={['1', '2', '3', '4']}
+          />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='purchaseOrder'
+        render={({ field }) => (
+          <RangeFilter
+            name='Purchase order'
+            min={1}
+            max={12_000}
+            step={1}
+            unit=''
+            value={field.value}
+            onChange={field.onChange}
           />
         )}
       />
@@ -285,6 +346,14 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
       <AccordionItem value='general'>
         <AccordionTrigger>General</AccordionTrigger>
         <AccordionContent>{generalFilters}</AccordionContent>
+      </AccordionItem>
+      <AccordionItem value='ownership'>
+        <AccordionTrigger>Ownership</AccordionTrigger>
+        <AccordionContent>{ownershipFilters}</AccordionContent>
+      </AccordionItem>
+      <AccordionItem value='sales'>
+        <AccordionTrigger>Sales</AccordionTrigger>
+        <AccordionContent>{saleFilters}</AccordionContent>
       </AccordionItem>
       <AccordionItem value='size'>
         <AccordionTrigger>Size</AccordionTrigger>

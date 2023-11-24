@@ -1,3 +1,4 @@
+import { Blockchain } from '@prisma/client'
 import { FormControl } from '../ui/form'
 import { Input } from '../ui/input'
 import {
@@ -16,17 +17,37 @@ export type AsteroidFilterProps<T> = {
   onChange: (value?: T) => void
 }
 
-export const OwnerFilter = (props: AsteroidFilterProps<string>) => (
-  <Filter {...props} name='Owner' defaultValue=''>
+export const OwnerFilter = (props: AsteroidFilterProps<string[]>) => (
+  <Filter {...props} name='Owners' defaultValue={[]}>
     {({ value, onChange, disabled }) => (
       <FormControl>
         <Input
           placeholder='Owner'
-          value={value ?? ''}
-          onChange={(e) => onChange(e.target.value)}
+          value={value[0] ?? ''}
+          onChange={(e) => onChange([e.target.value])}
           disabled={disabled}
         />
       </FormControl>
+    )}
+  </Filter>
+)
+
+export const BlockchainFilter = (props: AsteroidFilterProps<Blockchain>) => (
+  <Filter {...props} defaultValue={Blockchain.ETHEREUM} name='Blockchain'>
+    {({ value, onChange, disabled }) => (
+      <Select
+        defaultValue={value}
+        onValueChange={(value) => onChange(value as Blockchain)}
+        disabled={disabled}
+      >
+        <SelectTrigger className='w-32'>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={Blockchain.ETHEREUM}>Ethereum</SelectItem>
+          <SelectItem value={Blockchain.STARKNET}>StarkNet</SelectItem>
+        </SelectContent>
+      </Select>
     )}
   </Filter>
 )
@@ -45,6 +66,29 @@ export const OwnedFilter = (props: AsteroidFilterProps<boolean>) => (
         <SelectContent>
           <SelectItem value='owned'>Owned</SelectItem>
           <SelectItem value='unowned'>Unowned</SelectItem>
+        </SelectContent>
+      </Select>
+    )}
+  </Filter>
+)
+
+export type BooleanFilterProps = AsteroidFilterProps<boolean> & {
+  name: string
+}
+export const BooleanFilter = ({ name, ...filterProps }: BooleanFilterProps) => (
+  <Filter {...filterProps} defaultValue={true} name={name}>
+    {({ value, onChange, disabled }) => (
+      <Select
+        defaultValue={value ? 'yes' : 'no'}
+        onValueChange={(value) => onChange(value === 'yes')}
+        disabled={disabled}
+      >
+        <SelectTrigger className='w-32'>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value='yes'>Yes</SelectItem>
+          <SelectItem value='no'>No</SelectItem>
         </SelectContent>
       </Select>
     )}

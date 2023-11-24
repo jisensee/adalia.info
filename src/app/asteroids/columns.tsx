@@ -1,17 +1,19 @@
 'use client'
-
+import NextImage from 'next/image'
 import {
   Asteroid,
   AsteroidRarity,
   AsteroidScanStatus,
   AsteroidSize,
   AsteroidSpectralType,
+  Blockchain,
 } from '@prisma/client'
 import { ColumnDef, createColumnHelper } from '@tanstack/react-table'
 import { ReactNode } from 'react'
 import Link from 'next/link'
 import { Format } from '@/lib/format'
 import { radiusToSurfaceArea } from '@/lib/utils'
+import { Constants } from '@/lib/constants'
 
 const colHelper = createColumnHelper<AsteroidRow>()
 
@@ -30,23 +32,29 @@ export type AsteroidRow = {
   eccentricity: number
   semiMajorAxis: number
   scanBonus?: number
+  earlyAdopter: boolean
+  purchaseOrder?: number | null
+  blockchain?: Blockchain | null
 }
 
 const getScanBonus = (purchaseOrder: number | null) => {
   if (!purchaseOrder) {
-    return 1
+    return undefined
   }
 
   if (purchaseOrder < 100) {
     return 4
-  } else if (purchaseOrder < 1000) {
+  } else if (purchaseOrder < 1_100) {
     return 3
-  } else if (purchaseOrder < 10000) {
+  } else if (purchaseOrder < 11_100) {
     return 2
   } else {
     return 1
   }
 }
+
+const isEarlyAdopter = (purchaseOrder: number | null) =>
+  purchaseOrder ? purchaseOrder < Constants.EARLY_ADOPTER_PURCHASE_ORDER : false
 
 export const toAsteroidRow = (asteroid: Asteroid): AsteroidRow => ({
   id: asteroid.id,
@@ -63,6 +71,9 @@ export const toAsteroidRow = (asteroid: Asteroid): AsteroidRow => ({
   eccentricity: asteroid.eccentricity,
   semiMajorAxis: asteroid.semiMajorAxis,
   scanBonus: getScanBonus(asteroid.purchaseOrder),
+  earlyAdopter: isEarlyAdopter(asteroid.purchaseOrder),
+  purchaseOrder: asteroid.purchaseOrder,
+  blockchain: asteroid.blockchain,
 })
 
 export type AsteroidColumn = keyof AsteroidRow
@@ -72,6 +83,7 @@ export const allAsteroidColumns: AsteroidColumn[] = [
   'name',
   'owner',
   'scanStatus',
+  'earlyAdopter',
   'size',
   'radius',
   'spectralType',
@@ -81,6 +93,9 @@ export const allAsteroidColumns: AsteroidColumn[] = [
   'inclination',
   'eccentricity',
   'semiMajorAxis',
+  'purchaseOrder',
+  'purchaseOrder',
+  'blockchain',
 ]
 
 const columnNames: Record<AsteroidColumn, string> = {
@@ -88,6 +103,7 @@ const columnNames: Record<AsteroidColumn, string> = {
   name: 'Name',
   owner: 'Owner',
   scanStatus: 'Scan status',
+  earlyAdopter: 'Early adopter',
   size: 'Size',
   radius: 'Radius',
   spectralType: 'Type',
@@ -98,6 +114,8 @@ const columnNames: Record<AsteroidColumn, string> = {
   eccentricity: 'Eccentricity',
   semiMajorAxis: 'Semi major axis',
   scanBonus: 'Scan bonus',
+  purchaseOrder: 'Purchase order',
+  blockchain: 'Chain',
 }
 
 export const getAsteroidColumnName = (col: AsteroidColumn): string =>
@@ -120,6 +138,23 @@ const col = (
     cell: (props) => render(props.row.original),
   })
 
+const renderBlockchain = (blockchain: Blockchain) =>
+  blockchain === Blockchain.ETHEREUM ? (
+    <NextImage
+      src='/ethereum-logo.svg'
+      width={24}
+      height={24}
+      alt='Ethereum logo'
+    />
+  ) : (
+    <NextImage
+      src='/starknet-logo.webp'
+      width={24}
+      height={24}
+      alt='StarkNet logo'
+    />
+  )
+
 export const columnDef: ColumnDef<AsteroidRow>[] = [
   col('id', (asteroid) => (
     <Link
@@ -137,8 +172,12 @@ export const columnDef: ColumnDef<AsteroidRow>[] = [
     Format.asteroidScanStatus(asteroid.scanStatus)
   ),
   col('scanBonus', (asteroid) =>
-    asteroid.scanBonus ? asteroid.scanBonus + 'x' : ''
+    asteroid.scanBonus ? Format.asteroidScanBonus(asteroid.scanBonus) : ''
   ),
+  col('purchaseOrder', (asteroid) =>
+    asteroid.purchaseOrder ? Format.purchaseOrder(asteroid.purchaseOrder) : ''
+  ),
+  col('earlyAdopter', (asteroid) => (asteroid.earlyAdopter ? 'Yes' : 'No')),
   col('size', (asteroid) => Format.asteroidSize(asteroid.size)),
   col('radius', (asteroid) => Format.radius(asteroid.radius)),
   col('spectralType', (asteroid) => (
@@ -163,5 +202,8 @@ export const columnDef: ColumnDef<AsteroidRow>[] = [
   col('eccentricity', (asteroid) => Format.eccentricity(asteroid.eccentricity)),
   col('semiMajorAxis', (asteroid) =>
     Format.semiMajorAxis(asteroid.semiMajorAxis)
+  ),
+  col('blockchain', (asteroid) =>
+    asteroid.blockchain ? renderBlockchain(asteroid.blockchain) : ''
   ),
 ]

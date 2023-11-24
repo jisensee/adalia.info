@@ -16,6 +16,9 @@ module.exports = {
       },
     },
     extend: {
+      transitionProperty: {
+        height: 'height',
+      },
       colors: {
         border: 'var(--border)',
         input: 'var(--input)',

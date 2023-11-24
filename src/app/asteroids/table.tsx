@@ -6,7 +6,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 
-import { FC, Fragment } from 'react'
+import { FC, Fragment, useMemo } from 'react'
 import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { Asteroid } from '@prisma/client'
@@ -65,7 +65,7 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
       const def = columnDef.find((c) => c.id === col.id)
       return def ? [def] : []
     })
-  const rows = data.map(toAsteroidRow)
+  const rows = useMemo(() => data.map(toAsteroidRow), [data])
   const table = useReactTable({
     data: rows,
     columns: visibleColumns,

@@ -84,6 +84,12 @@ export const AsteroidFilterSummary = ({
       {rangeTag('semiMajorAxis', 'semiMajorAxis', Format.semiMajorAxis)}
       {rangeTag('inclination', 'Inclination', Format.inclination)}
       {rangeTag('eccentricity', 'Eccentricity', Format.eccentricity)}
+      {rangeTag('purchaseOrder', 'Purchase order', Format.purchaseOrder)}
+      {tag('earlyAdopter', 'Early adopter', (earlyAdopter) =>
+        earlyAdopter ? 'Yes' : 'No'
+      )}
+      {tag('scanBonus', 'Scan bonus', enumFormatter(Format.asteroidScanBonus))}
+      {tag('blockchain', 'Blockchain', (v) => v)}
     </div>
   )
 }

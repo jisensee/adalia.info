@@ -55,4 +55,6 @@ export const Format = {
         return 'Orbital scan'
     }
   },
+  asteroidScanBonus: (scanBonus: number | string) => scanBonus + 'x',
+  purchaseOrder: numberFormatter(0),
 }

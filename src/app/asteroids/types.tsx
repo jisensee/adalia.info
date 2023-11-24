@@ -52,6 +52,8 @@ export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
   { id: 'name', active: true },
   { id: 'scanStatus', active: true },
   { id: 'scanBonus', active: false },
+  { id: 'earlyAdopter', active: false },
+  { id: 'purchaseOrder', active: false },
   { id: 'spectralType', active: true },
   { id: 'size', active: true },
   { id: 'rarity', active: true },
@@ -61,6 +63,7 @@ export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
   { id: 'inclination', active: false },
   { id: 'eccentricity', active: false },
   { id: 'semiMajorAxis', active: false },
+  { id: 'blockchain', active: false },
 ]
 
 export const asteroidsPageParamConfig = {

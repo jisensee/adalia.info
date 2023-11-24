@@ -53,7 +53,7 @@ export default async function RootLayout({
         </div>
         {lastAsteroidUpdate && (
           <div>
-            <span className='text-primary'>Last data update:</span>
+            <span className='mr-1 text-primary'>Last data update:</span>
             {formatRelative(lastAsteroidUpdate, new Date())}
           </div>
         )}
