@@ -161,7 +161,7 @@ const updateAsteroid = (
     scanChanged && newScanStatus === AsteroidScanStatus.LONG_RANGE_SCAN
 
   const newChain = convertChain(apiAsteroid.Nft.chain)
-  const newOwner = apiAsteroid.Nft.owner
+  const newOwner = apiAsteroid.Nft.owner?.toLowerCase()
 
   const ownerChanged =
     !!existingAsteroid.ownerAddress &&

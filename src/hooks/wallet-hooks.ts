@@ -38,6 +38,7 @@ const useAsteroidCount = (address?: string) => {
 
   useEffect(() => {
     if (address) {
+      console.log('get count for', address)
       getAsteroidCount(address).then(setCount)
     }
   }, [address])
@@ -86,7 +87,7 @@ const useMainnetAccountInfo = ({
         ethBalance,
         swayBalance,
         ownedAsteroids,
-        address,
+        address: address.toLowerCase(),
         walletIcon,
       }
     : undefined
@@ -103,10 +104,11 @@ const useStarknetAccountInfo = ({
     ? getEthBalance(ethBalanceResult.value)
     : undefined
 
-  const ownedAsteroids = useAsteroidCount(address)
+  const correctedAddress = address ? '0x0' + address.slice(2) : undefined
+  const ownedAsteroids = useAsteroidCount(correctedAddress)
   const walletIcon = connector?.icon
 
-  return address &&
+  return correctedAddress &&
     ethBalance !== undefined &&
     ownedAsteroids !== undefined &&
     walletIcon
@@ -114,7 +116,7 @@ const useStarknetAccountInfo = ({
         ethBalance,
         swayBalance: 0,
         ownedAsteroids,
-        address: '0x0' + address.slice(2),
+        address: correctedAddress,
         walletIcon,
       }
     : undefined
