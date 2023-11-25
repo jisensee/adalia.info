@@ -10,6 +10,7 @@ import {
   BooleanParam,
   DecodedValueMap,
   QueryParamConfig,
+  StringParam,
   createEnumArrayParam,
   createEnumParam,
   decodeString,
@@ -30,6 +31,7 @@ const RangeParam: QueryParamConfig<[number, number] | undefined | null> = {
 }
 
 export const asteroidFilterParamsConfig = {
+  name: StringParam,
   owned: BooleanParam,
   owners: ArrayParam,
   earlyAdopter: BooleanParam,

@@ -45,8 +45,8 @@ export default async function RootLayout({
           <Link href='https://influenceth.io' target='_blank'>
             <Image
               src='/influence-logo.svg'
-              width={30}
-              height={30}
+              width={35}
+              height={35}
               alt='Influence logo'
             />
           </Link>

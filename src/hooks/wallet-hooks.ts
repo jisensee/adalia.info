@@ -114,7 +114,7 @@ const useStarknetAccountInfo = ({
         ethBalance,
         swayBalance: 0,
         ownedAsteroids,
-        address,
+        address: '0x0' + address.slice(2),
         walletIcon,
       }
     : undefined

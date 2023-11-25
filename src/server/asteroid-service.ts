@@ -82,9 +82,10 @@ const makePurchaseOrderFilter = (params: AsteroidsPageParams) => {
 const makeWhereFilter = (
   params: AsteroidsPageParams
 ): Prisma.AsteroidWhereInput => ({
+  name: makeFilter(params.name, (name) => ({ search: name })),
   ownerAddress:
     makeFilter(params.owners, (owners) => ({
-      in: owners.filter(Boolean) as string[],
+      in: owners.map((o) => o?.toLowerCase()).filter(Boolean) as string[],
     })) ?? makeFilter(params.owned, (owned) => (owned ? { not: null } : null)),
   radius: makeRadiusFilter(params.radius, params.surfaceArea),
   orbitalPeriod: makeRangeFilter(params.orbitalPeriod),
@@ -105,9 +106,7 @@ const makeWhereFilter = (
   })),
 })
 
-const makeOrderBy = (
-  params: AsteroidsPageParams
-): Prisma.AsteroidOrderByWithRelationInput => ({
+const makeOrderBy = (params: AsteroidsPageParams) => ({
   id: getSort('id', params.sorting),
   name: getSort('name', params.sorting),
   radius:

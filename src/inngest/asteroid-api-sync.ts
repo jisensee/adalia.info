@@ -152,7 +152,10 @@ const updateAsteroid = (
   const newScanStatus = convertScanStatus(apiAsteroid.Celestial.scanStatus)
   const scanChanged = newScanStatus !== existingAsteroid.scanStatus
   const apiBonuses = getApiBonuses(apiAsteroid)
-  const newRarity = convertRarity(SdkAsteroid.getRarity(apiBonuses))
+  const newRarity =
+    newScanStatus !== AsteroidScanStatus.UNSCANNED
+      ? convertRarity(SdkAsteroid.getRarity(apiBonuses))
+      : null
 
   const wasLongRangeScanned =
     scanChanged && newScanStatus === AsteroidScanStatus.LONG_RANGE_SCAN

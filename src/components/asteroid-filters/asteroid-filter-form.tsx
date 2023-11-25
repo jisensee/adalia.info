@@ -28,6 +28,7 @@ import {
   OwnedFilter,
   OwnerFilter,
   RangeFilter,
+  StringFilter,
 } from './asteroid-filters'
 import {
   asteroidsPageParamConfig,
@@ -78,13 +79,25 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
 
   useEffect(() => {
     form.reset(params)
-  }, [params, form])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(params), form])
 
   const onSave = (values: Partial<AsteroidFilterParams>) =>
-    push(buildAsteroidsUrl(values))
+    push(buildAsteroidsUrl({ ...values, page: 1 }))
 
   const generalFilters = (
     <div className='flex flex-col gap-y-5'>
+      <FormField
+        control={form.control}
+        name='name'
+        render={({ field }) => (
+          <StringFilter
+            name='Name'
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
+      />
       <FormField
         control={form.control}
         name='spectralType'

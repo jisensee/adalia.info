@@ -11,6 +11,7 @@ import {
   buildAsteroidsUrl,
 } from '@/app/asteroids/types'
 import { Format } from '@/lib/format'
+import { useAccounts } from '@/hooks/wallet-hooks'
 
 export type AsteroidFilterSummaryProps = {
   searchParams: Record<string, string | string[]>
@@ -23,6 +24,14 @@ export const AsteroidFilterSummary = ({
 }: AsteroidFilterSummaryProps) => {
   const params = decodeQueryParams(asteroidsPageParamConfig, searchParams)
   const { push } = useRouter()
+
+  const { mainnetAccount, starknetAccount } = useAccounts()
+  const mainnetAddress = mainnetAccount?.address
+  const starknetAddress = starknetAccount?.address
+
+  const connectedAddresses = [mainnetAddress, starknetAddress].filter(
+    Boolean
+  ) as string[]
 
   const tag = <Key extends keyof AsteroidFilterParams>(
     key: Key,
@@ -68,8 +77,18 @@ export const AsteroidFilterSummary = ({
 
   return (
     <div className='flex flex-row flex-wrap items-center gap-2'>
+      {tag('name', 'Name', (name) => name)}
       {tag('owned', 'Owned', (owned) => (owned ? 'Yes' : 'No'))}
-      {tag('owner', 'Owner', (owner) => Format.ethAddress(owner, 4))}
+      {tag('owners', 'Owner', (owners) => {
+        const isConnectedOwner =
+          owners.length === connectedAddresses.length &&
+          (owners.some((v) => v && v === mainnetAddress) ||
+            owners.some((v) => v && v === starknetAddress))
+
+        return isConnectedOwner
+          ? 'Me'
+          : owners.map((o) => (o ? Format.ethAddress(o, 4) : '')).join(', ')
+      })}
       {tag('scanStatus', 'Scan', enumFormatter(Format.asteroidScanStatus))}
       {tag('rarity', 'Rarity', enumFormatter(Format.asteroidRarity))}
       {tag(
