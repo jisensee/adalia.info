@@ -115,7 +115,11 @@ export default async function AsteroidDetailPage({ params }: Params) {
         {asteroid.name?.length ?? 0 > 0 ? `'${asteroid.name}` : asteroid.id}
       </h1>
       <div className='flex flex-col items-center gap-5 sm:flex-row sm:items-start'>
-        <AsteroidPreview asteroid={asteroid} alwaysVertical />
+        <AsteroidPreview
+          id={asteroid.id}
+          orbitalPeriod={asteroid.orbitalPeriod}
+          alwaysVertical
+        />
         {stats}
       </div>
     </div>

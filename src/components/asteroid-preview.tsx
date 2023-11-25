@@ -7,27 +7,25 @@ import { buildAsteroidsUrl } from '../app/asteroids/types'
 import { Button } from '@/components/ui/button'
 import { AsteroidImage } from '@/components/asteroid-image'
 import { cn } from '@/lib/utils'
-import { AsteroidRow } from '@/app/asteroids/columns'
 
 export type AsteroidPreviewProps = {
-  asteroid: AsteroidRow
+  id: number
+  orbitalPeriod: number
   alwaysVertical?: boolean
 }
 
 export const AsteroidPreview: FC<AsteroidPreviewProps> = ({
-  asteroid,
+  id,
+  orbitalPeriod,
   alwaysVertical,
 }) => {
   const actions = (
     <div className='flex flex-col items-center justify-center gap-3'>
-      <ActionButton
-        href={`/asteroids/${asteroid.id}` as Route}
-        icon={<Orbit />}
-      >
+      <ActionButton href={`/asteroids/${id}` as Route} icon={<Orbit />}>
         Details
       </ActionButton>
       <ActionButton
-        href={`https://game.influenceth.io/asteroids/${asteroid.id}`}
+        href={`https://game.influenceth.io/asteroids/${id}`}
         target='_blank'
         icon={
           <Image
@@ -42,7 +40,7 @@ export const AsteroidPreview: FC<AsteroidPreviewProps> = ({
       </ActionButton>
       <ActionButton
         href={buildAsteroidsUrl({
-          orbitalPeriod: [asteroid.orbitalPeriod, asteroid.orbitalPeriod],
+          orbitalPeriod: [orbitalPeriod, orbitalPeriod],
         })}
         icon={<Globe />}
       >
@@ -57,7 +55,7 @@ export const AsteroidPreview: FC<AsteroidPreviewProps> = ({
         'sm:w-auto sm:flex-row': !alwaysVertical,
       })}
     >
-      <AsteroidImage id={asteroid.id} width={350} />
+      <AsteroidImage id={id} width={350} />
       {actions}
     </div>
   )

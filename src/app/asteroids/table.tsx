@@ -148,7 +148,10 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
                 {row.getIsExpanded() && (
                   <TableRow>
                     <TableCell colSpan={columns.length + 1}>
-                      <AsteroidPreview asteroid={row.original} />
+                      <AsteroidPreview
+                        id={row.original.id}
+                        orbitalPeriod={row.original.orbitalPeriod}
+                      />
                     </TableCell>
                   </TableRow>
                 )}

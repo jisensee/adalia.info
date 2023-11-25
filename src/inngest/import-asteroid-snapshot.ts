@@ -2,7 +2,7 @@ import { Prisma } from '@prisma/client'
 import { SnapshotAsteroid, convertSnapshotAsteroid } from './types'
 import { db } from '@/server/db'
 
-const snapshotPath = ''
+const snapshotPath = '../../asteroid-snapshot.json'
 if (!snapshotPath) {
   console.error('No snapshot path provided')
   process.exit(1)
