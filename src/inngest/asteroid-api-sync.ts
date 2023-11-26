@@ -24,7 +24,7 @@ type Events = GetEvents<typeof inngest>
 
 export const startAsteroidSync = inngest.createFunction(
   { id: 'start-asteroid-sync' },
-  { cron: '0 */12 * * *' },
+  { event: 'app/start-asteroid-sync' },
   async ({ step, logger }) => {
     if (!process.env.INFLUENCE_API_ACCESS_TOKEN) {
       logger.warn('Skipping asteroid sync, no influence access token')
@@ -58,8 +58,18 @@ export const startAsteroidSync = inngest.createFunction(
   }
 )
 
+export const startScheduledAsteroidSync = inngest.createFunction(
+  { id: 'start-scheduled-asteroid-sync' },
+  { cron: '0 8,20 * * *' },
+  async ({ step }) => {
+    await step.sendEvent('app/start-asteroid-sync', [
+      { name: 'app/start-asteroid-sync' },
+    ])
+  }
+)
+
 export const updateAsteroidRange = inngest.createFunction(
-  { id: 'update-asteroid-range', concurrency: 5 },
+  { id: 'update-asteroid-range', concurrency: 10 },
   { event: 'app/update-asteroid-range' },
   async ({ event, logger }) => {
     const { from, to, runId } = event.data
