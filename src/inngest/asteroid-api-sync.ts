@@ -1,6 +1,7 @@
 import { Asteroid, AsteroidScanStatus } from '@prisma/client'
 import { Asteroid as SdkAsteroid } from '@influenceth/sdk'
 import { GetEvents } from 'inngest'
+import { Logger } from 'inngest/middleware/logger'
 import {
   ApiAsteroid,
   convertBonusType,
@@ -17,18 +18,20 @@ import {
 import { inngest } from './client'
 import { db } from '@/server/db'
 
-const BATCH_SIZE = 500
+const BATCH_SIZE = 250
 
 type Events = GetEvents<typeof inngest>
 
 export const startAsteroidSync = inngest.createFunction(
   { id: 'start-asteroid-sync' },
   { cron: '0 */12 * * *' },
-  async ({ step }) => {
+  async ({ step, logger }) => {
     if (!process.env.INFLUENCE_API_ACCESS_TOKEN) {
+      logger.warn('Skipping asteroid sync, no influence access token')
       return
     }
     const lastPurchaseOrder = await getLastPurchaseOrder()
+    logger.info('Updating to purchase order', lastPurchaseOrder)
     await updateAdaliaPrime()
 
     const ranges = makeRanges(lastPurchaseOrder)
@@ -58,15 +61,23 @@ export const startAsteroidSync = inngest.createFunction(
 export const updateAsteroidRange = inngest.createFunction(
   { id: 'update-asteroid-range', concurrency: 5 },
   { event: 'app/update-asteroid-range' },
-  async ({ event }) => {
+  async ({ event, logger }) => {
     const { from, to, runId } = event.data
-    await updateRange([from, to], runId)
+    await updateRange([from, to], runId, logger)
   }
 )
 
-const updateRange = async (range: [number, number], runId: number) => {
+const updateRange = async (
+  range: [number, number],
+  runId: number,
+  logger: Logger
+) => {
   const start = new Date()
+  const prefix = `[${range[0]}-${range[1]}]`
+
+  logger.info(prefix, `Updating asteroid range`)
   const apiAsteroids = await getAsteroids(range[0], range[1])
+  logger.info(prefix, `Got ${apiAsteroids.length} asteroids from API`)
   const apiIds = apiAsteroids.map((a) => a.id)
 
   const existingAsteroids = new Map(
@@ -80,7 +91,10 @@ const updateRange = async (range: [number, number], runId: number) => {
       })
     ).map((a) => [a.id, a])
   )
+  logger.info(prefix, `Got ${existingAsteroids.size} asteroids from DB`)
   await updateAsteroids(apiAsteroids, existingAsteroids)
+
+  logger.info(prefix, 'Finish updating asteroids in DB')
 
   const run = await db.asteroidImportRun.update({
     where: { id: runId },
@@ -91,11 +105,7 @@ const updateRange = async (range: [number, number], runId: number) => {
     },
   })
 
-  console.log(
-    `Updated range ${range[0]}-${range[1]} in ${
-      new Date().getTime() - start.getTime()
-    }ms`
-  )
+  logger.info(`Updated range in ${new Date().getTime() - start.getTime()}ms`)
 
   if (run.runningWorkers === 0) {
     await db.asteroidImportRun.update({
