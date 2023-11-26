@@ -18,7 +18,7 @@ import {
 import { inngest } from './client'
 import { db } from '@/server/db'
 
-const BATCH_SIZE = 250
+const BATCH_SIZE = 50
 
 type Events = GetEvents<typeof inngest>
 
