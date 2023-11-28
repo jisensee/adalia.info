@@ -21,7 +21,7 @@ export const Filter = <T,>({
   children,
 }: FilterProps<T>) => {
   const [lastValue, setLastValue] = useState(value ?? defaultValue)
-  const [active, setActive] = useState(value !== undefined)
+  const [active, setActive] = useState(value !== undefined && value !== null)
   const id = useId()
 
   useEffect(() => {

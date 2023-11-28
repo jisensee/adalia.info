@@ -38,7 +38,6 @@ const useAsteroidCount = (address?: string) => {
 
   useEffect(() => {
     if (address) {
-      console.log('get count for', address)
       getAsteroidCount(address).then(setCount)
     }
   }, [address])

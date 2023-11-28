@@ -3,15 +3,9 @@ import { DndContext } from '@dnd-kit/core'
 import { SortableContext, arrayMove, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
-import { useRouter } from 'next/navigation'
 import { GripVertical, TableProperties } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { AsteroidColumn, getAsteroidColumnName } from './columns'
-import {
-  AsteroidsPageParams,
-  buildAsteroidsUrl,
-  defaultAsteroidColumnConfig,
-} from './types'
+import { defaultAsteroidColumnConfig, useAsteroidColumns } from './types'
 import { Button } from '@/components/ui/button'
 import {
   Popover,
@@ -20,19 +14,8 @@ import {
 } from '@/components/ui/popover'
 import { Checkbox } from '@/components/ui/checkbox'
 
-export type ColumnConfigProps = {
-  params: AsteroidsPageParams
-}
-
-export const ColumnConfig = ({ params }: ColumnConfigProps) => {
-  const [columns, setColumns] = useState(
-    params.columns ?? defaultAsteroidColumnConfig
-  )
-  const { push } = useRouter()
-
-  useEffect(() => {
-    push(buildAsteroidsUrl({ ...params, columns }))
-  }, [columns, params, push])
+export const ColumnConfig = () => {
+  const [columns, setColumns] = useAsteroidColumns()
 
   return (
     <Popover>

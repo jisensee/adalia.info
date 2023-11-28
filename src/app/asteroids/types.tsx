@@ -1,51 +1,23 @@
 import { SortDirection } from '@tanstack/react-table'
-import { Route } from 'next'
 import {
-  NumberParam,
-  DecodedValueMap,
-  objectToSearchString,
-  encodeQueryParams,
-  decodeString,
-  QueryParamConfig,
-} from 'serialize-query-params'
+  createSearchParamsCache,
+  parseAsArrayOf,
+  parseAsInteger,
+  parseAsJson,
+} from 'next-usequerystate/parsers'
+import { useQueryState, useQueryStates } from 'next-usequerystate'
+import { TransitionStartFunction } from 'react'
 import { AsteroidColumn } from './columns'
-import { asteroidFilterParamsConfig } from '@/components/asteroid-filters/filter-params'
 
 export type Sort = {
   id: AsteroidColumn
   direction: SortDirection
 }
 
-const SortParam: QueryParamConfig<Sort | undefined> = {
-  encode: (value) => value && `${value.id}:${value.direction}`,
-  decode: (value) => {
-    const [id, direction] = decodeString(value)?.split(':') ?? []
-    return id && direction
-      ? { id: id as AsteroidColumn, direction: direction as SortDirection }
-      : undefined
-  },
-}
 export type AsteroidColumnConfig = {
   id: AsteroidColumn
   active: boolean
 }
-const ColumnConfigParam: QueryParamConfig<AsteroidColumnConfig[] | undefined> =
-  {
-    encode: (value) => value?.map((c) => `${c.id}:${c.active}`).join(','),
-    decode: (value) => {
-      const str = decodeString(value)
-      if (!str) {
-        return undefined
-      }
-      return str.split(',').map((s) => {
-        const [id, active] = s.split(':')
-        return {
-          id: id as AsteroidColumn,
-          active: active === 'true',
-        }
-      })
-    },
-  }
 
 export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
   { id: 'owner', active: true },
@@ -66,20 +38,28 @@ export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
   { id: 'blockchain', active: false },
 ]
 
-export const asteroidsPageParamConfig = {
-  page: NumberParam,
-  pageSize: NumberParam,
-  sorting: SortParam,
-  columns: ColumnConfigParam,
-  ...asteroidFilterParamsConfig,
+const asteroidPageParamsParsers = {
+  page: parseAsInteger.withDefault(1),
+  pageSize: parseAsInteger.withDefault(15),
+  sort: parseAsJson<Sort>().withDefault({ id: 'id', direction: 'asc' }),
 }
+export const useAsteroidPageParams = (
+  startTransition?: TransitionStartFunction
+) =>
+  useQueryStates(asteroidPageParamsParsers, {
+    history: 'push',
+    startTransition,
+    shallow: false,
+  })
 
-export type AsteroidsPageParams = Partial<
-  DecodedValueMap<typeof asteroidsPageParamConfig>
->
+export const asteroidPageParamsCache = createSearchParamsCache(
+  asteroidPageParamsParsers
+)
 
-export const buildAsteroidsUrl = (params: AsteroidsPageParams) =>
-  ('/asteroids?' +
-    objectToSearchString(
-      encodeQueryParams(asteroidsPageParamConfig, params)
-    )) as Route
+export const useAsteroidColumns = () =>
+  useQueryState(
+    'columns',
+    parseAsArrayOf(parseAsJson<AsteroidColumnConfig>()).withDefault(
+      defaultAsteroidColumnConfig
+    )
+  )

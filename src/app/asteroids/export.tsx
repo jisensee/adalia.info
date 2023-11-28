@@ -3,7 +3,6 @@
 import { FileDown } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { objectToSearchString } from 'serialize-query-params'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -21,13 +20,15 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summary'
+import { useAsteroidFilters } from '@/components/asteroid-filters/filter-params'
 
 export type ExportProps = {
   totalCount: number
-  searchParams: Record<string, string | string[]>
 }
 
-export const Export = ({ totalCount, searchParams }: ExportProps) => {
+export const Export = ({ totalCount }: ExportProps) => {
+  const [filters] = useAsteroidFilters()
+
   const [format, setFormat] = useState('csv')
   const filtersActive = totalCount < 250_000
   const [mode, setMode] = useState<'all' | 'filtered'>(
@@ -73,7 +74,7 @@ export const Export = ({ totalCount, searchParams }: ExportProps) => {
         <p className='mb-1'>
           Export all currently selected {totalCount.toLocaleString()} asteroids
         </p>
-        <AsteroidFilterSummary searchParams={searchParams} readonly />
+        <AsteroidFilterSummary readonly />
       </div>
     </div>
   )
@@ -107,8 +108,8 @@ export const Export = ({ totalCount, searchParams }: ExportProps) => {
             something that is derived from this data. Thank you!
           </p>
           <Link
-            href={`/asteroids/export?${objectToSearchString(
-              searchParams
+            href={`/asteroids/export?filter=${encodeURI(
+              JSON.stringify(filters)
             )}&format=${format}`}
             onClick={() => setOpen(false)}
           >

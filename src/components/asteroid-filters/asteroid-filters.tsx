@@ -15,6 +15,7 @@ import { Slider } from '../ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
 import { Filter } from './filter'
+import { RangeParam } from './filter-params'
 import { cn } from '@/lib/utils'
 import { useAccounts } from '@/hooks/wallet-hooks'
 
@@ -217,7 +218,7 @@ export const BooleanFilter = ({ name, ...filterProps }: BooleanFilterProps) => (
   </Filter>
 )
 
-export type RangeFilterProps = AsteroidFilterProps<[number, number]> & {
+export type RangeFilterProps = AsteroidFilterProps<RangeParam> & {
   name: string
   min: number
   max: number
@@ -231,12 +232,12 @@ export const RangeFilter = ({
   unit,
   ...filterProps
 }: RangeFilterProps) => (
-  <Filter {...filterProps} defaultValue={[min, max]}>
-    {({ value: [from, to], onChange, disabled }) => (
+  <Filter {...filterProps} defaultValue={{ from: min, to: max }}>
+    {({ value: { from, to }, onChange, disabled }) => (
       <div className='flex flex-col gap-y-2'>
         <Slider
           value={[from, to]}
-          onValueChange={(v) => onChange(v as [number, number])}
+          onValueChange={([a, b]) => a && b && onChange({ from: a, to: b })}
           min={min}
           max={max}
           step={step}

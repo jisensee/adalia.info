@@ -1,29 +1,21 @@
 'use client'
 
-import { decodeQueryParams } from 'serialize-query-params'
 import { PropsWithChildren, ReactNode } from 'react'
-import { useRouter } from 'next/navigation'
 import { XIcon } from 'lucide-react'
 import { Button } from '../ui/button'
-import { AsteroidFilterParams } from './filter-params'
-import {
-  asteroidsPageParamConfig,
-  buildAsteroidsUrl,
-} from '@/app/asteroids/types'
+import { AsteroidFilters, useAsteroidFilters } from './filter-params'
+
 import { Format } from '@/lib/format'
 import { useAccounts } from '@/hooks/wallet-hooks'
 
 export type AsteroidFilterSummaryProps = {
-  searchParams: Record<string, string | string[]>
   readonly?: boolean
 }
 
 export const AsteroidFilterSummary = ({
-  searchParams,
   readonly,
 }: AsteroidFilterSummaryProps) => {
-  const params = decodeQueryParams(asteroidsPageParamConfig, searchParams)
-  const { push } = useRouter()
+  const [filters, setFilters] = useAsteroidFilters()
 
   const { mainnetAccount, starknetAccount } = useAccounts()
   const mainnetAddress = mainnetAccount?.address
@@ -33,14 +25,14 @@ export const AsteroidFilterSummary = ({
     Boolean
   ) as string[]
 
-  const tag = <Key extends keyof AsteroidFilterParams>(
+  const tag = <Key extends keyof AsteroidFilters>(
     key: Key,
     name: string,
     format: (
-      value: Exclude<AsteroidFilterParams[Key], null | undefined>
+      value: Exclude<AsteroidFilters[Key], null | undefined>
     ) => ReactNode
   ) => {
-    const value = params[key]
+    const value = filters[key]
 
     return (
       value !== undefined &&
@@ -48,9 +40,7 @@ export const AsteroidFilterSummary = ({
         <FilterTag
           name={name}
           onRemove={
-            readonly
-              ? undefined
-              : () => push(buildAsteroidsUrl({ ...params, [key]: null }))
+            readonly ? undefined : () => setFilters({ ...filters, [key]: null })
           }
         >
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -60,7 +50,7 @@ export const AsteroidFilterSummary = ({
     )
   }
 
-  const rangeTag = <Key extends keyof AsteroidFilterParams>(
+  const rangeTag = <Key extends keyof AsteroidFilters>(
     key: Key,
     name: string,
     format: (value: number) => string

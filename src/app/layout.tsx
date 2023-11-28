@@ -69,8 +69,13 @@ export default async function RootLayout({
         <Providers>
           <div className='flex h-full flex-col'>
             <Navbar />
-            {children}
-            {footer}
+            <div className='flex h-full flex-row overflow-y-hidden'>
+              <div id='sidebar' />
+              <div className='flex h-full w-full flex-col overflow-y-auto'>
+                {children}
+                {footer}
+              </div>
+            </div>
           </div>
         </Providers>
         <Analytics />

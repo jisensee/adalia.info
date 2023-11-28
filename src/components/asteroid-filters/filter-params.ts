@@ -1,3 +1,11 @@
+import { parseAsJson, useQueryStates } from 'next-usequerystate'
+import {
+  createSearchParamsCache,
+  parseAsArrayOf,
+  parseAsBoolean,
+  parseAsString,
+  parseAsStringEnum,
+} from 'next-usequerystate/parsers'
 import {
   AsteroidRarity,
   AsteroidScanStatus,
@@ -5,79 +13,74 @@ import {
   AsteroidSpectralType,
   Blockchain,
 } from '@prisma/client'
-import {
-  ArrayParam,
-  BooleanParam,
-  DecodedValueMap,
-  QueryParamConfig,
-  StringParam,
-  createEnumArrayParam,
-  createEnumParam,
-  decodeString,
-} from 'serialize-query-params'
+import { TransitionStartFunction } from 'react'
 
-const RangeParam: QueryParamConfig<[number, number] | undefined | null> = {
-  encode: (value) => value?.join('-'),
-  decode: (value) => {
-    const arr = decodeString(value)?.split('-')
-    if (arr && arr.length === 2) {
-      const [min, max] = arr.map(Number)
-      if (min && max && !isNaN(min) && !isNaN(max)) {
-        return [min, max]
-      }
-    }
-    return undefined
-  },
+export type RangeParam = { from: number; to: number }
+
+const asteroidFilterParamsParsers = {
+  name: parseAsString,
+  owned: parseAsBoolean,
+  owners: parseAsArrayOf(parseAsString),
+  earlyAdopter: parseAsBoolean,
+  scanBonus: parseAsArrayOf(parseAsStringEnum(['1', '2', '3', '4'])),
+  blockchain: parseAsStringEnum([Blockchain.ETHEREUM, Blockchain.STARKNET]),
+  scanStatus: parseAsArrayOf(
+    parseAsStringEnum([
+      AsteroidScanStatus.UNSCANNED,
+      AsteroidScanStatus.LONG_RANGE_SCAN,
+      AsteroidScanStatus.ORBITAL_SCAN,
+    ])
+  ),
+  purchaseOrder: parseAsJson<RangeParam>(),
+  rarity: parseAsArrayOf(
+    parseAsStringEnum([
+      AsteroidRarity.COMMON,
+      AsteroidRarity.UNCOMMON,
+      AsteroidRarity.RARE,
+      AsteroidRarity.SUPERIOR,
+      AsteroidRarity.EXCEPTIONAL,
+      AsteroidRarity.INCOMPARABLE,
+    ])
+  ),
+  spectralType: parseAsArrayOf(
+    parseAsStringEnum([
+      AsteroidSpectralType.C,
+      AsteroidSpectralType.CI,
+      AsteroidSpectralType.CIS,
+      AsteroidSpectralType.CM,
+      AsteroidSpectralType.CMS,
+      AsteroidSpectralType.CS,
+      AsteroidSpectralType.I,
+      AsteroidSpectralType.M,
+      AsteroidSpectralType.S,
+      AsteroidSpectralType.SI,
+      AsteroidSpectralType.SM,
+    ])
+  ),
+  size: parseAsArrayOf(
+    parseAsStringEnum([
+      AsteroidSize.SMALL,
+      AsteroidSize.MEDIUM,
+      AsteroidSize.LARGE,
+      AsteroidSize.HUGE,
+    ])
+  ),
+  radius: parseAsJson<RangeParam>(),
+  surfaceArea: parseAsJson<RangeParam>(),
+  semiMajorAxis: parseAsJson<RangeParam>(),
+  inclination: parseAsJson<RangeParam>(),
+  orbitalPeriod: parseAsJson<RangeParam>(),
+  eccentricity: parseAsJson<RangeParam>(),
 }
 
-export const asteroidFilterParamsConfig = {
-  name: StringParam,
-  owned: BooleanParam,
-  owners: ArrayParam,
-  earlyAdopter: BooleanParam,
-  scanBonus: createEnumArrayParam(['1', '2', '3', '4']),
-  blockchain: createEnumParam([Blockchain.ETHEREUM, Blockchain.STARKNET]),
-  scanStatus: createEnumArrayParam([
-    AsteroidScanStatus.UNSCANNED,
-    AsteroidScanStatus.LONG_RANGE_SCAN,
-    AsteroidScanStatus.ORBITAL_SCAN,
-  ]),
-  purchaseOrder: RangeParam,
-  rarity: createEnumArrayParam([
-    AsteroidRarity.COMMON,
-    AsteroidRarity.UNCOMMON,
-    AsteroidRarity.RARE,
-    AsteroidRarity.SUPERIOR,
-    AsteroidRarity.EXCEPTIONAL,
-    AsteroidRarity.INCOMPARABLE,
-  ]),
-  spectralType: createEnumArrayParam([
-    AsteroidSpectralType.C,
-    AsteroidSpectralType.CI,
-    AsteroidSpectralType.CIS,
-    AsteroidSpectralType.CM,
-    AsteroidSpectralType.CMS,
-    AsteroidSpectralType.CS,
-    AsteroidSpectralType.I,
-    AsteroidSpectralType.M,
-    AsteroidSpectralType.S,
-    AsteroidSpectralType.SI,
-    AsteroidSpectralType.SM,
-  ]),
-  size: createEnumArrayParam([
-    AsteroidSize.SMALL,
-    AsteroidSize.MEDIUM,
-    AsteroidSize.LARGE,
-    AsteroidSize.HUGE,
-  ]),
-  radius: RangeParam,
-  surfaceArea: RangeParam,
-  semiMajorAxis: RangeParam,
-  inclination: RangeParam,
-  orbitalPeriod: RangeParam,
-  eccentricity: RangeParam,
-}
+export const useAsteroidFilters = (startTransition?: TransitionStartFunction) =>
+  useQueryStates(asteroidFilterParamsParsers, {
+    shallow: false,
+    startTransition,
+  })
 
-export type AsteroidFilterParams = DecodedValueMap<
-  typeof asteroidFilterParamsConfig
->
+export const asteroidFiltersCache = createSearchParamsCache(
+  asteroidFilterParamsParsers
+)
+
+export type AsteroidFilters = ReturnType<typeof asteroidFiltersCache.parse>

@@ -1,13 +1,9 @@
 import { Transform, TransformCallback } from 'stream'
-import {
-  decodeQueryParams,
-  decodeString,
-  searchStringToObject,
-} from 'serialize-query-params'
+
 import { Asteroid } from '@prisma/client'
-import { asteroidsPageParamConfig } from '../types'
 import { AsteroidService } from '@/server/asteroid-service'
 import { radiusToSurfaceArea } from '@/lib/utils'
+import { AsteroidFilters } from '@/components/asteroid-filters/filter-params'
 
 const csvHeader = [
   'id',
@@ -43,13 +39,13 @@ const toCsvLine = (asteroid: Asteroid) =>
   ].join(',')
 
 export async function GET(request: Request) {
-  const searchParams = searchStringToObject(
-    new URL(request.url).searchParams.toString()
-  )
-  const format = decodeString(searchParams['format']) ?? 'csv'
+  const params = new URL(request.url).searchParams
+  const filters = JSON.parse(
+    decodeURI(params.get('filters') ?? '{}')
+  ) as AsteroidFilters
+  const format = params.get('format') ?? 'csv'
 
-  const params = decodeQueryParams(asteroidsPageParamConfig, searchParams)
-  const stream = AsteroidService.getExport(params, (a) =>
+  const stream = AsteroidService.getExport(filters, (a) =>
     format === 'json' ? JSON.stringify(a) + '\n' : toCsvLine(a) + '\n'
   )
 

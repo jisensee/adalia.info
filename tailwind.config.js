@@ -19,6 +19,10 @@ module.exports = {
       transitionProperty: {
         height: 'height',
       },
+      height: {
+        filters: 'calc(100vh - 3.5rem)',
+        nav: '3.5rem',
+      },
       colors: {
         border: 'var(--border)',
         input: 'var(--input)',

@@ -3,7 +3,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { FC, HTMLAttributeAnchorTarget, PropsWithChildren } from 'react'
 import { Route } from 'next'
-import { buildAsteroidsUrl } from '../app/asteroids/types'
 import { Button } from '@/components/ui/button'
 import { AsteroidImage } from '@/components/asteroid-image'
 import { cn } from '@/lib/utils'
@@ -39,9 +38,9 @@ export const AsteroidPreview: FC<AsteroidPreviewProps> = ({
         Game
       </ActionButton>
       <ActionButton
-        href={buildAsteroidsUrl({
-          orbitalPeriod: [orbitalPeriod, orbitalPeriod],
-        })}
+        href={`/asteroids?orbitalPeriod=${encodeURI(
+          JSON.stringify({ from: orbitalPeriod, to: orbitalPeriod })
+        )}`}
         icon={<Globe />}
       >
         Co-Orbitals

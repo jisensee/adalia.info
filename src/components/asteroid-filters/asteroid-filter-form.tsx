@@ -1,9 +1,7 @@
 'use client'
 
-import { FC, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 import { useForm } from 'react-hook-form'
-import { useRouter } from 'next/navigation'
-import { decodeQueryParams } from 'serialize-query-params'
 import { XIcon } from 'lucide-react'
 import {
   AsteroidRarity,
@@ -11,6 +9,7 @@ import {
   AsteroidSize,
   AsteroidSpectralType,
 } from '@prisma/client'
+import { createPortal } from 'react-dom'
 import { Form, FormField } from '../ui/form'
 import { Button } from '../ui/button'
 
@@ -20,7 +19,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/accordion'
-import { AsteroidFilterParams } from './filter-params'
+import { AsteroidFilters, useAsteroidFilters } from './filter-params'
 import {
   BlockchainFilter,
   BooleanFilter,
@@ -30,60 +29,55 @@ import {
   RangeFilter,
   StringFilter,
 } from './asteroid-filters'
-import {
-  asteroidsPageParamConfig,
-  buildAsteroidsUrl,
-} from '@/app/asteroids/types'
+
 import { cn } from '@/lib/utils'
 import { Constants } from '@/lib/constants'
 import { Format } from '@/lib/format'
 
-export type AsteroidFilterFormProps = {
-  searchParams: Record<string, string | string[]>
-}
-
-export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
-  searchParams,
-}) => {
-  const params = useMemo(
-    () => decodeQueryParams(asteroidsPageParamConfig, searchParams),
-    [searchParams]
-  )
+export const AsteroidFilterForm = () => {
+  const [isLoading, startTransition] = useTransition()
+  const [filters, setFilters] = useAsteroidFilters(startTransition)
 
   const [expanded, setExpanded] = useState(false)
 
-  const form = useForm<Partial<AsteroidFilterParams>>({
+  const form = useForm<Partial<AsteroidFilters>>({
     mode: 'onChange',
-    values: params,
+    values: filters,
   })
-  const { push } = useRouter()
 
-  const onReset = () =>
-    push(
-      buildAsteroidsUrl({
-        ...params,
-        owners: null,
-        owned: null,
-        semiMajorAxis: null,
-        orbitalPeriod: null,
-        inclination: null,
-        eccentricity: null,
-        radius: null,
-        rarity: null,
-        surfaceArea: null,
-        spectralType: null,
-        scanStatus: null,
-        size: null,
-      })
-    )
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    form.reset(params)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(params), form])
+    setIsMounted(true)
+  }, [])
 
-  const onSave = (values: Partial<AsteroidFilterParams>) =>
-    push(buildAsteroidsUrl({ ...values, page: 1 }))
+  const onReset = () =>
+    setFilters({
+      name: null,
+      spectralType: null,
+      rarity: null,
+      scanStatus: null,
+      owned: null,
+      owners: null,
+      blockchain: null,
+      earlyAdopter: null,
+      scanBonus: null,
+      purchaseOrder: null,
+      radius: null,
+      surfaceArea: null,
+      size: null,
+      semiMajorAxis: null,
+      inclination: null,
+      eccentricity: null,
+      orbitalPeriod: null,
+    })
+
+  useEffect(() => {
+    form.reset(filters)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(filters), form])
+
+  const onSave = (values: Partial<AsteroidFilters>) => setFilters(values)
 
   const generalFilters = (
     <div className='flex flex-col gap-y-5'>
@@ -354,7 +348,7 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
     </div>
   )
 
-  const filters = (
+  const filterAccordion = (
     <Accordion type='multiple' defaultValue={['general']}>
       <AccordionItem value='general'>
         <AccordionTrigger>General</AccordionTrigger>
@@ -379,67 +373,72 @@ export const AsteroidFilterForm: FC<AsteroidFilterFormProps> = ({
     </Accordion>
   )
 
-  return (
-    <div
-      className={cn(
-        'h-full shrink-0 rounded-r-xl border-2 border-primary transition-all duration-100 ease-in-out',
-        {
-          'w-full md:w-[30rem]': expanded,
-          'w-12': !expanded,
-        }
-      )}
-    >
-      {expanded && (
-        <div className='flex h-full flex-col gap-y-2 rounded-l-sm rounded-r-xl px-3 py-2'>
-          <Form {...form}>
-            <form
-              className='grid h-full grid-rows-[auto,1fr,auto] gap-3'
-              onSubmit={form.handleSubmit(onSave)}
-            >
-              <div className='flex flex-row items-center justify-between'>
-                <h1>Filters</h1>
-                <Button
-                  variant='ghost'
-                  size='icon'
-                  onClick={() => setExpanded(false)}
-                >
-                  <XIcon size='30px' />
-                </Button>
-              </div>
-              <div className='overflow-y-auto overflow-x-hidden pr-3'>
-                {filters}
-              </div>
-              <div className='grow' />
-              <div className='flex flex-row gap-x-20 px-5 pb-5'>
-                <Button
-                  className='grow'
-                  type='button'
-                  variant='destructive'
-                  onClick={() => onReset()}
-                >
-                  Reset
-                </Button>
-                <Button className='grow' type='submit'>
-                  Submit
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </div>
-      )}
-      {!expanded && (
+  return isMounted
+    ? createPortal(
+        // @ts-expect-error create portal types are weird, works anyway
         <div
-          className='flex h-full cursor-pointer items-center justify-center rounded-l-none rounded-r-xl border-0 text-primary hover:bg-primary hover:text-primary-foreground'
-          onClick={() => setExpanded(true)}
+          className={cn(
+            'h-full shrink-0 rounded-r-xl border-2 border-primary transition-all duration-100 ease-in-out',
+            {
+              'w-full md:w-[30rem]': expanded,
+              'w-12': !expanded,
+            }
+          )}
         >
-          <span
-            className='rotate-180 transform text-xl'
-            style={{ writingMode: 'vertical-lr' }}
-          >
-            Filters
-          </span>
-        </div>
-      )}
-    </div>
-  )
+          {expanded && (
+            <div className='flex h-full flex-col gap-y-2 rounded-l-sm rounded-r-xl px-3 py-2'>
+              <Form {...form}>
+                <form
+                  className='grid h-full grid-rows-[auto,1fr,auto] gap-3'
+                  onSubmit={form.handleSubmit(onSave)}
+                >
+                  <div className='flex flex-row items-center justify-between'>
+                    <h1>Filters</h1>
+                    <Button
+                      variant='ghost'
+                      size='icon'
+                      onClick={() => setExpanded(false)}
+                    >
+                      <XIcon size='30px' />
+                    </Button>
+                  </div>
+                  <div className='overflow-y-auto overflow-x-hidden pr-3'>
+                    {filterAccordion}
+                  </div>
+                  <div className='grow' />
+                  <div className='flex flex-row gap-x-20 px-5 pb-5'>
+                    <Button
+                      className='grow'
+                      type='button'
+                      variant='destructive'
+                      onClick={() => onReset()}
+                      loading={isLoading}
+                    >
+                      Reset
+                    </Button>
+                    <Button className='grow' type='submit' loading={isLoading}>
+                      Submit
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          )}
+          {!expanded && (
+            <div
+              className='flex h-full cursor-pointer items-center justify-center rounded-l-none rounded-r-xl border-0 text-primary hover:bg-primary hover:text-primary-foreground'
+              onClick={() => setExpanded(true)}
+            >
+              <span
+                className='rotate-180 transform text-xl'
+                style={{ writingMode: 'vertical-lr' }}
+              >
+                Filters
+              </span>
+            </div>
+          )}
+        </div>,
+        document.getElementById('sidebar')
+      )
+    : null
 }

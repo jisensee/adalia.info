@@ -6,16 +6,10 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 
-import { FC, Fragment, useMemo } from 'react'
+import { FC, Fragment, useMemo, useTransition } from 'react'
 import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react'
-import Link from 'next/link'
 import { Asteroid } from '@prisma/client'
-import {
-  AsteroidColumnConfig,
-  AsteroidsPageParams,
-  Sort,
-  buildAsteroidsUrl,
-} from './types'
+import { Sort, useAsteroidColumns, useAsteroidPageParams } from './types'
 import {
   AsteroidColumn,
   columnDef,
@@ -34,31 +28,26 @@ import { cn } from '@/lib/utils'
 import { AsteroidPreview } from '@/components/asteroid-preview'
 
 export type AsteroidTableProps = {
-  columns: AsteroidColumnConfig[]
   data: Asteroid[]
-  pageParams: AsteroidsPageParams
 }
 
 const calcNextSortState = (
-  pageParams: AsteroidsPageParams,
+  currentSort: Sort,
   colId: AsteroidColumn
 ): Sort | undefined => {
-  const sort = pageParams.sorting
-
-  if (!sort) {
-    return { id: colId, direction: 'asc' }
-  } else if (sort.direction === 'asc' && sort.id === colId) {
+  if (currentSort.direction === 'asc' && currentSort.id === colId) {
     return { id: colId, direction: 'desc' }
   } else {
     return { id: colId, direction: 'asc' }
   }
 }
 
-export const AsteroidTable: FC<AsteroidTableProps> = ({
-  columns,
-  data,
-  pageParams,
-}) => {
+export const AsteroidTable: FC<AsteroidTableProps> = ({ data }) => {
+  const [isLoading, startTransition] = useTransition()
+  const [pageParams, setPageParams] = useAsteroidPageParams(startTransition)
+
+  const [columns] = useAsteroidColumns()
+
   const visibleColumns = [{ id: 'id', active: true }, ...columns]
     .filter((col) => col.active)
     .flatMap((col) => {
@@ -73,99 +62,93 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({
   })
 
   return (
-    <div className='overflow-x-auto rounded-md border'>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              <TableHead />
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {!nonSortableColumns.includes(
-                    header.column.id as AsteroidColumn
-                  ) ? (
-                    <Link
-                      className='flex flex-row items-center gap-x-2'
-                      href={buildAsteroidsUrl({
+    <Table>
+      <TableHeader>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            <TableHead />
+            {headerGroup.headers.map((header) => (
+              <TableHead key={header.id}>
+                {!nonSortableColumns.includes(
+                  header.column.id as AsteroidColumn
+                ) ? (
+                  <div
+                    className='flex cursor-pointer flex-row items-center gap-x-2'
+                    onClick={() =>
+                      setPageParams({
                         ...pageParams,
                         page: 1,
-                        pageSize: undefined,
-                        sorting: calcNextSortState(
-                          pageParams,
+                        sort: calcNextSortState(
+                          pageParams.sort,
                           header.column.id as AsteroidColumn
                         ),
-                      })}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                      {pageParams.sorting?.id === header.column.id &&
-                        pageParams.sorting?.direction === 'asc' && <ArrowUp />}
-                      {pageParams.sorting?.id === header.column.id &&
-                        pageParams.sorting?.direction === 'desc' && (
-                          <ArrowDown />
+                      })
+                    }
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
                         )}
-                    </Link>
-                  ) : header.isPlaceholder ? null : (
-                    flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )
-                  )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <Fragment key={row.id}>
+                    {pageParams.sort?.id === header.column.id &&
+                      pageParams.sort?.direction === 'asc' && <ArrowUp />}
+                    {pageParams.sort?.id === header.column.id &&
+                      pageParams.sort?.direction === 'desc' && <ArrowDown />}
+                  </div>
+                ) : header.isPlaceholder ? null : (
+                  flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )
+                )}
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody className={isLoading ? 'opacity-50' : ''}>
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => (
+            <Fragment key={row.id}>
+              <TableRow>
+                <TableCell>
+                  <ChevronRight
+                    className={cn(
+                      'cursor-pointer text-primary transition-all duration-100 ease-in-out',
+                      {
+                        'rotate-90 transform': row.getIsExpanded(),
+                      }
+                    )}
+                    onClick={() => row.toggleExpanded()}
+                  />
+                </TableCell>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id} className='whitespace-nowrap'>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+              {row.getIsExpanded() && (
                 <TableRow>
-                  <TableCell>
-                    <ChevronRight
-                      className={cn(
-                        'cursor-pointer text-primary transition-all duration-100 ease-in-out',
-                        {
-                          'rotate-90 transform': row.getIsExpanded(),
-                        }
-                      )}
-                      onClick={() => row.toggleExpanded()}
+                  <TableCell colSpan={columns.length + 1}>
+                    <AsteroidPreview
+                      id={row.original.id}
+                      orbitalPeriod={row.original.orbitalPeriod}
                     />
                   </TableCell>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className='whitespace-nowrap'>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
                 </TableRow>
-                {row.getIsExpanded() && (
-                  <TableRow>
-                    <TableCell colSpan={columns.length + 1}>
-                      <AsteroidPreview
-                        id={row.original.id}
-                        orbitalPeriod={row.original.orbitalPeriod}
-                      />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </Fragment>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className='h-24 text-center'>
-                No asteroids found that match your filter.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+              )}
+            </Fragment>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={columns.length} className='h-24 text-center'>
+              No asteroids found that match your filter.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </Table>
   )
 }
