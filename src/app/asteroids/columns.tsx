@@ -1,5 +1,4 @@
 'use client'
-import NextImage from 'next/image'
 import {
   Asteroid,
   AsteroidRarity,
@@ -15,6 +14,7 @@ import { Format } from '@/lib/format'
 import { radiusToSurfaceArea } from '@/lib/utils'
 import { Constants } from '@/lib/constants'
 import { CopyButton } from '@/components/copy-button'
+import { Logo } from '@/components/logo'
 
 const colHelper = createColumnHelper<AsteroidRow>()
 
@@ -139,23 +139,6 @@ const col = (
     cell: (props) => render(props.row.original),
   })
 
-const renderBlockchain = (blockchain: Blockchain) =>
-  blockchain === Blockchain.ETHEREUM ? (
-    <NextImage
-      src='/ethereum-logo.svg'
-      width={24}
-      height={24}
-      alt='Ethereum logo'
-    />
-  ) : (
-    <NextImage
-      src='/starknet-logo.webp'
-      width={24}
-      height={24}
-      alt='StarkNet logo'
-    />
-  )
-
 export const columnDef: ColumnDef<AsteroidRow>[] = [
   col('id', (asteroid) => (
     <Link
@@ -214,7 +197,11 @@ export const columnDef: ColumnDef<AsteroidRow>[] = [
   col('semiMajorAxis', (asteroid) =>
     Format.semiMajorAxis(asteroid.semiMajorAxis)
   ),
-  col('blockchain', (asteroid) =>
-    asteroid.blockchain ? renderBlockchain(asteroid.blockchain) : ''
+  col(
+    'blockchain',
+    (asteroid) =>
+      asteroid.blockchain && (
+        <Logo.Blockchain blockchain={asteroid.blockchain} size={24} />
+      )
   ),
 ]

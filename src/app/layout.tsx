@@ -5,12 +5,12 @@ import type { Metadata } from 'next'
 import { Jura } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { Navbar } from '../components/navbar'
 import { Providers } from './providers'
 import { cn } from '@/lib/utils'
 import { db } from '@/server/db'
 import { Separator } from '@/components/ui/separator'
+import { Logo } from '@/components/logo'
 
 const font = Jura({ subsets: ['latin'] })
 
@@ -43,12 +43,7 @@ export default async function RootLayout({
             <SiGithub className='hover:text-primary' size={30} />
           </Link>
           <Link href='https://influenceth.io' target='_blank'>
-            <Image
-              src='/influence-logo.svg'
-              width={35}
-              height={35}
-              alt='Influence logo'
-            />
+            <Logo.Influence size={35} />
           </Link>
         </div>
         {lastAsteroidUpdate && (

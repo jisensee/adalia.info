@@ -2,7 +2,7 @@ import { Globe, Orbit } from 'lucide-react'
 import Link from 'next/link'
 import { HTMLAttributeAnchorTarget, PropsWithChildren } from 'react'
 import { Route } from 'next'
-import Image from 'next/image'
+import { Logo } from './logo'
 import { Button } from '@/components/ui/button'
 
 type ActionButtonProps = {
@@ -45,14 +45,7 @@ export const AsteroidActionButton = {
       className={className}
       href={`https://game.influenceth.io/asteroids/${id}`}
       target='_blank'
-      icon={
-        <Image
-          src='/influence-logo.svg'
-          width={25}
-          height={25}
-          alt='Influence logo'
-        />
-      }
+      icon={<Logo.Influence size={25} />}
     >
       Game
     </ActionButton>

@@ -35,8 +35,7 @@
     "**/*.ts",
     "**/*.tsx",
     "./src/typings/**/*.d.ts",
-    ".next/types/**/*.ts",
-    "src/components/logos/ethereum-logo.svg"
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

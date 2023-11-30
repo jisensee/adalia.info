@@ -1,5 +1,4 @@
 import { Blockchain } from '@prisma/client'
-import Image from 'next/image'
 import { Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
 import { FormControl } from '../ui/form'
@@ -14,6 +13,7 @@ import {
 import { Slider } from '../ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
+import { Logo } from '../logo'
 import { Filter } from './filter'
 import { RangeParam } from './filter-params'
 import { cn } from '@/lib/utils'
@@ -98,23 +98,13 @@ export const OwnerFilter = (props: AsteroidFilterProps<string[]>) => {
           <div className='flex flex-col gap-3'>
             {mainnetAddress && (
               <div className='flex flex-row items-center gap-2'>
-                <Image
-                  src='/ethereum-logo.svg'
-                  width={25}
-                  height={25}
-                  alt='ethereum logo'
-                />
+                <Logo.Ethereum size={25} />
                 <p className='truncate'>{mainnetAddress}</p>
               </div>
             )}
             {starknetAddress && (
               <div className='flex flex-row items-center gap-2'>
-                <Image
-                  src='/starknet-logo.webp'
-                  width={25}
-                  height={25}
-                  alt='starknet logo'
-                />
+                <Logo.StarkNet size={25} />
                 <p className='truncate'>{starknetAddress}</p>
               </div>
             )}

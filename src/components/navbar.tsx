@@ -12,7 +12,7 @@ export const Navbar = () => {
     <nav className='sticky top-0 z-50 flex h-nav flex-row items-center justify-between border-b border-primary bg-background pr-3'>
       <div className='flex flex-row items-center'>
         <Link href='/' className={cn('!text-xl font-bold', link)}>
-          <Logo className='h-8 w-8 ' />
+          <Logo.AdaliaInfo className='h-8 w-8 ' />
           adalia.info
         </Link>
         <Link href='/asteroids' className={link}>

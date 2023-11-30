@@ -1,5 +1,6 @@
 import { Orbit } from 'lucide-react'
 import Image from 'next/image'
+import { Logo } from '../logo'
 
 export type BalanceProps = {
   balance: number
@@ -14,12 +15,7 @@ export const AsteroidBalance = ({ balance }: BalanceProps) => (
 
 export const EthBalance = ({ balance }: BalanceProps) => (
   <div className='flex flex-row gap-x-1'>
-    <Image
-      src='/ethereum-logo.svg'
-      width={20}
-      height={20}
-      alt='ethereum logo'
-    />
+    <Logo.Ethereum size={20} />
     {balance.toLocaleString(undefined, {
       maximumFractionDigits: 3,
     })}
