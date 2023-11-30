@@ -3,7 +3,11 @@
 import { PropsWithChildren, ReactNode } from 'react'
 import { XIcon } from 'lucide-react'
 import { Button } from '../ui/button'
-import { AsteroidFilters, useAsteroidFilters } from './filter-params'
+import {
+  AsteroidFilters,
+  RangeParam,
+  useAsteroidFilters,
+} from './filter-params'
 
 import { Format } from '@/lib/format'
 import { useAccounts } from '@/hooks/wallet-hooks'
@@ -56,7 +60,7 @@ export const AsteroidFilterSummary = ({
     format: (value: number) => string
   ) =>
     tag(key, name, (value) => {
-      const [from, to] = value as [number, number]
+      const { from, to } = value as RangeParam
       return format(from) + ' - ' + format(to)
     })
 

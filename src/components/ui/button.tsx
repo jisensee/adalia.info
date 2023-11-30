@@ -23,6 +23,7 @@ const buttonVariants = cva(
         sm: 'h-9 rounded-md px-3',
         lg: 'h-11 rounded-md px-8',
         icon: 'h-10 w-10',
+        iconSm: 'h-5 w-5',
       },
     },
     defaultVariants: {
@@ -38,6 +39,7 @@ export interface ButtonProps
   asChild?: boolean
   icon?: React.ReactNode
   loading?: boolean
+  responsive?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
@@ -51,6 +53,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       disabled,
       icon,
       loading,
+      responsive,
       ...props
     },
     ref
@@ -70,7 +73,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {loading ? <LoadingIndicator className='h-5 w-5 text-current' /> : icon}
-        {children}
+        <div className={responsive && icon ? 'hidden md:flex' : ''}>
+          {children}
+        </div>
       </Comp>
     )
   }

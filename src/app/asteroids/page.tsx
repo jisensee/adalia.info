@@ -3,6 +3,7 @@ import { asteroidPageParamsCache } from './types'
 import { Paginator } from './paginator'
 import { ColumnConfig } from './column-config'
 import { Export } from './export'
+import { Filters } from './filters'
 import { AsteroidFilterForm } from '@/components/asteroid-filters/asteroid-filter-form'
 import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summary'
 import { AsteroidService } from '@/server/asteroid-service'
@@ -25,9 +26,10 @@ export default async function Asteroids({
   const totalPages = Math.ceil(totalCount / params.pageSize)
 
   const tableHeader = (
-    <div className='flex flex-row items-center justify-between'>
-      <h2>{totalCount.toLocaleString()} Asteroids</h2>
-      <div className='flex flex-row gap-x-2'>
+    <div className='flex flex-col sm:flex-row sm:justify-between md:items-center'>
+      <h2>Found {totalCount.toLocaleString()} Asteroids</h2>
+      <div className='flex flex-row justify-end gap-x-2'>
+        <Filters />
         <Export totalCount={totalCount} />
         <ColumnConfig />
       </div>

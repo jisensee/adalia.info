@@ -84,3 +84,23 @@ export const asteroidFiltersCache = createSearchParamsCache(
 )
 
 export type AsteroidFilters = ReturnType<typeof asteroidFiltersCache.parse>
+
+export const emptyAsteroidFilters: AsteroidFilters = {
+  name: null,
+  spectralType: null,
+  rarity: null,
+  scanStatus: null,
+  owned: null,
+  owners: null,
+  blockchain: null,
+  earlyAdopter: null,
+  scanBonus: null,
+  purchaseOrder: null,
+  radius: null,
+  surfaceArea: null,
+  size: null,
+  semiMajorAxis: null,
+  inclination: null,
+  eccentricity: null,
+  orbitalPeriod: null,
+}

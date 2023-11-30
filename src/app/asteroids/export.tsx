@@ -82,7 +82,12 @@ export const Export = ({ totalCount }: ExportProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant='outline' icon={<FileDown />}>
+        <Button
+          className='w-full sm:w-fit'
+          variant='outline'
+          icon={<FileDown />}
+          responsive
+        >
           Export
         </Button>
       </DialogTrigger>

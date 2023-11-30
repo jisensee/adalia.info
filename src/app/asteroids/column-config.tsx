@@ -20,7 +20,12 @@ export const ColumnConfig = () => {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant='outline' icon={<TableProperties />}>
+        <Button
+          className='w-full sm:w-fit'
+          variant='outline'
+          icon={<TableProperties />}
+          responsive
+        >
           Columns
         </Button>
       </PopoverTrigger>

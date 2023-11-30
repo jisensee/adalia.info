@@ -25,7 +25,8 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
-import { AsteroidPreview } from '@/components/asteroid-preview'
+import { AsteroidImage } from '@/components/asteroid-image'
+import { AsteroidActionButton } from '@/components/asteroid-action-button'
 
 export type AsteroidTableProps = {
   data: Asteroid[]
@@ -132,10 +133,16 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({ data }) => {
               {row.getIsExpanded() && (
                 <TableRow>
                   <TableCell colSpan={columns.length + 1}>
-                    <AsteroidPreview
-                      id={row.original.id}
-                      orbitalPeriod={row.original.orbitalPeriod}
-                    />
+                    <div className='flex w-fit flex-col gap-x-5 gap-y-3 md:flex-row'>
+                      <AsteroidImage id={row.original.id} width={350} />
+                      <div className='flex flex-col gap-y-3 md:justify-center'>
+                        <AsteroidActionButton.Details id={row.original.id} />
+                        <AsteroidActionButton.Game id={row.original.id} />
+                        <AsteroidActionButton.Coorbitals
+                          orbitalPeriod={row.original.orbitalPeriod}
+                        />
+                      </div>
+                    </div>
                   </TableCell>
                 </TableRow>
               )}

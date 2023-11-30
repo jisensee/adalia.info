@@ -2,9 +2,9 @@ import { ReactNode, useEffect, useId, useState } from 'react'
 import { Checkbox } from '../ui/checkbox'
 
 export type FilterProps<T> = {
-  value: T | undefined | null
+  value?: T | null
   defaultValue: T
-  onChange: (value?: T) => void
+  onChange: (value: T | null) => void
   name: string
   children: (props: {
     value: T
@@ -25,7 +25,7 @@ export const Filter = <T,>({
   const id = useId()
 
   useEffect(() => {
-    if (value === undefined) {
+    if (value === undefined || value === null) {
       setActive(false)
     }
   }, [value])
@@ -38,7 +38,7 @@ export const Filter = <T,>({
           checked={active}
           onCheckedChange={() => {
             setActive(!active)
-            onChange(active ? undefined : lastValue)
+            onChange(active ? null : lastValue)
           }}
         />
         <label htmlFor={id}>{name}</label>

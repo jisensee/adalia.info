@@ -18,7 +18,10 @@ import {
 import { inngest } from './client'
 import { db } from '@/server/db'
 
-const BATCH_SIZE = 50
+const BATCH_SIZE = parseInt(
+  process.env.ASTEROID_API_SYNC_BATCH_SIZE ?? '50',
+  10
+)
 
 type Events = GetEvents<typeof inngest>
 

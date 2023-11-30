@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation'
-import { FC } from 'react'
+import { FC, ReactNode } from 'react'
 import { db } from '@/server/db'
-import { AsteroidPreview } from '@/components/asteroid-preview'
 import {
   Accordion,
   AccordionContent,
@@ -10,6 +9,9 @@ import {
 } from '@/components/ui/accordion'
 import { Format } from '@/lib/format'
 import { cn, radiusToSurfaceArea } from '@/lib/utils'
+import { CopyButton } from '@/components/copy-button'
+import { AsteroidImage } from '@/components/asteroid-image'
+import { AsteroidActionButton } from '@/components/asteroid-action-button'
 
 type Params = {
   params: {
@@ -28,7 +30,7 @@ export default async function AsteroidDetailPage({ params }: Params) {
   }
   const stats = (
     <Accordion
-      className='flex w-full flex-col gap-y-3 sm:max-w-xs'
+      className='flex w-full flex-col gap-y-3 sm:max-w-sm'
       type='multiple'
       defaultValue={['general', 'size', 'orbitals']}
     >
@@ -42,7 +44,15 @@ export default async function AsteroidDetailPage({ params }: Params) {
             {asteroid.ownerAddress && (
               <InfoRow
                 title='Owner'
-                value={Format.ethAddress(asteroid.ownerAddress, 4)}
+                value={
+                  <div className='flex flex-row items-center gap-x-2'>
+                    <span>{Format.ethAddress(asteroid.ownerAddress, 4)}</span>
+                    <CopyButton
+                      value={asteroid.ownerAddress}
+                      copiedMessage='Copied address to clipboard!'
+                    />
+                  </div>
+                }
               />
             )}
             <InfoRow
@@ -112,14 +122,16 @@ export default async function AsteroidDetailPage({ params }: Params) {
     <div className='flex flex-col gap-y-3 p-3'>
       <h1>
         Asteroid{' '}
-        {asteroid.name?.length ?? 0 > 0 ? `'${asteroid.name}` : asteroid.id}
+        {asteroid.name?.length ?? 0 > 0 ? `'${asteroid.name}'` : asteroid.id}
       </h1>
       <div className='flex flex-col items-center gap-5 sm:flex-row sm:items-start'>
-        <AsteroidPreview
-          id={asteroid.id}
-          orbitalPeriod={asteroid.orbitalPeriod}
-          alwaysVertical
-        />
+        <div className='flex flex-col gap-y-3'>
+          <AsteroidImage id={asteroid.id} width={350} />
+          <AsteroidActionButton.Game id={asteroid.id} />
+          <AsteroidActionButton.Coorbitals
+            orbitalPeriod={asteroid.orbitalPeriod}
+          />
+        </div>
         {stats}
       </div>
     </div>
@@ -128,7 +140,7 @@ export default async function AsteroidDetailPage({ params }: Params) {
 
 type InfoRowProps = {
   title: string
-  value: string
+  value: ReactNode
   valueClassName?: string
 }
 

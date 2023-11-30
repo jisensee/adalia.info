@@ -20,8 +20,8 @@ import { cn } from '@/lib/utils'
 import { useAccounts } from '@/hooks/wallet-hooks'
 
 export type AsteroidFilterProps<T> = {
-  value: T | undefined | null
-  onChange: (value?: T) => void
+  value?: T | null
+  onChange: (value: T | null) => void
 }
 
 export type StringFilterProps = AsteroidFilterProps<string> & {
@@ -47,9 +47,9 @@ export const OwnerFilter = (props: AsteroidFilterProps<string[]>) => {
   const mainnetAddress = mainnetAccount?.address
   const starknetAddress = starknetAccount?.address
 
-  const connectedAddresses = [mainnetAddress, starknetAddress].filter(
-    Boolean
-  ) as string[]
+  const connectedAddresses = [mainnetAddress, starknetAddress].flatMap((a) =>
+    a ? [a] : []
+  )
   const [customOwner, setCustomOwner] = useState('')
 
   return (
@@ -64,7 +64,7 @@ export const OwnerFilter = (props: AsteroidFilterProps<string[]>) => {
           <div className='flex flex-col gap-3'>
             {value.map((owner) => (
               <div key={owner} className='flex flex-row items-center gap-x-2'>
-                <p className='truncate'>{owner}</p>
+                <span className='truncate'>{owner}</span>
                 <Button
                   icon={<Trash />}
                   size='icon'
@@ -132,7 +132,7 @@ export const OwnerFilter = (props: AsteroidFilterProps<string[]>) => {
                   if (v === 'connected') {
                     onChange(connectedAddresses)
                   } else {
-                    onChange([''])
+                    onChange([])
                   }
                 }}
               >

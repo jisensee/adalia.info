@@ -19,7 +19,11 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/accordion'
-import { AsteroidFilters, useAsteroidFilters } from './filter-params'
+import {
+  AsteroidFilters,
+  emptyAsteroidFilters,
+  useAsteroidFilters,
+} from './filter-params'
 import {
   BlockchainFilter,
   BooleanFilter,
@@ -51,26 +55,7 @@ export const AsteroidFilterForm = () => {
     setIsMounted(true)
   }, [])
 
-  const onReset = () =>
-    setFilters({
-      name: null,
-      spectralType: null,
-      rarity: null,
-      scanStatus: null,
-      owned: null,
-      owners: null,
-      blockchain: null,
-      earlyAdopter: null,
-      scanBonus: null,
-      purchaseOrder: null,
-      radius: null,
-      surfaceArea: null,
-      size: null,
-      semiMajorAxis: null,
-      inclination: null,
-      eccentricity: null,
-      orbitalPeriod: null,
-    })
+  const onReset = () => setFilters(emptyAsteroidFilters)
 
   useEffect(() => {
     form.reset(filters)
@@ -171,7 +156,7 @@ export const AsteroidFilterForm = () => {
         name='owners'
         render={({ field }) => (
           <OwnerFilter
-            value={(field.value?.filter(Boolean) ?? []) as string[]}
+            value={field.value?.filter(Boolean) ?? null}
             onChange={field.onChange}
           />
         )}
@@ -380,7 +365,7 @@ export const AsteroidFilterForm = () => {
           className={cn(
             'h-full shrink-0 rounded-r-xl border-2 border-primary transition-all duration-100 ease-in-out',
             {
-              'w-full md:w-[30rem]': expanded,
+              'w-screen md:w-[30rem]': expanded,
               'w-12': !expanded,
             }
           )}

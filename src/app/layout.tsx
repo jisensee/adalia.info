@@ -33,7 +33,7 @@ export default async function RootLayout({
 
   const footer = (
     <div className='flex flex-row justify-center'>
-      <div className='flex w-1/2 flex-col items-center gap-y-3 pb-3 pt-2'>
+      <div className='flex w-11/12 flex-col items-center gap-y-3 pb-3 pt-2 md:w-1/2'>
         <Separator className='bg-primary' />
         <div className='flex flex-row gap-x-7'>
           <Link href='https://discord.gg/XynYK5yCQy' target='_blank'>
@@ -54,7 +54,10 @@ export default async function RootLayout({
         {lastAsteroidUpdate && (
           <div>
             <span className='mr-1 text-primary'>Last data update:</span>
-            {formatRelative(lastAsteroidUpdate, new Date())}
+            {formatRelative(
+              lastAsteroidUpdate,
+              new Date(new Date().toUTCString())
+            )}
           </div>
         )}
       </div>
