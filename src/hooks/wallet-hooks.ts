@@ -115,7 +115,6 @@ const useStarknetAccountInfo = ({
   address,
   connector,
 }: ReturnType<typeof useStarknetAccount>): AccountInfo | undefined => {
-  console.log('STARK ADDRESS', address)
   const correctedAddress = address ? '0x0' + address.slice(2) : undefined
   const { ownedAsteroids, ethBalance, swayBalance } =
     useBalances(correctedAddress)
