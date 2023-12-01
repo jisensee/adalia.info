@@ -19,11 +19,7 @@ import {
   AccordionTrigger,
 } from '../ui/accordion'
 import { Portal } from '../portal'
-import {
-  AsteroidFilters,
-  emptyAsteroidFilters,
-  useAsteroidFilters,
-} from './filter-params'
+import { AsteroidFilters, emptyAsteroidFilters } from './filter-params'
 import {
   BlockchainFilter,
   BooleanFilter,
@@ -34,6 +30,7 @@ import {
   StringFilter,
 } from './asteroid-filters'
 
+import { useAsteroidFilters } from './hooks'
 import { cn } from '@/lib/utils'
 import { Constants } from '@/lib/constants'
 import { Format } from '@/lib/format'

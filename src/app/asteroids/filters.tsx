@@ -18,9 +18,9 @@ import {
 import {
   AsteroidFilters,
   emptyAsteroidFilters,
-  useAsteroidFilters,
 } from '@/components/asteroid-filters/filter-params'
 import { useAccounts } from '@/hooks/wallet-hooks'
+import { useAsteroidFilters } from '@/components/asteroid-filters/hooks'
 
 type FilteritemProps = {
   filters: Partial<AsteroidFilters>

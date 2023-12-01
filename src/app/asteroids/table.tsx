@@ -9,13 +9,14 @@ import {
 import { FC, Fragment, useMemo, useTransition } from 'react'
 import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react'
 import { Asteroid } from '@prisma/client'
-import { Sort, useAsteroidColumns, useAsteroidPageParams } from './types'
+import { Sort, useAsteroidPageParams } from './types'
 import {
   AsteroidColumn,
   columnDef,
   nonSortableColumns,
   toAsteroidRow,
 } from './columns'
+import { useAsteroidColumns } from './hooks'
 import {
   Table,
   TableBody,

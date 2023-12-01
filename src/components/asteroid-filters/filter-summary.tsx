@@ -3,12 +3,9 @@
 import { PropsWithChildren, ReactNode } from 'react'
 import { XIcon } from 'lucide-react'
 import { Button } from '../ui/button'
-import {
-  AsteroidFilters,
-  RangeParam,
-  useAsteroidFilters,
-} from './filter-params'
+import { AsteroidFilters, RangeParam } from './filter-params'
 
+import { useAsteroidFilters } from './hooks'
 import { Format } from '@/lib/format'
 import { useAccounts } from '@/hooks/wallet-hooks'
 

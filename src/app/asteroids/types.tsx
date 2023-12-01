@@ -1,11 +1,10 @@
 import { SortDirection } from '@tanstack/react-table'
 import {
   createSearchParamsCache,
-  parseAsArrayOf,
   parseAsInteger,
   parseAsJson,
 } from 'next-usequerystate/parsers'
-import { useQueryState, useQueryStates } from 'next-usequerystate'
+import { useQueryStates } from 'next-usequerystate'
 import { TransitionStartFunction } from 'react'
 import { AsteroidColumn } from './columns'
 
@@ -55,11 +54,3 @@ export const useAsteroidPageParams = (
 export const asteroidPageParamsCache = createSearchParamsCache(
   asteroidPageParamsParsers
 )
-
-export const useAsteroidColumns = () =>
-  useQueryState(
-    'columns',
-    parseAsArrayOf(parseAsJson<AsteroidColumnConfig>()).withDefault(
-      defaultAsteroidColumnConfig
-    )
-  )

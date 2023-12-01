@@ -1,4 +1,4 @@
-import { parseAsJson, useQueryStates } from 'next-usequerystate'
+import { parseAsJson } from 'next-usequerystate'
 import {
   createSearchParamsCache,
   parseAsArrayOf,
@@ -13,11 +13,10 @@ import {
   AsteroidSpectralType,
   Blockchain,
 } from '@prisma/client'
-import { TransitionStartFunction } from 'react'
 
 export type RangeParam = { from: number; to: number }
 
-const asteroidFilterParamsParsers = {
+export const asteroidFilterParamsParsers = {
   name: parseAsString,
   owned: parseAsBoolean,
   owners: parseAsArrayOf(parseAsString),
@@ -72,12 +71,6 @@ const asteroidFilterParamsParsers = {
   orbitalPeriod: parseAsJson<RangeParam>(),
   eccentricity: parseAsJson<RangeParam>(),
 }
-
-export const useAsteroidFilters = (startTransition?: TransitionStartFunction) =>
-  useQueryStates(asteroidFilterParamsParsers, {
-    shallow: false,
-    startTransition,
-  })
 
 export const asteroidFiltersCache = createSearchParamsCache(
   asteroidFilterParamsParsers

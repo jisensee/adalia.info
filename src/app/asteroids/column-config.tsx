@@ -5,7 +5,8 @@ import { CSS } from '@dnd-kit/utilities'
 
 import { GripVertical, TableProperties } from 'lucide-react'
 import { AsteroidColumn, getAsteroidColumnName } from './columns'
-import { defaultAsteroidColumnConfig, useAsteroidColumns } from './types'
+import { defaultAsteroidColumnConfig } from './types'
+import { useAsteroidColumns } from './hooks'
 import { Button } from '@/components/ui/button'
 import {
   Popover,

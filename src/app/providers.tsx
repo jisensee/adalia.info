@@ -7,9 +7,13 @@ import {
   braavos,
   argent,
 } from '@starknet-react/core'
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, useState } from 'react'
 import { WagmiConfig, configureChains, createConfig, mainnet } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
+import {
+  PageParamCache,
+  PageParamCacheProvider,
+} from '@/context/page-param-cache'
 
 const { publicClient, webSocketPublicClient } = configureChains(
   [mainnet],
@@ -29,6 +33,10 @@ const starknetProvider = publicProvider()
 const starknetConnectors = [braavos(), argent()]
 
 export const Providers = ({ children }: PropsWithChildren) => {
+  const [pageParamCache, setPageParamCache] = useState<PageParamCache>({
+    asteroidFilters: null,
+    asteroidColumnConfig: null,
+  })
   return (
     <StarknetConfig
       connectors={starknetConnectors}
@@ -36,7 +44,20 @@ export const Providers = ({ children }: PropsWithChildren) => {
       chains={[starknetMainnet]}
       autoConnect
     >
-      <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>
+      <WagmiConfig config={wagmiConfig}>
+        <PageParamCacheProvider
+          value={{
+            cache: pageParamCache,
+            updateCache: (update) =>
+              setPageParamCache((prev) => ({
+                ...prev,
+                ...update,
+              })),
+          }}
+        >
+          {children}
+        </PageParamCacheProvider>
+      </WagmiConfig>
     </StarknetConfig>
   )
 }

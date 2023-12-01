@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summary'
-import { useAsteroidFilters } from '@/components/asteroid-filters/filter-params'
+import { useAsteroidFilters } from '@/components/asteroid-filters/hooks'
 
 export type ExportProps = {
   totalCount: number
