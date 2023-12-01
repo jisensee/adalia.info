@@ -1,5 +1,4 @@
 'use client'
-
 import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask'
 import { mainnet as starknetMainnet } from '@starknet-react/chains'
 import {
