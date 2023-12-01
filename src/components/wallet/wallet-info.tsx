@@ -3,7 +3,10 @@
 import { disconnect as disconnectMainnet } from '@wagmi/core'
 import Image from 'next/image'
 import { useConnect } from 'wagmi'
-import { useConnect as useConnectStarknet } from '@starknet-react/core'
+import {
+  useConnect as useConnectStarknet,
+  useDisconnect,
+} from '@starknet-react/core'
 import {
   Dialog,
   DialogContent,
@@ -19,6 +22,7 @@ import { getMainnetConnectorIcon, useAccounts } from '@/hooks/wallet-hooks'
 
 export const WalletInfo = () => {
   const { mainnetAccount, starknetAccount } = useAccounts()
+  const { disconnect: starknetDisconnect } = useDisconnect()
 
   const {
     connect: connectMainnet,
@@ -84,7 +88,7 @@ export const WalletInfo = () => {
             account={starknetAccount}
             chainName='StarkNet'
             chainIcon='/starknet-logo.webp'
-            onDisconnect={() => {}}
+            onDisconnect={starknetDisconnect}
             connectButtons={starknetConnectors
               .filter((connector) => connector.available())
               .map((connector) => (

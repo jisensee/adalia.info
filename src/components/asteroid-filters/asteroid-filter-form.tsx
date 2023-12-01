@@ -9,7 +9,6 @@ import {
   AsteroidSize,
   AsteroidSpectralType,
 } from '@prisma/client'
-import { createPortal } from 'react-dom'
 import { Form, FormField } from '../ui/form'
 import { Button } from '../ui/button'
 
@@ -19,6 +18,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '../ui/accordion'
+import { Portal } from '../portal'
 import {
   AsteroidFilters,
   emptyAsteroidFilters,
@@ -48,12 +48,6 @@ export const AsteroidFilterForm = () => {
     mode: 'onChange',
     values: filters,
   })
-
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
 
   const onReset = () => setFilters(emptyAsteroidFilters)
 
@@ -358,72 +352,71 @@ export const AsteroidFilterForm = () => {
     </Accordion>
   )
 
-  return isMounted
-    ? createPortal(
-        // @ts-expect-error create portal types are weird, works anyway
-        <div
-          className={cn(
-            'h-full shrink-0 rounded-r-xl border-2 border-primary transition-all duration-100 ease-in-out',
-            {
-              'w-screen md:w-[30rem]': expanded,
-              'w-12': !expanded,
-            }
-          )}
-        >
-          {expanded && (
-            <div className='flex h-full flex-col gap-y-2 rounded-l-sm rounded-r-xl px-3 py-2'>
-              <Form {...form}>
-                <form
-                  className='grid h-full grid-rows-[auto,1fr,auto] gap-3'
-                  onSubmit={form.handleSubmit(onSave)}
-                >
-                  <div className='flex flex-row items-center justify-between'>
-                    <h1>Filters</h1>
-                    <Button
-                      variant='ghost'
-                      size='icon'
-                      onClick={() => setExpanded(false)}
-                    >
-                      <XIcon size='30px' />
-                    </Button>
-                  </div>
-                  <div className='overflow-y-auto overflow-x-hidden pr-3'>
-                    {filterAccordion}
-                  </div>
-                  <div className='grow' />
-                  <div className='flex flex-row gap-x-20 px-5 pb-5'>
-                    <Button
-                      className='grow'
-                      type='button'
-                      variant='destructive'
-                      onClick={() => onReset()}
-                      loading={isLoading}
-                    >
-                      Reset
-                    </Button>
-                    <Button className='grow' type='submit' loading={isLoading}>
-                      Submit
-                    </Button>
-                  </div>
-                </form>
-              </Form>
-            </div>
-          )}
-          {!expanded && (
-            <div
-              className='flex h-full cursor-pointer items-center justify-center rounded-l-none rounded-r-xl border-0 text-primary hover:bg-primary hover:text-primary-foreground'
-              onClick={() => setExpanded(true)}
-            >
-              <span
-                className='rotate-180 transform text-xl'
-                style={{ writingMode: 'vertical-lr' }}
+  return (
+    <Portal selector='#sidebar'>
+      <div
+        className={cn(
+          'h-full shrink-0 rounded-r-xl border-2 border-primary transition-all duration-100 ease-in-out',
+          {
+            'w-screen md:w-[30rem]': expanded,
+            'w-12': !expanded,
+          }
+        )}
+      >
+        {expanded && (
+          <div className='flex h-full flex-col gap-y-2 rounded-l-sm rounded-r-xl px-3 py-2'>
+            <Form {...form}>
+              <form
+                className='grid h-full grid-rows-[auto,1fr,auto] gap-3'
+                onSubmit={form.handleSubmit(onSave)}
               >
-                Filters
-              </span>
-            </div>
-          )}
-        </div>,
-        document.getElementById('sidebar')
-      )
-    : null
+                <div className='flex flex-row items-center justify-between'>
+                  <h1>Filters</h1>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    onClick={() => setExpanded(false)}
+                  >
+                    <XIcon size='30px' />
+                  </Button>
+                </div>
+                <div className='overflow-y-auto overflow-x-hidden pr-3'>
+                  {filterAccordion}
+                </div>
+                <div className='grow' />
+                <div className='flex flex-row gap-x-20 px-5 pb-5'>
+                  <Button
+                    className='grow'
+                    type='button'
+                    variant='destructive'
+                    onClick={() => onReset()}
+                    loading={isLoading}
+                  >
+                    Reset
+                  </Button>
+                  <Button className='grow' type='submit' loading={isLoading}>
+                    Submit
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        )}
+        {!expanded && (
+          <div
+            className='flex h-full cursor-pointer items-center justify-center rounded-l-none rounded-r-xl border-0 text-primary hover:bg-primary hover:text-primary-foreground'
+            onClick={() => setExpanded(true)}
+          >
+            <span
+              className='rotate-180 transform text-xl'
+              style={{ writingMode: 'vertical-lr' }}
+            >
+              Filters
+            </span>
+          </div>
+        )}
+      </div>
+      ,
+    </Portal>
+  )
 }

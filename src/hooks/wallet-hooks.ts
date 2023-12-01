@@ -13,9 +13,9 @@ const SWAY_MAINNED_ADDRESS = '0x9DE7f7a6c0B00902983c6f0658E157A8a684Cfd5'
 
 export type AccountInfo = {
   address: string
-  ethBalance: number
-  swayBalance: number
-  ownedAsteroids: number
+  ethBalance?: number
+  swayBalance?: number
+  ownedAsteroids?: number
   walletIcon: string
 }
 
@@ -96,11 +96,7 @@ const useMainnetAccountInfo = ({
     ? getMainnetConnectorIcon(connector.id)
     : undefined
 
-  return address &&
-    ethBalance !== undefined &&
-    swayBalance !== undefined &&
-    ownedAsteroids !== undefined &&
-    walletIcon
+  return address && walletIcon
     ? {
         ethBalance,
         swayBalance,
@@ -121,13 +117,10 @@ const useStarknetAccountInfo = ({
 
   const walletIcon = connector?.icon?.dark
 
-  return correctedAddress &&
-    ethBalance !== undefined &&
-    ownedAsteroids !== undefined &&
-    walletIcon
+  return correctedAddress && walletIcon
     ? {
         ethBalance,
-        swayBalance: swayBalance ?? 0,
+        swayBalance: swayBalance,
         ownedAsteroids,
         address: correctedAddress,
         walletIcon,
