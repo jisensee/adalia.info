@@ -9,9 +9,9 @@ import {
 } from '@/components/ui/accordion'
 import { Format } from '@/lib/format'
 import { cn, radiusToSurfaceArea } from '@/lib/utils'
-import { CopyButton } from '@/components/copy-button'
 import { AsteroidImage } from '@/components/asteroid-image'
 import { AsteroidActionButton } from '@/components/asteroid-action-button'
+import { Address } from '@/components/address'
 
 type Params = {
   params: {
@@ -45,13 +45,10 @@ export default async function AsteroidDetailPage({ params }: Params) {
               <InfoRow
                 title='Owner'
                 value={
-                  <div className='flex flex-row items-center gap-x-2'>
-                    <span>{Format.ethAddress(asteroid.ownerAddress, 4)}</span>
-                    <CopyButton
-                      value={asteroid.ownerAddress}
-                      copiedMessage='Copied address to clipboard!'
-                    />
-                  </div>
+                  <Address
+                    address={asteroid.ownerAddress}
+                    shownCharacters={4}
+                  />
                 }
               />
             )}

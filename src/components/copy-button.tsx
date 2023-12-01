@@ -9,8 +9,13 @@ import { Tooltip, TooltipContent, TooltipProvider } from './ui/tooltip'
 export type CopyButtonProps = {
   value: string
   copiedMessage: ReactNode
+  large?: boolean
 }
-export const CopyButton = ({ value, copiedMessage }: CopyButtonProps) => {
+export const CopyButton = ({
+  value,
+  copiedMessage,
+  large,
+}: CopyButtonProps) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const onCopy = () => {
     navigator.clipboard.writeText(value)
@@ -23,7 +28,7 @@ export const CopyButton = ({ value, copiedMessage }: CopyButtonProps) => {
         <TooltipTrigger asChild>
           <Button
             variant='ghost'
-            size='iconSm'
+            size={large ? 'icon' : 'iconSm'}
             icon={<Copy />}
             onClick={onCopy}
           />

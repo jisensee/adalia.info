@@ -45,22 +45,13 @@ const useAsteroidCount = (address?: string) => {
   return count
 }
 
-const getSwayBalance = (value: bigint, decimals: number) =>
-  new Number(value / 10n ** BigInt(decimals)).valueOf()
-
-const getEthBalance = (value: bigint) =>
-  (new Number(value / 10n ** 9n).valueOf() / 10 ** 9).valueOf()
-
-const useMainnetAccountInfo = ({
-  address,
-  connector,
-}: ReturnType<typeof useMainnetAccount>): AccountInfo | undefined => {
+export const useBalances = (address?: string) => {
   const ethBalanceResult = useMainnetBalance({
-    address: address,
+    address: address as `0x${string}`,
   })?.data
 
   const swayBalanceResult = useMainnetBalance({
-    address: address,
+    address: address as `0x${string}`,
     token: SWAY_MAINNED_ADDRESS,
   })?.data
 
@@ -72,7 +63,35 @@ const useMainnetAccountInfo = ({
     ? getSwayBalance(swayBalanceResult.value, swayBalanceResult.decimals)
     : undefined
 
+  const starkEthBalanceResult = useStarknetBalance({
+    address,
+  })?.data
+
+  const starkEthBalance = starkEthBalanceResult
+    ? getEthBalance(starkEthBalanceResult.value)
+    : undefined
+
   const ownedAsteroids = useAsteroidCount(address)
+
+  return {
+    ethBalance: ethBalance ?? starkEthBalance,
+    swayBalance,
+    ownedAsteroids,
+  }
+}
+
+const getSwayBalance = (value: bigint, decimals: number) =>
+  new Number(value / 10n ** BigInt(decimals)).valueOf()
+
+const getEthBalance = (value: bigint) =>
+  (new Number(value / 10n ** 9n).valueOf() / 10 ** 9).valueOf()
+
+const useMainnetAccountInfo = ({
+  address,
+  connector,
+}: ReturnType<typeof useMainnetAccount>): AccountInfo | undefined => {
+  const { ownedAsteroids, ethBalance, swayBalance } = useBalances(address)
+
   const walletIcon = connector
     ? getMainnetConnectorIcon(connector.id)
     : undefined
@@ -96,16 +115,12 @@ const useStarknetAccountInfo = ({
   address,
   connector,
 }: ReturnType<typeof useStarknetAccount>): AccountInfo | undefined => {
-  const ethBalanceResult = useStarknetBalance({
-    address,
-  })?.data
-  const ethBalance = ethBalanceResult
-    ? getEthBalance(ethBalanceResult.value)
-    : undefined
-
+  console.log('STARK ADDRESS', address)
   const correctedAddress = address ? '0x0' + address.slice(2) : undefined
-  const ownedAsteroids = useAsteroidCount(correctedAddress)
-  const walletIcon = connector?.icon
+  const { ownedAsteroids, ethBalance, swayBalance } =
+    useBalances(correctedAddress)
+
+  const walletIcon = connector?.icon?.dark
 
   return correctedAddress &&
     ethBalance !== undefined &&
@@ -113,7 +128,7 @@ const useStarknetAccountInfo = ({
     walletIcon
     ? {
         ethBalance,
-        swayBalance: 0,
+        swayBalance: swayBalance ?? 0,
         ownedAsteroids,
         address: correctedAddress,
         walletIcon,

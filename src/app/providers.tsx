@@ -1,7 +1,13 @@
 'use client'
 
 import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask'
-import { StarknetConfig, InjectedConnector } from '@starknet-react/core'
+import { mainnet as starknetMainnet } from '@starknet-react/chains'
+import {
+  StarknetConfig,
+  publicProvider,
+  braavos,
+  argent,
+} from '@starknet-react/core'
 import { PropsWithChildren } from 'react'
 import { WagmiConfig, configureChains, createConfig, mainnet } from 'wagmi'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
@@ -20,14 +26,17 @@ const wagmiConfig = createConfig({
   webSocketPublicClient,
   connectors: [new MetaMaskConnector({ chains: [mainnet] })],
 })
-const starknetConnectors = [
-  new InjectedConnector({ options: { id: 'braavos' } }),
-  new InjectedConnector({ options: { id: 'argentX' } }),
-]
+const starknetProvider = publicProvider()
+const starknetConnectors = [braavos(), argent()]
 
 export const Providers = ({ children }: PropsWithChildren) => {
   return (
-    <StarknetConfig connectors={starknetConnectors} autoConnect>
+    <StarknetConfig
+      connectors={starknetConnectors}
+      provider={starknetProvider}
+      chains={[starknetMainnet]}
+      autoConnect
+    >
       <WagmiConfig config={wagmiConfig}>{children}</WagmiConfig>
     </StarknetConfig>
   )

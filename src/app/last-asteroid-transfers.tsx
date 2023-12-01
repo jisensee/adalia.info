@@ -1,9 +1,8 @@
 import { ArrowRight } from 'lucide-react'
 import Link from 'next/link'
 import { Fragment } from 'react'
-import { Logo } from '@/components/logo'
-import { Format } from '@/lib/format'
 import { db } from '@/server/db'
+import { Address } from '@/components/address'
 
 export const LastAsteroidTransfers = async () => {
   const lastOwnerChanges = await db.asteroidOwnerChange.findMany({
@@ -28,25 +27,13 @@ export const LastAsteroidTransfers = async () => {
             >
               {asteroid.id}
             </Link>
-            <div className='flex flex-row gap-x-2'>
-              {change.fromChain ? (
-                <Logo.Blockchain blockchain={change.fromChain} size={25} />
-              ) : (
-                <Logo.Ethereum size={25} />
-              )}
-              <span className='md:text-xl'>
-                {change.fromAddress
-                  ? Format.ethAddress(change.fromAddress, 2)
-                  : '0x0'}
-              </span>
-            </div>
+            {change.fromAddress ? (
+              <Address address={change.fromAddress} shownCharacters={4} />
+            ) : (
+              '0x0'
+            )}
             <ArrowRight size={30} />
-            <div className='flex flex-row gap-x-2'>
-              <Logo.Blockchain blockchain={change.toChain} size={25} />
-              <span className='md:text-xl'>
-                {Format.ethAddress(change.toAddress, 2)}
-              </span>
-            </div>
+            <Address address={change.toAddress} shownCharacters={4} />
           </Fragment>
         ))}
       </div>

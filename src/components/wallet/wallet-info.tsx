@@ -3,7 +3,7 @@
 import { disconnect as disconnectMainnet } from '@wagmi/core'
 import Image from 'next/image'
 import { useConnect } from 'wagmi'
-import { useConnectors } from '@starknet-react/core'
+import { useConnect as useConnectStarknet } from '@starknet-react/core'
 import {
   Dialog,
   DialogContent,
@@ -26,14 +26,10 @@ export const WalletInfo = () => {
     connectors: mainnetConnectors,
   } = useConnect()
 
-  const {
-    connect: connectStarknet,
-    isLoading: starknetLoading,
-    connectors: starknetConnectors,
-    disconnect: disconnectStarknet,
-  } = useConnectors()
+  const { connect: connectStarknet, connectors: starknetConnectors } =
+    useConnectStarknet()
 
-  const isConnecting = mainnetLoading || starknetLoading
+  const isConnecting = mainnetLoading
 
   return (
     <Dialog>
@@ -88,17 +84,17 @@ export const WalletInfo = () => {
             account={starknetAccount}
             chainName='StarkNet'
             chainIcon='/starknet-logo.webp'
-            onDisconnect={disconnectStarknet}
+            onDisconnect={() => {}}
             connectButtons={starknetConnectors
               .filter((connector) => connector.available())
               .map((connector) => (
                 <Button
                   key={connector.id}
                   disabled={isConnecting}
-                  onClick={() => connectStarknet(connector)}
+                  onClick={() => connectStarknet({ connector })}
                   icon={
                     <Image
-                      src={connector.icon}
+                      src={connector.icon.dark ?? ''}
                       width={20}
                       height={20}
                       alt={`${connector.name} logo`}

@@ -13,8 +13,8 @@ import Link from 'next/link'
 import { Format } from '@/lib/format'
 import { radiusToSurfaceArea } from '@/lib/utils'
 import { Constants } from '@/lib/constants'
-import { CopyButton } from '@/components/copy-button'
 import { Logo } from '@/components/logo'
+import { Address } from '@/components/address'
 
 const colHelper = createColumnHelper<AsteroidRow>()
 
@@ -151,13 +151,7 @@ export const columnDef: ColumnDef<AsteroidRow>[] = [
   col('name', (asteroid) => asteroid.name),
   col('owner', (asteroid) =>
     asteroid.owner ? (
-      <div className='flex flex-row items-center gap-x-3'>
-        <span> {Format.ethAddress(asteroid.owner, 4)} </span>
-        <CopyButton
-          value={asteroid.owner}
-          copiedMessage='Address copied to clipboard!'
-        />
-      </div>
+      <Address address={asteroid.owner} shownCharacters={2} />
     ) : (
       ''
     )

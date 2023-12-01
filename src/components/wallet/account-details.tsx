@@ -1,9 +1,9 @@
 import { FC, ReactNode } from 'react'
 import Image from 'next/image'
 import { Button } from '../ui/button'
+import { Address } from '../address'
 import { AsteroidBalance, EthBalance, SwayBalance } from './balances'
 import { AccountInfo } from '@/hooks/wallet-hooks'
-import { Format } from '@/lib/format'
 
 export type AccountDetailsProps = {
   account?: AccountInfo
@@ -40,9 +40,7 @@ export const AccountDetails: FC<AccountDetailsProps> = ({
 
   const details = account && (
     <div className='flex flex-col gap-y-2'>
-      <p className='italic text-primary' title={account.address}>
-        {Format.ethAddress(account.address, 6)}
-      </p>
+      <Address address={account.address} shownCharacters={6} hideChainIcon />
       <div className='flex flex-row flex-wrap items-center gap-x-5'>
         {account.ownedAsteroids !== undefined && (
           <AsteroidBalance balance={account?.ownedAsteroids} />
