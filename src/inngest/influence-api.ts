@@ -1,5 +1,10 @@
 import { ApiAsteroid } from './types'
 
+type AsteroidHit = {
+  _source: ApiAsteroid
+  sort: number[]
+}
+
 const request = (path: string, method: 'GET' | 'POST', data?: object) =>
   fetch(`https://api.influenceth.io/${path}`, {
     method,
@@ -25,6 +30,35 @@ export const getAdaliaPrime = () =>
   request('v2/entities?id=1&label=3', 'GET')
     .then(JSON.parse)
     .then((r) => r[0]) as Promise<ApiAsteroid>
+
+export const getAsteroidPage = (size: number, searchAfter?: number[]) =>
+  request('_search/asteroid', 'POST', {
+    query: {
+      bool: {
+        filter: {
+          exists: {
+            field: 'Nft.owner',
+          },
+        },
+      },
+    },
+    size,
+    sort: [
+      {
+        'Celestial.radius': 'desc',
+      },
+    ],
+    search_after: searchAfter,
+  })
+    .then(JSON.parse)
+    .then((d) => {
+      const hits = d.hits.hits as AsteroidHit[]
+      const asteroids = hits.map((h) => h._source)
+      const nextSearchAfter =
+        hits.length > 0 ? hits[hits.length - 1]?.sort : undefined
+
+      return { asteroids, nextSearchAfter }
+    })
 
 export const getAsteroids = (
   fromPurchaseOrder: number,

@@ -13,7 +13,6 @@ export type BalancesProps = {
 }
 export const Balances: FC<BalancesProps> = ({ address }) => {
   const { ethBalance, swayBalance, ownedAsteroids } = useBalances(address)
-  console.log('balances', { ethBalance, swayBalance, ownedAsteroids })
 
   return (
     <div className='flex flex-row flex-wrap items-center gap-x-3'>

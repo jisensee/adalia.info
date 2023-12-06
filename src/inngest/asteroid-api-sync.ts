@@ -1,7 +1,5 @@
 import { Asteroid, AsteroidScanStatus } from '@prisma/client'
 import { Asteroid as SdkAsteroid } from '@influenceth/sdk'
-import { GetEvents } from 'inngest'
-import { Logger } from 'inngest/middleware/logger'
 import {
   ApiAsteroid,
   convertBonusType,
@@ -10,11 +8,7 @@ import {
   convertScanStatus,
   getApiBonuses,
 } from './types'
-import {
-  getAdaliaPrime,
-  getAsteroids,
-  getLastPurchaseOrder,
-} from './influence-api'
+import { getAsteroidPage } from './influence-api'
 import { inngest } from './client'
 import { db } from '@/server/db'
 
@@ -23,7 +17,15 @@ const BATCH_SIZE = parseInt(
   10
 )
 
-type Events = GetEvents<typeof inngest>
+export const startScheduledAsteroidSync = inngest.createFunction(
+  { id: 'start-scheduled-asteroid-sync' },
+  { cron: '0 8 * * *' },
+  async ({ step }) => {
+    await step.sendEvent('app/start-asteroid-sync', [
+      { name: 'app/start-asteroid-sync' },
+    ])
+  }
+)
 
 export const startAsteroidSync = inngest.createFunction(
   { id: 'start-asteroid-sync' },
@@ -33,125 +35,82 @@ export const startAsteroidSync = inngest.createFunction(
       logger.warn('Skipping asteroid sync, no influence access token')
       return
     }
-    const lastPurchaseOrder = await getLastPurchaseOrder()
-    logger.info('Updating to purchase order', lastPurchaseOrder)
-    await updateAdaliaPrime()
+    logger.info('Starting full asteroid sync')
 
-    const ranges = makeRanges(lastPurchaseOrder)
-
-    const runId = (
-      await db.asteroidImportRun.create({
-        data: {
-          start: new Date(),
-          runningWorkers: ranges.length,
-        },
-      })
-    ).id
-
-    const events = ranges.map<Events['app/update-asteroid-range']>((range) => ({
-      name: 'app/update-asteroid-range',
+    const importRun = await db.asteroidImportRun.create({
       data: {
-        from: range[0],
-        to: range[1],
-        runId,
-      },
-    }))
-
-    await step.sendEvent('app/update-asteroid-range', events)
-  }
-)
-
-export const startScheduledAsteroidSync = inngest.createFunction(
-  { id: 'start-scheduled-asteroid-sync' },
-  { cron: '0 8,20 * * *' },
-  async ({ step }) => {
-    await step.sendEvent('app/start-asteroid-sync', [
-      { name: 'app/start-asteroid-sync' },
-    ])
-  }
-)
-
-export const updateAsteroidRange = inngest.createFunction(
-  { id: 'update-asteroid-range', concurrency: 10 },
-  { event: 'app/update-asteroid-range' },
-  async ({ event, logger }) => {
-    const { from, to, runId } = event.data
-    await updateRange([from, to], runId, logger)
-  }
-)
-
-const updateRange = async (
-  range: [number, number],
-  runId: number,
-  logger: Logger
-) => {
-  const start = new Date()
-  const prefix = `[${range[0]}-${range[1]}]`
-
-  logger.info(prefix, `Updating asteroid range`)
-  const apiAsteroids = await getAsteroids(range[0], range[1])
-  logger.info(prefix, `Got ${apiAsteroids.length} asteroids from API`)
-  const apiIds = apiAsteroids.map((a) => a.id)
-
-  const existingAsteroids = new Map(
-    (
-      await db.asteroid.findMany({
-        where: {
-          id: {
-            in: apiIds,
-          },
-        },
-      })
-    ).map((a) => [a.id, a])
-  )
-  logger.info(prefix, `Got ${existingAsteroids.size} asteroids from DB`)
-  await updateAsteroids(apiAsteroids, existingAsteroids)
-
-  logger.info(prefix, 'Finish updating asteroids in DB')
-
-  const run = await db.asteroidImportRun.update({
-    where: { id: runId },
-    data: {
-      runningWorkers: {
-        decrement: 1,
-      },
-    },
-  })
-
-  logger.info(`Updated range in ${new Date().getTime() - start.getTime()}ms`)
-
-  if (run.runningWorkers === 0) {
-    await db.asteroidImportRun.update({
-      where: { id: runId },
-      data: {
-        end: new Date(),
+        start: new Date(),
+        runningWorkers: 0,
       },
     })
-    console.log(`Finished import run ${runId}`)
-  }
-}
 
-const makeRanges = (lastPurchaseOrder: number) => {
-  const ranges: [number, number][] = []
-  let from = 1
-  let to = BATCH_SIZE
-  while (from < lastPurchaseOrder) {
-    ranges.push([from, to])
-    from = to + 1
-    to = Math.min(from + BATCH_SIZE - 1, lastPurchaseOrder)
+    step.sendEvent('app/update-asteroid-page', {
+      name: 'app/update-asteroid-page',
+      data: {
+        runId: importRun.id,
+      },
+    })
   }
-  return ranges
-}
+)
 
-const updateAdaliaPrime = async () => {
-  const api = await getAdaliaPrime()
-  const existing = await db.asteroid.findUnique({
-    where: { id: 1 },
-  })
-  if (existing) {
-    await updateAsteroid(api, existing)
+export const updateAsteroidPage = inngest.createFunction(
+  { id: 'update-asteroid-page', concurrency: 1 },
+  { event: 'app/update-asteroid-page' },
+  async ({ event, step, logger }) => {
+    const searchAfter = event.data?.searchAfter as number[] | undefined
+    const updatedAsteroids = (event.data?.updatedAsteroids ?? 0) as number
+    const runId = (event.data?.runId ?? 0) as number
+
+    const start = new Date().getTime()
+
+    const { asteroids: apiAsteroids, nextSearchAfter } = await getAsteroidPage(
+      BATCH_SIZE,
+      searchAfter
+    )
+    const apiIds = apiAsteroids.map((a) => a.id)
+    const existingAsteroids = new Map(
+      (
+        await db.asteroid.findMany({
+          where: {
+            id: {
+              in: apiIds,
+            },
+          },
+        })
+      ).map((a) => [a.id, a])
+    )
+    await updateAsteroids(apiAsteroids, existingAsteroids)
+
+    const durationMs = new Date().getTime() - start
+    const totalUpdated = updatedAsteroids + existingAsteroids.size
+    logger.info(
+      `${totalUpdated} asteroids updated in DB. Step took ${durationMs}ms`
+    )
+
+    if (nextSearchAfter) {
+      step.sendEvent('app/update-asteroid-page', {
+        name: 'app/update-asteroid-page',
+        data: {
+          searchAfter: nextSearchAfter,
+          updatedAsteroids: totalUpdated,
+          runId,
+        },
+      })
+    } else {
+      const end = new Date()
+      const run = await db.asteroidImportRun.update({
+        where: {
+          id: runId,
+        },
+        data: {
+          end,
+        },
+      })
+      const duration = (end.getTime() - run.start.getTime()) / 1000
+      logger.info(`Asteroid sync finished in ${duration.toLocaleString()}s`)
+    }
   }
-}
+)
 
 const updateAsteroids = async (
   apiAsteroids: ApiAsteroid[],
