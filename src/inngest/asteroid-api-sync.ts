@@ -44,6 +44,12 @@ export const startAsteroidSync = inngest.createFunction(
       },
     })
 
+    logger.info(
+      `Created import run ${
+        importRun.id
+      } starting at ${importRun.start.toUTCString()}`
+    )
+
     step.sendEvent('app/update-asteroid-page', {
       name: 'app/update-asteroid-page',
       data: {
@@ -57,6 +63,7 @@ export const updateAsteroidPage = inngest.createFunction(
   { id: 'update-asteroid-page', concurrency: 1 },
   { event: 'app/update-asteroid-page' },
   async ({ event, step, logger }) => {
+    logger.info('Updating asteroid page', event.data)
     const searchAfter = event.data?.searchAfter as number[] | undefined
     const updatedAsteroids = (event.data?.updatedAsteroids ?? 0) as number
     const runId = (event.data?.runId ?? 0) as number
