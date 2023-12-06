@@ -50,7 +50,7 @@ export const startAsteroidSync = inngest.createFunction(
       } starting at ${importRun.start.toUTCString()}`
     )
 
-    step.sendEvent('app/update-asteroid-page', {
+    await step.sendEvent('app/update-asteroid-page', {
       name: 'app/update-asteroid-page',
       data: {
         runId: importRun.id,
@@ -95,7 +95,7 @@ export const updateAsteroidPage = inngest.createFunction(
     )
 
     if (nextSearchAfter) {
-      step.sendEvent('app/update-asteroid-page', {
+      await step.sendEvent('app/update-asteroid-page', {
         name: 'app/update-asteroid-page',
         data: {
           searchAfter: nextSearchAfter,
