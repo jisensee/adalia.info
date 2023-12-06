@@ -63,7 +63,6 @@ export const updateAsteroidPage = inngest.createFunction(
   { id: 'update-asteroid-page', concurrency: 1 },
   { event: 'app/update-asteroid-page' },
   async ({ event, step, logger }) => {
-    logger.info('Updating asteroid page', event.data)
     const searchAfter = event.data?.searchAfter as number[] | undefined
     const updatedAsteroids = (event.data?.updatedAsteroids ?? 0) as number
     const runId = (event.data?.runId ?? 0) as number
@@ -152,10 +151,7 @@ const updateAsteroid = (
   const newChain = convertChain(apiAsteroid.Nft.chain)
   const newOwner = apiAsteroid.Nft.owner?.toLowerCase()
 
-  const ownerChanged =
-    !!existingAsteroid.ownerAddress &&
-    !!newOwner &&
-    newOwner !== existingAsteroid.ownerAddress
+  const ownerChanged = !!newOwner && existingAsteroid.ownerAddress !== newOwner
 
   return db.asteroid.update({
     where: {
