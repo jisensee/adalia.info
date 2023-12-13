@@ -4,6 +4,7 @@ import {
   startAsteroidSync,
   startScheduledAsteroidSync,
   updateAsteroidPage,
+  updateAsteroidsDb,
 } from '@/inngest/asteroid-api-sync'
 
 export const { GET, POST, PUT } = serve({
@@ -12,5 +13,6 @@ export const { GET, POST, PUT } = serve({
     startAsteroidSync,
     startScheduledAsteroidSync,
     updateAsteroidPage,
+    updateAsteroidsDb,
   ],
 })

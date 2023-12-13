@@ -5,6 +5,12 @@ type AsteroidHit = {
   sort: number[]
 }
 
+type Hits = {
+  total: {
+    value: number
+  }
+  hits: AsteroidHit[]
+}
 const request = (path: string, method: 'GET' | 'POST', data?: object) =>
   fetch(`https://api.influenceth.io/${path}`, {
     method,
@@ -45,19 +51,20 @@ export const getAsteroidPage = (size: number, searchAfter?: number[]) =>
     size,
     sort: [
       {
-        'Celestial.radius': 'desc',
+        id: 'asc',
       },
     ],
     search_after: searchAfter,
+    track_total_hits: true,
   })
     .then(JSON.parse)
     .then((d) => {
-      const hits = d.hits.hits as AsteroidHit[]
+      const { total, hits } = d.hits as Hits
       const asteroids = hits.map((h) => h._source)
       const nextSearchAfter =
         hits.length > 0 ? hits[hits.length - 1]?.sort : undefined
 
-      return { asteroids, nextSearchAfter }
+      return { asteroids, nextSearchAfter, totalCount: total.value }
     })
 
 export const getAsteroids = (

@@ -12,8 +12,12 @@ import { getAsteroidPage } from './influence-api'
 import { inngest } from './client'
 import { db } from '@/server/db'
 
-const BATCH_SIZE = parseInt(
-  process.env.ASTEROID_API_SYNC_BATCH_SIZE ?? '50',
+const API_BATCH_SIZE = parseInt(
+  process.env.ASTEROID_SYNC_API_BATCH_SIZE ?? '500',
+  10
+)
+const DB_BATCH_SIZE = parseInt(
+  process.env.ASTEROID_SYNC_DB_BATCH_SIZE ?? '50',
   10
 )
 
@@ -35,25 +39,31 @@ export const startAsteroidSync = inngest.createFunction(
       logger.warn('Skipping asteroid sync, no influence access token')
       return
     }
-    logger.info('Starting full asteroid sync')
+
+    const { totalCount } = await getAsteroidPage(1)
+    const workerCount = Math.ceil(totalCount / DB_BATCH_SIZE)
+
+    logger.info(`Starting full asteroid sync for ${totalCount} asteroids`)
 
     const importRun = await db.asteroidImportRun.create({
       data: {
         start: new Date(),
-        runningWorkers: 0,
+        runningWorkers: workerCount,
       },
     })
 
     logger.info(
       `Created import run ${
         importRun.id
-      } starting at ${importRun.start.toUTCString()}`
+      } starting at ${importRun.start.toUTCString()} with ${workerCount} workers`
     )
 
     await step.sendEvent('app/update-asteroid-page', {
       name: 'app/update-asteroid-page',
       data: {
         runId: importRun.id,
+        page: 1,
+        receivedAsteroids: 0,
       },
     })
   }
@@ -64,15 +74,60 @@ export const updateAsteroidPage = inngest.createFunction(
   { event: 'app/update-asteroid-page' },
   async ({ event, step, logger }) => {
     const searchAfter = event.data?.searchAfter as number[] | undefined
-    const updatedAsteroids = (event.data?.updatedAsteroids ?? 0) as number
+    const page = (event.data?.page ?? 0) as number
     const runId = (event.data?.runId ?? 0) as number
-
-    const start = new Date().getTime()
+    const receivedAsteroids = (event.data?.receivedAsteroids ?? 0) as number
 
     const { asteroids: apiAsteroids, nextSearchAfter } = await getAsteroidPage(
-      BATCH_SIZE,
+      API_BATCH_SIZE,
       searchAfter
     )
+
+    const newReceivedAsteroids = receivedAsteroids + apiAsteroids.length
+
+    const batchCount = Math.ceil(apiAsteroids.length / DB_BATCH_SIZE)
+    if (batchCount > 0) {
+      logger.info(
+        `Got ${apiAsteroids.length} asteroids from API for page ${page}, total received: ${newReceivedAsteroids}, nextSearchAfter: ${nextSearchAfter}`
+      )
+
+      const events = Array.from({ length: batchCount }).map((_, i) => {
+        const start = i * DB_BATCH_SIZE
+        const end = Math.min(start + DB_BATCH_SIZE, apiAsteroids.length)
+        return {
+          name: 'app/update-asteroids-db',
+          data: {
+            apiAsteroids: apiAsteroids.slice(start, end),
+            runId,
+          },
+        }
+      })
+
+      await step.sendEvent('app/update-asteroids-db', events)
+    }
+
+    if (nextSearchAfter) {
+      await step.sendEvent('app/update-asteroid-page', {
+        name: 'app/update-asteroid-page',
+        data: {
+          searchAfter: nextSearchAfter,
+          runId,
+          page: page + 1,
+          receivedAsteroids: newReceivedAsteroids,
+        },
+      })
+    }
+  }
+)
+
+export const updateAsteroidsDb = inngest.createFunction(
+  { id: 'update-asteroids-db', concurrency: 10 },
+  { event: 'app/update-asteroids-db' },
+  async ({ event, logger }) => {
+    const apiAsteroids =
+      (event.data?.apiAsteroids as ApiAsteroid[] | undefined) ?? []
+    const runId = (event.data?.runId ?? 0) as number
+
     const apiIds = apiAsteroids.map((a) => a.id)
     const existingAsteroids = new Map(
       (
@@ -87,32 +142,31 @@ export const updateAsteroidPage = inngest.createFunction(
     )
     await updateAsteroids(apiAsteroids, existingAsteroids)
 
-    const durationMs = new Date().getTime() - start
-    const totalUpdated = updatedAsteroids + existingAsteroids.size
+    const run = await db.asteroidImportRun.update({
+      where: {
+        id: runId,
+      },
+      data: {
+        runningWorkers: {
+          decrement: 1,
+        },
+      },
+    })
+
     logger.info(
-      `${totalUpdated} asteroids updated in DB. Step took ${durationMs}ms`
+      `Updated ${apiAsteroids.length} asteroids in DB, ${run.runningWorkers} workers left`
     )
 
-    if (nextSearchAfter) {
-      await step.sendEvent('app/update-asteroid-page', {
-        name: 'app/update-asteroid-page',
-        data: {
-          searchAfter: nextSearchAfter,
-          updatedAsteroids: totalUpdated,
-          runId,
-        },
-      })
-    } else {
+    if (run.runningWorkers === 0) {
       const end = new Date()
-      const run = await db.asteroidImportRun.update({
+      const duration = (end.getTime() - run.start.getTime()) / 1000
+      await db.asteroidImportRun.update({
         where: {
           id: runId,
         },
-        data: {
-          end,
-        },
+        data: { end },
       })
-      const duration = (end.getTime() - run.start.getTime()) / 1000
+
       logger.info(`Asteroid sync finished in ${duration.toLocaleString()}s`)
     }
   }
@@ -152,6 +206,10 @@ const updateAsteroid = (
   const newOwner = apiAsteroid.Nft.owner?.toLowerCase()
 
   const ownerChanged = !!newOwner && existingAsteroid.ownerAddress !== newOwner
+
+  if (!newOwner) {
+    console.log('UNOWNED ASTEROID', JSON.stringify(apiAsteroid, null, 2))
+  }
 
   return db.asteroid.update({
     where: {
