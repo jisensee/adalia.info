@@ -7,6 +7,7 @@ import {
   useConnect as useConnectStarknet,
   useDisconnect,
 } from '@starknet-react/core'
+import { User } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -34,12 +35,18 @@ export const WalletInfo = () => {
     useConnectStarknet()
 
   const isConnecting = mainnetLoading
+  const accountsConnected = !!(mainnetAccount || starknetAccount)
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant='outline' loading={isConnecting}>
-          {mainnetAccount || starknetAccount ? (
+        <Button
+          variant='outline'
+          loading={isConnecting}
+          icon={accountsConnected ? undefined : <User />}
+          responsive
+        >
+          {accountsConnected ? (
             <AccountHeaderView
               mainnetAccount={mainnetAccount}
               starknetAccount={starknetAccount}
@@ -51,7 +58,7 @@ export const WalletInfo = () => {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>My Account</DialogTitle>
+          <DialogTitle>My Accounts</DialogTitle>
         </DialogHeader>
         <Separator className='bg-primary' />
         <div className='flex flex-col gap-y-4'>

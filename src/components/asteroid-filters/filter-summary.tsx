@@ -18,6 +18,8 @@ export const AsteroidFilterSummary = ({
 }: AsteroidFilterSummaryProps) => {
   const [filters, setFilters] = useAsteroidFilters()
 
+  const anyFilterActive = Object.values(filters).some((v) => v !== null)
+
   const { mainnetAccount, starknetAccount } = useAccounts()
   const mainnetAddress = mainnetAccount?.address
   const starknetAddress = starknetAccount?.address
@@ -66,7 +68,7 @@ export const AsteroidFilterSummary = ({
     (value: T[]) =>
       value.map(format).join(', ')
 
-  return (
+  return anyFilterActive ? (
     <div className='flex flex-row flex-wrap items-center gap-2'>
       {tag('name', 'Name', (name) => name)}
       {tag('owned', 'Owned', (owned) => (owned ? 'Yes' : 'No'))}
@@ -101,7 +103,7 @@ export const AsteroidFilterSummary = ({
       {tag('scanBonus', 'Scan bonus', enumFormatter(Format.asteroidScanBonus))}
       {tag('blockchain', 'Blockchain', (v) => v)}
     </div>
-  )
+  ) : null
 }
 
 type FilterTagProps = {

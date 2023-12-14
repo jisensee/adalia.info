@@ -3,11 +3,11 @@ import { asteroidPageParamsCache } from './types'
 import { Paginator } from './paginator'
 import { ColumnConfig } from './column-config'
 import { Export } from './export'
-import { Filters } from './filters'
 import { AsteroidFilterForm } from '@/components/asteroid-filters/asteroid-filter-form'
 import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summary'
 import { AsteroidService } from '@/server/asteroid-service'
 import { asteroidFiltersCache } from '@/components/asteroid-filters/filter-params'
+import { FiltersDropdown } from '@/components/filters-dropdown'
 
 export default async function Asteroids({
   searchParams,
@@ -29,7 +29,7 @@ export default async function Asteroids({
     <div className='flex flex-col sm:flex-row sm:justify-between md:items-center'>
       <h2>Found {totalCount.toLocaleString()} Asteroids</h2>
       <div className='flex flex-row justify-end gap-x-2'>
-        <Filters />
+        <FiltersDropdown />
         <Export totalCount={totalCount} />
         <ColumnConfig />
       </div>

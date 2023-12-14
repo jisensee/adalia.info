@@ -163,7 +163,35 @@ const getExport = (
     }
   ) as unknown as Readable
 
+const getGroupedByRarity = (filters: AsteroidFilters) => {
+  const where = makeWhereFilter(filters)
+
+  return db.$transaction([
+    db.asteroid.count({ where }),
+    db.asteroid.groupBy({
+      where: makeWhereFilter(filters),
+      by: ['rarity'],
+      _count: true,
+    }),
+  ])
+}
+
+const getGroupedBySpectralType = (filters: AsteroidFilters) => {
+  const where = makeWhereFilter(filters)
+
+  return db.$transaction([
+    db.asteroid.count({ where }),
+    db.asteroid.groupBy({
+      where: makeWhereFilter(filters),
+      by: ['spectralType'],
+      _count: true,
+    }),
+  ])
+}
+
 export const AsteroidService = {
   getPage,
   getExport,
+  getGroupedByRarity,
+  getGroupedBySpectralType,
 }

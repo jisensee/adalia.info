@@ -1,4 +1,4 @@
-import { Orbit } from 'lucide-react'
+import { BarChart3, Orbit } from 'lucide-react'
 import Link from 'next/link'
 import { WalletInfo } from './wallet/wallet-info'
 import { Logo } from './logo'
@@ -18,6 +18,10 @@ export const Navbar = () => {
         <Link href='/asteroids' className={link}>
           <Orbit />
           <span className='hidden sm:inline'>Asteroids</span>
+        </Link>
+        <Link href='/stats' className={link}>
+          <BarChart3 />
+          <span className='hidden sm:inline'>Stats</span>
         </Link>
       </div>
       <WalletInfo />

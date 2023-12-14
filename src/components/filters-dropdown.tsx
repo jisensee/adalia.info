@@ -21,22 +21,28 @@ import {
 } from '@/components/asteroid-filters/filter-params'
 import { useAccounts } from '@/hooks/wallet-hooks'
 import { useAsteroidFilters } from '@/components/asteroid-filters/hooks'
+import { cn } from '@/lib/utils'
 
 type FilteritemProps = {
   filters: Partial<AsteroidFilters>
   destructive?: boolean
+  highlight?: boolean
 } & PropsWithChildren
 
 const FilterItem: FC<FilteritemProps> = ({
   filters,
   destructive,
+  highlight,
   children,
 }) => {
   const [, setFilters] = useAsteroidFilters()
 
   return (
     <DropdownMenuItem
-      className='flex flex-row items-center gap-x-2'
+      className={cn('flex flex-row items-center gap-x-2', {
+        'text-destructive': destructive,
+        'text-primary': highlight,
+      })}
       onClick={() => setFilters({ ...emptyAsteroidFilters, ...filters })}
     >
       {destructive ? (
@@ -49,7 +55,7 @@ const FilterItem: FC<FilteritemProps> = ({
   )
 }
 
-export const Filters = () => {
+export const FiltersDropdown = () => {
   const { mainnetAccount, starknetAccount } = useAccounts()
   const addresses = [mainnetAccount?.address, starknetAccount?.address].flatMap(
     (a) => (a ? [a] : [])
@@ -72,10 +78,12 @@ export const Filters = () => {
           Reset all
         </FilterItem>
         <DropdownMenuSeparator />
-        <FilterItem filters={{ owned: true }}>Owned</FilterItem>
         {addresses.length > 0 && (
-          <FilterItem filters={{ owners: addresses }}>Owned by me</FilterItem>
+          <FilterItem filters={{ owners: addresses }} highlight>
+            Owned by me
+          </FilterItem>
         )}
+        <FilterItem filters={{ owned: true }}>Owned</FilterItem>
         <FilterItem
           filters={{
             scanStatus: [
