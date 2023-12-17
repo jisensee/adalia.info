@@ -89,10 +89,15 @@ const makePurchaseOrderFilter = (filters: AsteroidFilters) => {
   return result
 }
 
+const sanitizeNameSearchTerm = (searchTerm: string) =>
+  searchTerm.trim().split(' ').join(' & ')
+
 const makeWhereFilter = (
   filters: AsteroidFilters
 ): Prisma.AsteroidWhereInput => ({
-  name: makeFilter(filters.name, (name) => ({ search: name })),
+  name: makeFilter(filters.name, (name) => ({
+    search: sanitizeNameSearchTerm(name),
+  })),
   ownerAddress:
     makeFilter(filters.owners, (owners) => ({
       in: owners.map((o) => o?.toLowerCase()).filter(Boolean) as string[],
@@ -189,9 +194,27 @@ const getGroupedBySpectralType = (filters: AsteroidFilters) => {
   ])
 }
 
+const search = (searchTerm: string) => {
+  const id = parseInt(searchTerm, 10)
+  return db.asteroid.findMany({
+    take: 5,
+    where: {
+      OR: [
+        {
+          id: isNaN(id) ? undefined : id,
+        },
+        {
+          name: { search: searchTerm.trim().split(' ').join(' & ') },
+        },
+      ],
+    },
+  })
+}
+
 export const AsteroidService = {
   getPage,
   getExport,
   getGroupedByRarity,
   getGroupedBySpectralType,
+  search,
 }

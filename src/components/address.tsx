@@ -14,6 +14,7 @@ type AddressProps = {
   address: string
   shownCharacters: number
   hideChainIcon?: boolean
+  hideCopyButton?: boolean
   heading?: boolean
 }
 
@@ -21,6 +22,7 @@ export const Address: FC<AddressProps> = ({
   address,
   shownCharacters,
   hideChainIcon,
+  hideCopyButton,
   heading,
 }) => {
   const chain = address.length > 42 ? Blockchain.STARKNET : Blockchain.ETHEREUM
@@ -41,11 +43,13 @@ export const Address: FC<AddressProps> = ({
       >
         {name ? name : Format.ethAddress(address, shownCharacters)}
       </Link>
-      <CopyButton
-        value={address}
-        copiedMessage='Address copied to clipboard!'
-        large={heading}
-      />
+      {!hideCopyButton && (
+        <CopyButton
+          value={address}
+          copiedMessage='Address copied to clipboard!'
+          large={heading}
+        />
+      )}
     </div>
   )
 }
