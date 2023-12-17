@@ -26,10 +26,16 @@ import { Format } from '@/lib/format'
 
 export type SearchProps = {
   className?: string
+  listenToKeyboard?: boolean
+  hideButton?: boolean
 }
 
-export const Search = ({ className }: SearchProps) => {
-  const [open, setOpen] = useOpen()
+export const Search = ({
+  className,
+  listenToKeyboard,
+  hideButton,
+}: SearchProps) => {
+  const [open, setOpen] = useOpen(listenToKeyboard)
   const [searchTerm, setSearchTerm] = useState('')
   const {
     results,
@@ -188,10 +194,12 @@ export const Search = ({ className }: SearchProps) => {
 
   return (
     <>
-      <div className={className} onClick={() => setOpen(true)}>
-        <SearchIcon className='cursor-pointer' />
-        <span>Search</span>
-      </div>
+      {!hideButton && (
+        <div className={className} onClick={() => setOpen(true)}>
+          <SearchIcon className='cursor-pointer' />
+          <span>Search</span>
+        </div>
+      )}
       <CommandDialog
         open={open}
         onOpenChange={(newOpen) => {
@@ -202,6 +210,7 @@ export const Search = ({ className }: SearchProps) => {
         }}
       >
         <CommandInput
+          id='search-dialog-input'
           placeholder='Search for asteroid ID, name, owner, ...'
           value={searchTerm}
           onValueChange={setSearchTerm}
@@ -257,10 +266,14 @@ const useSearchResult = (searchTerm: string) => {
   return state
 }
 
-const useOpen = () => {
+const useOpen = (listenToKeyboard?: boolean) => {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
+    if (!listenToKeyboard) {
+      return
+    }
+
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
@@ -270,7 +283,7 @@ const useOpen = () => {
 
     document.addEventListener('keydown', down)
     return () => document.removeEventListener('keydown', down)
-  }, [])
+  }, [listenToKeyboard])
 
   return [open, setOpen] as const
 }

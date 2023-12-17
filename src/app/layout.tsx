@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils'
 import { db } from '@/server/db'
 import { Separator } from '@/components/ui/separator'
 import { Logo } from '@/components/logo'
+import { Search } from '@/components/search'
 
 const font = Jura({ subsets: ['latin'] })
 
@@ -68,6 +69,7 @@ export default async function RootLayout({
       >
         <Providers>
           <div className='flex h-full flex-col'>
+            <Search listenToKeyboard hideButton />
             <Navbar />
             <div className='flex h-full flex-row overflow-y-hidden'>
               <div id='sidebar' />
