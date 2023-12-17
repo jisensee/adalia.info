@@ -40,9 +40,9 @@ export const Search = ({ className }: SearchProps) => {
   const { push } = useRouter()
 
   const navigateToResult: typeof push = (newPath: Route) => {
-    push(newPath)
     setOpen(false)
     setSearchTerm('')
+    push(newPath)
   }
 
   const asteroidResults = results.filter(

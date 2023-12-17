@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import { Asteroid, Prisma } from '@prisma/client'
+import { Asteroid, AsteroidScanStatus, Prisma } from '@prisma/client'
 import { Sort } from '@/app/asteroids/types'
 import { db } from '@/server/db'
 import { AsteroidColumn } from '@/app/asteroids/columns'
@@ -211,10 +211,29 @@ const search = (searchTerm: string) => {
   })
 }
 
+const getProgressStats = async (filters: AsteroidFilters) => {
+  const where = makeWhereFilter(filters)
+
+  const matchedCount = await db.asteroid.count({ where })
+  const owned = await db.asteroid.count({
+    where: { ...where, ownerAddress: { not: null } },
+  })
+  const scanned = await db.asteroid.count({
+    where: { ...where, scanStatus: { not: AsteroidScanStatus.UNSCANNED } },
+  })
+
+  return {
+    matchedCount,
+    owned,
+    scanned,
+  }
+}
+
 export const AsteroidService = {
   getPage,
   getExport,
   getGroupedByRarity,
   getGroupedBySpectralType,
   search,
+  getProgressStats,
 }

@@ -5,11 +5,11 @@ import { Address } from '@/components/address'
 import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
 import { Format } from '@/lib/format'
 
-export const LastAsteroidTransfers = async () => {
-  const lastOwnerChanges = await db.asteroidOwnerChange.findMany({
+export const LastAsteroidPurchases = async () => {
+  const lastPurchases = await db.asteroidOwnerChange.findMany({
     take: 10,
     where: {
-      fromAddress: { not: null },
+      fromAddress: null,
     },
     orderBy: {
       timestamp: 'desc',
@@ -21,11 +21,11 @@ export const LastAsteroidTransfers = async () => {
 
   return (
     <div className='flex flex-col gap-y-1'>
-      <h1>Last owner changes</h1>
+      <h1>Last purchases</h1>
       <Table>
         <TableBody>
-          {lastOwnerChanges.map(({ asteroid, ...change }) => (
-            <TableRow key={asteroid.id}>
+          {lastPurchases.map(({ asteroid, ...change }) => (
+            <TableRow key={change.id}>
               <TableCell>
                 <Link
                   className='text-primary md:text-xl'
@@ -39,11 +39,6 @@ export const LastAsteroidTransfers = async () => {
                 <span className='text-primary'>
                   {Format.asteroidSpectralType(asteroid.spectralType)}
                 </span>
-              </TableCell>
-              <TableCell>
-                {change.fromAddress && (
-                  <Address address={change.fromAddress} shownCharacters={4} />
-                )}
               </TableCell>
               <TableCell>
                 <ArrowRight size={30} />

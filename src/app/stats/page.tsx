@@ -1,5 +1,6 @@
 import { RarityChart } from './rarity-chart'
 import { SpectralTypesChart } from './spectral-types-chart'
+import { ProgressCharts } from './progress-charts'
 import { AsteroidFilterForm } from '@/components/asteroid-filters/asteroid-filter-form'
 import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summary'
 import { AsteroidService } from '@/server/asteroid-service'
@@ -43,6 +44,7 @@ export default async function StatsPage({
           </div>
         </div>
         <AsteroidFilterSummary />
+        <ProgressCharts filters={filters} />
         <div className='flex flex-wrap justify-center gap-10'>
           <RarityChart data={rarityData} />
           <SpectralTypesChart data={spectralTypeData} />

@@ -8,16 +8,13 @@ export const OwnedAsteroids = async () => {
   })
   const ownedPercentage = (ownedAsteroids / Constants.TOTAL_ASTEROIDS) * 100
   return (
-    <div className='relative'>
-      <div className='absolute top-[10%] z-50 flex w-full items-center justify-center text-primary-foreground'>
-        Total Owned asteroids: {ownedAsteroids.toLocaleString()}
-        <span className='hidden md:inline'>
-          {' '}
-          / {Constants.TOTAL_ASTEROIDS.toLocaleString()} (
-          {ownedPercentage.toFixed(1)}%)
-        </span>
-      </div>
-      <Progress className='h-8' value={ownedPercentage} />
-    </div>
+    <Progress className='h-10' value={ownedPercentage}>
+      Total Owned asteroids: {ownedAsteroids.toLocaleString()}
+      <span className='hidden md:inline'>
+        {' '}
+        / {Constants.TOTAL_ASTEROIDS.toLocaleString()} (
+        {ownedPercentage.toFixed(1)}%)
+      </span>
+    </Progress>
   )
 }

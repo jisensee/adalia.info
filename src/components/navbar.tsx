@@ -20,12 +20,17 @@ export const Navbar = () => {
             <Logo.AdaliaInfo className='h-8 w-8 ' />
             adalia.info
           </Link>
-          <Search className={cn(link, 'hidden cursor-pointer sm:flex')} />
-          <Link href='/asteroids' className={cn(link, 'hidden sm:flex')}>
+          <Search
+            className={cn(link, 'hidden cursor-pointer gap-x-2 sm:flex')}
+          />
+          <Link
+            href='/asteroids'
+            className={cn(link, 'hidden gap-x-2 sm:flex')}
+          >
             <Orbit />
             <span>Asteroids</span>
           </Link>
-          <Link href='/stats' className={cn(link, 'hidden sm:flex')}>
+          <Link href='/stats' className={cn(link, 'hidden gap-x-2 sm:flex')}>
             <BarChart3 />
             <span>Stats</span>
           </Link>

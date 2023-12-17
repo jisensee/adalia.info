@@ -1,3 +1,4 @@
+import { LastAsteroidPurchases } from './last-asteroid-purchases'
 import { LastAsteroidTransfers } from './last-asteroid-transfers'
 import { LastScannedAsteroids } from './last-scanned-asteroids'
 import { OwnedAsteroids } from './owned-asteroids'
@@ -12,6 +13,7 @@ export default async function Home() {
       </p>
       <OwnedAsteroids />
       <LastScannedAsteroids />
+      <LastAsteroidPurchases />
       <LastAsteroidTransfers />
     </div>
   )

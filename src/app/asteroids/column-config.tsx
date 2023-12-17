@@ -1,5 +1,12 @@
 'use client'
-import { DndContext } from '@dnd-kit/core'
+
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core'
 import { SortableContext, arrayMove, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -17,6 +24,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 export const ColumnConfig = () => {
   const [columns, setColumns] = useAsteroidColumns()
+  const sensors = useSensors(useSensor(PointerSensor))
 
   return (
     <Popover>
@@ -32,6 +40,8 @@ export const ColumnConfig = () => {
       </PopoverTrigger>
       <PopoverContent align='end' className='w-fit px-3'>
         <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
           onDragEnd={({ active, over }) =>
             setColumns(
               arrayMove(
@@ -93,7 +103,7 @@ const Row = ({ column, active, onActiveChange }: RowProps) => {
       style={style}
       {...attributes}
     >
-      <div {...listeners} className='mr-1'>
+      <div className='mr-1' {...listeners}>
         <GripVertical />
       </div>
       <Checkbox
