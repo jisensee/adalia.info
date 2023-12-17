@@ -190,7 +190,7 @@ export const Search = ({ className }: SearchProps) => {
     <>
       <div className={className} onClick={() => setOpen(true)}>
         <SearchIcon className='cursor-pointer' />
-        <span className='hidden sm:inline'>Search</span>
+        <span>Search</span>
       </div>
       <CommandDialog
         open={open}

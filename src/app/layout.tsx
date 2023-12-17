@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 import { Jura } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import Link from 'next/link'
-import { Navbar } from '../components/navbar'
+import { BottomNavbar, Navbar } from '../components/navbar'
 import { Providers } from './providers'
 import { cn } from '@/lib/utils'
 import { db } from '@/server/db'
@@ -47,12 +47,14 @@ export default async function RootLayout({
           </Link>
         </div>
         {lastAsteroidUpdate && (
-          <div>
-            <span className='mr-1 text-primary'>Last data update:</span>
-            {formatRelative(
-              lastAsteroidUpdate,
-              new Date(new Date().toUTCString())
-            )}
+          <div className='text-center'>
+            <span className='text-primary'>Last data update: </span>
+            <span>
+              {formatRelative(
+                lastAsteroidUpdate,
+                new Date(new Date().toUTCString())
+              )}
+            </span>
           </div>
         )}
       </div>
@@ -74,6 +76,7 @@ export default async function RootLayout({
                 {footer}
               </div>
             </div>
+            <BottomNavbar />
           </div>
         </Providers>
         <Analytics />

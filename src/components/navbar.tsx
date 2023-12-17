@@ -5,26 +5,29 @@ import { Logo } from './logo'
 import { Search } from './search'
 import { cn } from '@/lib/utils'
 
-export const Navbar = () => {
-  const link =
-    'text-primary p-3 text-lg flex gap-x-2 items-center hover:bg-primary hover:text-primary-foreground fill-primary stroke-primary hover:fill-primary-foreground hover:stroke-primary-foreground'
+const link =
+  'text-primary p-3 text-lg hover:bg-primary hover:text-primary-foreground fill-primary stroke-primary hover:fill-primary-foreground hover:stroke-primary-foreground'
 
+export const Navbar = () => {
   return (
     <>
       <nav className='sticky top-0 z-50 flex h-nav flex-row items-center justify-between border-b border-primary bg-background pr-3'>
         <div className='flex flex-row items-center'>
-          <Link href='/' className={cn('!text-xl font-bold', link)}>
+          <Link
+            href='/'
+            className={cn(link, 'flex items-center gap-x-2 !text-xl font-bold')}
+          >
             <Logo.AdaliaInfo className='h-8 w-8 ' />
             adalia.info
           </Link>
-          <Search className={cn(link, 'cursor-pointer')} />
-          <Link href='/asteroids' className={link}>
+          <Search className={cn(link, 'hidden cursor-pointer sm:flex')} />
+          <Link href='/asteroids' className={cn(link, 'hidden sm:flex')}>
             <Orbit />
-            <span className='hidden sm:inline'>Asteroids</span>
+            <span>Asteroids</span>
           </Link>
-          <Link href='/stats' className={link}>
+          <Link href='/stats' className={cn(link, 'hidden sm:flex')}>
             <BarChart3 />
-            <span className='hidden sm:inline'>Stats</span>
+            <span>Stats</span>
           </Link>
         </div>
         <WalletInfo />
@@ -32,3 +35,26 @@ export const Navbar = () => {
     </>
   )
 }
+
+export const BottomNavbar = () => (
+  <nav className='flex flex-row items-center border-t border-primary bg-background sm:hidden'>
+    <Link href='/' className={cn(link, 'flex grow flex-col items-center')}>
+      <Logo.AdaliaInfo className='h-6 w-6 ' />
+      <span className='font-bold'>Home</span>
+    </Link>
+    <Search
+      className={cn(link, 'flex grow cursor-pointer flex-col items-center')}
+    />
+    <Link
+      href='/asteroids'
+      className={cn(link, 'flex grow flex-col items-center')}
+    >
+      <Orbit />
+      <span>Asteroids</span>
+    </Link>
+    <Link href='/stats' className={cn(link, 'flex grow flex-col items-center')}>
+      <BarChart3 />
+      <span>Stats</span>
+    </Link>
+  </nav>
+)
