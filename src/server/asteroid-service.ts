@@ -226,7 +226,10 @@ const getProgressStats = async (filters: AsteroidFilters) => {
     filters.scanStatus[0] === AsteroidScanStatus.UNSCANNED
       ? 0
       : await db.asteroid.count({
-          where: { scanStatus: { not: AsteroidScanStatus.UNSCANNED } },
+          where: {
+            scanStatus: { not: AsteroidScanStatus.UNSCANNED },
+            ...where,
+          },
         })
 
   return {

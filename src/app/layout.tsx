@@ -1,4 +1,5 @@
 import './globals.css'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import { SiDiscord, SiGithub } from '@icons-pack/react-simple-icons'
 import { formatRelative } from 'date-fns'
 import type { Metadata } from 'next'
@@ -82,6 +83,7 @@ export default async function RootLayout({
           </div>
         </Providers>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
