@@ -27,7 +27,11 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import { AsteroidImage } from '@/components/asteroid-image'
-import { AsteroidActionButton } from '@/components/asteroid-action-button'
+import {
+  AsteroidCoorbitalsButton,
+  AsteroidDetailsButton,
+  AsteroidGameButton,
+} from '@/components/asteroid-action-button'
 
 export type AsteroidTableProps = {
   data: Asteroid[]
@@ -137,10 +141,10 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({ data }) => {
                     <div className='flex w-fit flex-col gap-x-5 gap-y-3 md:flex-row'>
                       <AsteroidImage id={row.original.id} width={350} />
                       <div className='flex flex-col gap-y-3 md:justify-center'>
-                        <AsteroidActionButton.Details id={row.original.id} />
-                        <AsteroidActionButton.Game id={row.original.id} />
-                        <AsteroidActionButton.Coorbitals
-                          orbitalPeriod={row.original.orbitalPeriod}
+                        <AsteroidDetailsButton id={row.original.id} />
+                        <AsteroidGameButton id={row.original.id} />
+                        <AsteroidCoorbitalsButton
+                          semiMajorAxis={row.original.semiMajorAxis}
                         />
                       </div>
                     </div>

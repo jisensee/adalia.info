@@ -1,9 +1,8 @@
-import Link from 'next/link'
 import { Balances } from './balances'
+import { OwnerAsteroidsButton } from './owner-asteroids-button'
 import { Address } from '@/components/address'
 import { AsteroidImage } from '@/components/asteroid-image'
 import { db } from '@/server/db'
-import { Button } from '@/components/ui/button'
 
 type Params = {
   params: {
@@ -26,11 +25,7 @@ export default async function OwnerPage({ params }: Params) {
       <Balances address={params.address} />
       <div className='flex flex-row items-center gap-x-5'>
         <h2>Largest asteroids</h2>
-        <Link href={`/asteroids?owners=${params.address}`}>
-          <Button variant='outline' size='xs'>
-            Show all
-          </Button>
-        </Link>
+        <OwnerAsteroidsButton address={params.address} />
       </div>
       <div className='flex flex-row flex-wrap gap-5'>
         {ownedAsteroids.map((asteroid) => (

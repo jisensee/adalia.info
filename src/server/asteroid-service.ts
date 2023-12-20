@@ -215,12 +215,19 @@ const getProgressStats = async (filters: AsteroidFilters) => {
   const where = makeWhereFilter(filters)
 
   const matchedCount = await db.asteroid.count({ where })
+
   const owned = await db.asteroid.count({
-    where: { ...where, ownerAddress: { not: null } },
+    where: where.ownerAddress
+      ? where
+      : { ...where, ownerAddress: { not: null } },
   })
-  const scanned = await db.asteroid.count({
-    where: { ...where, scanStatus: { not: AsteroidScanStatus.UNSCANNED } },
-  })
+  const scanned =
+    filters.scanStatus?.length === 1 &&
+    filters.scanStatus[0] === AsteroidScanStatus.UNSCANNED
+      ? 0
+      : await db.asteroid.count({
+          where: { scanStatus: { not: AsteroidScanStatus.UNSCANNED } },
+        })
 
   return {
     matchedCount,

@@ -7,6 +7,8 @@ import { Route } from 'next'
 import { AsteroidScanStatus } from '@prisma/client'
 import { LoadingIndicator } from './loading-indicator'
 import { Address } from './address'
+import { AsteroidFilters } from './asteroid-filters/filter-params'
+import { useAsteroidFilterNavigation } from './asteroid-filters/hooks'
 import {
   CommandDialog,
   CommandGroup,
@@ -44,11 +46,18 @@ export const Search = ({
   } = useSearchResult(searchTerm)
 
   const { push } = useRouter()
+  const navigateAsteroids = useAsteroidFilterNavigation()
 
   const navigateToResult: typeof push = (newPath: Route) => {
     setOpen(false)
     setSearchTerm('')
     push(newPath)
+  }
+
+  const navigateToAsteroids = (filters: Partial<AsteroidFilters>) => {
+    setOpen(false)
+    setSearchTerm('')
+    navigateAsteroids(filters)
   }
 
   const asteroidResults = results.filter(
@@ -100,7 +109,7 @@ export const Search = ({
       <CommandItem
         key='show-all-asteroids'
         className='flex flex-row items-center gap-x-3 text-primary'
-        onSelect={() => navigateToResult(`/asteroids?name=${usedSearchTerm}`)}
+        onSelect={() => navigateToAsteroids({ name: usedSearchTerm })}
       >
         <Orbit />
         <span>Show all</span>
@@ -127,7 +136,7 @@ export const Search = ({
         <CommandItem
           key={res.rarity}
           className={Format.asteroidRarityClassName(res.rarity)}
-          onSelect={() => navigateToResult(`/asteroids?rarity=${res.rarity}`)}
+          onSelect={() => navigateToAsteroids({ rarity: [res.rarity] })}
         >
           {Format.asteroidRarity(res.rarity)}
         </CommandItem>
@@ -143,20 +152,23 @@ export const Search = ({
           onSelect={() => {
             switch (res.status) {
               case 'owned':
-                navigateToResult(`/asteroids?owned=true`)
+                navigateToAsteroids({ owned: true })
                 break
               case 'unowned':
-                navigateToResult(`/asteroids?owned=false`)
+                navigateToAsteroids({ owned: false })
                 break
               case 'scanned':
-                navigateToResult(
-                  `/asteroids?scanStatus=${AsteroidScanStatus.LONG_RANGE_SCAN},${AsteroidScanStatus.ORBITAL_SCAN}`
-                )
+                navigateToAsteroids({
+                  scanStatus: [
+                    AsteroidScanStatus.LONG_RANGE_SCAN,
+                    AsteroidScanStatus.ORBITAL_SCAN,
+                  ],
+                })
                 break
               case 'unscanned':
-                navigateToResult(
-                  `/asteroids?scanStatus=${AsteroidScanStatus.UNSCANNED}`
-                )
+                navigateToAsteroids({
+                  scanStatus: [AsteroidScanStatus.UNSCANNED],
+                })
                 break
             }
           }}
@@ -182,9 +194,7 @@ export const Search = ({
       </CommandItem>
       <CommandItem
         className='flex flex-row items-center gap-x-3 text-primary'
-        onSelect={() =>
-          navigateToResult(`/asteroids?owners=${ownerResult.address}`)
-        }
+        onSelect={() => navigateToAsteroids({ owners: [ownerResult.address] })}
       >
         <Orbit />
         <span>Show {ownerResult.ownedAsteroids} owned asteroids</span>

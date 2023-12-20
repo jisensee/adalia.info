@@ -1,30 +1,21 @@
 import { useQueryStates } from 'next-usequerystate'
-import { TransitionStartFunction, useEffect } from 'react'
-import { AsteroidFilters, asteroidFilterParamsParsers } from './filter-params'
+import { TransitionStartFunction } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import {
+  AsteroidFilters,
+  asteroidFilterParamsParsers,
+  emptyAsteroidFilters,
+} from './filter-params'
 import { usePageParamCacheContext } from '@/context/page-param-cache'
-
-const filtersEmpty = (filters: AsteroidFilters) =>
-  Object.values(filters).every((value) => value === null)
 
 export const useAsteroidFilters = (
   startTransition?: TransitionStartFunction
 ) => {
-  const { cache, updateCache } = usePageParamCacheContext()
+  const { updateCache } = usePageParamCacheContext()
   const [filters, setFilters] = useQueryStates(asteroidFilterParamsParsers, {
     shallow: false,
     startTransition,
   })
-
-  useEffect(() => {
-    if (cache.asteroidFilters === null) {
-      updateCache({
-        asteroidFilters: filters,
-      })
-    } else if (filtersEmpty(filters)) {
-      setFilters(cache.asteroidFilters)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   return [
     filters,
@@ -35,4 +26,28 @@ export const useAsteroidFilters = (
       setFilters(newFilters)
     },
   ] as const
+}
+
+export const useAsteroidFilterNavigation = () => {
+  const { updateCache } = usePageParamCacheContext()
+  const [, setFilters] = useAsteroidFilters()
+  const { push } = useRouter()
+  const isAsteroidPage = usePathname() === '/asteroids'
+
+  return (filters: Partial<AsteroidFilters>) => {
+    if (isAsteroidPage) {
+      setFilters({
+        ...emptyAsteroidFilters,
+        ...filters,
+      })
+    } else {
+      updateCache({
+        asteroidFilters: {
+          ...emptyAsteroidFilters,
+          ...filters,
+        },
+      })
+      push('/asteroids')
+    }
+  }
 }

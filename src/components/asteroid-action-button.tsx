@@ -1,9 +1,13 @@
+'use client'
+
 import { Globe, Orbit } from 'lucide-react'
 import Link from 'next/link'
 import { HTMLAttributeAnchorTarget, PropsWithChildren } from 'react'
 import { Route } from 'next'
 import { Logo } from './logo'
+import { useAsteroidFilterNavigation } from './asteroid-filters/hooks'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 type ActionButtonProps = {
   className?: string
@@ -11,6 +15,7 @@ type ActionButtonProps = {
   icon: React.ReactNode
   target?: HTMLAttributeAnchorTarget
 } & PropsWithChildren
+
 const ActionButton = ({
   className,
   href,
@@ -30,41 +35,54 @@ export type AsteroidActionButtonProps = {
   id: number
 }
 
-export const AsteroidActionButton = {
-  Details: ({ id, className }: AsteroidActionButtonProps) => (
-    <ActionButton
-      className={className}
-      href={`/asteroids/${id}` as Route}
-      icon={<Orbit />}
-    >
-      Details
-    </ActionButton>
-  ),
-  Game: ({ id, className }: AsteroidActionButtonProps) => (
-    <ActionButton
-      className={className}
-      href={`https://game.influenceth.io/asteroids/${id}`}
-      target='_blank'
-      icon={<Logo.Influence size={25} />}
-    >
-      Game
-    </ActionButton>
-  ),
-  Coorbitals: ({
-    className,
-    orbitalPeriod,
-  }: {
-    className?: string
-    orbitalPeriod: number
-  }) => (
-    <ActionButton
-      className={className}
-      href={`/asteroids?orbitalPeriod=${encodeURI(
-        JSON.stringify({ from: orbitalPeriod, to: orbitalPeriod })
-      )}`}
+export const AsteroidDetailsButton = ({
+  id,
+  className,
+}: AsteroidActionButtonProps) => (
+  <ActionButton
+    className={className}
+    href={`/asteroids/${id}` as Route}
+    icon={<Orbit />}
+  >
+    Details
+  </ActionButton>
+)
+export const AsteroidGameButton = ({
+  id,
+  className,
+}: AsteroidActionButtonProps) => (
+  <ActionButton
+    className={className}
+    href={`https://game.influenceth.io/asteroids/${id}`}
+    target='_blank'
+    icon={<Logo.Influence size={25} />}
+  >
+    Game
+  </ActionButton>
+)
+export const AsteroidCoorbitalsButton = ({
+  className,
+  semiMajorAxis,
+}: {
+  className?: string
+  semiMajorAxis: number
+}) => {
+  const navigate = useAsteroidFilterNavigation()
+  return (
+    <Button
+      variant='outline'
+      className={cn('w-full', className)}
       icon={<Globe />}
+      onClick={() =>
+        navigate({
+          semiMajorAxis: {
+            from: semiMajorAxis,
+            to: semiMajorAxis,
+          },
+        })
+      }
     >
       Co-Orbitals
-    </ActionButton>
-  ),
+    </Button>
+  )
 }

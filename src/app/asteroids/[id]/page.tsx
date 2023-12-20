@@ -10,7 +10,10 @@ import {
 import { Format } from '@/lib/format'
 import { cn, radiusToSurfaceArea } from '@/lib/utils'
 import { AsteroidImage } from '@/components/asteroid-image'
-import { AsteroidActionButton } from '@/components/asteroid-action-button'
+import {
+  AsteroidCoorbitalsButton,
+  AsteroidGameButton,
+} from '@/components/asteroid-action-button'
 import { Address } from '@/components/address'
 
 type Params = {
@@ -124,10 +127,8 @@ export default async function AsteroidDetailPage({ params }: Params) {
       <div className='flex flex-col items-center gap-5 sm:flex-row sm:items-start'>
         <div className='flex flex-col gap-y-3'>
           <AsteroidImage id={asteroid.id} width={350} />
-          <AsteroidActionButton.Game id={asteroid.id} />
-          <AsteroidActionButton.Coorbitals
-            orbitalPeriod={asteroid.orbitalPeriod}
-          />
+          <AsteroidGameButton id={asteroid.id} />
+          <AsteroidCoorbitalsButton semiMajorAxis={asteroid.semiMajorAxis} />
         </div>
         {stats}
       </div>

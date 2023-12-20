@@ -8,6 +8,7 @@ import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summ
 import { AsteroidService } from '@/server/asteroid-service'
 import { asteroidFiltersCache } from '@/components/asteroid-filters/filter-params'
 import { FiltersDropdown } from '@/components/filters-dropdown'
+import { AsteroidFilterCache } from '@/components/asteroid-filters/asteroid-filter-cache'
 
 export default async function Asteroids({
   searchParams,
@@ -39,6 +40,7 @@ export default async function Asteroids({
   return (
     <div className='flex flex-row gap-x-2'>
       <AsteroidFilterForm />
+      <AsteroidFilterCache />
       <div className='flex w-full flex-grow flex-col gap-y-2 overflow-y-auto p-3'>
         <h1>Asteroids</h1>
         <p>
