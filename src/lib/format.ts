@@ -57,4 +57,6 @@ export const Format = {
   },
   asteroidScanBonus: (scanBonus: number | string) => scanBonus + 'x',
   purchaseOrder: numberFormatter(0),
+  percentage: (value: number, maxDecimals = 0) =>
+    numberFormatter(maxDecimals, '%')(value * 100),
 }

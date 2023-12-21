@@ -23,21 +23,6 @@ const makeRangeFilter = (range: RangeParam | undefined | null) =>
     lte: to,
   }))
 
-const makeRadiusFilter = (
-  radius: RangeParam | undefined | null,
-  surfaceArea: RangeParam | undefined | null
-) => {
-  if (radius) {
-    return makeRangeFilter(radius)
-  } else if (surfaceArea) {
-    const { from, to } = surfaceArea
-    return makeRangeFilter({
-      from: Math.sqrt(from / (4 * Math.PI)),
-      to: Math.sqrt(to / (4 * Math.PI)),
-    })
-  }
-}
-
 const earlyAdopterFilter = (earlyAdopter: boolean | undefined | null) => {
   if (earlyAdopter === undefined || earlyAdopter === null) {
     return undefined
@@ -102,7 +87,8 @@ const makeWhereFilter = (
     makeFilter(filters.owners, (owners) => ({
       in: owners.map((o) => o?.toLowerCase()).filter(Boolean) as string[],
     })) ?? makeFilter(filters.owned, (owned) => (owned ? { not: null } : null)),
-  radius: makeRadiusFilter(filters.radius, filters.surfaceArea),
+  radius: makeRangeFilter(filters.radius),
+  surfaceArea: makeRangeFilter(filters.surfaceArea),
   orbitalPeriod: makeRangeFilter(filters.orbitalPeriod),
   semiMajorAxis: makeRangeFilter(filters.semiMajorAxis),
   inclination: makeRangeFilter(filters.inclination),
@@ -132,6 +118,7 @@ const makeOrderBy = (sort: Sort) => ({
   semiMajorAxis: getSort('semiMajorAxis', sort),
   inclination: getSort('inclination', sort),
   eccentricity: getSort('eccentricity', sort),
+  rarity: getSort('rarity', sort),
 })
 
 const getPage = (
@@ -214,28 +201,48 @@ const search = (searchTerm: string) => {
 const getProgressStats = async (filters: AsteroidFilters) => {
   const where = makeWhereFilter(filters)
 
-  const matchedCount = await db.asteroid.count({ where })
-
-  const owned = await db.asteroid.count({
+  const matchedCountQuery = db.asteroid.count({ where })
+  const matchedSurfaceAreaQuery = db.asteroid.aggregate({
+    where,
+    _sum: {
+      surfaceArea: true,
+    },
+  })
+  const ownedQuery = db.asteroid.count({
     where: where.ownerAddress
       ? where
       : { ...where, ownerAddress: { not: null } },
   })
-  const scanned =
-    filters.scanStatus?.length === 1 &&
-    filters.scanStatus[0] === AsteroidScanStatus.UNSCANNED
-      ? 0
-      : await db.asteroid.count({
-          where: {
-            scanStatus: { not: AsteroidScanStatus.UNSCANNED },
-            ...where,
-          },
-        })
+  const scannedQuery = db.asteroid.count({
+    where: {
+      ...where,
+      scanStatus: { not: AsteroidScanStatus.UNSCANNED },
+    },
+  })
+
+  const [
+    matchedCount,
+    {
+      _sum: { surfaceArea: matchedSurfaceArea },
+    },
+    owned,
+    scanned,
+  ] = await db.$transaction([
+    matchedCountQuery,
+    matchedSurfaceAreaQuery,
+    ownedQuery,
+    scannedQuery,
+  ])
 
   return {
     matchedCount,
+    matchedSurfaceArea: matchedSurfaceArea ?? 0,
     owned,
-    scanned,
+    scanned:
+      filters.scanStatus?.length === 1 &&
+      filters.scanStatus[0] === AsteroidScanStatus.UNSCANNED
+        ? 0
+        : scanned,
   }
 }
 

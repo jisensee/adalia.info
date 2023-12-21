@@ -2,7 +2,6 @@ import { Transform, TransformCallback } from 'stream'
 
 import { Asteroid } from '@prisma/client'
 import { AsteroidService } from '@/server/asteroid-service'
-import { radiusToSurfaceArea } from '@/lib/utils'
 import { AsteroidFilters } from '@/components/asteroid-filters/filter-params'
 
 const csvHeader = [
@@ -31,7 +30,7 @@ const toCsvLine = (asteroid: Asteroid) =>
     asteroid.scanStatus,
     asteroid.size,
     asteroid.radius,
-    radiusToSurfaceArea(asteroid.radius),
+    asteroid.surfaceArea,
     asteroid.orbitalPeriod,
     asteroid.semiMajorAxis,
     asteroid.inclination,

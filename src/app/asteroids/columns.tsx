@@ -11,7 +11,6 @@ import { ColumnDef, createColumnHelper } from '@tanstack/react-table'
 import { ReactNode } from 'react'
 import Link from 'next/link'
 import { Format } from '@/lib/format'
-import { radiusToSurfaceArea } from '@/lib/utils'
 import { Constants } from '@/lib/constants'
 import { Logo } from '@/components/logo'
 import { Address } from '@/components/address'
@@ -63,7 +62,7 @@ export const toAsteroidRow = (asteroid: Asteroid): AsteroidRow => ({
   owner: asteroid.ownerAddress,
   size: asteroid.size,
   radius: asteroid.radius,
-  surfaceArea: radiusToSurfaceArea(asteroid.radius),
+  surfaceArea: asteroid.surfaceArea,
   spectralType: asteroid.spectralType,
   rarity: asteroid.rarity,
   scanStatus: asteroid.scanStatus,
@@ -126,7 +125,6 @@ export const nonSortableColumns: AsteroidColumn[] = [
   'owner',
   'scanStatus',
   'spectralType',
-  'rarity',
 ]
 
 const col = (
@@ -180,9 +178,7 @@ export const columnDef: ColumnDef<AsteroidRow>[] = [
         </span>
       )
   ),
-  col('surfaceArea', (asteroid) =>
-    Format.surfaceArea(radiusToSurfaceArea(asteroid.radius))
-  ),
+  col('surfaceArea', (asteroid) => Format.surfaceArea(asteroid.surfaceArea)),
   col('orbitalPeriod', (asteroid) =>
     Format.orbitalPeriod(asteroid.orbitalPeriod)
   ),

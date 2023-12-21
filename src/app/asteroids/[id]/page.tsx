@@ -8,7 +8,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Format } from '@/lib/format'
-import { cn, radiusToSurfaceArea } from '@/lib/utils'
+import { cn } from '@/lib/utils'
 import { AsteroidImage } from '@/components/asteroid-image'
 import {
   AsteroidCoorbitalsButton,
@@ -83,7 +83,7 @@ export default async function AsteroidDetailPage({ params }: Params) {
             <InfoRow title='Size' value={Format.asteroidSize(asteroid.size)} />
             <InfoRow
               title='Surface area'
-              value={Format.surfaceArea(radiusToSurfaceArea(asteroid.radius))}
+              value={Format.surfaceArea(asteroid.surfaceArea)}
             />
             <InfoRow title='Radius' value={Format.radius(asteroid.radius)} />
           </div>

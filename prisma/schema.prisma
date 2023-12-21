@@ -24,8 +24,9 @@ model Asteroid {
   scanStatus AsteroidScanStatus @default(UNSCANNED)
   lastScan   DateTime?
 
-  size   AsteroidSize
-  radius Float
+  size        AsteroidSize
+  radius      Float
+  surfaceArea Float @default(0)
 
   orbitalPeriod Int
   semiMajorAxis Float
