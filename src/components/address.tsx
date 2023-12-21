@@ -16,6 +16,7 @@ type AddressProps = {
   hideChainIcon?: boolean
   hideCopyButton?: boolean
   heading?: boolean
+  onClick?: () => void
 }
 
 export const Address: FC<AddressProps> = ({
@@ -24,6 +25,7 @@ export const Address: FC<AddressProps> = ({
   hideChainIcon,
   hideCopyButton,
   heading,
+  onClick,
 }) => {
   const chain = address.length > 42 ? Blockchain.STARKNET : Blockchain.ETHEREUM
 
@@ -40,6 +42,7 @@ export const Address: FC<AddressProps> = ({
           'text-3xl': heading,
         })}
         href={`/owners/${address}`}
+        onClick={onClick}
       >
         {name ? name : Format.ethAddress(address, shownCharacters)}
       </Link>

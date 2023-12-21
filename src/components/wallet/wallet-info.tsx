@@ -8,6 +8,7 @@ import {
   useDisconnect,
 } from '@starknet-react/core'
 import { User } from 'lucide-react'
+import React from 'react'
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,8 @@ export const WalletInfo = () => {
   const { mainnetAccount, starknetAccount } = useAccounts()
   const { disconnect: starknetDisconnect } = useDisconnect()
 
+  const [open, setOpen] = React.useState(false)
+
   const {
     connect: connectMainnet,
     isLoading: mainnetLoading,
@@ -38,7 +41,7 @@ export const WalletInfo = () => {
   const accountsConnected = !!(mainnetAccount || starknetAccount)
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={(o) => setOpen(o)}>
       <DialogTrigger asChild>
         <Button
           variant='outline'
@@ -67,6 +70,7 @@ export const WalletInfo = () => {
             chainName='Mainnet'
             chainIcon='/ethereum-logo.svg'
             onDisconnect={disconnectMainnet}
+            onNavigateAway={() => setOpen(false)}
             connectButtons={mainnetConnectors.map((connector) => {
               const icon = getMainnetConnectorIcon(connector.id)
               return (
@@ -96,6 +100,7 @@ export const WalletInfo = () => {
             chainName='StarkNet'
             chainIcon='/starknet-logo.webp'
             onDisconnect={starknetDisconnect}
+            onNavigateAway={() => setOpen(false)}
             connectButtons={starknetConnectors
               .filter((connector) => connector.available())
               .map((connector) => (

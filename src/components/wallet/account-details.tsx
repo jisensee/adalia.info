@@ -11,6 +11,7 @@ export type AccountDetailsProps = {
   chainIcon: string
   connectButtons: ReactNode[]
   onDisconnect: () => void
+  onNavigateAway: () => void
 }
 
 export const AccountDetails: FC<AccountDetailsProps> = ({
@@ -19,6 +20,7 @@ export const AccountDetails: FC<AccountDetailsProps> = ({
   chainIcon,
   connectButtons,
   onDisconnect,
+  onNavigateAway,
 }) => {
   const header = (
     <div className='flex flex-row items-center gap-x-2'>
@@ -40,7 +42,12 @@ export const AccountDetails: FC<AccountDetailsProps> = ({
 
   const details = account && (
     <div className='flex flex-col gap-y-2'>
-      <Address address={account.address} shownCharacters={6} hideChainIcon />
+      <Address
+        address={account.address}
+        shownCharacters={6}
+        hideChainIcon
+        onClick={onNavigateAway}
+      />
       <div className='flex flex-row flex-wrap items-center gap-x-5'>
         {account.ownedAsteroids !== undefined && (
           <AsteroidBalance balance={account?.ownedAsteroids} />
