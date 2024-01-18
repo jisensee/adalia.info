@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Asteroid" ADD COLUMN     "surfaceArea" DOUBLE PRECISION NOT NULL DEFAULT 0;
