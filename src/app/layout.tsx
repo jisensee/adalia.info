@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 import { Jura } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import { BottomNavbar, Navbar } from '../components/navbar'
 import { Providers } from './providers'
 import { cn } from '@/lib/utils'
@@ -13,6 +14,7 @@ import { db } from '@/server/db'
 import { Separator } from '@/components/ui/separator'
 import { Logo } from '@/components/logo'
 import { Search } from '@/components/search'
+import { LoadingIndicator } from '@/components/loading-indicator'
 
 const font = Jura({ subsets: ['latin'] })
 
@@ -68,22 +70,24 @@ export default async function RootLayout({
       <body
         className={cn(font.className, 'h-full bg-background text-foreground')}
       >
-        <Providers>
-          <div className='flex h-full flex-col'>
-            <Search listenToKeyboard hideButton />
-            <Navbar />
-            <div className='flex h-full flex-row overflow-y-hidden'>
-              <div id='sidebar' />
-              <div className='flex h-full w-full flex-col overflow-y-auto'>
-                {children}
-                {footer}
+        <Suspense fallback={<LoadingIndicator />}>
+          <Providers>
+            <div className='flex h-full flex-col'>
+              <Search listenToKeyboard hideButton />
+              <Navbar />
+              <div className='flex h-full flex-row overflow-y-hidden'>
+                <div id='sidebar' />
+                <div className='flex h-full w-full flex-col overflow-y-auto'>
+                  {children}
+                  {footer}
+                </div>
               </div>
+              <BottomNavbar />
             </div>
-            <BottomNavbar />
-          </div>
-        </Providers>
-        <Analytics />
-        <SpeedInsights />
+          </Providers>
+          <Analytics />
+          <SpeedInsights />
+        </Suspense>
       </body>
     </html>
   )
