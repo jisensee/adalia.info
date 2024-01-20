@@ -1,3 +1,5 @@
+'use client'
+
 import { BarChart3, Orbit } from 'lucide-react'
 import Link from 'next/link'
 import { WalletInfo } from './wallet/wallet-info'

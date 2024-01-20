@@ -1,10 +1,6 @@
 import { SortDirection } from '@tanstack/react-table'
-import {
-  createSearchParamsCache,
-  parseAsInteger,
-  parseAsJson,
-} from 'next-usequerystate/parsers'
-import { useQueryStates } from 'next-usequerystate'
+import { useQueryStates, parseAsInteger, parseAsJson } from 'nuqs'
+import { createSearchParamsCache } from 'nuqs/parsers'
 import { TransitionStartFunction } from 'react'
 import { AsteroidColumn } from './columns'
 

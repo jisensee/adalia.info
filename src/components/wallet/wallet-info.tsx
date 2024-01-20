@@ -20,7 +20,8 @@ import { Button } from '../ui/button'
 import { Separator } from '../ui/separator'
 import { AccountHeaderView } from './account-header-view'
 import { AccountDetails } from './account-details'
-import { getMainnetConnectorIcon, useAccounts } from '@/hooks/wallet-hooks'
+import { useAccounts } from '@/hooks/wallet-hooks'
+import { wagmiConfig } from '@/app/wagmi-config'
 
 export const WalletInfo = () => {
   const { mainnetAccount, starknetAccount } = useAccounts()
@@ -30,7 +31,7 @@ export const WalletInfo = () => {
 
   const {
     connect: connectMainnet,
-    isLoading: mainnetLoading,
+    isPending: mainnetLoading,
     connectors: mainnetConnectors,
   } = useConnect()
 
@@ -69,30 +70,27 @@ export const WalletInfo = () => {
             account={mainnetAccount}
             chainName='Mainnet'
             chainIcon='/ethereum-logo.svg'
-            onDisconnect={disconnectMainnet}
+            onDisconnect={() => disconnectMainnet(wagmiConfig)}
             onNavigateAway={() => setOpen(false)}
-            connectButtons={mainnetConnectors.map((connector) => {
-              const icon = getMainnetConnectorIcon(connector.id)
-              return (
-                <Button
-                  key={connector.id}
-                  disabled={isConnecting}
-                  onClick={() => connectMainnet({ connector })}
-                  icon={
-                    icon && (
-                      <Image
-                        src={icon}
-                        width={20}
-                        height={20}
-                        alt={`${connector.name} logo`}
-                      />
-                    )
-                  }
-                >
-                  {connector.name}
-                </Button>
-              )
-            })}
+            connectButtons={mainnetConnectors.map((connector) => (
+              <Button
+                key={connector.id}
+                disabled={isConnecting}
+                onClick={() => connectMainnet({ connector })}
+                icon={
+                  connector.icon && (
+                    <Image
+                      src={connector.icon}
+                      width={20}
+                      height={20}
+                      alt={`${connector.name} logo`}
+                    />
+                  )
+                }
+              >
+                {connector.name}
+              </Button>
+            ))}
           />
           <Separator className='bg-primary' />
           <AccountDetails

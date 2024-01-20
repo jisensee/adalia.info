@@ -1,4 +1,4 @@
-import { useQueryStates } from 'next-usequerystate'
+import { useQueryStates } from 'nuqs'
 import { TransitionStartFunction } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import {
