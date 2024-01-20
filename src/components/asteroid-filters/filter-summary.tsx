@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { PropsWithChildren, ReactNode } from 'react'
 import { XIcon } from 'lucide-react'
 import { Button } from '../ui/button'
@@ -8,6 +9,7 @@ import { AsteroidFilters, RangeParam } from './filter-params'
 import { useAsteroidFilters } from './hooks'
 import { Format } from '@/lib/format'
 import { useAccounts } from '@/hooks/wallet-hooks'
+import { cn } from '@/lib/utils'
 
 export type AsteroidFilterSummaryProps = {
   readonly?: boolean
@@ -30,10 +32,11 @@ export const AsteroidFilterSummary = ({
 
   const tag = <Key extends keyof AsteroidFilters>(
     key: Key,
-    name: string,
+    name: ReactNode,
     format: (
       value: Exclude<AsteroidFilters[Key], null | undefined>
-    ) => ReactNode
+    ) => ReactNode,
+    className?: string
   ) => {
     const value = filters[key]
 
@@ -41,6 +44,7 @@ export const AsteroidFilterSummary = ({
       value !== undefined &&
       value !== null && (
         <FilterTag
+          className={className}
           name={name}
           onRemove={
             readonly ? undefined : () => setFilters({ ...filters, [key]: null })
@@ -70,6 +74,17 @@ export const AsteroidFilterSummary = ({
 
   return anyFilterActive ? (
     <div className='flex flex-row flex-wrap items-center gap-2'>
+      {tag(
+        'starksightToken',
+        <Image
+          src='/starksight-logo.webp'
+          width={20}
+          height={20}
+          alt='Starksight logo'
+        />,
+        ({ name }) => name,
+        'border-starksight'
+      )}
       {tag('name', 'Name', (name) => name)}
       {tag('owned', 'Owned', (owned) => (owned ? 'Yes' : 'No'))}
       {tag('owners', 'Owner', (owners) => {
@@ -107,13 +122,19 @@ export const AsteroidFilterSummary = ({
 }
 
 type FilterTagProps = {
-  name: string
+  className?: string
+  name: ReactNode
   onRemove?: () => void
 } & PropsWithChildren
 
-const FilterTag = ({ name, onRemove, children }: FilterTagProps) => (
-  <div className='flex flex-row items-center gap-x-2 rounded-lg border border-primary px-3 text-sm'>
-    <span className='text-primary'>{name}:</span>
+const FilterTag = ({ className, name, onRemove, children }: FilterTagProps) => (
+  <div
+    className={cn(
+      'flex flex-row items-center gap-x-2 rounded-lg border border-primary px-3 text-sm',
+      className
+    )}
+  >
+    <span className='text-primary'>{name}</span>
     {children}
     {onRemove && (
       <Button className='p-0' variant='ghost' size='sm' onClick={onRemove}>

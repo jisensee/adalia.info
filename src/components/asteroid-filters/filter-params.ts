@@ -1,4 +1,4 @@
-import { parseAsJson } from 'nuqs'
+import { createParser, parseAsJson } from 'nuqs'
 import {
   createSearchParamsCache,
   parseAsArrayOf,
@@ -16,8 +16,21 @@ import {
 
 export type RangeParam = { from: number; to: number }
 
+const parseAsStarkSightToken = createParser({
+  parse: (token: string) => {
+    const encodedName = token.split('-')[0]
+    if (!encodedName) {
+      return
+    }
+    const name = atob(encodedName)
+    return { name, token }
+  },
+  serialize: (data) => data?.token ?? '',
+})
+
 export const asteroidFilterParamsParsers = {
   name: parseAsString,
+  starksightToken: parseAsStarkSightToken,
   owned: parseAsBoolean,
   owners: parseAsArrayOf(parseAsString),
   earlyAdopter: parseAsBoolean,
@@ -80,6 +93,7 @@ export type AsteroidFilters = ReturnType<typeof asteroidFiltersCache.parse>
 
 export const emptyAsteroidFilters: AsteroidFilters = {
   name: null,
+  starksightToken: null,
   spectralType: null,
   rarity: null,
   scanStatus: null,
