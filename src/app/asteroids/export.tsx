@@ -21,6 +21,7 @@ import {
 import { cn } from '@/lib/utils'
 import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summary'
 import { useAsteroidFilters } from '@/components/asteroid-filters/hooks'
+import { Constants } from '@/lib/constants'
 
 export type ExportProps = {
   totalCount: number
@@ -113,13 +114,18 @@ export const Export = ({ totalCount }: ExportProps) => {
             something that is derived from this data. Thank you!
           </p>
           <Link
-            href={`/asteroids/export?filter=${encodeURI(
+            href={`/asteroids/export?filter=${encodeURIComponent(
               JSON.stringify(filters)
             )}&format=${format}`}
             onClick={() => setOpen(false)}
           >
             <Button className='w-full' icon={<FileDown />}>
-              Export {totalCount.toLocaleString()} asteroids
+              Export{' '}
+              {(mode === 'filtered'
+                ? totalCount
+                : Constants.TOTAL_ASTEROIDS
+              ).toLocaleString()}{' '}
+              asteroids
             </Button>
           </Link>
         </div>

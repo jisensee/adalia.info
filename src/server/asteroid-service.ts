@@ -8,6 +8,7 @@ import {
   AsteroidFilters,
   RangeParam,
 } from '@/components/asteroid-filters/filter-params'
+import { fetchStarkSightAsteroidIds } from '@/lib/starksight'
 
 const getSort = (field: AsteroidColumn, sort: Sort) =>
   sort.id === field ? sort.direction : undefined
@@ -77,35 +78,43 @@ const makePurchaseOrderFilter = (filters: AsteroidFilters) => {
 const sanitizeNameSearchTerm = (searchTerm: string) =>
   searchTerm.trim().split(' ').join(' & ')
 
-const makeWhereFilter = (
+const makeWhereFilter = async (
   filters: AsteroidFilters
-): Prisma.AsteroidWhereInput => ({
-  name: makeFilter(filters.name, (name) => ({
-    search: sanitizeNameSearchTerm(name),
-  })),
-  ownerAddress:
-    makeFilter(filters.owners, (owners) => ({
-      in: owners.map((o) => o?.toLowerCase()).filter(Boolean) as string[],
-    })) ?? makeFilter(filters.owned, (owned) => (owned ? { not: null } : null)),
-  radius: makeRangeFilter(filters.radius),
-  surfaceArea: makeRangeFilter(filters.surfaceArea),
-  orbitalPeriod: makeRangeFilter(filters.orbitalPeriod),
-  semiMajorAxis: makeRangeFilter(filters.semiMajorAxis),
-  inclination: makeRangeFilter(filters.inclination),
-  eccentricity: makeRangeFilter(filters.eccentricity),
-  size: makeFilter(filters.size, (size) => ({ in: size })),
-  rarity: makeFilter(filters.rarity, (rarity) => ({ in: rarity })),
-  spectralType: makeFilter(filters.spectralType, (spectralType) => ({
-    in: spectralType,
-  })),
-  blockchain: filters.blockchain ?? undefined,
-  scanStatus: makeFilter(filters.scanStatus, (scanStatus) => ({
-    in: scanStatus,
-  })),
-  AND: makePurchaseOrderFilter(filters).map((filter) => ({
-    purchaseOrder: filter,
-  })),
-})
+): Promise<Prisma.AsteroidWhereInput> => {
+  const starkSightIds = filters.starksightToken
+    ? await fetchStarkSightAsteroidIds(filters.starksightToken.token)
+    : undefined
+
+  return {
+    id: makeFilter(starkSightIds, (ids) => ({ in: ids })),
+    name: makeFilter(filters.name, (name) => ({
+      search: sanitizeNameSearchTerm(name),
+    })),
+    ownerAddress:
+      makeFilter(filters.owners, (owners) => ({
+        in: owners.map((o) => o?.toLowerCase()).filter(Boolean) as string[],
+      })) ??
+      makeFilter(filters.owned, (owned) => (owned ? { not: null } : null)),
+    radius: makeRangeFilter(filters.radius),
+    surfaceArea: makeRangeFilter(filters.surfaceArea),
+    orbitalPeriod: makeRangeFilter(filters.orbitalPeriod),
+    semiMajorAxis: makeRangeFilter(filters.semiMajorAxis),
+    inclination: makeRangeFilter(filters.inclination),
+    eccentricity: makeRangeFilter(filters.eccentricity),
+    size: makeFilter(filters.size, (size) => ({ in: size })),
+    rarity: makeFilter(filters.rarity, (rarity) => ({ in: rarity })),
+    spectralType: makeFilter(filters.spectralType, (spectralType) => ({
+      in: spectralType,
+    })),
+    blockchain: filters.blockchain ?? undefined,
+    scanStatus: makeFilter(filters.scanStatus, (scanStatus) => ({
+      in: scanStatus,
+    })),
+    AND: makePurchaseOrderFilter(filters).map((filter) => ({
+      purchaseOrder: filter,
+    })),
+  }
+}
 
 const makeOrderBy = (sort: Sort) => ({
   id: getSort('id', sort),
@@ -121,13 +130,13 @@ const makeOrderBy = (sort: Sort) => ({
   rarity: getSort('rarity', sort),
 })
 
-const getPage = (
+const getPage = async (
   page: number,
   pageSize: number,
   filters: AsteroidFilters,
   sort: Sort
 ): Promise<[number, Asteroid[]]> => {
-  const filter = makeWhereFilter(filters)
+  const filter = await makeWhereFilter(filters)
 
   return db.$transaction([
     db.asteroid.count({ where: filter }),
@@ -140,13 +149,13 @@ const getPage = (
   ])
 }
 
-const getExport = (
+const getExport = async (
   filters: AsteroidFilters,
   transform: (asteroid: Asteroid) => string
 ) =>
   db.asteroid.cursorStream(
     {
-      where: makeWhereFilter(filters),
+      where: await makeWhereFilter(filters),
     },
     {
       batchSize: 5000,
@@ -155,26 +164,26 @@ const getExport = (
     }
   ) as unknown as Readable
 
-const getGroupedByRarity = (filters: AsteroidFilters) => {
-  const where = makeWhereFilter(filters)
+const getGroupedByRarity = async (filters: AsteroidFilters) => {
+  const where = await makeWhereFilter(filters)
 
   return db.$transaction([
     db.asteroid.count({ where }),
     db.asteroid.groupBy({
-      where: makeWhereFilter(filters),
+      where,
       by: ['rarity'],
       _count: true,
     }),
   ])
 }
 
-const getGroupedBySpectralType = (filters: AsteroidFilters) => {
-  const where = makeWhereFilter(filters)
+const getGroupedBySpectralType = async (filters: AsteroidFilters) => {
+  const where = await makeWhereFilter(filters)
 
   return db.$transaction([
     db.asteroid.count({ where }),
     db.asteroid.groupBy({
-      where: makeWhereFilter(filters),
+      where,
       by: ['spectralType'],
       _count: true,
     }),
@@ -199,7 +208,7 @@ const search = (searchTerm: string) => {
 }
 
 const getProgressStats = async (filters: AsteroidFilters) => {
-  const where = makeWhereFilter(filters)
+  const where = await makeWhereFilter(filters)
 
   const matchedCountQuery = db.asteroid.count({ where })
   const matchedSurfaceAreaQuery = db.asteroid.aggregate({

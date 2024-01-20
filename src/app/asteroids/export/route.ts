@@ -39,12 +39,10 @@ const toCsvLine = (asteroid: Asteroid) =>
 
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams
-  const filters = JSON.parse(
-    decodeURI(params.get('filters') ?? '{}')
-  ) as AsteroidFilters
+  const filters = JSON.parse(params.get('filter') ?? '{}') as AsteroidFilters
   const format = params.get('format') ?? 'csv'
 
-  const stream = AsteroidService.getExport(filters, (a) =>
+  const stream = await AsteroidService.getExport(filters, (a) =>
     format === 'json' ? JSON.stringify(a) + '\n' : toCsvLine(a) + '\n'
   )
 

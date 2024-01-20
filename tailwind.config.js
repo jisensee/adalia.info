@@ -35,6 +35,7 @@ module.exports = {
         superior: '#944cde',
         exceptional: '#e3853a',
         incomparable: '#c7a519',
+        starksight: '#e5a54b',
         primary: {
           DEFAULT: 'var(--primary)',
           foreground: 'var(--primary-foreground)',
