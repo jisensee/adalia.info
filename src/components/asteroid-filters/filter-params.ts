@@ -1,11 +1,11 @@
-import { parseAsJson } from 'next-usequerystate'
+import { parseAsJson } from 'nuqs'
 import {
   createSearchParamsCache,
   parseAsArrayOf,
   parseAsBoolean,
   parseAsString,
   parseAsStringEnum,
-} from 'next-usequerystate/parsers'
+} from 'nuqs/parsers'
 import {
   AsteroidRarity,
   AsteroidScanStatus,

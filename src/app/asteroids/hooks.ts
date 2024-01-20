@@ -1,5 +1,5 @@
-import { parseAsArrayOf, parseAsJson } from 'next-usequerystate/parsers'
-import { useQueryState } from 'next-usequerystate'
+import { parseAsArrayOf, parseAsJson } from 'nuqs/parsers'
+import { useQueryState } from 'nuqs'
 import { useEffect } from 'react'
 import { AsteroidColumnConfig, defaultAsteroidColumnConfig } from './types'
 import { usePageParamCacheContext } from '@/context/page-param-cache'

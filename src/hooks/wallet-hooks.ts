@@ -26,13 +26,6 @@ export const useAccounts = () => {
   return { mainnetAccount, starknetAccount }
 }
 
-export const getMainnetConnectorIcon = (id: string) => {
-  switch (id) {
-    case 'metaMask':
-      return '/metamask-logo.svg'
-  }
-}
-
 const useAsteroidCount = (address?: string) => {
   const [count, setCount] = useState<number>()
 
@@ -92,9 +85,7 @@ const useMainnetAccountInfo = ({
 }: ReturnType<typeof useMainnetAccount>): AccountInfo | undefined => {
   const { ownedAsteroids, ethBalance, swayBalance } = useBalances(address)
 
-  const walletIcon = connector
-    ? getMainnetConnectorIcon(connector.id)
-    : undefined
+  const walletIcon = connector?.icon
 
   return address && walletIcon
     ? {

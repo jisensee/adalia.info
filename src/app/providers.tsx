@@ -1,5 +1,6 @@
 'use client'
-import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask'
+
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { mainnet as starknetMainnet } from '@starknet-react/chains'
 import {
   StarknetConfig,
@@ -8,27 +9,15 @@ import {
   argent,
 } from '@starknet-react/core'
 import { PropsWithChildren, useState } from 'react'
-import { WagmiConfig, configureChains, createConfig, mainnet } from 'wagmi'
-import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { WagmiProvider } from 'wagmi'
+import { wagmiConfig } from './wagmi-config'
 import {
   PageParamCache,
   PageParamCacheProvider,
 } from '@/context/page-param-cache'
 
-const { publicClient, webSocketPublicClient } = configureChains(
-  [mainnet],
-  [
-    alchemyProvider({
-      apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ?? '',
-    }),
-  ]
-)
-const wagmiConfig = createConfig({
-  autoConnect: true,
-  publicClient,
-  webSocketPublicClient,
-  connectors: [new MetaMaskConnector({ chains: [mainnet] })],
-})
+const queryClient = new QueryClient()
+
 const starknetProvider = publicProvider()
 const starknetConnectors = [braavos(), argent()]
 
@@ -37,6 +26,7 @@ export const Providers = ({ children }: PropsWithChildren) => {
     asteroidFilters: null,
     asteroidColumnConfig: null,
   })
+
   return (
     <StarknetConfig
       connectors={starknetConnectors}
@@ -44,20 +34,22 @@ export const Providers = ({ children }: PropsWithChildren) => {
       chains={[starknetMainnet]}
       autoConnect
     >
-      <WagmiConfig config={wagmiConfig}>
-        <PageParamCacheProvider
-          value={{
-            cache: pageParamCache,
-            updateCache: (update) =>
-              setPageParamCache((prev) => ({
-                ...prev,
-                ...update,
-              })),
-          }}
-        >
-          {children}
-        </PageParamCacheProvider>
-      </WagmiConfig>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <PageParamCacheProvider
+            value={{
+              cache: pageParamCache,
+              updateCache: (update) =>
+                setPageParamCache((prev) => ({
+                  ...prev,
+                  ...update,
+                })),
+            }}
+          >
+            {children}
+          </PageParamCacheProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
     </StarknetConfig>
   )
 }
