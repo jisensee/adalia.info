@@ -27,6 +27,7 @@ import {
   OwnedFilter,
   OwnerFilter,
   RangeFilter,
+  StarkSightTokenFilter,
   StringFilter,
 } from './asteroid-filters'
 
@@ -53,7 +54,8 @@ export const AsteroidFilterForm = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(filters), form])
 
-  const onSave = (values: Partial<AsteroidFilters>) => setFilters(values)
+  const onSave = (values: Partial<AsteroidFilters>) =>
+    setFilters({ ...emptyAsteroidFilters, ...values })
 
   const generalFilters = (
     <div className='flex flex-col gap-y-5'>
@@ -63,6 +65,16 @@ export const AsteroidFilterForm = () => {
         render={({ field }) => (
           <StringFilter
             name='Name'
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='starksightToken'
+        render={({ field }) => (
+          <StarkSightTokenFilter
             value={field.value}
             onChange={field.onChange}
           />

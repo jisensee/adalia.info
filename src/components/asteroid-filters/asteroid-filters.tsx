@@ -1,6 +1,7 @@
 import { Blockchain } from '@prisma/client'
 import { Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
+import { useAtom } from 'jotai'
 import { FormControl } from '../ui/form'
 import { Input } from '../ui/input'
 import {
@@ -15,9 +16,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
 import { Logo } from '../logo'
 import { Filter } from './filter'
-import { RangeParam } from './filter-params'
+import { RangeParam, StarkSightTokenParam } from './filter-params'
 import { cn } from '@/lib/utils'
 import { useAccounts } from '@/hooks/wallet-hooks'
+import { decodeStarkSightToken } from '@/lib/starksight'
+import { starkSightTokensAtom } from '@/hooks/atoms'
 
 export type AsteroidFilterProps<T> = {
   value?: T | null
@@ -280,3 +283,50 @@ export const EnumFilter = <T extends string>({
     )}
   </Filter>
 )
+
+export const StarkSightTokenFilter = (
+  props: AsteroidFilterProps<StarkSightTokenParam>
+) => {
+  const [starkSightTokens] = useAtom(starkSightTokensAtom)
+
+  const defaultToken = props.value?.token ?? starkSightTokens[0]?.token
+
+  if (!defaultToken) {
+    return null
+  }
+
+  return (
+    <Filter
+      {...props}
+      defaultValue={{
+        token: defaultToken,
+        name: decodeStarkSightToken(defaultToken),
+      }}
+      name='StarkSight Selection'
+    >
+      {({ value, onChange, disabled }) => (
+        <Select
+          defaultValue={value.token}
+          onValueChange={(value) =>
+            onChange({
+              token: value,
+              name: decodeStarkSightToken(value),
+            })
+          }
+          disabled={disabled}
+        >
+          <SelectTrigger className='w-full border-starksight'>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {starkSightTokens.map(({ token }) => (
+              <SelectItem key={token} value={token}>
+                {decodeStarkSightToken(token)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+    </Filter>
+  )
+}

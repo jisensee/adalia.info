@@ -8,9 +8,22 @@ const starkSightTokenResponseSchema = z.object({
       })
     ),
   }),
+  expiration: z.string().datetime(),
 })
 
-export const fetchStarkSightAsteroidIds = async (token: string) => {
+export type StarkSightTokenResponse = z.infer<
+  typeof starkSightTokenResponseSchema
+>
+
+export type StarkSightTokenData = {
+  token: string
+  expiration: string
+  data: StarkSightTokenResponse['data']
+}
+
+export const fetchStarkSightTokenData = async (
+  token: string
+): Promise<StarkSightTokenData | undefined> => {
   const response = await fetch(`https://starksight.plus/api/share/${token}`, {
     headers: {
       'X-API-Key': process.env.STARKSIGHT_API_KEY ?? '',
@@ -23,13 +36,14 @@ export const fetchStarkSightAsteroidIds = async (token: string) => {
   if (!result.success) {
     return
   }
-  return result.data.data.INFA.map(({ id }) => id)
+  return {
+    token,
+    expiration: result.data.expiration,
+    data: result.data.data,
+  }
 }
 
 export const decodeStarkSightToken = (token: string) => {
   const encodedName = token.split('-')[0]
-  if (!encodedName) {
-    return
-  }
-  return atob(encodedName)
+  return encodedName ? atob(encodedName) : ''
 }

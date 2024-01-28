@@ -1,38 +1,38 @@
 import { useQueryStates } from 'nuqs'
 import { TransitionStartFunction } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { useAtom } from 'jotai'
 import {
   AsteroidFilters,
   asteroidFilterParamsParsers,
   emptyAsteroidFilters,
 } from './filter-params'
-import { usePageParamCacheContext } from '@/context/page-param-cache'
+import { lastAsteroidFiltersAtom } from '@/hooks/atoms'
 
 export const useAsteroidFilters = (
   startTransition?: TransitionStartFunction
 ) => {
-  const { updateCache } = usePageParamCacheContext()
   const [filters, setFilters] = useQueryStates(asteroidFilterParamsParsers, {
     shallow: false,
     startTransition,
   })
+  const [, setLastFilters] = useAtom(lastAsteroidFiltersAtom)
 
-  return [
-    filters,
-    (newFilters: Partial<AsteroidFilters>) => {
-      updateCache({
-        asteroidFilters: { ...filters, ...newFilters },
-      })
-      setFilters(newFilters)
-    },
-  ] as const
+  const setFn = (newFilters: AsteroidFilters) => {
+    setFilters(newFilters)
+    if (filtersEmpty(newFilters)) {
+      setLastFilters([{ ...emptyAsteroidFilters, ...newFilters }])
+    }
+  }
+
+  return [filters, setFn] as const
 }
 
 export const useAsteroidFilterNavigation = () => {
-  const { updateCache } = usePageParamCacheContext()
   const [, setFilters] = useAsteroidFilters()
   const { push } = useRouter()
   const isAsteroidPage = usePathname() === '/asteroids'
+  const [, setLastFilters] = useAtom(lastAsteroidFiltersAtom)
 
   return (filters: Partial<AsteroidFilters>) => {
     if (isAsteroidPage) {
@@ -41,13 +41,11 @@ export const useAsteroidFilterNavigation = () => {
         ...filters,
       })
     } else {
-      updateCache({
-        asteroidFilters: {
-          ...emptyAsteroidFilters,
-          ...filters,
-        },
-      })
+      setLastFilters([{ ...emptyAsteroidFilters, ...filters }])
       push('/asteroids')
     }
   }
 }
+
+const filtersEmpty = (filters: Partial<AsteroidFilters>) =>
+  Object.values(filters).every((value) => value === null)
