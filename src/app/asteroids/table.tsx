@@ -9,7 +9,7 @@ import {
 import { FC, Fragment, useMemo, useTransition } from 'react'
 import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react'
 import { Asteroid } from '@prisma/client'
-import { Sort, useAsteroidPageParams } from './types'
+import { AsteroidColumnConfig, Sort, useAsteroidPageParams } from './types'
 import {
   AsteroidColumn,
   columnDef,
@@ -35,6 +35,7 @@ import {
 
 export type AsteroidTableProps = {
   data: Asteroid[]
+  initialColumns?: AsteroidColumnConfig[] | null
 }
 
 const calcNextSortState = (

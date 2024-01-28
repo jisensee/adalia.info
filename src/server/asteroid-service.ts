@@ -8,7 +8,7 @@ import {
   AsteroidFilters,
   RangeParam,
 } from '@/components/asteroid-filters/filter-params'
-import { fetchStarkSightAsteroidIds } from '@/lib/starksight'
+import { fetchStarkSightTokenData } from '@/lib/starksight'
 
 const getSort = (field: AsteroidColumn, sort: Sort) =>
   sort.id === field ? sort.direction : undefined
@@ -82,7 +82,9 @@ const makeWhereFilter = async (
   filters: AsteroidFilters
 ): Promise<Prisma.AsteroidWhereInput> => {
   const starkSightIds = filters.starksightToken
-    ? await fetchStarkSightAsteroidIds(filters.starksightToken.token)
+    ? (
+        await fetchStarkSightTokenData(filters.starksightToken.token)
+      )?.data.INFA.map(({ id }) => id)
     : undefined
 
   return {

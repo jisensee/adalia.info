@@ -6,7 +6,8 @@ import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summ
 import { AsteroidService } from '@/server/asteroid-service'
 import { asteroidFiltersCache } from '@/components/asteroid-filters/filter-params'
 import { FiltersDropdown } from '@/components/filters-dropdown'
-import { AsteroidFilterCache } from '@/components/asteroid-filters/asteroid-filter-cache'
+import { fetchStarkSightTokenData } from '@/lib/starksight'
+import { AsteroidFilterCache, StarkSightCache } from '@/components/param-caches'
 
 export default async function StatsPage({
   searchParams,
@@ -14,6 +15,9 @@ export default async function StatsPage({
   searchParams: Record<string, string | string[]>
 }) {
   const filters = asteroidFiltersCache.parse(searchParams)
+  const starkSightTokenData = filters.starksightToken
+    ? await fetchStarkSightTokenData(filters.starksightToken.token)
+    : undefined
 
   const [, groupedByRarity] = await AsteroidService.getGroupedByRarity(filters)
   const rarityData = groupedByRarity.flatMap((e) =>
@@ -37,7 +41,19 @@ export default async function StatsPage({
   return (
     <div className='flex gap-x-2'>
       <AsteroidFilterForm />
+
+      <StarkSightCache
+        starkSightTokenData={
+          starkSightTokenData
+            ? {
+                token: starkSightTokenData.token,
+                expiration: starkSightTokenData.expiration,
+              }
+            : undefined
+        }
+      />
       <AsteroidFilterCache />
+
       <div className='flex w-full flex-col gap-y-3 p-3'>
         <div className='flex items-center justify-between'>
           <h1>Asteroid Stats</h1>

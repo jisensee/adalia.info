@@ -49,6 +49,7 @@
     "get-starknet-core": "3.2.0",
     "influence-utils": "1.14.0",
     "inngest": "3.11.0",
+    "jotai": "^2.6.2",
     "lucide-react": "0.312.0",
     "next": "14.1.0",
     "nuqs": "^1.15.4",

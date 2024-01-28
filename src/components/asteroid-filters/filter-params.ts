@@ -16,8 +16,13 @@ import {
 
 export type RangeParam = { from: number; to: number }
 
+export type StarkSightTokenParam = {
+  name: string
+  token: string
+}
+
 const parseAsStarkSightToken = createParser({
-  parse: (token: string) => {
+  parse: (token: string): StarkSightTokenParam | undefined => {
     const encodedName = token.split('-')[0]
     if (!encodedName) {
       return

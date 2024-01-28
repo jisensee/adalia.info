@@ -8,7 +8,12 @@ import { AsteroidFilterSummary } from '@/components/asteroid-filters/filter-summ
 import { AsteroidService } from '@/server/asteroid-service'
 import { asteroidFiltersCache } from '@/components/asteroid-filters/filter-params'
 import { FiltersDropdown } from '@/components/filters-dropdown'
-import { AsteroidFilterCache } from '@/components/asteroid-filters/asteroid-filter-cache'
+import { fetchStarkSightTokenData } from '@/lib/starksight'
+import {
+  AsteroidColumnCache,
+  AsteroidFilterCache,
+  StarkSightCache,
+} from '@/components/param-caches'
 
 export default async function Asteroids({
   searchParams,
@@ -17,6 +22,9 @@ export default async function Asteroids({
 }) {
   const params = asteroidPageParamsCache.parse(searchParams)
   const filters = asteroidFiltersCache.parse(searchParams)
+  const starkSightTokenData = filters.starksightToken
+    ? await fetchStarkSightTokenData(filters.starksightToken.token)
+    : undefined
 
   const [totalCount, asteroids] = await AsteroidService.getPage(
     params.page,
@@ -40,7 +48,20 @@ export default async function Asteroids({
   return (
     <div className='flex flex-row gap-x-2'>
       <AsteroidFilterForm />
+
+      <StarkSightCache
+        starkSightTokenData={
+          starkSightTokenData
+            ? {
+                token: starkSightTokenData.token,
+                expiration: starkSightTokenData.expiration,
+              }
+            : undefined
+        }
+      />
       <AsteroidFilterCache />
+      <AsteroidColumnCache />
+
       <div className='flex w-full flex-grow flex-col gap-y-2 overflow-y-auto p-3'>
         <h1>Asteroids</h1>
         <p>
