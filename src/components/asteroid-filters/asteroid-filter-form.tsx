@@ -171,6 +171,21 @@ export const AsteroidFilterForm = () => {
     <div className='flex flex-col gap-y-5'>
       <FormField
         control={form.control}
+        name='salePrice'
+        render={({ field }) => (
+          <RangeFilter
+            name='Sale price'
+            min={Constants.SALE_PRICE_MIN}
+            max={Constants.SALE_PRICE_MAX}
+            step={1}
+            unit={Constants.SALE_PRICE_UNIT}
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
+      />
+      <FormField
+        control={form.control}
         name='blockchain'
         render={({ field }) => (
           <BlockchainFilter value={field.value} onChange={field.onChange} />

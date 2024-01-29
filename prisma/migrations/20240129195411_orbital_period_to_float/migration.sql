@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Asteroid" ALTER COLUMN "orbitalPeriod" SET DATA TYPE DOUBLE PRECISION;

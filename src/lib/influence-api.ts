@@ -1,4 +1,4 @@
-import { ApiAsteroid } from './types'
+import { ApiAsteroid } from './influence-api-types'
 
 type AsteroidHit = {
   _source: ApiAsteroid
