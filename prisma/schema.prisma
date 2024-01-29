@@ -26,12 +26,14 @@ model Asteroid {
 
   size        AsteroidSize
   radius      Float
-  surfaceArea Float @default(0)
+  surfaceArea Float        @default(0)
 
-  orbitalPeriod Int
+  orbitalPeriod Float
   semiMajorAxis Float
   inclination   Float
   eccentricity  Float
+
+  salePrice Float?
 
   bonuses      AsteroidBonus[]
   ownerChanges AsteroidOwnerChange[]

@@ -7,8 +7,8 @@ import {
   convertRarity,
   convertScanStatus,
   getApiBonuses,
-} from './types'
-import { getAsteroidPage } from './influence-api'
+} from '../lib/influence-api-types'
+import { getAsteroidPage } from '../lib/influence-api'
 import { inngest } from './client'
 import { db } from '@/server/db'
 

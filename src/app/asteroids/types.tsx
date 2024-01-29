@@ -20,6 +20,7 @@ export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
   { id: 'scanStatus', active: true },
   { id: 'scanBonus', active: false },
   { id: 'earlyAdopter', active: false },
+  { id: 'salePrice', active: false },
   { id: 'purchaseOrder', active: false },
   { id: 'spectralType', active: true },
   { id: 'size', active: true },

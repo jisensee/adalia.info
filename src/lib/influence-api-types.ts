@@ -42,10 +42,14 @@ export const convertSnapshotAsteroid = (
   snapshotAsteroid: SnapshotAsteroid
 ): Prisma.AsteroidCreateManyInput => {
   const orbit = new AdalianOrbit(snapshotAsteroid.orbital)
+  const radius = snapshotAsteroid.r
+  const surfaceArea = 4 * Math.PI * (radius / 1000) ** 2
 
   return {
     id: snapshotAsteroid.i,
     radius: snapshotAsteroid.r,
+    surfaceArea,
+    salePrice: calculatePrice(surfaceArea),
     orbitalPeriod: orbit.getPeriod(),
     eccentricity: snapshotAsteroid.orbital.e,
     inclination: snapshotAsteroid.orbital.i * (180 / Math.PI),
@@ -163,4 +167,11 @@ export const convertChain = (chain?: string) => {
     case 'STARKNET':
       return Blockchain.STARKNET
   }
+}
+
+export const calculatePrice = (surfaceArea: number) => {
+  const basePrice = 0.0299
+  const lotPrice = 0.00092
+
+  return basePrice + surfaceArea * lotPrice
 }

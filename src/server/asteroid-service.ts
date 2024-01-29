@@ -109,6 +109,7 @@ const makeWhereFilter = async (
       in: spectralType,
     })),
     blockchain: filters.blockchain ?? undefined,
+    salePrice: makeRangeFilter(filters.salePrice),
     scanStatus: makeFilter(filters.scanStatus, (scanStatus) => ({
       in: scanStatus,
     })),
@@ -130,6 +131,7 @@ const makeOrderBy = (sort: Sort) => ({
   inclination: getSort('inclination', sort),
   eccentricity: getSort('eccentricity', sort),
   rarity: getSort('rarity', sort),
+  salePrice: getSort('salePrice', sort),
 })
 
 const getPage = async (

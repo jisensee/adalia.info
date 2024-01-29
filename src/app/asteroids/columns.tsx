@@ -35,6 +35,7 @@ export type AsteroidRow = {
   earlyAdopter: boolean
   purchaseOrder?: number | null
   blockchain?: Blockchain | null
+  salePrice?: number | null
 }
 
 const getScanBonus = (purchaseOrder: number | null) => {
@@ -74,6 +75,7 @@ export const toAsteroidRow = (asteroid: Asteroid): AsteroidRow => ({
   earlyAdopter: isEarlyAdopter(asteroid.purchaseOrder),
   purchaseOrder: asteroid.purchaseOrder,
   blockchain: asteroid.blockchain,
+  salePrice: asteroid.salePrice,
 })
 
 export type AsteroidColumn = keyof AsteroidRow
@@ -96,6 +98,7 @@ export const allAsteroidColumns: AsteroidColumn[] = [
   'purchaseOrder',
   'purchaseOrder',
   'blockchain',
+  'salePrice',
 ]
 
 const columnNames: Record<AsteroidColumn, string> = {
@@ -116,6 +119,7 @@ const columnNames: Record<AsteroidColumn, string> = {
   scanBonus: 'Scan bonus',
   purchaseOrder: 'Purchase order',
   blockchain: 'Chain',
+  salePrice: 'Sale price',
 }
 
 export const getAsteroidColumnName = (col: AsteroidColumn): string =>
@@ -193,5 +197,8 @@ export const columnDef: ColumnDef<AsteroidRow>[] = [
       asteroid.blockchain && (
         <Logo.Blockchain blockchain={asteroid.blockchain} size={24} />
       )
+  ),
+  col('salePrice', (asteroid) =>
+    asteroid.salePrice ? Format.salePrice(asteroid.salePrice) : undefined
   ),
 ]

@@ -88,6 +88,7 @@ export const asteroidFilterParamsParsers = {
   inclination: parseAsJson<RangeParam>(),
   orbitalPeriod: parseAsJson<RangeParam>(),
   eccentricity: parseAsJson<RangeParam>(),
+  salePrice: parseAsJson<RangeParam>(),
 }
 
 export const asteroidFiltersCache = createSearchParamsCache(
@@ -115,4 +116,5 @@ export const emptyAsteroidFilters: AsteroidFilters = {
   inclination: null,
   eccentricity: null,
   orbitalPeriod: null,
+  salePrice: null,
 }
