@@ -18,6 +18,7 @@ const csvHeader = [
   'semiMajorAxis',
   'inclination',
   'eccentricity',
+  'salePrice',
 ].join(',')
 
 const toCsvLine = (asteroid: Asteroid) =>
@@ -35,6 +36,7 @@ const toCsvLine = (asteroid: Asteroid) =>
     asteroid.semiMajorAxis,
     asteroid.inclination,
     asteroid.eccentricity,
+    asteroid.salePrice ?? '',
   ].join(',')
 
 export async function GET(request: Request) {
