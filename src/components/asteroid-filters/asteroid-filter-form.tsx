@@ -177,10 +177,11 @@ export const AsteroidFilterForm = () => {
             name='Sale price'
             min={Constants.SALE_PRICE_MIN}
             max={Constants.SALE_PRICE_MAX}
-            step={1}
-            unit={Constants.SALE_PRICE_UNIT}
+            step={0.001}
+            formatValue={Format.salePrice}
             value={field.value}
             onChange={field.onChange}
+            logScale
           />
         )}
       />
@@ -224,7 +225,7 @@ export const AsteroidFilterForm = () => {
             min={1}
             max={12_000}
             step={1}
-            unit=''
+            formatValue={Format.purchaseOrder}
             value={field.value}
             onChange={field.onChange}
           />
@@ -244,9 +245,10 @@ export const AsteroidFilterForm = () => {
             min={Constants.RADIUS_MIN}
             max={Constants.RADIUS_MAX}
             step={1}
-            unit={Constants.RADIUS_UNIT}
+            formatValue={Format.radius}
             value={field.value}
             onChange={field.onChange}
+            logScale
           />
         )}
       />
@@ -259,9 +261,10 @@ export const AsteroidFilterForm = () => {
             min={Constants.SURFACE_AREA_MIN}
             max={Constants.SURFACE_AREA_MAX}
             step={1}
-            unit={Constants.SURFACE_AREA_UNIT}
+            formatValue={Format.surfaceArea}
             value={field.value}
             onChange={field.onChange}
+            logScale
           />
         )}
       />
@@ -297,7 +300,7 @@ export const AsteroidFilterForm = () => {
             min={Constants.SEMI_MAJOR_AXIS_MIN}
             max={Constants.SEMI_MAJOR_AXIS_MAX}
             step={0.001}
-            unit='AU'
+            formatValue={Format.semiMajorAxis}
             value={field.value}
             onChange={field.onChange}
           />
@@ -312,7 +315,7 @@ export const AsteroidFilterForm = () => {
             min={Constants.ORBITAL_PERIOD_MIN}
             max={Constants.ORBITAL_PERIOD_MAX}
             step={1}
-            unit={Constants.ORBITAL_PERIOD_UNIT}
+            formatValue={Format.orbitalPeriod}
             value={field.value}
             onChange={field.onChange}
           />
@@ -327,7 +330,7 @@ export const AsteroidFilterForm = () => {
             min={Constants.INCLINATION_MIN}
             max={Constants.INCLINATION_MAX}
             step={0.01}
-            unit={Constants.INCLINATION_UNIT}
+            formatValue={Format.inclination}
             value={field.value}
             onChange={field.onChange}
           />
@@ -342,7 +345,7 @@ export const AsteroidFilterForm = () => {
             min={Constants.ECCENTRICITY_MIN}
             max={Constants.ECCENTRICITY_MAX}
             step={0.001}
-            unit=''
+            formatValue={Format.eccentricity}
             value={field.value}
             onChange={field.onChange}
           />

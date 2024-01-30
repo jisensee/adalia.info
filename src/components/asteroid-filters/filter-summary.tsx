@@ -104,6 +104,7 @@ export const AsteroidFilterSummary = ({
         'Spectral type',
         enumFormatter(Format.asteroidSpectralType)
       )}
+      {rangeTag('salePrice', 'Sale price', Format.salePrice)}
       {tag('size', 'Size', enumFormatter(Format.asteroidSize))}
       {rangeTag('radius', 'Radius', Format.radius)}
       {rangeTag('surfaceArea', 'Surface area', Format.surfaceArea)}
