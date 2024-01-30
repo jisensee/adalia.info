@@ -1,5 +1,5 @@
 import { Blockchain } from '@prisma/client'
-import { Plus, Trash } from 'lucide-react'
+import { Minus, Plus, Trash } from 'lucide-react'
 import { useState } from 'react'
 import { useAtom } from 'jotai'
 import { FormControl } from '../ui/form'
@@ -15,9 +15,9 @@ import { Slider } from '../ui/slider'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { Button } from '../ui/button'
 import { Logo } from '../logo'
+import { Toggle } from '../ui/toggle'
 import { Filter } from './filter'
 import { RangeParam, StarkSightTokenParam } from './filter-params'
-import { cn } from '@/lib/utils'
 import { useAccounts } from '@/hooks/wallet-hooks'
 import { decodeStarkSightToken } from '@/lib/starksight'
 import { starkSightTokensAtom } from '@/hooks/atoms'
@@ -216,33 +216,91 @@ export type RangeFilterProps = AsteroidFilterProps<RangeParam> & {
   min: number
   max: number
   step: number
-  unit: string
+  logScale?: boolean
+  formatValue: (value: number) => string
 }
+type RangeFilterMode = 'slider' | 'input'
 export const RangeFilter = ({
   min,
   max,
   step,
-  unit,
+  formatValue,
+  logScale,
   ...filterProps
-}: RangeFilterProps) => (
-  <Filter {...filterProps} defaultValue={{ from: min, to: max }}>
-    {({ value: { from, to }, onChange, disabled }) => (
-      <div className='flex flex-col gap-y-2'>
-        <Slider
-          value={[from, to]}
-          onValueChange={([a, b]) => a && b && onChange({ from: a, to: b })}
-          min={min}
-          max={max}
-          step={step}
-          disabled={disabled}
-        />
-        <span>
-          {from} {unit} - {to} {unit}
-        </span>
-      </div>
-    )}
-  </Filter>
-)
+}: RangeFilterProps) => {
+  const [mode, setMode] = useState<RangeFilterMode>('slider')
+  return (
+    <Filter
+      {...filterProps}
+      defaultValue={{ from: min, to: max }}
+      additionalHeader={
+        <div className='flex w-full items-center justify-end gap-x-3'>
+          <Tabs
+            value={mode}
+            onValueChange={(v) => setMode(v as RangeFilterMode)}
+          >
+            <TabsList className='!h-8'>
+              <TabsTrigger className='text-xs' value='slider'>
+                Slider
+              </TabsTrigger>
+              <TabsTrigger className='text-xs' value='input'>
+                Input
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      }
+    >
+      {({ value: { from, to }, onChange, disabled }) => (
+        <>
+          {mode === 'slider' && (
+            <div className='flex flex-col gap-y-2'>
+              <Slider
+                value={[from, to]}
+                onValueChange={([a, b]) =>
+                  a && b && onChange({ from: a, to: b })
+                }
+                min={min}
+                max={max}
+                step={step}
+                disabled={disabled}
+                logScale={logScale}
+              />
+              <span>
+                {formatValue(from)} - {formatValue(to)}
+              </span>
+            </div>
+          )}
+          {mode === 'input' && (
+            <div className='flex items-center gap-x-3'>
+              <Input
+                type='number'
+                disabled={disabled}
+                min={min}
+                max={max}
+                value={from}
+                onChange={(e) =>
+                  onChange({ from: parseFloat(e.target.value), to })
+                }
+              />
+              <Minus />
+              <Input
+                type='number'
+                disabled={disabled}
+                min={min}
+                max={max}
+                value={to}
+                onChange={(e) =>
+                  onChange({ from, to: parseFloat(e.target.value) })
+                }
+              />
+            </div>
+          )}
+        </>
+      )}
+    </Filter>
+  )
+}
 
 export type EnumFilterProps<T> = AsteroidFilterProps<T[]> & {
   name: string
@@ -259,25 +317,21 @@ export const EnumFilter = <T extends string>({
     {({ value, onChange, disabled }) => (
       <div className='flex flex-row flex-wrap items-center gap-2'>
         {options.map((option) => (
-          <div
-            className={cn('cursor-pointer rounded-lg border px-3 py-2', {
-              'border-primary': value.includes(option),
-              'cursor-not-allowed opacity-50': disabled,
-            })}
+          <Toggle
             key={option}
-            onClick={() => {
-              if (disabled) {
-                return
-              }
-              if (value.includes(option)) {
-                onChange(value.filter((v) => v !== option))
-              } else {
+            variant='outline'
+            disabled={disabled}
+            pressed={value.includes(option)}
+            onPressedChange={(pressed) => {
+              if (pressed) {
                 onChange([...value, option])
+              } else {
+                onChange(value.filter((v) => v !== option))
               }
             }}
           >
             {format(option)}
-          </div>
+          </Toggle>
         ))}
       </div>
     )}

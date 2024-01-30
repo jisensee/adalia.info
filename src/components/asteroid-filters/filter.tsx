@@ -11,6 +11,7 @@ export type FilterProps<T> = {
     onChange: (value: T) => void
     disabled: boolean
   }) => ReactNode
+  additionalHeader?: ReactNode
 }
 
 export const Filter = <T,>({
@@ -18,6 +19,7 @@ export const Filter = <T,>({
   defaultValue,
   onChange,
   name,
+  additionalHeader,
   children,
 }: FilterProps<T>) => {
   const [lastValue, setLastValue] = useState(value ?? defaultValue)
@@ -41,7 +43,10 @@ export const Filter = <T,>({
             onChange(active ? null : lastValue)
           }}
         />
-        <label htmlFor={id}>{name}</label>
+        <label className='whitespace-nowrap' htmlFor={id}>
+          {name}
+        </label>
+        {additionalHeader}
       </div>
       {children({
         value: value ?? lastValue,
