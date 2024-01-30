@@ -1,9 +1,14 @@
-import { ArrowRight } from 'lucide-react'
-import Link from 'next/link'
+import { ArrowRightIcon } from 'lucide-react'
 import { db } from '@/server/db'
 import { Address } from '@/components/address'
-import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table'
-import { Format } from '@/lib/format'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel'
+import { AsteroidImage } from '@/components/asteroid-image'
 
 export const LastAsteroidPurchases = async () => {
   const lastPurchases = await db.asteroidOwnerChange.findMany({
@@ -20,36 +25,29 @@ export const LastAsteroidPurchases = async () => {
   })
 
   return (
-    <div className='flex flex-col gap-y-1'>
+    <div className='flex flex-col items-center gap-y-3'>
       <h1>Last purchases</h1>
-      <Table>
-        <TableBody>
-          {lastPurchases.map(({ asteroid, ...change }) => (
-            <TableRow key={change.id}>
-              <TableCell>
-                <Link
-                  className='text-primary md:text-xl'
-                  href={`/asteroids/${asteroid.id}`}
-                >
-                  {asteroid.id}
-                </Link>
-              </TableCell>
-              <TableCell className='whitespace-nowrap'>
-                {Format.asteroidSize(asteroid.size)}{' '}
-                <span className='text-primary'>
-                  {Format.asteroidSpectralType(asteroid.spectralType)}
-                </span>
-              </TableCell>
-              <TableCell>
-                <ArrowRight size={30} />
-              </TableCell>
-              <TableCell className='w-full'>
-                <Address address={change.toAddress} shownCharacters={4} />
-              </TableCell>
-            </TableRow>
+
+      <Carousel className='w-3/4'>
+        <CarouselContent>
+          {lastPurchases.map((asteroid) => (
+            <CarouselItem
+              key={asteroid.id}
+              className='sm:basis-1/2 md:basis-1/3 xl:basis-1/4 2xl:basis-1/5'
+            >
+              <div className='flex flex-col items-center justify-center gap-y-2'>
+                <AsteroidImage id={asteroid.id} width={250} />
+                <div className='flex items-center justify-center gap-x-2'>
+                  <ArrowRightIcon size={25} className='text-primary' />
+                  <Address address={asteroid.toAddress} shownCharacters={4} />
+                </div>
+              </div>
+            </CarouselItem>
           ))}
-        </TableBody>
-      </Table>
+        </CarouselContent>
+        <CarouselPrevious />
+        <CarouselNext />
+      </Carousel>
     </div>
   )
 }

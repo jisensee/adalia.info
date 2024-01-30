@@ -222,6 +222,7 @@ const updateAsteroid = (
       rarity: newRarity,
       scanStatus: newScanStatus,
       lastScan: scanChanged ? new Date() : undefined,
+      salePrice: newOwner ? null : undefined,
       ownerChanges:
         ownerChanged && newChain
           ? {
