@@ -26,12 +26,14 @@ export default async function Asteroids({
     ? await fetchStarkSightTokenData(filters.starksightToken.token)
     : undefined
 
-  const [totalCount, asteroids] = await AsteroidService.getPage(
-    params.page,
-    params.pageSize,
-    filters,
-    params.sort
-  )
+  const { totalCount, asteroids, starkSightColumns } =
+    await AsteroidService.getPage(
+      params.page,
+      params.pageSize,
+      filters,
+      params.sort
+    )
+
   const totalPages = Math.ceil(totalCount / params.pageSize)
 
   const tableHeader = (
@@ -40,7 +42,7 @@ export default async function Asteroids({
       <div className='flex flex-row justify-end gap-x-2'>
         <FiltersDropdown />
         <Export totalCount={totalCount} />
-        <ColumnConfig />
+        <ColumnConfig customColumns={starkSightColumns ?? []} />
       </div>
     </div>
   )
@@ -49,16 +51,7 @@ export default async function Asteroids({
     <div className='flex flex-row gap-x-2'>
       <AsteroidFilterForm />
 
-      <StarkSightCache
-        starkSightTokenData={
-          starkSightTokenData
-            ? {
-                token: starkSightTokenData.token,
-                expiration: starkSightTokenData.expiration,
-              }
-            : undefined
-        }
-      />
+      <StarkSightCache starkSightTokenData={starkSightTokenData} />
       <AsteroidFilterCache />
       <AsteroidColumnCache />
 
@@ -70,7 +63,10 @@ export default async function Asteroids({
         </p>
         <AsteroidFilterSummary />
         {tableHeader}
-        <AsteroidTable data={asteroids} />
+        <AsteroidTable
+          data={asteroids}
+          customColumns={starkSightColumns ?? []}
+        />
         <Paginator totalPages={totalPages} />
       </div>
     </div>

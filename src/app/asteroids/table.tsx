@@ -9,7 +9,7 @@ import {
 import { FC, Fragment, useMemo, useTransition } from 'react'
 import { ArrowDown, ArrowUp, ChevronRight } from 'lucide-react'
 import { Asteroid } from '@prisma/client'
-import { AsteroidColumnConfig, Sort, useAsteroidPageParams } from './types'
+import { Sort, useAsteroidPageParams } from './types'
 import {
   AsteroidColumn,
   columnDef,
@@ -32,10 +32,11 @@ import {
   AsteroidDetailsButton,
   AsteroidGameButton,
 } from '@/components/asteroid-action-button'
+import { StarkSightTokenResponse, starkSightColumns } from '@/lib/starksight'
 
 export type AsteroidTableProps = {
   data: Asteroid[]
-  initialColumns?: AsteroidColumnConfig[] | null
+  customColumns: StarkSightTokenResponse['columns']
 }
 
 const calcNextSortState = (
@@ -49,7 +50,10 @@ const calcNextSortState = (
   }
 }
 
-export const AsteroidTable: FC<AsteroidTableProps> = ({ data }) => {
+export const AsteroidTable: FC<AsteroidTableProps> = ({
+  data,
+  customColumns,
+}) => {
   const [isLoading, startTransition] = useTransition()
   const [pageParams, setPageParams] = useAsteroidPageParams(startTransition)
 
@@ -68,49 +72,65 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({ data }) => {
     getCoreRowModel: getCoreRowModel(),
   })
 
+  const shouldRenderColumn = (colId: string) => {
+    if (starkSightColumns.map((s) => s as string).includes(colId)) {
+      return customColumns.map((s) => s as string).includes(colId)
+    }
+    return true
+  }
+
   return (
     <Table>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             <TableHead />
-            {headerGroup.headers.map((header) => (
-              <TableHead key={header.id}>
-                {!nonSortableColumns.includes(
-                  header.column.id as AsteroidColumn
-                ) ? (
-                  <div
-                    className='flex cursor-pointer flex-row items-center gap-x-2'
-                    onClick={() =>
-                      setPageParams({
-                        ...pageParams,
-                        page: 1,
-                        sort: calcNextSortState(
-                          pageParams.sort,
-                          header.column.id as AsteroidColumn
-                        ),
-                      })
-                    }
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    {pageParams.sort?.id === header.column.id &&
-                      pageParams.sort?.direction === 'asc' && <ArrowUp />}
-                    {pageParams.sort?.id === header.column.id &&
-                      pageParams.sort?.direction === 'desc' && <ArrowDown />}
-                  </div>
-                ) : header.isPlaceholder ? null : (
-                  flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )
-                )}
-              </TableHead>
-            ))}
+            {headerGroup.headers
+              .filter((header) => shouldRenderColumn(header.column.id))
+              .map((header) => (
+                <TableHead
+                  key={header.id}
+                  className={cn({
+                    'text-starksight': customColumns
+                      .map((s) => s as string)
+                      .includes(header.column.id),
+                  })}
+                >
+                  {!nonSortableColumns.includes(
+                    header.column.id as AsteroidColumn
+                  ) ? (
+                    <div
+                      className='flex cursor-pointer flex-row items-center gap-x-2'
+                      onClick={() =>
+                        setPageParams({
+                          ...pageParams,
+                          page: 1,
+                          sort: calcNextSortState(
+                            pageParams.sort,
+                            header.column.id as AsteroidColumn
+                          ),
+                        })
+                      }
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      {pageParams.sort?.id === header.column.id &&
+                        pageParams.sort?.direction === 'asc' && <ArrowUp />}
+                      {pageParams.sort?.id === header.column.id &&
+                        pageParams.sort?.direction === 'desc' && <ArrowDown />}
+                    </div>
+                  ) : header.isPlaceholder ? null : (
+                    flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )
+                  )}
+                </TableHead>
+              ))}
           </TableRow>
         ))}
       </TableHeader>
@@ -130,11 +150,17 @@ export const AsteroidTable: FC<AsteroidTableProps> = ({ data }) => {
                     onClick={() => row.toggleExpanded()}
                   />
                 </TableCell>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id} className='whitespace-nowrap'>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
+                {row
+                  .getVisibleCells()
+                  .filter((cell) => shouldRenderColumn(cell.column.id))
+                  .map((cell) => (
+                    <TableCell key={cell.id} className='whitespace-nowrap'>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
               </TableRow>
               {row.getIsExpanded() && (
                 <TableRow>
