@@ -15,6 +15,8 @@ export type AsteroidColumnConfig = {
 }
 
 export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
+  { id: 'starkSightUser', active: true },
+  { id: 'starkSightGroup', active: true },
   { id: 'owner', active: true },
   { id: 'name', active: true },
   { id: 'scanStatus', active: true },

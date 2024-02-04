@@ -11,6 +11,7 @@ import { SortableContext, arrayMove, useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
 import { GripVertical, TableProperties } from 'lucide-react'
+import { useMemo } from 'react'
 import { AsteroidColumn, getAsteroidColumnName } from './columns'
 import { defaultAsteroidColumnConfig } from './types'
 import { useAsteroidColumns } from './hooks'
@@ -21,10 +22,34 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import { Checkbox } from '@/components/ui/checkbox'
+import { StarkSightTokenResponse, starkSightColumns } from '@/lib/starksight'
 
-export const ColumnConfig = () => {
+export type ColumnConfigProps = {
+  customColumns: StarkSightTokenResponse['columns']
+}
+export const ColumnConfig = ({ customColumns }: ColumnConfigProps) => {
   const [columns, setColumns] = useAsteroidColumns()
   const sensors = useSensors(useSensor(PointerSensor))
+
+  const filteredColumns = useMemo(() => {
+    // Filter out custom columns if they should not be shown
+    const adjustedColumns = columns.filter((c) => {
+      if (starkSightColumns.map((s) => s as string).includes(c.id)) {
+        return customColumns.map((s) => s as string).includes(c.id)
+      }
+      return true
+    })
+    const newCols = starkSightColumns.flatMap((c) => {
+      if (
+        customColumns.map((s) => s as string).includes(c) &&
+        !adjustedColumns.find((ac) => ac.id === c)
+      ) {
+        return [{ id: c, active: true }]
+      }
+      return []
+    })
+    return [...newCols, ...adjustedColumns]
+  }, [customColumns, columns])
 
   return (
     <Popover>
@@ -45,23 +70,23 @@ export const ColumnConfig = () => {
           onDragEnd={({ active, over }) =>
             setColumns(
               arrayMove(
-                columns,
-                columns.findIndex((c) => c.id === active.id),
-                columns.findIndex((c) => c.id === over?.id)
+                filteredColumns,
+                filteredColumns.findIndex((c) => c.id === active.id),
+                filteredColumns.findIndex((c) => c.id === over?.id)
               )
             )
           }
         >
-          <SortableContext items={columns}>
+          <SortableContext items={filteredColumns}>
             <div className='flex flex-col gap-y-2'>
-              {columns.map((col) => (
+              {filteredColumns.map((col) => (
                 <Row
                   key={col.id}
                   column={col.id}
                   active={col.active}
                   onActiveChange={(active) =>
                     setColumns(
-                      columns.map((c) =>
+                      filteredColumns.map((c) =>
                         c.id === col.id ? { ...c, active } : c
                       )
                     )

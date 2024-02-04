@@ -8,7 +8,10 @@ import {
   AsteroidFilters,
   RangeParam,
 } from '@/components/asteroid-filters/filter-params'
-import { fetchStarkSightTokenData } from '@/lib/starksight'
+import {
+  StarkSightTokenResponse,
+  fetchStarkSightTokenData,
+} from '@/lib/starksight'
 
 const getSort = (field: AsteroidColumn, sort: Sort) =>
   sort.id === field ? sort.direction : undefined
@@ -78,14 +81,17 @@ const makePurchaseOrderFilter = (filters: AsteroidFilters) => {
 const sanitizeNameSearchTerm = (searchTerm: string) =>
   searchTerm.trim().split(' ').join(' & ')
 
+const getStarkSightTokenData = (filters: AsteroidFilters) =>
+  filters.starksightToken
+    ? fetchStarkSightTokenData(filters.starksightToken.token)
+    : undefined
+
 const makeWhereFilter = async (
   filters: AsteroidFilters
 ): Promise<Prisma.AsteroidWhereInput> => {
-  const starkSightIds = filters.starksightToken
-    ? (
-        await fetchStarkSightTokenData(filters.starksightToken.token)
-      )?.data.INFA.map(({ id }) => id)
-    : undefined
+  const starkSightIds = await getStarkSightTokenData(filters)?.then((d) =>
+    d?.data.INFA.map(({ id }) => id)
+  )
 
   return {
     id: makeFilter(starkSightIds, (ids) => ({ in: ids })),
@@ -134,15 +140,31 @@ const makeOrderBy = (sort: Sort) => ({
   salePrice: getSort('salePrice', sort),
 })
 
+export type AsteroidWithCustomColumns = Asteroid & {
+  starkSightUser?: string
+  starkSightGroup?: string
+}
+
+export type AsteroidPage = {
+  totalCount: number
+  asteroids: AsteroidWithCustomColumns[]
+  starkSightColumns?: StarkSightTokenResponse['columns']
+}
+
 const getPage = async (
   page: number,
   pageSize: number,
   filters: AsteroidFilters,
   sort: Sort
-): Promise<[number, Asteroid[]]> => {
+): Promise<AsteroidPage> => {
+  const starkSightData = await getStarkSightTokenData(filters)
+  const starkSightAsteroids = new Map(
+    starkSightData?.data.INFA.map((a) => [a.id, a]) ?? []
+  )
+
   const filter = await makeWhereFilter(filters)
 
-  return db.$transaction([
+  const [totalCount, asteroids] = await db.$transaction([
     db.asteroid.count({ where: filter }),
     db.asteroid.findMany({
       where: filter,
@@ -151,6 +173,18 @@ const getPage = async (
       orderBy: makeOrderBy(sort),
     }),
   ])
+
+  return {
+    totalCount,
+    asteroids: asteroids.map((a) => {
+      const starkSightAsteroid = starkSightAsteroids.get(a.id)
+      return {
+        ...a,
+        ...starkSightAsteroid,
+      }
+    }),
+    starkSightColumns: starkSightData?.columns,
+  }
 }
 
 const getExport = async (

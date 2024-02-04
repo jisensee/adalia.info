@@ -1,6 +1,5 @@
 'use client'
 import {
-  Asteroid,
   AsteroidRarity,
   AsteroidScanStatus,
   AsteroidSize,
@@ -14,6 +13,7 @@ import { Format } from '@/lib/format'
 import { Constants } from '@/lib/constants'
 import { Logo } from '@/components/logo'
 import { Address } from '@/components/address'
+import { AsteroidWithCustomColumns } from '@/server/asteroid-service'
 
 const colHelper = createColumnHelper<AsteroidRow>()
 
@@ -36,6 +36,8 @@ export type AsteroidRow = {
   purchaseOrder?: number | null
   blockchain?: Blockchain | null
   salePrice?: number | null
+  starkSightUser?: string | null
+  starkSightGroup?: string | null
 }
 
 const getScanBonus = (purchaseOrder: number | null) => {
@@ -57,10 +59,14 @@ const getScanBonus = (purchaseOrder: number | null) => {
 const isEarlyAdopter = (purchaseOrder: number | null) =>
   purchaseOrder ? purchaseOrder < Constants.EARLY_ADOPTER_PURCHASE_ORDER : false
 
-export const toAsteroidRow = (asteroid: Asteroid): AsteroidRow => ({
+export const toAsteroidRow = (
+  asteroid: AsteroidWithCustomColumns
+): AsteroidRow => ({
   id: asteroid.id,
   name: asteroid.name,
   owner: asteroid.ownerAddress,
+  starkSightUser: asteroid.starkSightUser,
+  starkSightGroup: asteroid.starkSightGroup,
   size: asteroid.size,
   radius: asteroid.radius,
   surfaceArea: asteroid.surfaceArea,
@@ -75,13 +81,14 @@ export const toAsteroidRow = (asteroid: Asteroid): AsteroidRow => ({
   earlyAdopter: isEarlyAdopter(asteroid.purchaseOrder),
   purchaseOrder: asteroid.purchaseOrder,
   blockchain: asteroid.blockchain,
-  salePrice: asteroid.salePrice,
 })
 
 export type AsteroidColumn = keyof AsteroidRow
 
 export const allAsteroidColumns: AsteroidColumn[] = [
   'id',
+  'starkSightUser',
+  'starkSightGroup',
   'name',
   'owner',
   'scanStatus',
@@ -103,6 +110,8 @@ export const allAsteroidColumns: AsteroidColumn[] = [
 
 const columnNames: Record<AsteroidColumn, string> = {
   id: 'ID',
+  starkSightUser: 'StarkSight User',
+  starkSightGroup: 'StarkSight Group',
   name: 'Name',
   owner: 'Owner',
   scanStatus: 'Scan status',
@@ -129,6 +138,7 @@ export const nonSortableColumns: AsteroidColumn[] = [
   'owner',
   'scanStatus',
   'spectralType',
+  'starkSightUser',
 ]
 
 const col = (
@@ -151,6 +161,8 @@ export const columnDef: ColumnDef<AsteroidRow>[] = [
     </Link>
   )),
   col('name', (asteroid) => asteroid.name),
+  col('starkSightUser', (asteroid) => asteroid.starkSightUser),
+  col('starkSightGroup', (asteroid) => asteroid.starkSightGroup),
   col('owner', (asteroid) =>
     asteroid.owner ? (
       <Address address={asteroid.owner} shownCharacters={2} />

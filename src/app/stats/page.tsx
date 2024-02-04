@@ -42,16 +42,7 @@ export default async function StatsPage({
     <div className='flex gap-x-2'>
       <AsteroidFilterForm />
 
-      <StarkSightCache
-        starkSightTokenData={
-          starkSightTokenData
-            ? {
-                token: starkSightTokenData.token,
-                expiration: starkSightTokenData.expiration,
-              }
-            : undefined
-        }
-      />
+      <StarkSightCache starkSightTokenData={starkSightTokenData} />
       <AsteroidFilterCache />
 
       <div className='flex w-full flex-col gap-y-3 p-3'>
