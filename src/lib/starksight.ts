@@ -42,7 +42,7 @@ const prefixColumns = (response: any): StarkSightTokenResponse => {
         starkSightGroup: a?.group,
       })),
     },
-    columns: response.columns.map(prefixColumn),
+    columns: response.columns?.map(prefixColumn),
   }
 }
 
