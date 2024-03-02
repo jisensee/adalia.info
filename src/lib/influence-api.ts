@@ -1,4 +1,5 @@
-import { ApiAsteroid } from './influence-api-types'
+import { Entity, Lot } from '@influenceth/sdk'
+import { ApiAsteroid, InventoryResponseItem } from './influence-api-types'
 
 type AsteroidHit = {
   _source: ApiAsteroid
@@ -92,3 +93,33 @@ export const getAsteroids = (
     .then((d) => d.hits.hits.map((h: any) => h._source)) as Promise<
     ApiAsteroid[]
   >
+
+export const getWarehouseInventory = async (
+  asteroidId: number,
+  lotIndex: number
+) => {
+  const token = process.env.PRERELEASE_INFLUENCE_API_ACCESS_TOKEN ?? ''
+  const uuid = Entity.packEntity({
+    id: Lot.toId(asteroidId, lotIndex),
+    label: 4,
+  })
+
+  const url = `https://api-prerelease.influenceth.io/v2/entities?match=Location.locations.uuid%3A%22${uuid}%22&components=Inventory`
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    cache: 'no-store',
+  })
+
+  const items = await (response.json() as Promise<InventoryResponseItem[]>)
+
+  return items
+    .flatMap((i) => i.Inventories)
+    .filter((i) => i.inventoryType === 10)
+    .flatMap((i) => i.contents)
+}
+
+export const getInOutputs = (inOrOutputs: Record<number, number>) =>
+  Object.keys(inOrOutputs).map((i) => parseInt(i, 10))
