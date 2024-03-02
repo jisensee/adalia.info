@@ -22,10 +22,10 @@
     --primary: #67e8f9;
     --primary-foreground: #003545;
 
-    --secondary:  #06b6d4;
+    --secondary: #06b6d4;
     --secondary-foreground: #003545;
 
-    --accent: #374151; 
+    --accent: #374151;
     --accent-foreground: #e2e2e5;
 
     --destructive: #ef4343;
@@ -48,5 +48,9 @@
 
   h2 {
     @apply text-2xl text-primary;
+  }
+
+  h3 {
+    @apply text-xl text-primary;
   }
 }

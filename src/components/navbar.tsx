@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart3, Orbit } from 'lucide-react'
+import { BarChart3, Orbit, Wrench } from 'lucide-react'
 import Link from 'next/link'
 import { WalletInfo } from './wallet/wallet-info'
 import { Logo } from './logo'
@@ -36,6 +36,10 @@ export const Navbar = () => {
             <BarChart3 />
             <span>Stats</span>
           </Link>
+          <Link href='/tools' className={cn(link, 'hidden gap-x-2 sm:flex')}>
+            <Wrench />
+            <span>Tools</span>
+          </Link>
         </div>
         <WalletInfo />
       </nav>
@@ -45,10 +49,6 @@ export const Navbar = () => {
 
 export const BottomNavbar = () => (
   <nav className='flex flex-row items-center border-t border-primary bg-background sm:hidden'>
-    <Link href='/' className={cn(link, 'flex grow flex-col items-center')}>
-      <Logo.AdaliaInfo className='h-6 w-6 ' />
-      <span className='font-bold'>Home</span>
-    </Link>
     <Search
       className={cn(link, 'flex grow cursor-pointer flex-col items-center')}
     />
@@ -62,6 +62,10 @@ export const BottomNavbar = () => (
     <Link href='/stats' className={cn(link, 'flex grow flex-col items-center')}>
       <BarChart3 />
       <span>Stats</span>
+    </Link>
+    <Link href='/tools' className={cn(link, 'flex grow flex-col items-center')}>
+      <Wrench />
+      <span>Tools</span>
     </Link>
   </nav>
 )

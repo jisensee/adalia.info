@@ -38,6 +38,29 @@ export type ApiAsteroid = {
   }
 }
 
+export type InventoryContent = {
+  product: number
+  amount: number
+}
+
+export type Inventory = {
+  contents: InventoryContent[]
+  inventoryType: number
+  mass: number
+  slot: number
+  status: number
+  reservedMass: number
+  reservedVolume: number
+  volume: number
+}
+
+export type InventoryResponseItem = {
+  id: number
+  label: number
+  uuid: string
+  Inventories: Inventory[]
+}
+
 export const convertSnapshotAsteroid = (
   snapshotAsteroid: SnapshotAsteroid
 ): Prisma.AsteroidCreateManyInput => {

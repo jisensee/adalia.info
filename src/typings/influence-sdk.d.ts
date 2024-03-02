@@ -58,4 +58,48 @@ declare module '@influenceth/sdk' {
     static getSpectralType(spectralTypeId: number): SpectralType
     static getBonuses(packedBonuses: number, spectralTypeId: number): Bonus[]
   }
+
+  export class Entity {
+    static packEntity(params: { id: number; label: number }): string
+  }
+
+  export class Lot {
+    static toId(asteroidId: number, lotIndex: number): number
+  }
+
+  export type ProductType = {
+    i: number
+    name: string
+    classification: string
+    category: string
+    massPerUnit: number
+    isAtomic: boolean
+  }
+
+  export const Product: {
+    getType: (productId: number) => ProductType
+    IDS: Record<string, number>
+  }
+
+  type ProcessType = {
+    i: number
+    name: string
+    processorType: ProcessorType
+    inputs: Record<number, number>
+    outputs: Record<number, number>
+  }
+
+  export const Process: {
+    TYPES: Record<number, ProcessType>
+  }
+
+  export const Processor: {
+    IDS: {
+      REFINERY: number
+      FACTORY: number
+      BIOREACTOR: number
+      SHIPYARD: number
+      DRY_DOCK: number
+    }
+  }
 }
