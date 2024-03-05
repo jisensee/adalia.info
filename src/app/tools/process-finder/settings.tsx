@@ -30,13 +30,13 @@ export const Settings = () => {
       </div>
       <div className='flex items-center gap-x-2'>
         <Switch
-          id='hideLowAmounts'
+          id='hideWithoutProcesses'
           checked={hideWithoutProcesses}
           onCheckedChange={(checked) =>
             setSettings({ hideWithoutProcesses: checked })
           }
         />
-        <Label htmlFor='hideLowAmounts'>
+        <Label htmlFor='hideWithoutProcesses'>
           Hide products without matching process
         </Label>
       </div>
