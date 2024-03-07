@@ -12,7 +12,11 @@ import {
   Asteroid,
   BonusType,
   Rarity,
+  Process,
+  Product,
+  Building,
 } from '@influenceth/sdk'
+import { z } from 'zod'
 
 export interface SnapshotAsteroid {
   i: number
@@ -198,3 +202,103 @@ export const calculatePrice = (surfaceArea: number) => {
 
   return basePrice + surfaceArea * lotPrice
 }
+
+const idsSchema = z.object({
+  id: z.number(),
+  label: z.number(),
+  uuid: z.string(),
+})
+const timestamp = z.number().transform((v) => new Date(v * 1000))
+
+const controlSchema = z.object({
+  controller: idsSchema,
+})
+
+const nameSchema = z.object({
+  name: z.string(),
+})
+
+const nftSchema = z.object({
+  owners: z.object({
+    ethereum: z.string().nullable(),
+    starknet: z.string().nullable(),
+  }),
+})
+
+const inventorySchema = z.object({
+  contents: z.array(
+    z.object({
+      product: z.number(),
+      amount: z.number(),
+    })
+  ),
+  inventoryType: z.number(),
+})
+
+const locationSchema = z
+  .object({
+    location: idsSchema,
+    locations: z.array(idsSchema),
+  })
+  .optional()
+
+const processorSchema = z.object({
+  destinationSlot: z.number(),
+  finishTime: timestamp,
+  outputProduct: z.number().transform((v) => Product.getType(v)),
+  processorType: z.number(),
+  recipes: z.number(),
+  runningProcess: z.number().transform((v) => Process.getType(v)),
+  secondaryEff: z.number(),
+  slot: z.number(),
+  status: z.number(),
+  destination: idsSchema.nullish(),
+})
+
+const crewSchema = z.object({
+  actionTarget: idsSchema.nullish(),
+  readyAt: timestamp.nullish(),
+})
+
+const extractorSchema = z.object({
+  destination: idsSchema.nullish(),
+  extractorType: z.number(),
+  finishTime: timestamp,
+  yield: z.number(),
+  outputProduct: z.number().transform((v) => Product.getType(v)),
+})
+
+const buildingSchema = z.object({
+  buildingType: z.number().transform((v) => Building.getType(v)),
+  finishTime: timestamp,
+  status: z.number(),
+})
+
+export type EntityControl = z.infer<typeof controlSchema>
+export type EntityName = z.infer<typeof nameSchema>
+export type EntityNft = z.infer<typeof nftSchema>
+export type EntityInventory = z.infer<typeof inventorySchema>
+export type EntityLocation = z.infer<typeof locationSchema>
+export type EntityProcessor = z.infer<typeof processorSchema>
+export type EntityCrew = z.infer<typeof crewSchema>
+export type EntityExtractor = z.infer<typeof extractorSchema>
+export type EntityBuilding = z.infer<typeof buildingSchema>
+
+const entitySchema = z.object({
+  id: z.number(),
+  label: z.number(),
+  uuid: z.string(),
+  Control: controlSchema.nullish(),
+  Name: nameSchema.nullish(),
+  Nft: nftSchema.nullish(),
+  Inventories: z.array(inventorySchema).default([]),
+  Location: locationSchema.nullish(),
+  Processors: z.array(processorSchema).default([]),
+  Crew: crewSchema.nullish(),
+  Extractors: z.array(extractorSchema).default([]),
+  Building: buildingSchema.nullish(),
+})
+
+export const entityResponseSchema = z.array(entitySchema)
+
+export type EntityResponse = z.infer<typeof entityResponseSchema>

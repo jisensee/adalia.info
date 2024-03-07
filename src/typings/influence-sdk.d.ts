@@ -59,12 +59,26 @@ declare module '@influenceth/sdk' {
     static getBonuses(packedBonuses: number, spectralTypeId: number): Bonus[]
   }
 
-  export class Entity {
-    static packEntity(params: { id: number; label: number }): string
+  export const Entity: {
+    packEntity: (params: { id: number; label: number }) => string
+    unpackEntity: (uuid: string) => { id: number; label: number }
+    IDS: {
+      CREW: number
+      CREWMATE: number
+      ASTEROID: number
+      LOT: number
+      BUILDING: number
+      SHIP: number
+      DEPOSIT: number
+      ORDER: number
+      DELIVERY: number
+      SPACE: number
+    }
   }
 
-  export class Lot {
-    static toId(asteroidId: number, lotIndex: number): number
+  export const Lot: {
+    toId: (asteroidId: number, lotIndex: number) => number
+    toIndex: (lotId: number) => number
   }
 
   export type ProductType = {
@@ -81,7 +95,7 @@ declare module '@influenceth/sdk' {
     IDS: Record<string, number>
   }
 
-  type ProcessType = {
+  export type ProcessType = {
     i: number
     name: string
     processorType: ProcessorType
@@ -91,6 +105,14 @@ declare module '@influenceth/sdk' {
 
   export const Process: {
     TYPES: Record<number, ProcessType>
+
+    getType: (processId: number) => ProcessType
+    getProcessingTime: (
+      processId: number,
+      recipes: number,
+      totalBonus: number
+    ) => number
+    getSetupTime: (processId: number, totalBonus: number) => number
   }
 
   export const Processor: {
@@ -101,5 +123,32 @@ declare module '@influenceth/sdk' {
       SHIPYARD: number
       DRY_DOCK: number
     }
+  }
+
+  export type BuildingType = {
+    i: number
+    name: string
+    description: string
+  }
+  export const Building: {
+    CONSTRUCTION_STATUSES: {
+      UNPLANNED: number
+      PLANNED: number
+      UNDER_CONSTRUCTION: number
+      OPERATIONAL: number
+    }
+    IDS: {
+      EMPTY_LOT: number
+      WAREHOUSE: number
+      EXTRACTOR: number
+      REFINERY: number
+      BIOREACTOR: number
+      FACTORY: number
+      SHIPYARD: number
+      SPACEPORT: number
+      MARKETPLACE: number
+      HABITAT: number9
+    }
+    getType: (buildingId: number) => BuildingType
   }
 }

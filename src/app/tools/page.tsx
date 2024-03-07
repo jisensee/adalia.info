@@ -15,6 +15,16 @@ export default function ToolsPage() {
             </p>
           </div>
         </Link>
+        <Link href='/tools/production-tracker'>
+          <div className='group flex flex-col items-center justify-center rounded border border-primary p-5 hover:bg-primary'>
+            <h2 className='group-hover:text-primary-foreground'>
+              Production Tracker
+            </h2>
+            <p className='text-md group-hover:text-primary-foreground'>
+              Easily keep track of all your running production facilities!
+            </p>
+          </div>
+        </Link>
       </div>
     </div>
   )

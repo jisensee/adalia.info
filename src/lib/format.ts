@@ -4,6 +4,7 @@ import {
   AsteroidSize,
   AsteroidSpectralType,
 } from '@prisma/client'
+import { Processor, ProductType } from '@influenceth/sdk'
 import { Constants } from './constants'
 
 const numberFormatter =
@@ -11,6 +12,16 @@ const numberFormatter =
     value.toLocaleString(undefined, {
       maximumFractionDigits: maxDecimals,
     }) + (unit ? ' ' + unit : '')
+
+const formatKgs = (kgs: number) => {
+  if (kgs >= 1_000_000) {
+    return `${(kgs / 1_000_000).toFixed(2)}kt`
+  }
+  if (kgs >= 1_000) {
+    return `${(kgs / 1000).toFixed(1)}t`
+  }
+  return `${kgs.toFixed(0)}kg`
+}
 
 export const Format = {
   radius: numberFormatter(0, Constants.RADIUS_UNIT),
@@ -60,4 +71,45 @@ export const Format = {
   purchaseOrder: numberFormatter(0),
   percentage: (value: number, maxDecimals = 0) =>
     numberFormatter(maxDecimals, '%')(value * 100),
+  remainingTime: (remainingSeconds: number) => {
+    if (remainingSeconds < 60) return `${remainingSeconds} s`
+    if (remainingSeconds < 3600) {
+      const seconds = remainingSeconds % 60
+      const minutes = Math.floor(remainingSeconds / 60)
+      return `${minutes}m ${seconds}s`
+    }
+    if (remainingSeconds < 3600 * 24) {
+      const minutes = Math.floor(remainingSeconds / 60) % 60
+      const hours = Math.floor(remainingSeconds / 3600)
+      return `${hours}h ${minutes}m`
+    }
+    const hours = Math.floor(remainingSeconds / 3600) % 24
+    const days = Math.floor(remainingSeconds / (3600 * 24))
+    return `${days}d ${hours}h`
+  },
+  processor: (processorType: number) => {
+    switch (processorType) {
+      case Processor.IDS.REFINERY:
+        return 'Refinery'
+      case Processor.IDS.FACTORY:
+        return 'Factory'
+      case Processor.IDS.BIOREACTOR:
+        return 'Bioreactor'
+      case Processor.IDS.SHIPYARD:
+        return 'Shipyard'
+      case Processor.IDS.DRY_DOCK:
+        return 'Dry Dock'
+      default:
+        return ''
+    }
+  },
+  productAmount: (product: ProductType, amount: number) => {
+    if (amount === 0) {
+      return product.name
+    }
+    if (product.isAtomic) {
+      return `${amount} ${product.name}`
+    }
+    return `${formatKgs(amount)} ${product.name}`
+  },
 }

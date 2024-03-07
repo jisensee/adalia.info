@@ -7,6 +7,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
+import { Format } from '@/lib/format'
 
 type ProductListProps = {
   title: ReactNode
@@ -33,7 +34,7 @@ export const ProductList: FC<ProductListProps> = ({
             <HoverCard key={product.i}>
               <HoverCardTrigger onClick={() => onProductSelect?.(product)}>
                 <ListEntry selected={selectedProducts.includes(product.i)}>
-                  {formatProductAmount({ product, amount })}
+                  {Format.productAmount(product, amount)}
                 </ListEntry>
               </HoverCardTrigger>
               <HoverCardContent>
@@ -52,24 +53,4 @@ export const ProductList: FC<ProductListProps> = ({
       </div>
     </div>
   )
-}
-
-const formatProductAmount = ({ product, amount }: ProductAmount) => {
-  if (amount === 0) {
-    return product.name
-  }
-  if (product.isAtomic) {
-    return `${amount} ${product.name}`
-  }
-  return `${formatAmount(amount)} ${product.name}`
-}
-
-const formatAmount = (amount: number) => {
-  if (amount >= 1_000_000) {
-    return `${(amount / 1_000_000).toFixed(1)}kt`
-  }
-  if (amount >= 1_000) {
-    return `${(amount / 1000).toFixed()}t`
-  }
-  return `${amount}kg`
 }
