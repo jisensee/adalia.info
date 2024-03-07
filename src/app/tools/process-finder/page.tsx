@@ -1,11 +1,16 @@
 import { Product } from '@influenceth/sdk'
 import { createSearchParamsCache } from 'nuqs/server'
+import { Metadata } from 'next'
 import { ProcessFinderForm } from './form'
 import { WarehouseParam, warehousesParams } from './params'
 import { ProcessFinderResults } from './results'
 import { ProductAmount } from './state'
 import { Settings } from './settings'
 import { getWarehouseInventory } from '@/lib/influence-api'
+
+export const metadata: Metadata = {
+  title: 'Process Finder | adalia.info',
+}
 
 export default async function ProcessFinderPage({
   searchParams,

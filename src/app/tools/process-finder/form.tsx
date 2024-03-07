@@ -118,7 +118,7 @@ export const ProcessFinderForm: FC<ProcessFinderFormProps> = ({
           type='button'
           icon={<Plus />}
           variant='outline'
-          onClick={() => append({ asteroidId: 0, lotId: 1 })}
+          onClick={() => append({ asteroidId: 1, lotId: 1 })}
         >
           Warehouse
         </Button>

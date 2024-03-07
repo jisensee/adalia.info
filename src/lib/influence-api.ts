@@ -1,5 +1,10 @@
 import { Entity, Lot } from '@influenceth/sdk'
-import { ApiAsteroid, InventoryResponseItem } from './influence-api-types'
+import {
+  ApiAsteroid,
+  EntityResponse,
+  InventoryResponseItem,
+  entityResponseSchema,
+} from './influence-api-types'
 
 type AsteroidHit = {
   _source: ApiAsteroid
@@ -21,22 +26,6 @@ const request = (path: string, method: 'GET' | 'POST', data?: object) =>
     },
     body: data ? JSON.stringify(data) : undefined,
   }).then((res) => res.text())
-
-export const getLastPurchaseOrder = () =>
-  request('_search/asteroid', 'POST', {
-    sort: {
-      'Celestial.purchaseOrder': 'desc',
-    },
-  })
-    .then(JSON.parse)
-    .then(
-      (d) => d.hits.hits[0]._source.Celestial.purchaseOrder
-    ) as Promise<number>
-
-export const getAdaliaPrime = () =>
-  request('v2/entities?id=1&label=3', 'GET')
-    .then(JSON.parse)
-    .then((r) => r[0]) as Promise<ApiAsteroid>
 
 export const getAsteroidPage = (size: number, searchAfter?: number[]) =>
   request('_search/asteroid', 'POST', {
@@ -68,31 +57,83 @@ export const getAsteroidPage = (size: number, searchAfter?: number[]) =>
       return { asteroids, nextSearchAfter, totalCount: total.value }
     })
 
-export const getAsteroids = (
-  fromPurchaseOrder: number,
-  toPurchaseOrder: number
-) =>
-  request('_search/asteroid', 'POST', {
-    query: {
-      range: {
-        'Celestial.purchaseOrder': {
-          gte: fromPurchaseOrder,
-          lte: toPurchaseOrder,
-        },
+type EntityMatch = {
+  path: string
+  value: string | number
+}
+type EntityRequestParams = {
+  match?: EntityMatch
+  components?: string[]
+  label?: number
+  id?: number
+}
+
+export type InfluenceApi = {
+  rawRequest: <Data>(path: string, requestInit: RequestInit) => Promise<Data>
+  entities: (params: EntityRequestParams) => Promise<EntityResponse>
+}
+
+export const influenceApi = (
+  baseUrl: string,
+  accessToken: string
+): InfluenceApi => {
+  const rawRequest = <Data>(path: string, requestInit: RequestInit) => {
+    const init: RequestInit = {
+      ...requestInit,
+      headers: {
+        ...requestInit.headers,
+        Authorization: `Bearer ${accessToken}`,
       },
+    }
+    const url = `${baseUrl}/${path}`
+
+    return fetch(url, init).then((res) => {
+      if (res.ok) {
+        return res.json() as Promise<Data>
+      } else {
+        return Promise.reject({ code: res.status, message: res.statusText })
+      }
+    })
+  }
+
+  return {
+    rawRequest,
+    entities: (params: EntityRequestParams) => {
+      const queryParams = new URLSearchParams()
+
+      if (params.match) {
+        const matchValue =
+          typeof params.match.value === 'string'
+            ? `"${params.match.value}"`
+            : params.match.value
+
+        queryParams.append('match', `${params.match.path}:${matchValue}`)
+      }
+
+      if (params.components) {
+        queryParams.append('components', params.components.join(','))
+      }
+      if (params.label) {
+        queryParams.append('label', params.label.toString())
+      }
+      if (params.id) {
+        queryParams.append('id', params.id.toString())
+      }
+      return rawRequest(`v2/entities?${queryParams.toString()}`, {
+        cache: 'no-store',
+      })
+        .then((r) => entityResponseSchema.safeParse(r))
+        .then((result) =>
+          result.success ? result.data : Promise.reject(result.error)
+        )
     },
-    size: toPurchaseOrder - fromPurchaseOrder + 1,
-    sort: [
-      {
-        'Celestial.purchaseOrder': 'asc',
-      },
-    ],
-  })
-    .then(JSON.parse)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .then((d) => d.hits.hits.map((h: any) => h._source)) as Promise<
-    ApiAsteroid[]
-  >
+  }
+}
+
+export const preReleaseInfluenceApi = influenceApi(
+  'https://api-prerelease.influenceth.io',
+  process.env.PRERELEASE_INFLUENCE_API_ACCESS_TOKEN ?? ''
+)
 
 export const getWarehouseInventory = async (
   asteroidId: number,

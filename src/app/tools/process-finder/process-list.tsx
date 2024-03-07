@@ -7,6 +7,7 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
 import { getInOutputs } from '@/lib/influence-api'
+import { Format } from '@/lib/format'
 
 type ProcessListProps = {
   processes: ProcessType[]
@@ -67,28 +68,11 @@ const groupProcesses = (processes: ProcessType[]) => {
     .map(
       (t) =>
         ({
-          processor: processorToString(t),
+          processor: Format.processor(t),
           processes: processes
             .filter((p) => p.processorType === t)
             .toSorted((a, b) => a.name.localeCompare(b.name)),
         }) as const
     )
     .filter((g) => g.processes.length > 0)
-}
-
-const processorToString = (processorType: number) => {
-  switch (processorType) {
-    case Processor.IDS.REFINERY:
-      return 'Refinery'
-    case Processor.IDS.FACTORY:
-      return 'Factory'
-    case Processor.IDS.BIOREACTOR:
-      return 'Bioreactor'
-    case Processor.IDS.SHIPYARD:
-      return 'Shipyard'
-    case Processor.IDS.DRY_DOCK:
-      return 'Dry Dock'
-    default:
-      return ''
-  }
 }
