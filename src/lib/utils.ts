@@ -22,3 +22,17 @@ export const rarityToScore = (rarity: AsteroidRarity) => {
       return 5
   }
 }
+
+export const groupArrayBy = <T, K>(
+  arr: T[],
+  selector: (item: T) => K
+): Map<K, T[]> => {
+  const map = new Map<K, T[]>()
+  arr.forEach((item) => {
+    const key = selector(item)
+    const group = map.get(key) ?? []
+    group.push(item)
+    map.set(key, group)
+  })
+  return map
+}

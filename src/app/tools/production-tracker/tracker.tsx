@@ -1,11 +1,11 @@
 import { FC } from 'react'
 import { Building, Entity } from '@influenceth/sdk'
 
-import { differenceInSeconds } from 'date-fns'
-import { getAsteroidNames, getProcesses } from './api'
+import { getProcesses } from './api'
 import { AsteroidOverview } from './asteroid-overview'
 import { EntityStatus } from './entity-status'
 import { Accordion } from '@/components/ui/accordion'
+import { preReleaseInfluenceApi } from '@/lib/influence-api'
 
 export type ProductionTrackerProps = {
   walletAddress: string
@@ -45,7 +45,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
         type: 'extractor',
         outputProduct: extractor.outputProduct,
         yield: extractor.yield,
-        remainingSeconds: differenceInSeconds(extractor.finishTime, new Date()),
+        finishTime: extractor.finishTime,
         ...base,
       }))
     }
@@ -53,10 +53,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
       return entity.Processors.filter((p) => p.recipes > 0).map(
         (processor) => ({
           type: 'process',
-          remainingSeconds: differenceInSeconds(
-            processor.finishTime,
-            new Date()
-          ),
+          finishTime: processor.finishTime,
           runningProcess: processor.runningProcess,
           outputProduct: processor.outputProduct,
           processorType: processor.processorType,
@@ -73,10 +70,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
         {
           type: 'building',
           buildingType: entity.Building.buildingType,
-          remainingSeconds: differenceInSeconds(
-            entity.Building.finishTime,
-            new Date()
-          ),
+          finishTime: entity.Building.finishTime,
           ...base,
         },
       ]
@@ -98,6 +92,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
         {
           type: 'idleBuilding',
           buildingType: entity.Building.buildingType,
+          finishTime: new Date(),
           ...base,
         },
       ]
@@ -106,7 +101,8 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   })
 
   const asteroidIds = [...new Set(entities.map(({ asteroidId }) => asteroidId))]
-  const asteroidIdToName = await getAsteroidNames(asteroidIds)
+  const asteroidIdToName =
+    await preReleaseInfluenceApi.util.getAsteroidNames(asteroidIds)
 
   const asteroidToEntities = new Map<string, EntityStatus[]>()
 

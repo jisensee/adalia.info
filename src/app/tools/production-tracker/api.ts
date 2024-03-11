@@ -26,19 +26,3 @@ export const getProcesses = async (walletAddress: string) => {
 
   return Promise.all(crewIds.map(getCrewProcesses)).then((r) => r.flat())
 }
-
-export const getAsteroidNames = async (asteroidIds: number[]) => {
-  const entities = await Promise.all(
-    asteroidIds.map((id) =>
-      preReleaseInfluenceApi.entities({
-        label: 3,
-        id,
-        components: ['Name'],
-      })
-    )
-  )
-
-  return new Map(
-    entities.flat().map((e) => [e.id, e.Name?.name ?? e.id.toString()] as const)
-  )
-}

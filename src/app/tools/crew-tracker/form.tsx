@@ -5,7 +5,7 @@ import { useTransition } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { productionTrackerParams } from './params'
+import { crewTrackerParams } from './params'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -20,7 +20,7 @@ const formSchema = z.object({
   walletAddress: z.string(),
 })
 
-export const ProductionTrackerForm = ({
+export const CrewTrackerForm = ({
   walletAddress,
 }: {
   walletAddress?: string
@@ -31,7 +31,7 @@ export const ProductionTrackerForm = ({
     defaultValues: { walletAddress },
   })
   const [loading, startTransition] = useTransition()
-  const [, setParams] = useQueryStates(productionTrackerParams, {
+  const [, setParams] = useQueryStates(crewTrackerParams, {
     shallow: false,
     startTransition,
   })
@@ -59,7 +59,7 @@ export const ProductionTrackerForm = ({
                   disabled={!form.formState.isValid}
                   loading={loading}
                 >
-                  Track Production
+                  Track Crews
                 </Button>
               </div>
             </FormItem>
@@ -70,7 +70,7 @@ export const ProductionTrackerForm = ({
           disabled={!form.formState.isValid}
           loading={loading}
         >
-          Track Production
+          Track Crews
         </Button>
       </form>
     </Form>
