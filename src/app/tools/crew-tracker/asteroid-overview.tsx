@@ -1,9 +1,10 @@
 'use client'
 
 import { FC, ReactNode, useState } from 'react'
-import { Check, Cog, Hourglass, List } from 'lucide-react'
-import { isPast } from 'date-fns'
-import { EntityStatus, EntityStatusCard } from './entity-status'
+import { Cog, Hourglass, List } from 'lucide-react'
+import { isFuture, isPast } from 'date-fns'
+import { CrewStatusData } from './api'
+import { CrewStatus } from './crew-status'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   AccordionContent,
@@ -11,35 +12,25 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 
-type Filter = 'all' | 'finished' | 'busy' | 'idle'
+type Filter = 'all' | 'busy' | 'idle'
 
 export const AsteroidOverview = ({
   asteroid,
-  entities,
+  crews,
 }: {
   asteroid: string
-  entities: EntityStatus[]
+  crews: CrewStatusData[]
 }) => {
   const [filter, setFilter] = useState<Filter>('all')
 
-  const busyEntities = entities.filter((e) => e.type !== 'idleBuilding')
-  const idleEntities = entities.filter((e) => e.type === 'idleBuilding')
-  const finishedEntities = entities.filter(
-    (e) => e.type !== 'idleBuilding' && isPast(e.finishTime)
-  )
+  const busyCrews = crews.filter((c) => isFuture(c.readyAt))
+  const idleCrews = crews.filter((c) => isPast(c.readyAt))
 
-  const shownEntities = (() => {
-    if (filter === 'idle') return idleEntities
-    if (filter === 'busy') return busyEntities
-    if (filter === 'finished') return finishedEntities
-    return entities
-  })().toSorted((a, b) => {
-    const aValue =
-      a.type === 'idleBuilding' ? Number.MAX_VALUE : a.finishTime.getTime()
-    const bValue =
-      b.type === 'idleBuilding' ? Number.MAX_VALUE : b.finishTime.getTime()
-    return aValue - bValue
-  })
+  const shownCrews = (() => {
+    if (filter === 'idle') return idleCrews
+    if (filter === 'busy') return busyCrews
+    return crews
+  })().toSorted((a, b) => a.readyAt.getTime() - b.readyAt.getTime())
 
   return (
     <AccordionItem value={asteroid}>
@@ -47,16 +38,15 @@ export const AsteroidOverview = ({
         filter={filter}
         onFilterChange={setFilter}
         asteroid={asteroid}
-        allCount={entities.length}
-        finishedCount={finishedEntities.length}
-        busyCount={busyEntities.length}
-        idleCount={idleEntities.length}
+        allCount={crews.length}
+        busyCount={busyCrews.length}
+        idleCount={idleCrews.length}
       />
       <AccordionContent>
-        {shownEntities.length === 0 && <p>Nothing to see here...</p>}
-        <div className='grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3'>
-          {shownEntities.map((entity) => (
-            <EntityStatusCard key={entity.lotUuid} status={entity} />
+        {shownCrews.length === 0 && <p>Nothing to see here...</p>}
+        <div className='grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4'>
+          {shownCrews.map((crew) => (
+            <CrewStatus key={crew.name} crew={crew} />
           ))}
         </div>
       </AccordionContent>
@@ -69,7 +59,6 @@ type HeaderProps = {
   onFilterChange: (filter: Filter) => void
   asteroid: string
   allCount: number
-  finishedCount: number
   busyCount: number
   idleCount: number
 }
@@ -79,7 +68,6 @@ const Header: FC<HeaderProps> = ({
   onFilterChange,
   asteroid,
   allCount,
-  finishedCount,
   busyCount,
   idleCount,
 }) => (
@@ -94,12 +82,6 @@ const Header: FC<HeaderProps> = ({
           text='All'
           icon={<List size={15} />}
           count={allCount}
-        />
-        <TabButton
-          value='finished'
-          text='Finished'
-          icon={<Check size={15} />}
-          count={finishedCount}
         />
         <TabButton
           value='busy'

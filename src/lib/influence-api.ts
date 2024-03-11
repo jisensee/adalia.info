@@ -1,7 +1,7 @@
 import { Entity, Lot } from '@influenceth/sdk'
 import {
   ApiAsteroid,
-  EntityResponse,
+  EntityIds,
   InventoryResponseItem,
   entityResponseSchema,
 } from './influence-api-types'
@@ -68,15 +68,7 @@ type EntityRequestParams = {
   id?: number
 }
 
-export type InfluenceApi = {
-  rawRequest: <Data>(path: string, requestInit: RequestInit) => Promise<Data>
-  entities: (params: EntityRequestParams) => Promise<EntityResponse>
-}
-
-export const influenceApi = (
-  baseUrl: string,
-  accessToken: string
-): InfluenceApi => {
+export const influenceApi = (baseUrl: string, accessToken: string) => {
   const rawRequest = <Data>(path: string, requestInit: RequestInit) => {
     const init: RequestInit = {
       ...requestInit,
@@ -95,40 +87,70 @@ export const influenceApi = (
       }
     })
   }
+  const entities = (params: EntityRequestParams) => {
+    const queryParams = new URLSearchParams()
+
+    if (params.match) {
+      const matchValue =
+        typeof params.match.value === 'string'
+          ? `"${params.match.value}"`
+          : params.match.value
+
+      queryParams.append('match', `${params.match.path}:${matchValue}`)
+    }
+
+    if (params.components) {
+      queryParams.append('components', params.components.join(','))
+    }
+    if (params.label) {
+      queryParams.append('label', params.label.toString())
+    }
+    if (params.id) {
+      queryParams.append('id', params.id.toString())
+    }
+    return rawRequest(`v2/entities?${queryParams.toString()}`, {
+      cache: 'no-store',
+    })
+      .then((r) => entityResponseSchema.safeParse(r))
+      .then((result) =>
+        result.success ? result.data : Promise.reject(result.error)
+      )
+  }
+
+  const entity = (ids: EntityIds, components?: string[]) =>
+    entities({
+      id: ids.id,
+      label: ids.label,
+      components,
+    }).then((e) => e[0])
 
   return {
     rawRequest,
-    entities: (params: EntityRequestParams) => {
-      const queryParams = new URLSearchParams()
-
-      if (params.match) {
-        const matchValue =
-          typeof params.match.value === 'string'
-            ? `"${params.match.value}"`
-            : params.match.value
-
-        queryParams.append('match', `${params.match.path}:${matchValue}`)
-      }
-
-      if (params.components) {
-        queryParams.append('components', params.components.join(','))
-      }
-      if (params.label) {
-        queryParams.append('label', params.label.toString())
-      }
-      if (params.id) {
-        queryParams.append('id', params.id.toString())
-      }
-      return rawRequest(`v2/entities?${queryParams.toString()}`, {
-        cache: 'no-store',
-      })
-        .then((r) => entityResponseSchema.safeParse(r))
-        .then((result) =>
-          result.success ? result.data : Promise.reject(result.error)
+    entities,
+    entity,
+    util: {
+      getAsteroidNames: async (asteroidIds: number[]) => {
+        const entities = await Promise.all(
+          asteroidIds.map((id) =>
+            preReleaseInfluenceApi.entities({
+              label: 3,
+              id,
+              components: ['Name'],
+            })
+          )
         )
+
+        return new Map(
+          entities
+            .flat()
+            .map((e) => [e.id, e.Name?.name ?? e.id.toString()] as const)
+        )
+      },
     },
   }
 }
+
+export type InfluenceApi = ReturnType<typeof influenceApi>
 
 export const preReleaseInfluenceApi = influenceApi(
   'https://api-prerelease.influenceth.io',

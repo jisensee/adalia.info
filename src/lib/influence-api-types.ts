@@ -257,7 +257,14 @@ const processorSchema = z.object({
 
 const crewSchema = z.object({
   actionTarget: idsSchema.nullish(),
-  readyAt: timestamp.nullish(),
+  actionRound: z.number(),
+  actionStrategy: z.number(),
+  actionType: z.number(),
+  actionWeight: z.number(),
+  delegatedTo: z.string(),
+  lastFed: timestamp,
+  readyAt: timestamp,
+  roster: z.array(z.number()),
 })
 
 const extractorSchema = z.object({
@@ -273,16 +280,6 @@ const buildingSchema = z.object({
   finishTime: timestamp,
   status: z.number(),
 })
-
-export type EntityControl = z.infer<typeof controlSchema>
-export type EntityName = z.infer<typeof nameSchema>
-export type EntityNft = z.infer<typeof nftSchema>
-export type EntityInventory = z.infer<typeof inventorySchema>
-export type EntityLocation = z.infer<typeof locationSchema>
-export type EntityProcessor = z.infer<typeof processorSchema>
-export type EntityCrew = z.infer<typeof crewSchema>
-export type EntityExtractor = z.infer<typeof extractorSchema>
-export type EntityBuilding = z.infer<typeof buildingSchema>
 
 const entitySchema = z.object({
   id: z.number(),
@@ -302,3 +299,14 @@ const entitySchema = z.object({
 export const entityResponseSchema = z.array(entitySchema)
 
 export type EntityResponse = z.infer<typeof entityResponseSchema>
+export type InfluenceEntity = z.infer<typeof entitySchema>
+export type EntityControl = z.infer<typeof controlSchema>
+export type EntityName = z.infer<typeof nameSchema>
+export type EntityNft = z.infer<typeof nftSchema>
+export type EntityInventory = z.infer<typeof inventorySchema>
+export type EntityLocation = z.infer<typeof locationSchema>
+export type EntityProcessor = z.infer<typeof processorSchema>
+export type EntityCrew = z.infer<typeof crewSchema>
+export type EntityExtractor = z.infer<typeof extractorSchema>
+export type EntityBuilding = z.infer<typeof buildingSchema>
+export type EntityIds = z.infer<typeof idsSchema>

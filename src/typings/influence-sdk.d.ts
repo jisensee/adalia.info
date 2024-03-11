@@ -52,11 +52,11 @@ declare module '@influenceth/sdk' {
     getPeriod(): number
   }
 
-  export class Asteroid {
-    static getSize(radius: number): Size
-    static getRarity(bonuses: Bonus[]): Rarity
-    static getSpectralType(spectralTypeId: number): SpectralType
-    static getBonuses(packedBonuses: number, spectralTypeId: number): Bonus[]
+  export const Asteroid: {
+    getSize: (radius: number) => Size
+    getRarity: (bonuses: Bonus[]) => Rarity
+    getSpectralType: (spectralTypeId: number) => SpectralType
+    getBonuses: (packedBonuses: number, spectralTypeId: number) => Bonus[]
   }
 
   export const Entity: {
