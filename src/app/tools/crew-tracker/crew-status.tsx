@@ -58,7 +58,9 @@ export const CrewStatus: FC<CrewStatusProps> = ({ crew }) => {
         {isBusy && <p> Ready {formatRelative(crew.readyAt, new Date())}</p>}
         {locationStatus?.type === 'action' && (
           <p>
-            Working at{' '}
+            {locationStatus.entity.label === Entity.IDS.BUILDING
+              ? 'Working at'
+              : 'In Flight on'}{' '}
             {locationStatus.entity?.Name?.name ??
               locationStatus.entity?.Building?.buildingType.name}
           </p>

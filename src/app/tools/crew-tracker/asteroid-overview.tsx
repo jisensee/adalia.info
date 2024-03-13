@@ -15,10 +15,10 @@ import {
 type Filter = 'all' | 'busy' | 'idle'
 
 export const AsteroidOverview = ({
-  asteroid,
+  location,
   crews,
 }: {
-  asteroid: string
+  location: string
   crews: CrewStatusData[]
 }) => {
   const [filter, setFilter] = useState<Filter>('all')
@@ -33,11 +33,11 @@ export const AsteroidOverview = ({
   })().toSorted((a, b) => a.readyAt.getTime() - b.readyAt.getTime())
 
   return (
-    <AccordionItem value={asteroid}>
+    <AccordionItem value={location}>
       <Header
         filter={filter}
         onFilterChange={setFilter}
-        asteroid={asteroid}
+        location={location}
         allCount={crews.length}
         busyCount={busyCrews.length}
         idleCount={idleCrews.length}
@@ -57,7 +57,7 @@ export const AsteroidOverview = ({
 type HeaderProps = {
   filter: Filter
   onFilterChange: (filter: Filter) => void
-  asteroid: string
+  location: string
   allCount: number
   busyCount: number
   idleCount: number
@@ -66,37 +66,39 @@ type HeaderProps = {
 const Header: FC<HeaderProps> = ({
   filter,
   onFilterChange,
-  asteroid,
+  location,
   allCount,
   busyCount,
   idleCount,
 }) => (
   <div className='flex w-full items-center justify-between gap-x-3 2xl:justify-start'>
     <AccordionTrigger>
-      <h2>{asteroid}</h2>
+      <h2>{location}</h2>
     </AccordionTrigger>
-    <Tabs value={filter} onValueChange={(v) => onFilterChange(v as Filter)}>
-      <TabsList>
-        <TabButton
-          value='all'
-          text='All'
-          icon={<List size={15} />}
-          count={allCount}
-        />
-        <TabButton
-          value='busy'
-          text='Busy'
-          icon={<Cog size={15} />}
-          count={busyCount}
-        />
-        <TabButton
-          value='idle'
-          text='Idle'
-          icon={<Hourglass size={15} />}
-          count={idleCount}
-        />
-      </TabsList>
-    </Tabs>
+    {location !== 'In Flight' && (
+      <Tabs value={filter} onValueChange={(v) => onFilterChange(v as Filter)}>
+        <TabsList>
+          <TabButton
+            value='all'
+            text='All'
+            icon={<List size={15} />}
+            count={allCount}
+          />
+          <TabButton
+            value='busy'
+            text='Busy'
+            icon={<Cog size={15} />}
+            count={busyCount}
+          />
+          <TabButton
+            value='idle'
+            text='Idle'
+            icon={<Hourglass size={15} />}
+            count={idleCount}
+          />
+        </TabsList>
+      </Tabs>
+    )}
   </div>
 )
 
