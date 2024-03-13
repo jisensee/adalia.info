@@ -124,28 +124,38 @@ export const influenceApi = (baseUrl: string, accessToken: string) => {
       components,
     }).then((e) => e[0])
 
+  const getAsteroidNames = async (asteroidIds: number[]) => {
+    const result = await Promise.all(
+      asteroidIds.map((id) =>
+        entities({
+          label: 3,
+          id,
+          components: ['Name'],
+        })
+      )
+    )
+
+    return new Map(
+      result.flat().map((e) => [e.id, e.Name?.name ?? e.id.toString()] as const)
+    )
+  }
+
+  const getCrews = async (walletAddress: string) =>
+    entities({
+      match: {
+        path: 'Nft.owners.starknet',
+        value: walletAddress.toLowerCase(),
+      },
+      label: 1,
+    })
+
   return {
     rawRequest,
     entities,
     entity,
     util: {
-      getAsteroidNames: async (asteroidIds: number[]) => {
-        const entities = await Promise.all(
-          asteroidIds.map((id) =>
-            preReleaseInfluenceApi.entities({
-              label: 3,
-              id,
-              components: ['Name'],
-            })
-          )
-        )
-
-        return new Map(
-          entities
-            .flat()
-            .map((e) => [e.id, e.Name?.name ?? e.id.toString()] as const)
-        )
-      },
+      getAsteroidNames,
+      getCrews,
     },
   }
 }

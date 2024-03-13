@@ -10,16 +10,11 @@ const getCrewProcesses = async (crewId: number) =>
     components: ['Processor', 'Location', 'Extractor', 'Name', 'Building'],
   })
 
-const getCrewsIds = async (walletAddress: string) => {
-  const entities = await preReleaseInfluenceApi.entities({
-    match: {
-      path: 'Nft.owners.starknet',
-      value: walletAddress.toLowerCase(),
-    },
-    label: 1,
-  })
-  return [...new Set(entities.map((e) => e.id))]
-}
+const getCrewsIds = async (walletAddress: string) => [
+  ...new Set(
+    (await preReleaseInfluenceApi.util.getCrews(walletAddress)).map((c) => c.id)
+  ),
+]
 
 export const getProcesses = async (walletAddress: string) => {
   const crewIds = await getCrewsIds(walletAddress)
