@@ -68,6 +68,17 @@ type EntityRequestParams = {
   id?: number
 }
 
+export type SearchResponse<Entity> = {
+  hits: {
+    total: {
+      value: number
+    }
+    hits: {
+      _source: Entity
+    }[]
+  }
+}
+
 export const influenceApi = (baseUrl: string, accessToken: string) => {
   const rawRequest = <Data>(path: string, requestInit: RequestInit) => {
     const init: RequestInit = {
@@ -124,6 +135,19 @@ export const influenceApi = (baseUrl: string, accessToken: string) => {
       components,
     }).then((e) => e[0])
 
+  const search = <Entity>(
+    index: 'order' | 'asteroid',
+    request: Record<string, unknown>
+  ) =>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    rawRequest<any>(`_search/${index}`, {
+      method: 'POST',
+      body: JSON.stringify(request),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }) as Promise<SearchResponse<Entity>>
+
   const getAsteroidNames = async (asteroidIds: number[]) => {
     const result = await Promise.all(
       asteroidIds.map((id) =>
@@ -153,6 +177,7 @@ export const influenceApi = (baseUrl: string, accessToken: string) => {
     rawRequest,
     entities,
     entity,
+    search,
     util: {
       getAsteroidNames,
       getCrews,
