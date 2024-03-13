@@ -1,25 +1,25 @@
+'use client'
+
 import { FC } from 'react'
-import { getCrews } from './api'
+import { CrewStatusData } from './api'
 import { AsteroidOverview } from './asteroid-overview'
-import { preReleaseInfluenceApi } from '@/lib/influence-api'
 import { groupArrayBy } from '@/lib/utils'
 import { Accordion } from '@/components/ui/accordion'
+import { usePeriodicRefresh } from '@/hooks/timers'
 
 export type CrewTrackerProps = {
-  walletAddress: string
+  crews: CrewStatusData[]
+  asteroidNames: Map<number, string>
 }
 
-export const CrewTracker: FC<CrewTrackerProps> = async ({ walletAddress }) => {
-  const crews = await getCrews(walletAddress)
-  const asteroidIds = crews.flatMap((c) => (c.asteroidId ? [c.asteroidId] : []))
-  const asteroidNames =
-    await preReleaseInfluenceApi.util.getAsteroidNames(asteroidIds)
-
+export const CrewTracker: FC<CrewTrackerProps> = ({ crews, asteroidNames }) => {
   const getAsteroidName = (id: number) => asteroidNames.get(id) ?? 'In Flight'
 
   const groupedCrews = [
     ...groupArrayBy(crews, (c) => c.asteroidId ?? 0).entries(),
   ]
+
+  usePeriodicRefresh()
 
   return (
     <div className='flex flex-col gap-y-3'>
@@ -27,11 +27,11 @@ export const CrewTracker: FC<CrewTrackerProps> = async ({ walletAddress }) => {
         defaultValue={[...asteroidNames.values(), 'In Flight']}
         type='multiple'
       >
-        {groupedCrews.map(([asteroidId, crews]) => (
+        {groupedCrews.map(([asteroidId, c]) => (
           <AsteroidOverview
             key={asteroidId}
             location={getAsteroidName(asteroidId)}
-            crews={crews}
+            crews={c}
           />
         ))}
       </Accordion>

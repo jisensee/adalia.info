@@ -4,6 +4,7 @@ import { Building, Entity } from '@influenceth/sdk'
 import { getProcesses } from './api'
 import { AsteroidOverview } from './asteroid-overview'
 import { EntityStatus } from './entity-status'
+import { Refresh } from './refresh'
 import { Accordion } from '@/components/ui/accordion'
 import { preReleaseInfluenceApi } from '@/lib/influence-api'
 
@@ -116,17 +117,20 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   const entries = [...asteroidToEntities.entries()]
 
   return (
-    <Accordion
-      type='multiple'
-      defaultValue={entries.map(([asteroid]) => asteroid)}
-    >
-      {entries.map(([asteroid, entities]) => (
-        <AsteroidOverview
-          key={asteroid}
-          asteroid={asteroid}
-          entities={entities}
-        />
-      ))}
-    </Accordion>
+    <>
+      <Accordion
+        type='multiple'
+        defaultValue={entries.map(([asteroid]) => asteroid)}
+      >
+        {entries.map(([asteroid, entities]) => (
+          <AsteroidOverview
+            key={asteroid}
+            asteroid={asteroid}
+            entities={entities}
+          />
+        ))}
+      </Accordion>
+      <Refresh />
+    </>
   )
 }
