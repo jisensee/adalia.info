@@ -108,7 +108,7 @@ export const Format = {
       return product.name
     }
     if (product.isAtomic) {
-      return `${amount} ${product.name}`
+      return `${amount.toLocaleString()} ${product.name}`
     }
     return `${formatKgs(amount)} ${product.name}`
   },

@@ -1,6 +1,7 @@
 import { Process, ProcessType, Product, ProductType } from '@influenceth/sdk'
 import { Reducer, useReducer } from 'react'
 import { getInOutputs } from '@/lib/influence-api'
+import { groupArrayBy } from '@/lib/utils'
 
 type ProcessFinderSettings = {
   hideLowAmounts: boolean
@@ -74,32 +75,75 @@ const selectInput = (state: State, productId: number): State => {
   const selectedProcesses = state.processes.filter((process) =>
     getInOutputs(process.inputs).includes(productId)
   )
+  const allOutputs = calcOutputs(state.processes, state.inputProducts)
+  const selectedOutputs = calcOutputs(selectedProcesses, state.inputProducts)
   return {
     ...state,
+    outputProducts: mergeOutputs(allOutputs, selectedOutputs),
     selectedInputs: getInputs(selectedProcesses),
     selectedProcesses: selectedProcesses.map((p) => p.i),
     selectedOutputs: getOutputs(selectedProcesses),
   }
 }
 
-const selectProcess = (state: State, process: ProcessType): State => ({
-  ...state,
-  selectedInputs: getInputs([process]),
-  selectedProcesses: [process.i],
-  selectedOutputs: getOutputs([process]),
-})
+const calcOutputs = (processes: ProcessType[], inputs: ProductAmount[]) =>
+  collapseOutputAmounts(processes.flatMap((p) => getOutputAmounts(p, inputs)))
+
+const mergeOutputs = (
+  allOutputs: ProductAmount[],
+  overrides: ProductAmount[]
+) =>
+  allOutputs.map((o) => overrides.find((s) => s.product.i === o.product.i) ?? o)
+
+const selectProcess = (state: State, process: ProcessType): State => {
+  const allOutputs = calcOutputs(state.processes, state.inputProducts)
+  const selectedOutputs = calcOutputs([process], state.inputProducts)
+  return {
+    ...state,
+    outputProducts: mergeOutputs(allOutputs, selectedOutputs),
+    selectedInputs: getInputs([process]),
+    selectedProcesses: [process.i],
+    selectedOutputs: getOutputs([process]),
+  }
+}
 
 const selectOutput = (state: State, productId: number): State => {
   const selectedProcesses = state.processes.filter((process) =>
     getInOutputs(process.outputs).includes(productId)
   )
+  const allOutputs = calcOutputs(state.processes, state.inputProducts)
+  const selectedOutputs = calcOutputs(selectedProcesses, state.inputProducts)
   return {
     ...state,
+    outputProducts: mergeOutputs(allOutputs, selectedOutputs),
     selectedInputs: getInputs(selectedProcesses),
     selectedProcesses: selectedProcesses.map((p) => p.i),
     selectedOutputs: getOutputs(selectedProcesses),
   }
 }
+
+const getOutputAmounts = (process: ProcessType, inputs: ProductAmount[]) => {
+  const [productId, amount] = Object.entries(process.inputs)
+    .toSorted(([, a], [, b]) => b - a)
+    .map(([a, b]) => [parseInt(a), b] as const)[0] ?? [0, 0]
+
+  const highestInputAmount =
+    inputs.find((p) => p.product.i === productId)?.amount ?? 0
+  const maxRecipes = Math.floor(highestInputAmount / amount)
+
+  return Object.entries(process.outputs).map(([id, a]) => ({
+    product: Product.getType(parseInt(id)),
+    amount: a * maxRecipes,
+  }))
+}
+
+const collapseOutputAmounts = (outputProducts: ProductAmount[]) =>
+  [...groupArrayBy(outputProducts, (o) => o.product.i).values()].flatMap(
+    (o) => {
+      const r = o.toSorted((a, b) => b.amount - a.amount)[0]
+      return r ? [r] : []
+    }
+  )
 
 export const useProcessFinderState = ({
   warehouseProducts,
@@ -125,16 +169,29 @@ const calcProcessFinderState = (
     getInOutputs(t.inputs).every((inputId) => productIds.has(inputId))
   )
 
-  const outputProducts = [
-    ...new Set(processes.flatMap((p) => getInOutputs(p.outputs))),
-  ]
-    .map(Product.getType)
-    .map((p) => ({ product: p, amount: 0 }))
+  const inputProducts = hideWithoutProcesses
+    ? removeWithoutProcesses(filteredProducts, processes)
+    : filteredProducts
+
+  const outputProducts = collapseOutputAmounts(
+    [...new Set(processes.flatMap((p) => getInOutputs(p.outputs)))]
+      .map(Product.getType)
+      .flatMap((p) => {
+        const producingProcesses = processes.filter((process) =>
+          getInOutputs(process.outputs).includes(p.i)
+        )
+
+        return producingProcesses.flatMap((process) => {
+          const inputs = inputProducts.filter((p) =>
+            getInOutputs(process.inputs).includes(p.product.i)
+          )
+          return getOutputAmounts(process, inputs)
+        })
+      })
+  )
 
   return {
-    inputProducts: hideWithoutProcesses
-      ? removeWithoutProcesses(filteredProducts, processes)
-      : filteredProducts,
+    inputProducts,
     processes,
     outputProducts,
   }
