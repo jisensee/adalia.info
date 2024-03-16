@@ -123,13 +123,15 @@ const selectOutput = (state: State, productId: number): State => {
 }
 
 const getOutputAmounts = (process: ProcessType, inputs: ProductAmount[]) => {
-  const [productId, amount] = Object.entries(process.inputs)
-    .toSorted(([, a], [, b]) => b - a)
-    .map(([a, b]) => [parseInt(a), b] as const)[0] ?? [0, 0]
-
-  const highestInputAmount =
-    inputs.find((p) => p.product.i === productId)?.amount ?? 0
-  const maxRecipes = Math.floor(highestInputAmount / amount)
+  const maxRecipes =
+    Object.entries(process.inputs)
+      .map(([processInput, inputAmount]) => {
+        const input =
+          inputs.find((p) => p.product.i === parseInt(processInput))?.amount ??
+          0
+        return Math.floor(input / inputAmount)
+      })
+      .toSorted((a, b) => a - b)[0] ?? 0
 
   return Object.entries(process.outputs).map(([id, a]) => ({
     product: Product.getType(parseInt(id)),
