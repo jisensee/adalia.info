@@ -63,11 +63,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Comp
         className={cn(
-          buttonVariants({ variant, size, className }),
-          'text-base',
+          buttonVariants({ variant, size }),
+          'whitespace-nowrap text-base',
           {
             'flex flex-row items-center gap-x-2': icon || loading,
-          }
+          },
+          className
         )}
         ref={ref}
         disabled={disabled || loading}

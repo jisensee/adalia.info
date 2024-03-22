@@ -27,16 +27,10 @@ export const getCrews = async (address: string): Promise<CrewStatusData[]> =>
         crews.flatMap(async (entity) => {
           if (!entity.Crew || entity.Crew.roster.length === 0) return []
 
-          const asteroidId = entity.Location?.locations?.find(
-            (l) => l.label === Entity.IDS.ASTEROID
-          )?.id
+          const asteroidId = entity.Location?.locations?.asteroid?.id
 
-          const ship = entity.Location?.locations?.find(
-            (l) => l.label === Entity.IDS.SHIP
-          )
-          const building = entity.Location?.locations?.find(
-            (l) => l.label === Entity.IDS.BUILDING
-          )
+          const ship = entity.Location?.locations?.ship
+          const building = entity.Location?.locations?.building
           const station = ship ?? building
           const actionLocation = await getCrewBusyLocation(entity)
           const habitat = station
@@ -52,9 +46,7 @@ export const getCrews = async (address: string): Promise<CrewStatusData[]> =>
               habitat,
               roster: entity.Crew.roster,
               asteroidId,
-              lotLocation: entity.Location?.locations.find(
-                (l) => l.label === Entity.IDS.LOT
-              ),
+              lotLocation: entity.Location?.locations.lot,
             },
           ]
         })

@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import { Building, Entity } from '@influenceth/sdk'
+import { Building } from '@influenceth/sdk'
 
 import { getProcesses } from './api'
 import { AsteroidOverview } from './asteroid-overview'
@@ -29,10 +29,8 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   const r = await getProcesses(walletAddress)
 
   const entities = r.flatMap((entity): EntityStatus[] => {
-    const asteroidId =
-      entity.Location?.locations?.find((l) => l.label === Entity.IDS.ASTEROID)
-        ?.id ?? 1
-    const lotUuid = entity.Location?.location?.uuid ?? ''
+    const asteroidId = entity.Location?.locations?.asteroid?.id ?? 1
+    const lotUuid = entity.Location?.location?.lot?.uuid ?? ''
     const name = entity.Name?.name
 
     const base = {

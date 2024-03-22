@@ -35,6 +35,16 @@ export default function ToolsPage() {
             </p>
           </div>
         </Link>
+        <Link href='/tools/trader-dashboard'>
+          <div className='group flex flex-col items-center justify-center rounded border border-primary p-5 hover:bg-primary'>
+            <h2 className='group-hover:text-primary-foreground'>
+              Trader Dashboard
+            </h2>
+            <p className='text-md group-hover:text-primary-foreground'>
+              Keep track of your trading activities!
+            </p>
+          </div>
+        </Link>
       </div>
     </div>
   )

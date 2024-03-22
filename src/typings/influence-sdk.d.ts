@@ -123,6 +123,10 @@ declare module '@influenceth/sdk' {
       SHIPYARD: number
       DRY_DOCK: number
     }
+    STATUSES: {
+      IDLE: number
+      RUNNING: number
+    }
   }
 
   export type BuildingType = {
@@ -150,5 +154,61 @@ declare module '@influenceth/sdk' {
       HABITAT: number9
     }
     getType: (buildingId: number) => BuildingType
+  }
+
+  export const Order: {
+    IDS: {
+      LIMIT_BUY: number
+      LIMIT_SELL: number
+    }
+    STATUSES: {
+      UNITIALIZED: number
+      OPEN: number
+      FILLED: number
+      CANCELLED: number
+    }
+  }
+
+  export type InventoryType = {
+    i: number
+    massConstraint: number
+    volumeConstraint: number
+    category: number
+    productConstraints: Record<number, number>
+  }
+  export const Inventory: {
+    IDS: {
+      WAREHOUSE_SITE: 1
+      EXTRACTOR_SITE: 2
+      REFINERY_SITE: 3
+      BIOREACTOR_SITE: 4
+      FACTORY_SITE: 5
+      SHIPYARD_SITE: 6
+      SPACEPORT_SITE: 7
+      MARKETPLACE_SITE: 8
+      HABITAT_SITE: 9
+      WAREHOUSE_PRIMARY: 10
+      PROPELLANT_TINY: 11
+      PROPELLANT_SMALL: 12
+      PROPELLANT_MEDIUM: 13
+      PROPELLANT_LARGE: 14
+      CARGO_SMALL: 15
+      CARGO_MEDIUM: 16
+      CARGO_LARGE: 17
+    }
+
+    STATUSES: {
+      UNAVAILABLE: 0
+      AVAILABLE: 1
+    }
+    CATEGORIES: {
+      SITE: 'SITE'
+      PRIMARY: 'PRIMARY'
+      PROPELLANT: 'PROPELLANT'
+    }
+    getType: (
+      type: number,
+      bonuses?: { mass: number; volume: number }
+    ) => InventoryType
   }
 }
