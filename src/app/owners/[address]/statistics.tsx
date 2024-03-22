@@ -1,10 +1,9 @@
 'use client'
 
-import { ReactNode } from 'react'
 import { AsteroidRarity, AsteroidScanStatus } from '@prisma/client'
-import { cn } from '@/lib/utils'
 import { Format } from '@/lib/format'
 import { useAsteroidFilterNavigation } from '@/components/asteroid-filters/hooks'
+import { Statistic } from '@/components/statistic'
 
 export type StatisticsProps = {
   ownedCount: number
@@ -62,34 +61,3 @@ export const Statistics = ({
     </div>
   )
 }
-
-type StatisticProps = {
-  title: ReactNode
-  value: ReactNode
-  valueClassName?: string
-  onClick?: () => void
-}
-const Statistic = ({
-  title,
-  value,
-  valueClassName,
-  onClick,
-}: StatisticProps) => (
-  <div
-    className={cn('group rounded-md border border-primary p-3', {
-      'cursor-pointer hover:bg-primary hover:text-primary-foreground': onClick,
-    })}
-    onClick={onClick}
-  >
-    <p
-      className={cn(
-        'text-center text-2xl font-bold text-primary',
-        valueClassName,
-        { 'group-hover:text-primary-foreground': onClick }
-      )}
-    >
-      {value}
-    </p>
-    <p className='text-center text-sm font-semibold'>{title}</p>
-  </div>
-)

@@ -15,8 +15,11 @@ import {
   Process,
   Product,
   Building,
+  Lot,
+  Entity,
 } from '@influenceth/sdk'
 import { z } from 'zod'
+import { activitySchema } from './activity'
 
 export interface SnapshotAsteroid {
   i: number
@@ -203,12 +206,37 @@ export const calculatePrice = (surfaceArea: number) => {
   return basePrice + surfaceArea * lotPrice
 }
 
-const idsSchema = z.object({
+export const idsSchema = z.object({
   id: z.number(),
   label: z.number(),
   uuid: z.string(),
 })
-const timestamp = z.number().transform((v) => new Date(v * 1000))
+
+const expandLocations = (locations: EntityIds[]) => {
+  const asteroid = locations.find((l) => l.label === Entity.IDS.ASTEROID)
+  const lot = locations.find((l) => l.label === Entity.IDS.LOT)
+  const building = locations.find((l) => l.label === Entity.IDS.BUILDING)
+  const ship = locations.find((l) => l.label === Entity.IDS.SHIP)
+
+  return {
+    asteroid: asteroid
+      ? {
+          ...asteroid,
+        }
+      : undefined,
+    lot: lot
+      ? {
+          ...lot,
+          lotIndex: Lot.toIndex(lot.id),
+        }
+      : undefined,
+    building,
+    ship,
+  }
+}
+
+const locationsSchema = z.array(idsSchema).transform(expandLocations)
+export const timestamp = z.number().transform((v) => new Date(v * 1000))
 
 const controlSchema = z.object({
   controller: idsSchema,
@@ -237,8 +265,8 @@ const inventorySchema = z.object({
 
 const locationSchema = z
   .object({
-    location: idsSchema,
-    locations: z.array(idsSchema),
+    location: idsSchema.transform((ids) => expandLocations([ids])),
+    locations: locationsSchema,
   })
   .optional()
 
@@ -281,7 +309,7 @@ const buildingSchema = z.object({
   status: z.number(),
 })
 
-const entitySchema = z.object({
+export const entitySchema = z.object({
   id: z.number(),
   label: z.number(),
   uuid: z.string(),
@@ -294,6 +322,23 @@ const entitySchema = z.object({
   Crew: crewSchema.nullish(),
   Extractors: z.array(extractorSchema).default([]),
   Building: buildingSchema.nullish(),
+})
+
+export const orderSchema = z.object({
+  amount: z.number(),
+  entity: idsSchema,
+  crew: idsSchema,
+  makerFee: z.number(),
+  orderType: z.number(),
+  product: z.number().transform(Product.getType),
+  price: z.number(),
+  storage: idsSchema,
+  storageSlot: z.number(),
+  status: z.number(),
+  validTime: timestamp,
+  initialCaller: z.string(),
+  initialAmount: z.number().optional(),
+  locations: locationsSchema,
 })
 
 export const entityResponseSchema = z.array(entitySchema)
@@ -310,3 +355,6 @@ export type EntityCrew = z.infer<typeof crewSchema>
 export type EntityExtractor = z.infer<typeof extractorSchema>
 export type EntityBuilding = z.infer<typeof buildingSchema>
 export type EntityIds = z.infer<typeof idsSchema>
+export type Activity = z.infer<typeof activitySchema>
+export type EntityOrder = z.infer<typeof orderSchema>
+export type ActivityEvent = Activity['event']['name']

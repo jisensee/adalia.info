@@ -29,13 +29,7 @@ export const CrewStatus: FC<CrewStatusProps> = ({ crew }) => {
     }
   }, [crew, isBusy])
 
-  const lotUuid = useMemo(
-    () =>
-      locationStatus?.entity?.Location?.locations?.find(
-        (l) => l.label === Entity.IDS.LOT
-      )?.uuid,
-    [locationStatus]
-  )
+  const lotUuid = locationStatus?.entity?.Location?.locations.lot?.uuid
 
   return (
     <div className='flex gap-x-3 rounded border border-primary'>

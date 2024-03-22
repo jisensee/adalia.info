@@ -1,10 +1,14 @@
-import { Entity, Lot } from '@influenceth/sdk'
+import { Building, Entity, Lot } from '@influenceth/sdk'
+import { ZodObject, ZodRawShape, z } from 'zod'
 import {
+  ActivityEvent,
   ApiAsteroid,
   EntityIds,
   InventoryResponseItem,
   entityResponseSchema,
+  entitySchema,
 } from './influence-api-types'
+import { activitySchema } from './activity'
 
 type AsteroidHit = {
   _source: ApiAsteroid
@@ -68,19 +72,32 @@ type EntityRequestParams = {
   id?: number
 }
 
-export type SearchResponse<Entity> = {
-  hits: {
-    total: {
-      value: number
-    }
-    hits: {
-      _source: Entity
-    }[]
-  }
+export const searchResponseSchema = <Entity extends ZodRawShape>(
+  entitySchema: ZodObject<Entity>
+) =>
+  z.object({
+    hits: z.object({
+      total: z.object({
+        value: z.number(),
+      }),
+      hits: z.array(
+        z.object({
+          _source: entitySchema,
+        })
+      ),
+    }),
+  })
+
+type RequestOptions = {
+  logRequest?: boolean
 }
 
 export const influenceApi = (baseUrl: string, accessToken: string) => {
-  const rawRequest = <Data>(path: string, requestInit: RequestInit) => {
+  const rawRequest = <Data>(
+    path: string,
+    requestInit: RequestInit = {},
+    options?: RequestOptions
+  ) => {
     const init: RequestInit = {
       ...requestInit,
       headers: {
@@ -90,13 +107,23 @@ export const influenceApi = (baseUrl: string, accessToken: string) => {
     }
     const url = `${baseUrl}/${path}`
 
-    return fetch(url, init).then((res) => {
-      if (res.ok) {
-        return res.json() as Promise<Data>
-      } else {
-        return Promise.reject({ code: res.status, message: res.statusText })
-      }
-    })
+    if (options?.logRequest) {
+      console.log(requestInit.method ?? 'GET', url, init.body ?? '')
+    }
+    return fetch(url, init)
+      .then(async (res) => {
+        if (res.ok) {
+          return res.json() as Promise<Data>
+        } else {
+          return Promise.reject({ code: res.status, message: res.statusText })
+        }
+      })
+      .then((data) => {
+        if (options?.logRequest) {
+          console.log(JSON.stringify(data, null, 2))
+        }
+        return data
+      })
   }
   const entities = (params: EntityRequestParams) => {
     const queryParams = new URLSearchParams()
@@ -135,30 +162,51 @@ export const influenceApi = (baseUrl: string, accessToken: string) => {
       components,
     }).then((e) => e[0])
 
-  const search = <Entity>(
-    index: 'order' | 'asteroid',
-    request: Record<string, unknown>
+  const search = <Result extends ZodRawShape>(
+    index: 'order' | 'asteroid' | 'building',
+    request: Record<string, unknown>,
+    resultSchema: ZodObject<Result>,
+    options?: RequestOptions
   ) =>
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rawRequest<any>(`_search/${index}`, {
-      method: 'POST',
-      body: JSON.stringify(request),
-      headers: {
-        'Content-Type': 'application/json',
+    rawRequest<Result>(
+      `_search/${index}`,
+      {
+        method: 'POST',
+        body: JSON.stringify(request),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       },
-    }) as Promise<SearchResponse<Entity>>
+      options
+    ).then(resultSchema.parse)
 
   const getAsteroidNames = async (asteroidIds: number[]) => {
     const result = await Promise.all(
       asteroidIds.map((id) =>
         entities({
-          label: 3,
+          label: Entity.IDS.ASTEROID,
           id,
           components: ['Name'],
         })
       )
     )
 
+    return new Map(
+      result.flat().map((e) => [e.id, e.Name?.name ?? e.id.toString()] as const)
+    )
+  }
+
+  const getBuildingNames = async (buildingIds: number[]) => {
+    const result = await Promise.all(
+      buildingIds.map((id) =>
+        entities({
+          label: Entity.IDS.BUILDING,
+          id,
+          components: ['Name'],
+        })
+      )
+    )
     return new Map(
       result.flat().map((e) => [e.id, e.Name?.name ?? e.id.toString()] as const)
     )
@@ -173,14 +221,133 @@ export const influenceApi = (baseUrl: string, accessToken: string) => {
       label: 1,
     })
 
+  const activity = async (args: {
+    crewId: number
+    page?: number
+    pageSize?: number
+    types?: ActivityEvent[]
+  }) => {
+    const crewUuid = Entity.packEntity({
+      id: args.crewId,
+      label: Entity.IDS.CREW,
+    })
+    const params = new URLSearchParams({
+      page: args.page?.toString() ?? '1',
+      pageSize: args.pageSize?.toString() ?? '25',
+    })
+    if (args.types) {
+      params.append('types', args.types.join(','))
+    }
+
+    return rawRequest<unknown[]>(
+      `v2/entities/${crewUuid}/activity?${params.toString()}`,
+      {}
+    ).then((activities) =>
+      activities.flatMap((a) => {
+        const r = activitySchema.safeParse(a)
+        if (r.success) {
+          return [r.data]
+        }
+        return []
+      })
+    )
+  }
+
+  const floorPrices = async (productIds: number[]) => {
+    const result = await preReleaseInfluenceApi.search(
+      'order',
+      {
+        size: 0,
+        aggs: {
+          products: {
+            terms: {
+              size: 9999,
+              field: 'product',
+            },
+            aggs: {
+              floorPrice: {
+                min: {
+                  field: 'price',
+                },
+              },
+            },
+          },
+        },
+        query: {
+          bool: {
+            must: [
+              { range: { orderType: { gte: 2, lte: 2 } } },
+              { match: { status: 1 } },
+              { terms: { product: productIds } },
+            ],
+          },
+        },
+      },
+      z.object({
+        aggregations: z.object({
+          products: z.object({
+            buckets: z.array(
+              z.object({
+                key: z.number(),
+                floorPrice: z.object({
+                  value: z.number(),
+                }),
+              })
+            ),
+          }),
+        }),
+      })
+    )
+
+    const floorPrices = new Map<number, number>()
+    result.aggregations.products.buckets.forEach((bucket) => {
+      floorPrices.set(bucket.key, bucket.floorPrice.value)
+    })
+    return floorPrices
+  }
+
+  const getWarehousesOfAddress = async (walletAddress: string) => {
+    const crews = await getCrews(walletAddress)
+    const crewIds = crews.map((c) => c.id)
+
+    return search(
+      'building',
+      {
+        size: 9999,
+        query: {
+          bool: {
+            must: [
+              { term: { 'Building.buildingType': Building.IDS.WAREHOUSE } },
+              {
+                term: {
+                  'Building.status': Building.CONSTRUCTION_STATUSES.OPERATIONAL,
+                },
+              },
+              {
+                terms: {
+                  'Control.controller.id': crewIds,
+                },
+              },
+            ],
+          },
+        },
+      },
+      searchResponseSchema(entitySchema)
+    ).then((r) => r.hits.hits.map((h) => h._source))
+  }
+
   return {
     rawRequest,
     entities,
     entity,
     search,
+    activity,
     util: {
       getAsteroidNames,
+      getBuildingNames,
       getCrews,
+      floorPrices,
+      getWarehousesOfAddress,
     },
   }
 }

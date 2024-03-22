@@ -4,7 +4,7 @@ import {
   AsteroidSize,
   AsteroidSpectralType,
 } from '@prisma/client'
-import { Processor, ProductType } from '@influenceth/sdk'
+import { Order, Processor, ProductType } from '@influenceth/sdk'
 import { Constants } from './constants'
 
 const numberFormatter =
@@ -23,7 +23,21 @@ const formatKgs = (kgs: number) => {
   return `${kgs.toFixed(0)}kg`
 }
 
+const formatBigNumber = (value: number) => {
+  if (value >= 1_000_000_000) {
+    return `${(value / 1_000_000_000).toFixed(2)}B`
+  }
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(2)}M`
+  }
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(2)}K`
+  }
+  return value.toLocaleString()
+}
+
 export const Format = {
+  bigNumber: formatBigNumber,
   radius: numberFormatter(0, Constants.RADIUS_UNIT),
   surfaceArea: numberFormatter(0, Constants.SURFACE_AREA_UNIT),
   orbitalPeriod: numberFormatter(0, Constants.ORBITAL_PERIOD_UNIT),
@@ -103,6 +117,7 @@ export const Format = {
         return ''
     }
   },
+  mass: (mass: number) => formatKgs(mass),
   productAmount: (product: ProductType, amount: number) => {
     if (amount === 0) {
       return product.name
@@ -112,4 +127,7 @@ export const Format = {
     }
     return `${formatKgs(amount)} ${product.name}`
   },
+  swayAmount: (amount: number) => formatBigNumber(amount / 1e6),
+  orderType: (orderType: number) =>
+    orderType === Order.IDS.LIMIT_SELL ? 'Limit Sell' : 'Limit Buy',
 }
