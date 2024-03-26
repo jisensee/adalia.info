@@ -7,9 +7,6 @@ import {
 } from '@/lib/influence-api'
 import { orderSchema } from '@/lib/influence-api-types'
 
-// test addr: 0x05a31b9c4cfafd99a63600220f841d14e124f961750b543f68d32d60718a443d
-// another one: 0x023258098c29284e6338262c19c3ba0c3805106a4750e9bc1f0a2e2b36cba0d6
-
 export default async function OpenOrdersPage({
   searchParams,
 }: {
