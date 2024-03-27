@@ -99,6 +99,7 @@ export const influenceApi = (baseUrl: string, accessToken: string) => {
     options?: RequestOptions
   ) => {
     const init: RequestInit = {
+      cache: 'no-store',
       ...requestInit,
       headers: {
         ...requestInit.headers,
