@@ -29,7 +29,7 @@ export const ProductList: FC<ProductListProps> = ({
       </h2>
       <div className='flex flex-col'>
         {products
-          .toSorted((a, b) => a.product.name.localeCompare(b.product.name))
+          .sort((a, b) => a.product.name.localeCompare(b.product.name))
           .map(({ product, amount }) => (
             <HoverCard key={product.i}>
               <HoverCardTrigger onClick={() => onProductSelect?.(product)}>

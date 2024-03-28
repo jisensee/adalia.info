@@ -1,12 +1,23 @@
 import { FC } from 'react'
 import { Building } from '@influenceth/sdk'
 
+import { ProductAmount } from '../trader-dashboard/product-amount'
 import { getProcesses } from './api'
 import { AsteroidOverview } from './asteroid-overview'
 import { EntityStatus } from './entity-status'
 import { Refresh } from './refresh'
-import { Accordion } from '@/components/ui/accordion'
-import { preReleaseInfluenceApi } from '@/lib/influence-api'
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion'
+import {
+  getOutputAmounts,
+  preReleaseInfluenceApi,
+  reduceProductAmounts,
+} from '@/lib/influence-api'
+import { SwayAmount } from '@/components/sway-amount'
 
 export type ProductionTrackerProps = {
   walletAddress: string
@@ -105,6 +116,27 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
 
   const asteroidToEntities = new Map<string, EntityStatus[]>()
 
+  const incomingProducts = reduceProductAmounts(
+    entities.flatMap((entity) => {
+      if (entity.type === 'extractor') {
+        return [
+          {
+            product: entity.outputProduct,
+            amount: entity.yield,
+          },
+        ]
+      }
+      if (entity.type === 'process') {
+        return getOutputAmounts(
+          entity.runningProcess.i,
+          entity.outputProduct.i,
+          entity.recipes
+        )
+      }
+      return []
+    })
+  )
+
   entities.forEach((entity) => {
     const asteroidName =
       asteroidIdToName.get(entity.asteroidId) ?? entity.asteroidId.toString()
@@ -114,12 +146,54 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   })
   const entries = [...asteroidToEntities.entries()]
 
+  const floorPrices = await preReleaseInfluenceApi.util.floorPrices(
+    incomingProducts.map(({ product }) => product.i)
+  )
+
+  const incomingProductsWithPrices = incomingProducts
+    .map(({ product, amount }) => ({
+      product,
+      amount,
+      marketValue: amount * (floorPrices.get(product.i) ?? 0),
+    }))
+    .sort((a, b) => b.marketValue - a.marketValue)
+
+  const incomingValue = incomingProductsWithPrices.reduce(
+    (acc, { marketValue }) => acc + marketValue,
+    0
+  )
+
   return (
     <>
       <Accordion
         type='multiple'
         defaultValue={entries.map(([asteroid]) => asteroid)}
       >
+        <AccordionItem value='incoming-products'>
+          <div className='flex items-center gap-x-5'>
+            <AccordionTrigger>Incoming Products</AccordionTrigger>
+            <SwayAmount sway={incomingValue} large colored />
+          </div>
+          <AccordionContent>
+            <div className='flex flex-wrap gap-2'>
+              {incomingProductsWithPrices.map(
+                ({ product, amount, marketValue }) => (
+                  <div
+                    key={product.i}
+                    className='flex flex-col items-center rounded border border-primary px-2 py-1'
+                  >
+                    <ProductAmount
+                      product={product}
+                      amount={amount}
+                      hideBadges
+                    />
+                    <SwayAmount sway={marketValue} />
+                  </div>
+                )
+              )}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
         {entries.map(([asteroid, entities]) => (
           <AsteroidOverview
             key={asteroid}

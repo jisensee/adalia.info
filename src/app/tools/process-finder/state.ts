@@ -131,7 +131,7 @@ const getOutputAmounts = (process: ProcessType, inputs: ProductAmount[]) => {
           0
         return Math.floor(input / inputAmount)
       })
-      .toSorted((a, b) => a - b)[0] ?? 0
+      .sort((a, b) => a - b)[0] ?? 0
 
   return Object.entries(process.outputs).map(([id, a]) => ({
     product: Product.getType(parseInt(id)),
@@ -142,7 +142,7 @@ const getOutputAmounts = (process: ProcessType, inputs: ProductAmount[]) => {
 const collapseOutputAmounts = (outputProducts: ProductAmount[]) =>
   [...groupArrayBy(outputProducts, (o) => o.product.i).values()].flatMap(
     (o) => {
-      const r = o.toSorted((a, b) => b.amount - a.amount)[0]
+      const r = o.sort((a, b) => b.amount - a.amount)[0]
       return r ? [r] : []
     }
   )

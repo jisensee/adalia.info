@@ -30,7 +30,7 @@ export const AsteroidOverview = ({
     if (filter === 'idle') return idleCrews
     if (filter === 'busy') return busyCrews
     return crews
-  })().toSorted((a, b) => a.readyAt.getTime() - b.readyAt.getTime())
+  })().sort((a, b) => a.readyAt.getTime() - b.readyAt.getTime())
 
   return (
     <AccordionItem value={location}>

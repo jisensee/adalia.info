@@ -71,7 +71,7 @@ const groupProcesses = (processes: ProcessType[]) => {
           processor: Format.processor(t),
           processes: processes
             .filter((p) => p.processorType === t)
-            .toSorted((a, b) => a.name.localeCompare(b.name)),
+            .sort((a, b) => a.name.localeCompare(b.name)),
         }) as const
     )
     .filter((g) => g.processes.length > 0)

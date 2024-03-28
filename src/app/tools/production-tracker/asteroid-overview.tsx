@@ -33,7 +33,7 @@ export const AsteroidOverview = ({
     if (filter === 'busy') return busyEntities
     if (filter === 'finished') return finishedEntities
     return entities
-  })().toSorted((a, b) => {
+  })().sort((a, b) => {
     const aValue =
       a.type === 'idleBuilding' ? Number.MAX_VALUE : a.finishTime.getTime()
     const bValue =
