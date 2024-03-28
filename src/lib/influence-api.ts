@@ -1,4 +1,11 @@
-import { Building, Entity, Lot } from '@influenceth/sdk'
+import {
+  Building,
+  Entity,
+  Lot,
+  Process,
+  Product,
+  ProductType,
+} from '@influenceth/sdk'
 import { ZodObject, ZodRawShape, z } from 'zod'
 import {
   ActivityEvent,
@@ -9,6 +16,7 @@ import {
   entitySchema,
 } from './influence-api-types'
 import { activitySchema } from './activity'
+import { groupArrayBy } from './utils'
 
 type AsteroidHit = {
   _source: ApiAsteroid
@@ -389,3 +397,29 @@ export const getWarehouseInventory = async (
 
 export const getInOutputs = (inOrOutputs: Record<number, number>) =>
   Object.keys(inOrOutputs).map((i) => parseInt(i, 10))
+
+export type ProductAmount = {
+  product: ProductType
+  amount: number
+}
+
+export const getOutputAmounts = (
+  processId: number,
+  outputProductId: number,
+  recipes: number
+): ProductAmount[] =>
+  Object.entries(Process.getType(processId).outputs).map(
+    ([productId, amount]) => ({
+      product: Product.getType(parseInt(productId, 10)),
+      amount:
+        amount * recipes * (productId === outputProductId.toString() ? 1 : 0.6),
+    })
+  )
+
+export const reduceProductAmounts = (amounts: ProductAmount[]) =>
+  [...groupArrayBy(amounts, (a) => a.product.i).entries()].map(
+    ([productId, amounts]) => ({
+      product: Product.getType(productId),
+      amount: amounts.reduce((acc, a) => acc + a.amount, 0),
+    })
+  )

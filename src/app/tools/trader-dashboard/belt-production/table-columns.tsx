@@ -53,4 +53,13 @@ export const columns: ColumnDef<ProductProduction>[] = [
     enableSorting: true,
     cell: ({ row }) => <SwayAmount sway={row.original.floorPrice} />,
   },
+  {
+    id: 'market-value',
+    header: 'Market Value',
+    accessorFn: (row) => row.amount * row.floorPrice,
+    enableSorting: true,
+    cell: ({ row }) => (
+      <SwayAmount sway={row.original.amount * row.original.floorPrice} />
+    ),
+  },
 ]

@@ -26,8 +26,12 @@ export const ProductAmount: FC<ProductAmountProps> = ({
     </span>
     {!hideBadges && (
       <>
-        <Badge className='hidden md:inline'>{product.classification}</Badge>
-        <Badge className='hidden md:inline'>{product.category}</Badge>
+        <Badge className='hidden md:inline' variant='outline'>
+          {product.classification}
+        </Badge>
+        <Badge className='hidden md:inline' variant='outline'>
+          {product.category}
+        </Badge>
       </>
     )}
   </div>
