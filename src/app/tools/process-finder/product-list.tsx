@@ -8,6 +8,7 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
 import { Format } from '@/lib/format'
+import { ProductIcon } from '@/components/influence-asset-icons'
 
 type ProductListProps = {
   title: ReactNode
@@ -34,11 +35,17 @@ export const ProductList: FC<ProductListProps> = ({
             <HoverCard key={product.i}>
               <HoverCardTrigger onClick={() => onProductSelect?.(product)}>
                 <ListEntry selected={selectedProducts.includes(product.i)}>
-                  {Format.productAmount(product, amount)}
+                  <div className='flex items-center gap-2'>
+                    <ProductIcon product={product} size={24} />
+                    {Format.productAmount(product, amount)}
+                  </div>
                 </ListEntry>
               </HoverCardTrigger>
               <HoverCardContent>
-                <h3>{product.name}</h3>
+                <div className='flex items-center gap-2'>
+                  <ProductIcon product={product} size={64} />
+                  <h3>{product.name}</h3>
+                </div>
                 <p>
                   Category:{' '}
                   <span className='text-primary'>{product.category}</span>

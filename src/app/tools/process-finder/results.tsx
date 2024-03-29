@@ -1,29 +1,40 @@
 'use client'
 
-import { FC, useEffect } from 'react'
+import { FC, useEffect, useMemo } from 'react'
 import { useQueryStates } from 'nuqs'
 import { ProductList } from './product-list'
 import { ProcessList } from './process-list'
-import { ProductAmount, useProcessFinderState } from './state'
+import { Warehouse, useProcessFinderState } from './state'
 import { settingsParams } from './params'
 
 type ProcessFinderResultsProps = {
-  warehouseProducts: ProductAmount[]
+  warehouses: Warehouse[]
 }
 
 export const ProcessFinderResults: FC<ProcessFinderResultsProps> = ({
-  warehouseProducts,
+  warehouses,
 }) => {
   const [settings] = useQueryStates(settingsParams)
 
-  const [state, dispatch] = useProcessFinderState({
-    warehouseProducts,
-    settings: settings,
-  })
+  const processFinderSettings = useMemo(
+    () => ({
+      hideLowAmounts: settings.hideLowAmounts ?? false,
+      hideWithoutProcesses: settings.hideWithoutProcesses ?? false,
+      warehouses: settings.warehouses ?? undefined,
+      processors: settings.processors ?? undefined,
+      restrictToAsteroid: settings.restrictToAsteroid ?? false,
+    }),
+    [settings]
+  )
+
+  const [state, dispatch] = useProcessFinderState(
+    warehouses,
+    processFinderSettings
+  )
 
   useEffect(() => {
-    dispatch({ type: 'set-warehouse-products', warehouseProducts, settings })
-  }, [dispatch, settings, warehouseProducts])
+    dispatch({ type: 'apply-settings', settings: processFinderSettings })
+  }, [dispatch, processFinderSettings])
 
   return (
     <div className='flex gap-x-10 overflow-x-auto'>
@@ -38,6 +49,7 @@ export const ProcessFinderResults: FC<ProcessFinderResultsProps> = ({
       <ProcessList
         processes={state.processes}
         selectedProcesses={state.selectedProcesses}
+        allProcessors={state.allProcessors}
         onProcessSelect={(p) =>
           dispatch({ type: 'select-process', process: p })
         }

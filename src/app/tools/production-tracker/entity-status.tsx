@@ -2,11 +2,12 @@
 
 import { BuildingType, ProcessType, ProductType } from '@influenceth/sdk'
 import { FC } from 'react'
-import { Check, Cog, Hammer, Hourglass, Pickaxe } from 'lucide-react'
+import { Check, Hourglass } from 'lucide-react'
 import { formatRelative } from 'date-fns'
 import { Format } from '@/lib/format'
 import { useRemainingSeconds } from '@/hooks/timers'
 import { LotLink } from '@/components/lot-link'
+import { BuildingIcon, ProductIcon } from '@/components/influence-asset-icons'
 
 type BaseEntityStatus = {
   finishTime: Date
@@ -150,12 +151,14 @@ const getContent = (status: EntityStatus, isFinished: boolean) => {
 const getIcon = (status: EntityStatus) => {
   switch (status.type) {
     case 'process':
-      return <Cog className='text-primary' size={35} />
+      return <ProductIcon product={status.outputProduct} size={64} />
     case 'extractor':
-      return <Pickaxe className='text-primary' size={35} />
+      return <ProductIcon product={status.outputProduct} size={64} />
     case 'building':
-      return <Hammer className='text-primary' size={35} />
+      return (
+        <BuildingIcon building={status.buildingType} size={64} isHologram />
+      )
     case 'idleBuilding':
-      return <Hourglass className='text-primary' size={35} />
+      return <BuildingIcon building={status.buildingType} size={64} />
   }
 }

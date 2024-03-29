@@ -18,6 +18,7 @@ import {
   reduceProductAmounts,
 } from '@/lib/influence-api'
 import { SwayAmount } from '@/components/sway-amount'
+import { ProductIcon } from '@/components/influence-asset-icons'
 
 export type ProductionTrackerProps = {
   walletAddress: string
@@ -175,19 +176,23 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
             <SwayAmount sway={incomingValue} large colored />
           </div>
           <AccordionContent>
-            <div className='flex flex-wrap gap-2'>
+            <div className='flex flex-col gap-2 sm:flex-row md:flex-wrap'>
               {incomingProductsWithPrices.map(
                 ({ product, amount, marketValue }) => (
                   <div
                     key={product.i}
-                    className='flex flex-col items-center rounded border border-primary px-2 py-1'
+                    className='flex items-center gap-x-2 rounded border border-primary px-2 py-1'
                   >
-                    <ProductAmount
-                      product={product}
-                      amount={amount}
-                      hideBadges
-                    />
-                    <SwayAmount sway={marketValue} />
+                    <ProductIcon product={product} size={40} />
+                    <div className='flex w-full flex-row items-center justify-between sm:flex-col'>
+                      <ProductAmount
+                        product={product}
+                        amount={amount}
+                        hideBadges
+                        hideIcon
+                      />
+                      <SwayAmount sway={marketValue} />
+                    </div>
                   </div>
                 )
               )}

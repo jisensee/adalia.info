@@ -3,6 +3,7 @@ import {
   Entity,
   Lot,
   Process,
+  Processor,
   Product,
   ProductType,
 } from '@influenceth/sdk'
@@ -164,7 +165,7 @@ export const influenceApi = (baseUrl: string, accessToken: string) => {
       )
   }
 
-  const entity = (ids: EntityIds, components?: string[]) =>
+  const entity = (ids: Omit<EntityIds, 'uuid'>, components?: string[]) =>
     entities({
       id: ids.id,
       label: ids.label,
@@ -416,10 +417,26 @@ export const getOutputAmounts = (
     })
   )
 
-export const reduceProductAmounts = (amounts: ProductAmount[]) =>
+export const reduceProductAmounts = (
+  amounts: ProductAmount[]
+): ProductAmount[] =>
   [...groupArrayBy(amounts, (a) => a.product.i).entries()].map(
     ([productId, amounts]) => ({
       product: Product.getType(productId),
       amount: amounts.reduce((acc, a) => acc + a.amount, 0),
     })
   )
+
+export const processorToBuilding = (processorType: number) => {
+  switch (processorType) {
+    case Processor.IDS.REFINERY:
+      return Building.getType(Building.IDS.REFINERY)
+    case Processor.IDS.FACTORY:
+      return Building.getType(Building.IDS.FACTORY)
+    case Processor.IDS.SHIPYARD:
+      return Building.getType(Building.IDS.SHIPYARD)
+    case Processor.IDS.BIOREACTOR:
+    default:
+      return Building.getType(Building.IDS.BIOREACTOR)
+  }
+}

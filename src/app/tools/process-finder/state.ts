@@ -1,18 +1,30 @@
 import { Process, ProcessType, Product, ProductType } from '@influenceth/sdk'
 import { Reducer, useReducer } from 'react'
-import { getInOutputs } from '@/lib/influence-api'
+import { getInOutputs, reduceProductAmounts } from '@/lib/influence-api'
 import { groupArrayBy } from '@/lib/utils'
+
+export type Warehouse = {
+  id: number
+  name: string
+  asteroid: string
+  products: ProductAmount[]
+}
 
 type ProcessFinderSettings = {
   hideLowAmounts: boolean
   hideWithoutProcesses: boolean
+  restrictToAsteroid: boolean
+  warehouses?: number[]
+  processors?: number[]
 }
 
 type State = {
   selectedInputs: number[]
   selectedOutputs: number[]
   selectedProcesses: number[]
+  warehouses: Warehouse[]
   inputProducts: ProductAmount[]
+  allProcessors: number[]
   processes: ProcessType[]
   outputProducts: ProductAmount[]
 }
@@ -37,13 +49,12 @@ type SelectProcess = {
   process: ProcessType
 }
 
-type SetWarehouseProducts = {
-  type: 'set-warehouse-products'
-  warehouseProducts: ProductAmount[]
+type ApplySettings = {
+  type: 'apply-settings'
   settings: ProcessFinderSettings
 }
 
-type Action = SelectInput | SelectOutput | SelectProcess | SetWarehouseProducts
+type Action = SelectInput | SelectOutput | SelectProcess | ApplySettings
 
 const reducer: Reducer<State, Action> = (state, action) => {
   switch (action.type) {
@@ -53,12 +64,13 @@ const reducer: Reducer<State, Action> = (state, action) => {
       return selectOutput(state, action.productId)
     case 'select-process':
       return selectProcess(state, action.process)
-    case 'set-warehouse-products':
+    case 'apply-settings':
       return {
+        ...state,
         selectedInputs: [],
         selectedOutputs: [],
         selectedProcesses: [],
-        ...calcProcessFinderState(action.warehouseProducts, action.settings),
+        ...calcProcessFinderState(state.warehouses, action.settings),
       }
   }
 }
@@ -147,55 +159,94 @@ const collapseOutputAmounts = (outputProducts: ProductAmount[]) =>
     }
   )
 
-export const useProcessFinderState = ({
-  warehouseProducts,
-  settings,
-}: Omit<SetWarehouseProducts, 'type'>) =>
+export const useProcessFinderState = (
+  warehouses: Warehouse[],
+  settings: ProcessFinderSettings
+) =>
   useReducer(reducer, {
     selectedInputs: [],
     selectedOutputs: [],
     selectedProcesses: [],
-    ...calcProcessFinderState(warehouseProducts, settings),
+    warehouses,
+    ...calcProcessFinderState(warehouses, settings),
   })
 
 const calcProcessFinderState = (
-  warehouseProducts: ProductAmount[],
-  { hideLowAmounts, hideWithoutProcesses }: ProcessFinderSettings
+  warehouses: Warehouse[],
+  {
+    hideLowAmounts,
+    hideWithoutProcesses,
+    restrictToAsteroid,
+    warehouses: selectedWarehouseIds,
+    processors,
+  }: ProcessFinderSettings
 ) => {
-  const filteredProducts = hideLowAmounts
-    ? warehouseProducts.filter((p) => !isLowAmount(p))
-    : warehouseProducts
-  const productIds = new Set(filteredProducts.map((p) => p.product.i))
+  const selectedWarehouses = warehouses.filter(
+    (w) => selectedWarehouseIds?.includes(w.id) ?? true
+  )
+  const groupedWarehouses = restrictToAsteroid
+    ? [...groupArrayBy(selectedWarehouses, (w) => w.asteroid).values()]
+    : [selectedWarehouses]
 
-  const processes = Object.values(Process.TYPES).filter((t) =>
-    getInOutputs(t.inputs).every((inputId) => productIds.has(inputId))
+  const groupedProducts = groupedWarehouses.map((warehouses) =>
+    reduceProductAmounts(
+      warehouses.flatMap((warehouse) => warehouse.products)
+    ).filter((p) => (hideLowAmounts ? !isLowAmount(p) : true))
   )
 
-  const inputProducts = hideWithoutProcesses
-    ? removeWithoutProcesses(filteredProducts, processes)
-    : filteredProducts
+  const processData = groupedProducts.map((products) => {
+    const ids = new Set(products.map((p) => p.product.i))
+    const allProcesses = Object.values(Process.TYPES).filter((t) =>
+      getInOutputs(t.inputs).every((inputId) => ids.has(inputId))
+    )
+    const allProcessors = [
+      ...new Set(allProcesses.map((p) => p.processorType)),
+    ].sort()
+    const processes = allProcesses.filter((p) =>
+      processors ? processors.includes(p.processorType) : true
+    )
 
-  const outputProducts = collapseOutputAmounts(
-    [...new Set(processes.flatMap((p) => getInOutputs(p.outputs)))]
-      .map(Product.getType)
-      .flatMap((p) => {
-        const producingProcesses = processes.filter((process) =>
-          getInOutputs(process.outputs).includes(p.i)
-        )
-
-        return producingProcesses.flatMap((process) => {
-          const inputs = inputProducts.filter((p) =>
-            getInOutputs(process.inputs).includes(p.product.i)
+    const outputProducts = collapseOutputAmounts(
+      [...new Set(processes.flatMap((p) => getInOutputs(p.outputs)))]
+        .map(Product.getType)
+        .flatMap((p) => {
+          const producingProcesses = processes.filter((process) =>
+            getInOutputs(process.outputs).includes(p.i)
           )
-          return getOutputAmounts(process, inputs)
+
+          return producingProcesses.flatMap((process) => {
+            const inputs = products.filter((p) =>
+              getInOutputs(process.inputs).includes(p.product.i)
+            )
+            return getOutputAmounts(process, inputs)
+          })
         })
-      })
+    )
+    return { processes, outputProducts, allProcessors }
+  })
+
+  const processes = [
+    ...new Set(
+      processData.flatMap(({ processes }) => processes).map((p) => p.i)
+    ),
+  ].map(Process.getType)
+  const outputProducts = collapseOutputAmounts(
+    processData.flatMap(({ outputProducts }) => outputProducts)
   )
+  const allProcessors = [
+    ...new Set(processData.flatMap(({ allProcessors }) => allProcessors)),
+  ]
+
+  const allProducts = reduceProductAmounts(groupedProducts.flat())
+  const inputProducts = hideWithoutProcesses
+    ? removeWithoutProcesses(allProducts, processes)
+    : allProducts
 
   return {
     inputProducts,
     processes,
     outputProducts,
+    allProcessors,
   }
 }
 
