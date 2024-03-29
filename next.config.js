@@ -14,6 +14,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images-prerelease.influenceth.io',
       },
+      {
+        protocol: 'https',
+        hostname: process.env.NEXT_PUBLIC_INFLUENCE_CLOUDFRONT_IMAGE_HOST,
+      },
     ],
   },
   webpack: (config, { isServer }) => {

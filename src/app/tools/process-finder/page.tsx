@@ -1,12 +1,11 @@
-import { Product } from '@influenceth/sdk'
 import { createSearchParamsCache } from 'nuqs/server'
 import { Metadata } from 'next'
-import { ProcessFinderForm } from './form'
-import { WarehouseParam, warehousesParams } from './params'
+import { Inventory, Product } from '@influenceth/sdk'
+import { addressParams } from './params'
 import { ProcessFinderResults } from './results'
-import { ProductAmount } from './state'
+import { WalletAddressForm } from './form'
 import { Settings } from './settings'
-import { getWarehouseInventory } from '@/lib/influence-api'
+import { preReleaseInfluenceApi } from '@/lib/influence-api'
 
 export const metadata: Metadata = {
   title: 'Process Finder | adalia.info',
@@ -17,59 +16,57 @@ export default async function ProcessFinderPage({
 }: {
   searchParams: Record<string, string | string[]>
 }) {
-  const { warehouses } =
-    createSearchParamsCache(warehousesParams).parse(searchParams)
-  const warehouseProducts = await getProducts(warehouses)
+  const { walletAddress } =
+    createSearchParamsCache(addressParams).parse(searchParams)
+
+  const warehouses = walletAddress
+    ? await preReleaseInfluenceApi.util.getWarehousesOfAddress(walletAddress)
+    : undefined
+
+  const asteroidIds = warehouses?.flatMap((w) => {
+    const asteroidId = w.Location?.locations?.asteroid?.id
+    return asteroidId ? [asteroidId] : []
+  })
+
+  const asteroidNames = asteroidIds
+    ? await preReleaseInfluenceApi.util.getAsteroidNames(asteroidIds)
+    : undefined
+
+  const newWarehouses = warehouses
+    ? warehouses.map((wh) => {
+        return {
+          asteroid:
+            asteroidNames?.get(wh.Location?.locations?.asteroid?.id ?? 0) ?? '',
+          id: wh.id,
+          name: wh.Name?.name ?? `Warehouse#${wh.id}`,
+          products:
+            wh.Inventories?.find(
+              (i) => i.inventoryType === Inventory.IDS.WAREHOUSE_PRIMARY
+            )?.contents?.map((c) => ({
+              product: Product.getType(c.product),
+              amount: c.amount,
+            })) ?? [],
+        }
+      })
+    : undefined
 
   return (
     <div className='space-y-3 p-3'>
       <h1>Process Finder</h1>
-      <p>
-        Add your warehouses and see what processes you can run with your
-        inventory. Click on products or processes to highlight connected
-        entries.
-      </p>
-      <p>
-        <span className='font-bold text-primary'>Tip:</span> Bookmark this page
-        after adding your warehouses to quickly access it later.
-      </p>
-      <div className='flex flex-col gap-x-20 gap-y-3 md:flex-row'>
-        <ProcessFinderForm warehouses={warehouses} />
-        <Settings />
-      </div>
+      {!walletAddress && (
+        <p>
+          Enter your wallet address to find out what you can do with the
+          products in your warehouses.
+        </p>
+      )}
+      <WalletAddressForm walletAddress={walletAddress ?? undefined} />
 
-      {warehouseProducts.length > 0 && (
-        <ProcessFinderResults warehouseProducts={warehouseProducts} />
+      {newWarehouses && newWarehouses.length > 0 && (
+        <>
+          <Settings warehouses={newWarehouses} />
+          <ProcessFinderResults warehouses={newWarehouses} />
+        </>
       )}
     </div>
   )
-}
-
-const getProducts = async (
-  warehouses: WarehouseParam[]
-): Promise<ProductAmount[]> => {
-  const inventories = await Promise.all(
-    warehouses.map((w) => getWarehouseInventory(w.asteroidId, w.lotId))
-  )
-  const products = inventories.flatMap((content) =>
-    content.map((c) => ({
-      product: Product.getType(c.product),
-      amount: c.amount,
-    }))
-  )
-
-  const groupedProducts: Map<number, ProductAmount> = new Map()
-  products.forEach((p) => {
-    const existing = groupedProducts.get(p.product.i)
-    if (existing) {
-      groupedProducts.set(p.product.i, {
-        product: p.product,
-        amount: existing.amount + p.amount,
-      })
-    } else {
-      groupedProducts.set(p.product.i, p)
-    }
-  })
-
-  return Array.from(groupedProducts.values())
 }

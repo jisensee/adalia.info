@@ -211,4 +211,14 @@ declare module '@influenceth/sdk' {
       bonuses?: { mass: number; volume: number }
     ) => InventoryType
   }
+
+  export type AssetMetadata = {
+    iconVersion: number
+    modalVersion: number
+  }
+  export const Assets: {
+    Building: Record<number, AssetMetadata>
+    Product: Record<number, AssetMetadata>
+    Ship: Record<number, AssetMetadata>
+  }
 }
