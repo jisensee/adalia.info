@@ -22,6 +22,7 @@ export type ProcessStatus = {
   outputProduct: ProductType
   processorType: number
   recipes: number
+  secondaryEff: number
 } & BaseEntityStatus
 
 export type ExtractorStatus = {

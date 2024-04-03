@@ -277,7 +277,7 @@ const processorSchema = z.object({
   processorType: z.number(),
   recipes: z.number(),
   runningProcess: z.number().transform((v) => Process.getType(v)),
-  secondaryEff: z.number(),
+  secondaryEff: z.number().transform((v) => (v > 1 ? v - 1 : v)),
   slot: z.number(),
   status: z.number(),
   destination: idsSchema.nullish(),
