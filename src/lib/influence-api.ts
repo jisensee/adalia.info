@@ -407,13 +407,16 @@ export type ProductAmount = {
 export const getOutputAmounts = (
   processId: number,
   outputProductId: number,
-  recipes: number
+  recipes: number,
+  secondaryEff: number
 ): ProductAmount[] =>
   Object.entries(Process.getType(processId).outputs).map(
     ([productId, amount]) => ({
       product: Product.getType(parseInt(productId, 10)),
       amount:
-        amount * recipes * (productId === outputProductId.toString() ? 1 : 0.6),
+        amount *
+        recipes *
+        (productId === outputProductId.toString() ? 1 : secondaryEff),
     })
   )
 

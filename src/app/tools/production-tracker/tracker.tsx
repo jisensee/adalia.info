@@ -69,6 +69,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
           outputProduct: processor.outputProduct,
           processorType: processor.processorType,
           recipes: processor.recipes,
+          secondaryEff: processor.secondaryEff,
           ...base,
         })
       )
@@ -131,7 +132,8 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
         return getOutputAmounts(
           entity.runningProcess.i,
           entity.outputProduct.i,
-          entity.recipes
+          entity.recipes,
+          entity.secondaryEff
         )
       }
       return []

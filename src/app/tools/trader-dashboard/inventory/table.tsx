@@ -93,7 +93,7 @@ export const InventoryTable: FC<InventoryTableProps> = ({
       <div className='flex flex-wrap items-center gap-2'>
         <Statistic
           title='Total value'
-          value={<SwayAmount sway={totalValue} large />}
+          value={<SwayAmount sway={totalValue} large colored />}
           compact
         />
         <Statistic title='Unique products' value={uniqueProducts} compact />
