@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RefreshCw } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { traderDashboardParams } from './params'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -23,25 +24,31 @@ const formSchema = z.object({
 
 export const TraderDashboardForm = () => {
   const [loading, startTransition] = useTransition()
-  const [{ walletAddress }, setParams] = useQueryStates(traderDashboardParams, {
-    shallow: false,
-    startTransition,
-  })
+  const [{ walletAddress: currentWalletAddress }, setParams] = useQueryStates(
+    traderDashboardParams,
+    {
+      shallow: false,
+      startTransition,
+    }
+  )
   const form = useForm({
     resolver: zodResolver(formSchema),
     mode: 'all',
-    defaultValues: { walletAddress: walletAddress ?? undefined },
+    defaultValues: { walletAddress: currentWalletAddress ?? undefined },
   })
+  const { refresh } = useRouter()
 
   return (
     <div>
-      {!walletAddress && (
+      {!currentWalletAddress && (
         <p>Enter your wallet address to enable personalized market insights.</p>
       )}
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(({ walletAddress }) =>
-            setParams({ walletAddress })
+            walletAddress === currentWalletAddress
+              ? refresh()
+              : setParams({ walletAddress })
           )}
           className='flex flex-col gap-3 md:flex-row'
         >
