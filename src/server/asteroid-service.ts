@@ -12,6 +12,7 @@ import {
   StarkSightTokenResponse,
   fetchStarkSightTokenData,
 } from '@/lib/starksight'
+import { fixAddressForInfluenceApi } from '@/lib/utils'
 
 const getSort = (field: AsteroidColumn, sort: Sort) =>
   sort.id === field ? sort.direction : undefined
@@ -100,7 +101,9 @@ const makeWhereFilter = async (
     })),
     ownerAddress:
       makeFilter(filters.owners, (owners) => ({
-        in: owners.map((o) => o?.toLowerCase()).filter(Boolean) as string[],
+        in: owners
+          .map((o) => fixAddressForInfluenceApi(o))
+          .filter(Boolean) as string[],
       })) ??
       makeFilter(filters.owned, (owned) => (owned ? { not: null } : null)),
     radius: makeRangeFilter(filters.radius),

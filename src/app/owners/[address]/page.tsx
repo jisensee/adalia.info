@@ -6,7 +6,7 @@ import { Address } from '@/components/address'
 import { AsteroidImage } from '@/components/asteroid-image'
 import { db } from '@/server/db'
 import { Separator } from '@/components/ui/separator'
-import { rarityToScore } from '@/lib/utils'
+import { fixAddressForInfluenceApi, rarityToScore } from '@/lib/utils'
 
 type Params = {
   params: {
@@ -14,7 +14,7 @@ type Params = {
   }
 }
 export default async function OwnerPage({ params }: Params) {
-  const where = { ownerAddress: params.address }
+  const where = { ownerAddress: fixAddressForInfluenceApi(params.address) }
   const [
     ownedAsteroids,
     {

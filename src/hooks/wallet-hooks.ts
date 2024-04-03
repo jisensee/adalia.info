@@ -9,7 +9,7 @@ import {
 } from 'wagmi'
 import { getAsteroidCount } from '@/actions/asteroids'
 
-const SWAY_MAINNED_ADDRESS = '0x9DE7f7a6c0B00902983c6f0658E157A8a684Cfd5'
+const SWAY_MAINNET_ADDRESS = '0x9DE7f7a6c0B00902983c6f0658E157A8a684Cfd5'
 
 export type AccountInfo = {
   address: string
@@ -45,7 +45,7 @@ export const useBalances = (address?: string) => {
 
   const swayBalanceResult = useMainnetBalance({
     address: address as `0x${string}`,
-    token: SWAY_MAINNED_ADDRESS,
+    token: SWAY_MAINNET_ADDRESS,
   })?.data
 
   const ethBalance = ethBalanceResult
@@ -102,18 +102,16 @@ const useStarknetAccountInfo = ({
   address,
   connector,
 }: ReturnType<typeof useStarknetAccount>): AccountInfo | undefined => {
-  const correctedAddress = address ? '0x0' + address.slice(2) : undefined
-  const { ownedAsteroids, ethBalance, swayBalance } =
-    useBalances(correctedAddress)
+  const { ownedAsteroids, ethBalance, swayBalance } = useBalances(address)
 
   const walletIcon = connector?.icon?.dark
 
-  return correctedAddress && walletIcon
+  return address && walletIcon
     ? {
         ethBalance,
         swayBalance: swayBalance,
         ownedAsteroids,
-        address: correctedAddress,
+        address,
         walletIcon,
       }
     : undefined
