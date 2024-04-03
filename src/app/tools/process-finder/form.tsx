@@ -5,6 +5,7 @@ import { useTransition } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
 import { addressParams } from './params'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -31,16 +32,22 @@ export const WalletAddressForm = ({
     defaultValues: { walletAddress },
   })
   const [loading, startTransition] = useTransition()
-  const [, setParams] = useQueryStates(addressParams, {
-    shallow: false,
-    startTransition,
-  })
+  const [{ walletAddress: currentWalletAddress }, setParams] = useQueryStates(
+    addressParams,
+    {
+      shallow: false,
+      startTransition,
+    }
+  )
+  const { refresh } = useRouter()
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(({ walletAddress }) =>
-          setParams({ walletAddress })
+          walletAddress === currentWalletAddress
+            ? refresh()
+            : setParams({ walletAddress })
         )}
         className='flex flex-col gap-3 md:flex-row'
       >
