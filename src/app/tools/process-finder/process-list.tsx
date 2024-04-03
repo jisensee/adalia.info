@@ -60,48 +60,50 @@ export const ProcessList: FC<ProcessListProps> = ({
             <AccordionTrigger>{Format.processor(processor)}</AccordionTrigger>
             <AccordionContent>
               <div className='flex flex-col'>
-                {processes.map((p) => {
-                  const inputProducts = getInOutputs(p.inputs).map(
-                    Product.getType
-                  )
-                  const outputProducts = getInOutputs(p.outputs).map(
-                    Product.getType
-                  )
-                  return (
-                    <HoverCard key={p.i}>
-                      <HoverCardTrigger onClick={() => onProcessSelect(p)}>
-                        <ListEntry selected={selectedProcesses.includes(p.i)}>
+                {processes
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((p) => {
+                    const inputProducts = getInOutputs(p.inputs).map(
+                      Product.getType
+                    )
+                    const outputProducts = getInOutputs(p.outputs).map(
+                      Product.getType
+                    )
+                    return (
+                      <HoverCard key={p.i}>
+                        <HoverCardTrigger onClick={() => onProcessSelect(p)}>
+                          <ListEntry selected={selectedProcesses.includes(p.i)}>
+                            <div className='flex items-center gap-2'>
+                              {p.name}
+                              <ProductIconGroup
+                                products={outputProducts}
+                                size={24}
+                              />
+                            </div>
+                          </ListEntry>
+                        </HoverCardTrigger>
+                        <HoverCardContent className='w-96'>
+                          <h3>{p.name}</h3>
                           <div className='flex items-center gap-2'>
-                            {p.name}
+                            <span className='text-primary'>Inputs:</span>{' '}
                             <ProductIconGroup
-                              products={outputProducts}
-                              size={24}
+                              products={inputProducts}
+                              size={32}
                             />
                           </div>
-                        </ListEntry>
-                      </HoverCardTrigger>
-                      <HoverCardContent className='w-96'>
-                        <h3>{p.name}</h3>
-                        <div className='flex items-center gap-2'>
-                          <span className='text-primary'>Inputs:</span>{' '}
-                          <ProductIconGroup
-                            products={inputProducts}
-                            size={32}
-                          />
-                        </div>
-                        <p>{inputProducts.map((p) => p.name).join(', ')}</p>
-                        <div className='flex items-center gap-2'>
-                          <span className='text-primary'>Outputs:</span>{' '}
-                          <ProductIconGroup
-                            products={outputProducts}
-                            size={32}
-                          />
-                        </div>
-                        <p>{outputProducts.map((p) => p.name).join(', ')}</p>
-                      </HoverCardContent>
-                    </HoverCard>
-                  )
-                })}
+                          <p>{inputProducts.map((p) => p.name).join(', ')}</p>
+                          <div className='flex items-center gap-2'>
+                            <span className='text-primary'>Outputs:</span>{' '}
+                            <ProductIconGroup
+                              products={outputProducts}
+                              size={32}
+                            />
+                          </div>
+                          <p>{outputProducts.map((p) => p.name).join(', ')}</p>
+                        </HoverCardContent>
+                      </HoverCard>
+                    )
+                  })}
               </div>
             </AccordionContent>
           </AccordionItem>
