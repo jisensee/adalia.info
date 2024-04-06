@@ -1,4 +1,4 @@
-import { preReleaseInfluenceApi } from '@/lib/influence-api'
+import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
 
 const getCrewProcesses = async (crewId: number) =>
   preReleaseInfluenceApi.entities({
@@ -12,7 +12,7 @@ const getCrewProcesses = async (crewId: number) =>
 
 const getCrewsIds = async (walletAddress: string) => [
   ...new Set(
-    (await preReleaseInfluenceApi.util.getCrews(walletAddress)).map((c) => c.id)
+    (await preReleaseInfluenceApi.util.crews(walletAddress)).map((c) => c.id)
   ),
 ]
 

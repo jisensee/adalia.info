@@ -9,7 +9,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
-import { getInOutputs } from '@/lib/influence-api'
 import { Format } from '@/lib/format'
 import { ProductIconGroup } from '@/components/influence-asset-icons'
 import {
@@ -17,6 +16,7 @@ import {
   AccordionContent,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { getInOutputs } from '@/lib/influence-api/helpers'
 
 type ProcessListProps = {
   allProcessors: number[]

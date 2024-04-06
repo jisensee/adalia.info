@@ -5,7 +5,7 @@ import {
   parseAsBoolean,
   parseAsString,
   parseAsStringEnum,
-} from 'nuqs/parsers'
+} from 'nuqs/server'
 import {
   AsteroidRarity,
   AsteroidScanStatus,

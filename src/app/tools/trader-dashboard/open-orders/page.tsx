@@ -1,11 +1,8 @@
 import { Order } from '@influenceth/sdk'
 import { traderDashbboardParamsCache } from '../params'
 import { OpenOrdersTable } from './table'
-import {
-  preReleaseInfluenceApi,
-  searchResponseSchema,
-} from '@/lib/influence-api'
-import { orderSchema } from '@/lib/influence-api-types'
+import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
+import { orderSchema, searchResponseSchema } from '@/lib/influence-api/types'
 
 export default async function OpenOrdersPage({
   searchParams,
@@ -40,8 +37,8 @@ export default async function OpenOrdersPage({
     preReleaseInfluenceApi.util.floorPrices([
       ...new Set(orders.map((o) => o.product.i)),
     ]),
-    preReleaseInfluenceApi.util.getAsteroidNames(asteroidIds),
-    preReleaseInfluenceApi.util.getBuildingNames(marketplaceIds),
+    preReleaseInfluenceApi.util.asteroidNames(asteroidIds),
+    preReleaseInfluenceApi.util.buildingNames(marketplaceIds),
   ])
 
   return (
@@ -58,18 +55,18 @@ export default async function OpenOrdersPage({
 }
 
 const getCrewNames = async (address: string) => {
-  const crews = await preReleaseInfluenceApi.util.getCrews(address)
+  const crews = await preReleaseInfluenceApi.util.crews(address)
   const crewNames = new Map<number, string>()
   crews.forEach((crew) =>
-    crewNames.set(crew.id, crew.Name?.name ?? `Crew#${crew.id}`)
+    crewNames.set(crew.id, crew.Name ?? `Crew#${crew.id}`)
   )
   return crewNames
 }
 
 const getOrders = async (address: string) =>
-  preReleaseInfluenceApi.search(
-    'order',
-    {
+  preReleaseInfluenceApi.search({
+    index: 'order',
+    request: {
       size: 100,
       query: {
         bool: {
@@ -88,5 +85,7 @@ const getOrders = async (address: string) =>
         },
       },
     },
-    searchResponseSchema(orderSchema)
-  )
+    options: {
+      responseSchema: searchResponseSchema(orderSchema),
+    },
+  })

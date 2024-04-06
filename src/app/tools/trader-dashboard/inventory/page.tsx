@@ -1,7 +1,7 @@
 import { getWarehouseContents } from '../api'
 import { traderDashbboardParamsCache } from '../params'
 import { InventoryTable } from './table'
-import { preReleaseInfluenceApi } from '@/lib/influence-api'
+import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
 
 export default async function InventoryPage({
   searchParams,
@@ -20,7 +20,7 @@ export default async function InventoryPage({
     ),
   ]
   const [asteroidNames, floorPrices] = await Promise.all([
-    preReleaseInfluenceApi.util.getAsteroidNames(asteroidIds),
+    preReleaseInfluenceApi.util.asteroidNames(asteroidIds),
     preReleaseInfluenceApi.util.floorPrices(products),
   ])
   return (

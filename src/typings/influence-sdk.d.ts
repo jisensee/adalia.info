@@ -221,4 +221,18 @@ declare module '@influenceth/sdk' {
     Product: Record<number, AssetMetadata>
     Ship: Record<number, AssetMetadata>
   }
+
+  export const Address: {
+    toStandard: (
+      address: string,
+      explicitChain?: 'ethereum' | 'starknet'
+    ) => string
+    areEqual: (
+      address1: string,
+      address2: string,
+      chain1?: string,
+      chain2?: string
+    ) => boolean
+    getChain: (address: string) => 'ethereum' | 'starknet'
+  }
 }

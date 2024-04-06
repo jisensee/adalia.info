@@ -1,4 +1,4 @@
-import { parseAsArrayOf, parseAsJson } from 'nuqs/parsers'
+import { parseAsArrayOf, parseAsJson } from 'nuqs/server'
 import { useQueryState } from 'nuqs'
 import { AsteroidColumnConfig } from './types'
 
