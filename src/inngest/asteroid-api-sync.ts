@@ -1,16 +1,15 @@
-import { Asteroid, AsteroidScanStatus } from '@prisma/client'
-import { Asteroid as SdkAsteroid } from '@influenceth/sdk'
 import {
-  ApiAsteroid,
-  convertBonusType,
-  convertChain,
-  convertRarity,
-  convertScanStatus,
-  getApiBonuses,
-} from '../lib/influence-api-types'
-import { getAsteroidPage } from '../lib/influence-api'
+  Asteroid,
+  AsteroidBonusType,
+  AsteroidRarity,
+  AsteroidScanStatus,
+  Blockchain,
+} from '@prisma/client'
+import { BonusType, Rarity, Asteroid as SdkAsteroid } from '@influenceth/sdk'
 import { inngest } from './client'
 import { db } from '@/server/db'
+import { InfluenceEntity } from '@/lib/influence-api/types'
+import { influenceApi } from '@/lib/influence-api/api'
 
 const API_BATCH_SIZE = parseInt(
   process.env.ASTEROID_SYNC_API_BATCH_SIZE ?? '500',
@@ -40,7 +39,7 @@ export const startAsteroidSync = inngest.createFunction(
       return
     }
 
-    const { totalCount } = await getAsteroidPage(1)
+    const { totalCount } = await influenceApi.util.asteroidPage({ size: 1 })
     const workerCount = Math.ceil(totalCount / DB_BATCH_SIZE)
 
     logger.info(`Starting full asteroid sync for ${totalCount} asteroids`)
@@ -78,10 +77,11 @@ export const updateAsteroidPage = inngest.createFunction(
     const runId = (event.data?.runId ?? 0) as number
     const receivedAsteroids = (event.data?.receivedAsteroids ?? 0) as number
 
-    const { asteroids: apiAsteroids, nextSearchAfter } = await getAsteroidPage(
-      API_BATCH_SIZE,
-      searchAfter
-    )
+    const { asteroids: apiAsteroids, nextSearchAfter } =
+      await influenceApi.util.asteroidPage({
+        size: API_BATCH_SIZE,
+        searchAfter,
+      })
 
     const newReceivedAsteroids = receivedAsteroids + apiAsteroids.length
 
@@ -125,7 +125,7 @@ export const updateAsteroidsDb = inngest.createFunction(
   { event: 'app/update-asteroids-db' },
   async ({ event, logger }) => {
     const apiAsteroids =
-      (event.data?.apiAsteroids as ApiAsteroid[] | undefined) ?? []
+      (event.data?.apiAsteroids as InfluenceEntity[] | undefined) ?? []
     const runId = (event.data?.runId ?? 0) as number
 
     const apiIds = apiAsteroids.map((a) => a.id)
@@ -173,7 +173,7 @@ export const updateAsteroidsDb = inngest.createFunction(
 )
 
 const updateAsteroids = async (
-  apiAsteroids: ApiAsteroid[],
+  apiAsteroids: InfluenceEntity[],
   existingAsteroids: Map<number, Asteroid>
 ) => {
   const updates = apiAsteroids.flatMap((apiAsteroid) => {
@@ -188,9 +188,13 @@ const updateAsteroids = async (
 }
 
 const updateAsteroid = (
-  apiAsteroid: ApiAsteroid,
+  apiAsteroid: InfluenceEntity,
   existingAsteroid: Asteroid
 ) => {
+  if (!apiAsteroid.Celestial || !apiAsteroid.Nft) {
+    return
+  }
+
   const newScanStatus = convertScanStatus(apiAsteroid.Celestial.scanStatus)
   const scanChanged = newScanStatus !== existingAsteroid.scanStatus
   const apiBonuses = getApiBonuses(apiAsteroid)
@@ -216,7 +220,7 @@ const updateAsteroid = (
       id: apiAsteroid.id,
     },
     data: {
-      name: apiAsteroid?.Name?.name,
+      name: apiAsteroid?.Name,
       ownerAddress: newOwner,
       blockchain: newChain,
       rarity: newRarity,
@@ -248,4 +252,67 @@ const updateAsteroid = (
         : undefined,
     },
   })
+}
+
+export const getApiBonuses = ({ Celestial }: InfluenceEntity) =>
+  Celestial
+    ? SdkAsteroid.getBonuses(Celestial.bonuses, Celestial.celestialType).filter(
+        (b) => b.level > 0
+      )
+    : []
+
+export const convertScanStatus = (scanStatus: number) => {
+  switch (scanStatus) {
+    case 1:
+      return AsteroidScanStatus.ORBITAL_SCAN
+    case 2:
+      return AsteroidScanStatus.LONG_RANGE_SCAN
+    default:
+      return AsteroidScanStatus.UNSCANNED
+  }
+}
+
+export const convertBonusType = (t: BonusType) => {
+  switch (t) {
+    case 'yield':
+      return AsteroidBonusType.YIELD
+    case 'fissile':
+      return AsteroidBonusType.FISSILE
+    case 'metal':
+      return AsteroidBonusType.METAL
+    case 'organic':
+      return AsteroidBonusType.ORGANIC
+    case 'rareearth':
+      return AsteroidBonusType.RARE_EARTH
+    case 'volatile':
+    default:
+      return AsteroidBonusType.VOLATILE
+  }
+}
+
+export const convertChain = (chain?: string) => {
+  switch (chain) {
+    case 'ETHEREUM':
+      return Blockchain.ETHEREUM
+    case 'STARKNET':
+      return Blockchain.STARKNET
+  }
+}
+
+export const convertRarity = (apiRarity: Rarity) => {
+  switch (apiRarity) {
+    case 'Common':
+      return AsteroidRarity.COMMON
+    case 'Uncommon':
+      return AsteroidRarity.UNCOMMON
+    case 'Rare':
+      return AsteroidRarity.RARE
+    case 'Superior':
+      return AsteroidRarity.SUPERIOR
+    case 'Exceptional':
+      return AsteroidRarity.EXCEPTIONAL
+    case 'Incomparable':
+    default:
+      return AsteroidRarity.INCOMPARABLE
+  }
 }

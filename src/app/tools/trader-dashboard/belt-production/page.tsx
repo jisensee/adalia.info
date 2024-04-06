@@ -2,13 +2,13 @@ import { getAllProductions } from '../api'
 import { beltProductionParamsCache } from '../params'
 import { BeltProductionFilters } from './filters'
 import { BeltProductionTable } from './table'
+import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { preReleaseInfluenceApi } from '@/lib/influence-api'
 
 export default async function BeltProduction({
   searchParams,
@@ -18,9 +18,7 @@ export default async function BeltProduction({
   const { asteroidId } = beltProductionParamsCache.parse(searchParams)
   const [productions, asteroidNames] = await Promise.all([
     getAllProductions(asteroidId ?? undefined),
-    preReleaseInfluenceApi.util.getAsteroidNames(
-      asteroidId ? [asteroidId] : []
-    ),
+    preReleaseInfluenceApi.util.asteroidNames(asteroidId ? [asteroidId] : []),
   ])
   const asteroidName = asteroidId ? asteroidNames.get(asteroidId) : undefined
   return (

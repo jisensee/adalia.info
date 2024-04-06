@@ -1,5 +1,6 @@
 import { Readable } from 'stream'
 import { Asteroid, AsteroidScanStatus, Prisma } from '@prisma/client'
+import { Address } from '@influenceth/sdk'
 import { Sort } from '@/app/asteroids/types'
 import { db } from '@/server/db'
 import { AsteroidColumn } from '@/app/asteroids/columns'
@@ -12,7 +13,6 @@ import {
   StarkSightTokenResponse,
   fetchStarkSightTokenData,
 } from '@/lib/starksight'
-import { fixAddressForInfluenceApi } from '@/lib/utils'
 
 const getSort = (field: AsteroidColumn, sort: Sort) =>
   sort.id === field ? sort.direction : undefined
@@ -102,7 +102,7 @@ const makeWhereFilter = async (
     ownerAddress:
       makeFilter(filters.owners, (owners) => ({
         in: owners
-          .map((o) => fixAddressForInfluenceApi(o))
+          .map((o) => Address.toStandard(o))
           .filter(Boolean) as string[],
       })) ??
       makeFilter(filters.owned, (owned) => (owned ? { not: null } : null)),

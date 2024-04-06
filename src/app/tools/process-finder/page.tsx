@@ -1,11 +1,11 @@
 import { createSearchParamsCache } from 'nuqs/server'
 import { Metadata } from 'next'
-import { Inventory, Product } from '@influenceth/sdk'
+import { Inventory } from '@influenceth/sdk'
 import { addressParams } from './params'
 import { ProcessFinderResults } from './results'
 import { WalletAddressForm } from './form'
 import { Settings } from './settings'
-import { preReleaseInfluenceApi } from '@/lib/influence-api'
+import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
 
 export const metadata: Metadata = {
   title: 'Process Finder | adalia.info',
@@ -20,7 +20,7 @@ export default async function ProcessFinderPage({
     createSearchParamsCache(addressParams).parse(searchParams)
 
   const warehouses = walletAddress
-    ? await preReleaseInfluenceApi.util.getWarehousesOfAddress(walletAddress)
+    ? await preReleaseInfluenceApi.util.warehouses(walletAddress)
     : undefined
 
   const asteroidIds = warehouses?.flatMap((w) => {
@@ -29,7 +29,7 @@ export default async function ProcessFinderPage({
   })
 
   const asteroidNames = asteroidIds
-    ? await preReleaseInfluenceApi.util.getAsteroidNames(asteroidIds)
+    ? await preReleaseInfluenceApi.util.asteroidNames(asteroidIds)
     : undefined
 
   const newWarehouses = warehouses
@@ -38,14 +38,11 @@ export default async function ProcessFinderPage({
           asteroid:
             asteroidNames?.get(wh.Location?.locations?.asteroid?.id ?? 0) ?? '',
           id: wh.id,
-          name: wh.Name?.name ?? `Warehouse#${wh.id}`,
+          name: wh.Name ?? `Warehouse#${wh.id}`,
           products:
             wh.Inventories?.find(
               (i) => i.inventoryType === Inventory.IDS.WAREHOUSE_PRIMARY
-            )?.contents?.map((c) => ({
-              product: Product.getType(c.product),
-              amount: c.amount,
-            })) ?? [],
+            )?.contents ?? [],
         }
       })
     : undefined

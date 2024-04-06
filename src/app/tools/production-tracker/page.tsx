@@ -1,4 +1,4 @@
-import { createSearchParamsCache } from 'nuqs/parsers'
+import { createSearchParamsCache } from 'nuqs/server'
 import { Metadata } from 'next'
 import { ProductionTrackerForm } from './form'
 import { productionTrackerParams } from './params'

@@ -1,8 +1,8 @@
 'use server'
-import { fixAddressForInfluenceApi } from '@/lib/utils'
+import { Address } from '@influenceth/sdk'
 import { db } from '@/server/db'
 
 export const getAsteroidCount = async (address: string) =>
   db.asteroid.count({
-    where: { ownerAddress: fixAddressForInfluenceApi(address) },
+    where: { ownerAddress: Address.toStandard(address) },
   })

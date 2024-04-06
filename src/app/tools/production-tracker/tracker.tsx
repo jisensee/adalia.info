@@ -12,13 +12,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import {
-  getOutputAmounts,
-  preReleaseInfluenceApi,
-  reduceProductAmounts,
-} from '@/lib/influence-api'
 import { SwayAmount } from '@/components/sway-amount'
 import { ProductIcon } from '@/components/influence-asset-icons'
+import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
+import {
+  getOutputAmounts,
+  reduceProductAmounts,
+} from '@/lib/influence-api/helpers'
 
 export type ProductionTrackerProps = {
   walletAddress: string
@@ -43,7 +43,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   const entities = r.flatMap((entity): EntityStatus[] => {
     const asteroidId = entity.Location?.locations?.asteroid?.id ?? 1
     const lotUuid = entity.Location?.location?.lot?.uuid ?? ''
-    const name = entity.Name?.name
+    const name = entity.Name
 
     const base = {
       asteroidId,
@@ -114,7 +114,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
 
   const asteroidIds = [...new Set(entities.map(({ asteroidId }) => asteroidId))]
   const asteroidIdToName =
-    await preReleaseInfluenceApi.util.getAsteroidNames(asteroidIds)
+    await preReleaseInfluenceApi.util.asteroidNames(asteroidIds)
 
   const asteroidToEntities = new Map<string, EntityStatus[]>()
 

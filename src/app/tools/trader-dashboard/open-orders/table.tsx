@@ -10,11 +10,11 @@ import {
 } from '@tanstack/react-table'
 import { Order } from '@influenceth/sdk'
 import { OpenOrderRow, columns } from './table-columns'
-import { EntityOrder } from '@/lib/influence-api-types'
 import { DataTable } from '@/components/ui/data-table'
 import { useCsvDownload } from '@/hooks/csv'
 import { Statistic } from '@/components/statistic'
 import { SwayAmount } from '@/components/sway-amount'
+import { EntityOrder } from '@/lib/influence-api/types'
 
 type OpenOrdersTableProps = {
   orders: EntityOrder[]

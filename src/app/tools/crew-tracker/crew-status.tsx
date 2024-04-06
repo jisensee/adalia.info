@@ -65,17 +65,15 @@ export const CrewStatus: FC<CrewStatusProps> = ({ crew }) => {
             {locationStatus.entity.label === Entity.IDS.BUILDING
               ? 'Working at'
               : 'In Flight on'}{' '}
-            {locationStatus.entity?.Name?.name ??
+            {locationStatus.entity?.Name ??
               locationStatus.entity?.Building?.buildingType.name}
           </p>
         )}
         {locationStatus?.type === 'habitat' && (
-          <p>Resting at {locationStatus.entity.Name?.name ?? 'Habitat'}</p>
+          <p>Resting at {locationStatus.entity.Name ?? 'Habitat'}</p>
         )}
         {locationStatus?.type === 'travel' && (
-          <p>
-            Travelling back to {locationStatus.entity.Name?.name ?? 'Habitat'}
-          </p>
+          <p>Travelling back to {locationStatus.entity.Name ?? 'Habitat'}</p>
         )}
         {lotUuid && <LotLink uuid={lotUuid} />}
       </div>

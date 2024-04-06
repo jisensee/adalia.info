@@ -6,8 +6,8 @@ import {
   Product,
   ProductType,
 } from '@influenceth/sdk'
-import { preReleaseInfluenceApi } from '@/lib/influence-api'
 import { groupArrayBy } from '@/lib/utils'
+import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
 
 export type ProductProduction = {
   product: ProductType
@@ -21,9 +21,10 @@ export const getAllProductions = (
   asteroidId?: number
 ): Promise<ProductProduction[]> =>
   preReleaseInfluenceApi
-    .search(
-      'building',
-      {
+    .search({
+      index: 'building',
+      // elastic-builder does not support multi_terms aggregations...
+      request: {
         size: 1,
         aggs: {
           processes: {
@@ -92,34 +93,36 @@ export const getAllProductions = (
           },
         },
       },
-      z.object({
-        aggregations: z.object({
-          processes: z.object({
-            running: z.object({
+      options: {
+        responseSchema: z.object({
+          aggregations: z.object({
+            processes: z.object({
+              running: z.object({
+                buckets: z.array(
+                  z.object({
+                    key: z.tuple([
+                      z.number().transform(Process.getType),
+                      z.number().transform(Product.getType),
+                    ]),
+                    recipes: z.object({ value: z.number() }),
+                    doc_count: z.number(),
+                  })
+                ),
+              }),
+            }),
+            extractors: z.object({
               buckets: z.array(
                 z.object({
-                  key: z.tuple([
-                    z.number().transform(Process.getType),
-                    z.number().transform(Product.getType),
-                  ]),
-                  recipes: z.object({ value: z.number() }),
+                  key: z.number().transform(Product.getType),
+                  yield: z.object({ value: z.number() }),
                   doc_count: z.number(),
                 })
               ),
             }),
           }),
-          extractors: z.object({
-            buckets: z.array(
-              z.object({
-                key: z.number().transform(Product.getType),
-                yield: z.object({ value: z.number() }),
-                doc_count: z.number(),
-              })
-            ),
-          }),
         }),
-      })
-    )
+      },
+    })
     .then(async ({ aggregations }) => {
       const processBuckets = aggregations.processes.running.buckets
       const extractorBuckets = aggregations.extractors.buckets
@@ -186,8 +189,7 @@ export type WarehouseContent = {
 export const getWarehouseContents = async (
   walletAddress: string
 ): Promise<WarehouseContent[]> => {
-  const warehouses =
-    await preReleaseInfluenceApi.util.getWarehousesOfAddress(walletAddress)
+  const warehouses = await preReleaseInfluenceApi.util.warehouses(walletAddress)
 
   const contents = warehouses.flatMap((w) => {
     const contents = w.Inventories.find(
@@ -199,12 +201,11 @@ export const getWarehouseContents = async (
     }
     return [
       {
-        warehouseName: w.Name?.name ?? `Warehouse#${w.id}`,
+        warehouseName: w.Name ?? `Warehouse#${w.id}`,
         warehouseId: w.id,
         asteroidId: w.Location?.locations?.asteroid?.id ?? 0,
         contents: contents.map((c) => ({
-          product: Product.getType(c.product),
-          amount: c.amount,
+          ...c,
           marketValue: 0,
         })),
       },

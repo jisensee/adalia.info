@@ -36,11 +36,3 @@ export const groupArrayBy = <T, K>(
   })
   return map
 }
-
-export const fixAddressForInfluenceApi = (address: string) => {
-  if (address.length === 42 || address.length === 66) {
-    return address.toLowerCase()
-  }
-  const missingZeroes = 66 - address.length
-  return '0x' + '0'.repeat(missingZeroes) + address.slice(2).toLowerCase()
-}

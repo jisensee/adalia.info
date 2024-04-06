@@ -3,7 +3,7 @@ import { crewTrackerParams } from './params'
 import { CrewTracker } from './crew-tracker'
 import { CrewTrackerForm } from './form'
 import { getCrews } from './api'
-import { preReleaseInfluenceApi } from '@/lib/influence-api'
+import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
 
 export const metadata = {
   title: 'Crew Tracker | adalia.info',
@@ -33,7 +33,7 @@ const Tracker = async ({ walletAddress }: { walletAddress: string }) => {
   const crews = await getCrews(walletAddress)
   const asteroidIds = crews.flatMap((c) => (c.asteroidId ? [c.asteroidId] : []))
   const asteroidNames =
-    await preReleaseInfluenceApi.util.getAsteroidNames(asteroidIds)
+    await preReleaseInfluenceApi.util.asteroidNames(asteroidIds)
 
   return <CrewTracker crews={crews} asteroidNames={asteroidNames} />
 }

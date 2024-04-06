@@ -1,6 +1,6 @@
 import { Entity } from '@influenceth/sdk'
-import { preReleaseInfluenceApi } from '@/lib/influence-api'
-import { EntityIds, InfluenceEntity } from '@/lib/influence-api-types'
+import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
+import { EntityIds, InfluenceEntity } from '@/lib/influence-api/types'
 
 export type CrewStatusData = {
   id: number
@@ -40,7 +40,7 @@ export const getCrews = async (address: string): Promise<CrewStatusData[]> =>
           return [
             {
               id: entity.id,
-              name: entity.Name?.name ?? `Crew #${entity.id}`,
+              name: entity.Name ?? `Crew #${entity.id}`,
               readyAt: new Date(entity.Crew.readyAt),
               actionLocation,
               habitat,

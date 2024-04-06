@@ -1,12 +1,13 @@
 import { AsteroidScanStatus } from '@prisma/client'
+import { Address } from '@influenceth/sdk'
 import { Balances } from './balances'
 import { OwnerAsteroidsButton } from './owner-asteroids-button'
 import { Statistics } from './statistics'
-import { Address } from '@/components/address'
+import { Address as AddressDisplay } from '@/components/address'
 import { AsteroidImage } from '@/components/asteroid-image'
 import { db } from '@/server/db'
 import { Separator } from '@/components/ui/separator'
-import { fixAddressForInfluenceApi, rarityToScore } from '@/lib/utils'
+import { rarityToScore } from '@/lib/utils'
 
 type Params = {
   params: {
@@ -14,7 +15,7 @@ type Params = {
   }
 }
 export default async function OwnerPage({ params }: Params) {
-  const where = { ownerAddress: fixAddressForInfluenceApi(params.address) }
+  const where = { ownerAddress: Address.toStandard(params.address) }
   const [
     ownedAsteroids,
     {
@@ -56,7 +57,7 @@ export default async function OwnerPage({ params }: Params) {
   return (
     <div className='flex flex-col gap-y-3 p-3'>
       <div className='flex flex-wrap gap-3'>
-        <Address address={params.address} shownCharacters={4} heading />
+        <AddressDisplay address={params.address} shownCharacters={4} heading />
         <Balances address={params.address} hideAsteroids />
       </div>
       <Separator className='mt-2 bg-primary' />
