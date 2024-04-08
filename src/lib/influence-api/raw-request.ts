@@ -18,6 +18,7 @@ export const makeRawRequest =
     options: RequestOptions<Schema>
   ) => {
     const init: RequestInit = {
+      cache: 'no-cache',
       ...options.requestInit,
       headers: {
         ...(options.requestInit?.headers ?? {}),
