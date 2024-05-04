@@ -1,8 +1,8 @@
 import { Order } from '@influenceth/sdk'
+import { orderSchema, searchResponseSchema } from 'influence-typed-sdk/api'
 import { traderDashbboardParamsCache } from '../params'
 import { OpenOrdersTable } from './table'
 import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
-import { orderSchema, searchResponseSchema } from '@/lib/influence-api/types'
 
 export default async function OpenOrdersPage({
   searchParams,

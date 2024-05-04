@@ -1,6 +1,6 @@
 import { Entity } from '@influenceth/sdk'
+import { EntityIds, InfluenceEntity } from 'influence-typed-sdk/api'
 import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
-import { EntityIds, InfluenceEntity } from '@/lib/influence-api/types'
 
 export type CrewStatusData = {
   id: number

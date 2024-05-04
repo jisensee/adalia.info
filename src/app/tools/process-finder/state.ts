@@ -1,7 +1,7 @@
 import { Process, ProcessType, Product, ProductType } from '@influenceth/sdk'
 import { Reducer, useReducer } from 'react'
+import { getInOutputs, reduceProductAmounts } from 'influence-typed-sdk/api'
 import { groupArrayBy } from '@/lib/utils'
-import { getInOutputs, reduceProductAmounts } from '@/lib/influence-api/helpers'
 
 export type Warehouse = {
   id: number

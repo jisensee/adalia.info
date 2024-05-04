@@ -1,8 +1,8 @@
 import { FC } from 'react'
 import { Building } from '@influenceth/sdk'
 
+import { getOutputAmounts, reduceProductAmounts } from 'influence-typed-sdk/api'
 import { ProductAmount } from '../trader-dashboard/product-amount'
-import { getProcesses } from './api'
 import { AsteroidOverview } from './asteroid-overview'
 import { EntityStatus } from './entity-status'
 import { Refresh } from './refresh'
@@ -15,10 +15,6 @@ import {
 import { SwayAmount } from '@/components/sway-amount'
 import { ProductIcon } from '@/components/influence-asset-icons'
 import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
-import {
-  getOutputAmounts,
-  reduceProductAmounts,
-} from '@/lib/influence-api/helpers'
 
 export type ProductionTrackerProps = {
   walletAddress: string
@@ -27,20 +23,22 @@ export type ProductionTrackerProps = {
 const isProductionBuilding = (buildingId?: number) => {
   if (!buildingId) return false
 
-  return [
-    Building.IDS.REFINERY,
-    Building.IDS.BIOREACTOR,
-    Building.IDS.FACTORY,
-    Building.IDS.SHIPYARD,
-  ].includes(buildingId)
+  return (
+    [
+      Building.IDS.REFINERY,
+      Building.IDS.BIOREACTOR,
+      Building.IDS.FACTORY,
+      Building.IDS.SHIPYARD,
+    ] as number[]
+  ).includes(buildingId)
 }
 
 export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   walletAddress,
 }) => {
-  const r = await getProcesses(walletAddress)
+  const buildings = await preReleaseInfluenceApi.util.buildings(walletAddress)
 
-  const entities = r.flatMap((entity): EntityStatus[] => {
+  const entities = buildings.flatMap((entity): EntityStatus[] => {
     const asteroidId = entity.Location?.locations?.asteroid?.id ?? 1
     const lotUuid = entity.Location?.location?.lot?.uuid ?? ''
     const name = entity.Name
@@ -147,7 +145,9 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
     processors.push(entity)
     asteroidToEntities.set(asteroidName, processors)
   })
-  const entries = [...asteroidToEntities.entries()]
+  const entries = [...asteroidToEntities.entries()].sort(
+    (a, b) => b[1].length - a[1].length
+  )
 
   const floorPrices = await preReleaseInfluenceApi.util.floorPrices(
     incomingProducts.map(({ product }) => product.i)

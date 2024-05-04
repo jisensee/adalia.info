@@ -2,6 +2,7 @@ import { FC, useEffect, useState } from 'react'
 import { ProcessType, Product } from '@influenceth/sdk'
 import { AccordionItem } from '@radix-ui/react-accordion'
 import { useQueryStates } from 'nuqs'
+import { getInOutputs } from 'influence-typed-sdk/api'
 import { ListEntry } from './list-entry'
 import { settingsParams } from './params'
 import {
@@ -16,7 +17,6 @@ import {
   AccordionContent,
   AccordionTrigger,
 } from '@/components/ui/accordion'
-import { getInOutputs } from '@/lib/influence-api/helpers'
 
 type ProcessListProps = {
   allProcessors: number[]

@@ -1,8 +1,8 @@
 import { BuildingType, ProductType } from '@influenceth/sdk'
 import NextImage from 'next/image'
 import { FC } from 'react'
-import { getBuildingImageUrl, getProductImageUrl } from '@/lib/image-urls'
 import { cn } from '@/lib/utils'
+import { influenceImages } from '@/lib/influence-api/api'
 
 export type ProductIconProps = {
   className?: string
@@ -16,7 +16,7 @@ export const ProductIcon: FC<ProductIconProps> = ({
   size,
 }) => (
   <NextImage
-    src={getProductImageUrl(product, 'w85')}
+    src={influenceImages.product(product, { w: size, h: size })}
     alt={product.name}
     width={size}
     height={size}
@@ -56,7 +56,7 @@ export const BuildingIcon: FC<BuildingIconProps> = ({
   isHologram,
 }) => (
   <NextImage
-    src={getBuildingImageUrl(building, 'w150', isHologram)}
+    src={influenceImages.building(building, { w: size }, isHologram)}
     alt={building.name}
     width={size}
     height={size}

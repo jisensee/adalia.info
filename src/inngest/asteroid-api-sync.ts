@@ -6,9 +6,9 @@ import {
   Blockchain,
 } from '@prisma/client'
 import { BonusType, Rarity, Asteroid as SdkAsteroid } from '@influenceth/sdk'
+import { InfluenceEntity } from 'influence-typed-sdk/api'
 import { inngest } from './client'
 import { db } from '@/server/db'
-import { InfluenceEntity } from '@/lib/influence-api/types'
 import { influenceApi } from '@/lib/influence-api/api'
 
 const API_BATCH_SIZE = parseInt(

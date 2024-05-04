@@ -40,3 +40,5 @@ asteroid-snapshot.json
 public/workbox*
 public/sw.js
 public/sw.js.map
+
+tsconfig.tsbuildinfo

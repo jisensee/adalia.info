@@ -4,11 +4,12 @@ import NextImage from 'next/image'
 import { formatRelative } from 'date-fns'
 import { FC, useMemo } from 'react'
 import { Entity } from '@influenceth/sdk'
-import { CrewStatusData, crewmateImageUrl } from './api'
+import { CrewStatusData } from './api'
 import { Format } from '@/lib/format'
 import { useRemainingSeconds } from '@/hooks/timers'
 import { LotLink } from '@/components/lot-link'
 import { CopyButton } from '@/components/copy-button'
+import { influenceImages } from '@/lib/influence-api/api'
 
 type CrewStatusProps = {
   crew: CrewStatusData
@@ -34,7 +35,7 @@ export const CrewStatus: FC<CrewStatusProps> = ({ crew }) => {
   return (
     <div className='flex gap-x-3 rounded border border-primary'>
       <NextImage
-        src={crewmateImageUrl(crew.roster[0] ?? 0)}
+        src={influenceImages.crewmate(crew.roster[0] ?? 0)}
         alt={crew.name + ' captain'}
         width={75}
         height={100}
