@@ -80,7 +80,7 @@ const getInputs = (processes: ProcessType[]) => [
 ]
 
 const getOutputs = (processes: ProcessType[]) => [
-  ...new Set(processes.flatMap((p) => getInOutputs(p.outputs))),
+  ...new Set(processes.flatMap((p) => getInOutputs(p.outputs ?? {}))),
 ]
 
 const selectInput = (state: State, productId: number): State => {
@@ -121,7 +121,7 @@ const selectProcess = (state: State, process: ProcessType): State => {
 
 const selectOutput = (state: State, productId: number): State => {
   const selectedProcesses = state.processes.filter((process) =>
-    getInOutputs(process.outputs).includes(productId)
+    getInOutputs(process.outputs ?? {}).includes(productId)
   )
   const allOutputs = calcOutputs(state.processes, state.inputProducts)
   const selectedOutputs = calcOutputs(selectedProcesses, state.inputProducts)
@@ -145,7 +145,7 @@ const getOutputAmounts = (process: ProcessType, inputs: ProductAmount[]) => {
       })
       .sort((a, b) => a - b)[0] ?? 0
 
-  return Object.entries(process.outputs).map(([id, a]) => ({
+  return Object.entries(process.outputs ?? {}).map(([id, a]) => ({
     product: Product.getType(parseInt(id)),
     amount: a * maxRecipes,
   }))
@@ -207,11 +207,17 @@ const calcProcessFinderState = (
     )
 
     const outputProducts = collapseOutputAmounts(
-      [...new Set(processes.flatMap((p) => getInOutputs(p.outputs)))]
+      [
+        ...new Set(
+          processes.flatMap((p) => (p.outputs ? getInOutputs(p.outputs) : []))
+        ),
+      ]
         .map(Product.getType)
         .flatMap((p) => {
           const producingProcesses = processes.filter((process) =>
-            getInOutputs(process.outputs).includes(p.i)
+            process.outputs
+              ? getInOutputs(process.outputs).includes(p.i)
+              : false
           )
 
           return producingProcesses.flatMap((process) => {

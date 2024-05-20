@@ -98,7 +98,7 @@ const getContent = (status: EntityStatus, isFinished: boolean) => {
     case 'process': {
       const building = Format.processor(status.processorType)
       const outputAmount =
-        (status.runningProcess.outputs[status.outputProduct.i] ?? 1) *
+        (status.runningProcess.outputs?.[status.outputProduct.i] ?? 1) *
         status.recipes
       const formattedOutput = Format.productAmount(
         status.outputProduct,

@@ -66,7 +66,7 @@ export const ProcessList: FC<ProcessListProps> = ({
                     const inputProducts = getInOutputs(p.inputs).map(
                       Product.getType
                     )
-                    const outputProducts = getInOutputs(p.outputs).map(
+                    const outputProducts = getInOutputs(p.outputs ?? {}).map(
                       Product.getType
                     )
                     return (

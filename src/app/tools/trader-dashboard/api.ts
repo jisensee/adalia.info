@@ -136,9 +136,11 @@ export const getAllProductions = (
 
       const processes: ProductProduction[] = processBuckets.flatMap((b) => {
         const [process, outputProduct] = b.key
-        const [, outputAmountPerRecipe] = Object.entries(process.outputs).find(
-          ([productId]) => productId === outputProduct.i.toString()
-        ) ?? [0, 0]
+        const [, outputAmountPerRecipe] = Object.entries(
+          process.outputs ?? {}
+        ).find(([productId]) => productId === outputProduct.i.toString()) ?? [
+          0, 0,
+        ]
         const outputAmount = outputAmountPerRecipe * b.recipes.value
         return [
           {
