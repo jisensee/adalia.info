@@ -7,7 +7,7 @@ import {
   ProductType,
 } from '@influenceth/sdk'
 import { groupArrayBy } from '@/lib/utils'
-import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
+import { influenceApi } from '@/lib/influence-api/api'
 
 export type ProductProduction = {
   product: ProductType
@@ -20,7 +20,7 @@ export type ProductProduction = {
 export const getAllProductions = (
   asteroidId?: number
 ): Promise<ProductProduction[]> =>
-  preReleaseInfluenceApi
+  influenceApi
     .search({
       index: 'building',
       // elastic-builder does not support multi_terms aggregations...
@@ -131,8 +131,7 @@ export const getAllProductions = (
         ...processBuckets.map((b) => b.key[1].i),
         ...extractorBuckets.map((b) => b.key.i),
       ]
-      const floorPrices =
-        await preReleaseInfluenceApi.util.floorPrices(products)
+      const floorPrices = await influenceApi.util.floorPrices(products)
 
       const processes: ProductProduction[] = processBuckets.flatMap((b) => {
         const [process, outputProduct] = b.key
@@ -191,7 +190,7 @@ export type WarehouseContent = {
 export const getWarehouseContents = async (
   walletAddress: string
 ): Promise<WarehouseContent[]> => {
-  const warehouses = await preReleaseInfluenceApi.util.warehouses(walletAddress)
+  const warehouses = await influenceApi.util.warehouses(walletAddress)
 
   const contents = warehouses.flatMap((w) => {
     const contents = w.Inventories.find(
@@ -217,7 +216,7 @@ export const getWarehouseContents = async (
   const products = [
     ...new Set(contents.flatMap((c) => c.contents.map((c) => c.product.i))),
   ]
-  const floorPrices = await preReleaseInfluenceApi.util.floorPrices(products)
+  const floorPrices = await influenceApi.util.floorPrices(products)
 
   return contents.map((wc) => ({
     ...wc,

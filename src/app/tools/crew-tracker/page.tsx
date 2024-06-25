@@ -3,7 +3,7 @@ import { crewTrackerParams } from './params'
 import { CrewTracker } from './crew-tracker'
 import { CrewTrackerForm } from './form'
 import { getCrews } from './api'
-import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
+import { influenceApi } from '@/lib/influence-api/api'
 
 export const metadata = {
   title: 'Crew Tracker | adalia.info',
@@ -21,7 +21,10 @@ export default async function CrewTrackerPage({
     <div className='space-y-3 p-3'>
       <h1>Crew Tracker</h1>
       {!walletAddress && (
-        <p>Enter a wallet address and check the status of all your crews.</p>
+        <p>
+          Connect your StarkNet wallet or enter your address manually to check
+          the status of all your crews.
+        </p>
       )}
       <CrewTrackerForm walletAddress={walletAddress ?? undefined} />
       {walletAddress && <Tracker walletAddress={walletAddress} />}
@@ -32,8 +35,7 @@ export default async function CrewTrackerPage({
 const Tracker = async ({ walletAddress }: { walletAddress: string }) => {
   const crews = await getCrews(walletAddress)
   const asteroidIds = crews.flatMap((c) => (c.asteroidId ? [c.asteroidId] : []))
-  const asteroidNames =
-    await preReleaseInfluenceApi.util.asteroidNames(asteroidIds)
+  const asteroidNames = await influenceApi.util.asteroidNames(asteroidIds)
 
   return <CrewTracker crews={crews} asteroidNames={asteroidNames} />
 }

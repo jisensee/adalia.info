@@ -5,9 +5,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { mainnet as starknetMainnet } from '@starknet-react/chains'
 import {
   StarknetConfig,
-  publicProvider,
   braavos,
   argent,
+  alchemyProvider,
 } from '@starknet-react/core'
 import { PropsWithChildren } from 'react'
 import { WagmiProvider } from 'wagmi'
@@ -15,7 +15,9 @@ import { wagmiConfig } from './wagmi-config'
 
 const queryClient = new QueryClient()
 
-const starknetProvider = publicProvider()
+const starknetProvider = alchemyProvider({
+  apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY ?? '',
+})
 const starknetConnectors = [braavos(), argent()]
 
 export const Providers = ({ children }: PropsWithChildren) => {

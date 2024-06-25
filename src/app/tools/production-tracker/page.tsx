@@ -23,8 +23,8 @@ export default async function ProductionTrackerPage({
       <h1>Production Tracker</h1>
       <div>
         <p className={cn({ hidden: walletAddress })}>
-          Enter a wallet address and check the status of all your production
-          facilities.
+          Connect your StarkNet wallet or enter your address mannualy to check
+          the status of all your production facilities.
         </p>
         <ProductionTrackerForm walletAddress={walletAddress ?? undefined} />
       </div>

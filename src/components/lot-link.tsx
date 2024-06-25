@@ -16,7 +16,7 @@ export const LotLink: FC<LotLinkProps> = ({ uuid, className }) => {
     <div className={cn('flex gap-x-3', className)}>
       <Link
         className='text-primary hover:underline'
-        href={`https://game-prerelease.influenceth.io/${uuid}`}
+        href={`https://game.influenceth.io/${uuid}`}
         target='_blank'
       >
         Lot #{lotId.toLocaleString('en')}

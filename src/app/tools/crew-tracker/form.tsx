@@ -1,7 +1,7 @@
 'use client'
 
 import { useQueryStates } from 'nuqs'
-import { useTransition } from 'react'
+import { useEffect, useTransition } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,6 +16,7 @@ import {
   FormItem,
   FormLabel,
 } from '@/components/ui/form'
+import { useAccounts } from '@/hooks/wallet-hooks'
 
 const formSchema = z.object({
   walletAddress: z.string(),
@@ -40,6 +41,16 @@ export const CrewTrackerForm = ({
     }
   )
   const { refresh } = useRouter()
+
+  const connectedAddress = useAccounts()?.starknetAccount?.address
+  useEffect(() => {
+    console.log(connectedAddress)
+    if (connectedAddress) {
+      form.setValue('walletAddress', connectedAddress, {
+        shouldValidate: true,
+      })
+    }
+  }, [connectedAddress, form])
 
   return (
     <Form {...form}>

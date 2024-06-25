@@ -5,7 +5,7 @@ import { addressParams } from './params'
 import { ProcessFinderResults } from './results'
 import { WalletAddressForm } from './form'
 import { Settings } from './settings'
-import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
+import { influenceApi } from '@/lib/influence-api/api'
 
 export const metadata: Metadata = {
   title: 'Process Finder | adalia.info',
@@ -20,7 +20,7 @@ export default async function ProcessFinderPage({
     createSearchParamsCache(addressParams).parse(searchParams)
 
   const warehouses = walletAddress
-    ? await preReleaseInfluenceApi.util.warehouses(walletAddress)
+    ? await influenceApi.util.warehouses(walletAddress)
     : undefined
 
   const asteroidIds = warehouses?.flatMap((w) => {
@@ -29,7 +29,7 @@ export default async function ProcessFinderPage({
   })
 
   const asteroidNames = asteroidIds
-    ? await preReleaseInfluenceApi.util.asteroidNames(asteroidIds)
+    ? await influenceApi.util.asteroidNames(asteroidIds)
     : undefined
 
   const newWarehouses = warehouses

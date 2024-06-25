@@ -2,7 +2,7 @@ import { Order } from '@influenceth/sdk'
 import { orderSchema, searchResponseSchema } from 'influence-typed-sdk/api'
 import { traderDashbboardParamsCache } from '../params'
 import { OpenOrdersTable } from './table'
-import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
+import { influenceApi } from '@/lib/influence-api/api'
 
 export default async function OpenOrdersPage({
   searchParams,
@@ -34,11 +34,9 @@ export default async function OpenOrdersPage({
     ),
   ]
   const [floorPrices, asteroidNames, marketplaceNames] = await Promise.all([
-    preReleaseInfluenceApi.util.floorPrices([
-      ...new Set(orders.map((o) => o.product.i)),
-    ]),
-    preReleaseInfluenceApi.util.asteroidNames(asteroidIds),
-    preReleaseInfluenceApi.util.buildingNames(marketplaceIds),
+    influenceApi.util.floorPrices([...new Set(orders.map((o) => o.product.i))]),
+    influenceApi.util.asteroidNames(asteroidIds),
+    influenceApi.util.buildingNames(marketplaceIds),
   ])
 
   return (
@@ -55,7 +53,7 @@ export default async function OpenOrdersPage({
 }
 
 const getCrewNames = async (address: string) => {
-  const crews = await preReleaseInfluenceApi.util.crews(address)
+  const crews = await influenceApi.util.crews(address)
   const crewNames = new Map<number, string>()
   crews.forEach((crew) =>
     crewNames.set(crew.id, crew.Name ?? `Crew#${crew.id}`)
@@ -64,7 +62,7 @@ const getCrewNames = async (address: string) => {
 }
 
 const getOrders = async (address: string) =>
-  preReleaseInfluenceApi.search({
+  influenceApi.search({
     index: 'order',
     request: {
       size: 100,
