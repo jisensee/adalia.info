@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/accordion'
 import { SwayAmount } from '@/components/sway-amount'
 import { ProductIcon } from '@/components/influence-asset-icons'
-import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
+import { influenceApi } from '@/lib/influence-api/api'
 
 export type ProductionTrackerProps = {
   walletAddress: string
@@ -36,7 +36,7 @@ const isProductionBuilding = (buildingId?: number) => {
 export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   walletAddress,
 }) => {
-  const buildings = await preReleaseInfluenceApi.util.buildings(walletAddress)
+  const buildings = await influenceApi.util.buildings(walletAddress)
 
   const entities = buildings.flatMap((entity): EntityStatus[] => {
     const asteroidId = entity.Location?.locations?.asteroid?.id ?? 1
@@ -111,8 +111,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   })
 
   const asteroidIds = [...new Set(entities.map(({ asteroidId }) => asteroidId))]
-  const asteroidIdToName =
-    await preReleaseInfluenceApi.util.asteroidNames(asteroidIds)
+  const asteroidIdToName = await influenceApi.util.asteroidNames(asteroidIds)
 
   const asteroidToEntities = new Map<string, EntityStatus[]>()
 
@@ -149,7 +148,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
     (a, b) => b[1].length - a[1].length
   )
 
-  const floorPrices = await preReleaseInfluenceApi.util.floorPrices(
+  const floorPrices = await influenceApi.util.floorPrices(
     incomingProducts.map(({ product }) => product.i)
   )
 

@@ -1,6 +1,6 @@
 import { Entity } from '@influenceth/sdk'
 import { EntityIds, InfluenceEntity } from 'influence-typed-sdk/api'
-import { preReleaseInfluenceApi } from '@/lib/influence-api/api'
+import { influenceApi } from '@/lib/influence-api/api'
 
 export type CrewStatusData = {
   id: number
@@ -14,7 +14,7 @@ export type CrewStatusData = {
 }
 
 export const getCrews = async (address: string): Promise<CrewStatusData[]> =>
-  preReleaseInfluenceApi
+  influenceApi
     .entities({
       match: {
         path: 'Crew.delegatedTo',
@@ -34,7 +34,7 @@ export const getCrews = async (address: string): Promise<CrewStatusData[]> =>
           const station = ship ?? building
           const actionLocation = await getCrewBusyLocation(entity)
           const habitat = station
-            ? await preReleaseInfluenceApi.entity(station)
+            ? await influenceApi.entity(station)
             : undefined
 
           return [
@@ -54,11 +54,8 @@ export const getCrews = async (address: string): Promise<CrewStatusData[]> =>
     )
     .then((e) => e.flat())
 
-export const crewmateImageUrl = (crewmateId: number) =>
-  `https://images-prerelease.influenceth.io/v1/crew/${crewmateId}/image.svg?bustOnly=true`
-
 const getCrewBusyLocation = (entity: InfluenceEntity) => {
   if (entity.Crew?.actionTarget) {
-    return preReleaseInfluenceApi.entity(entity.Crew.actionTarget)
+    return influenceApi.entity(entity.Crew.actionTarget)
   }
 }

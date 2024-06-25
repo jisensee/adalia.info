@@ -1,7 +1,7 @@
 'use client'
 
 import { useQueryStates } from 'nuqs'
-import { useTransition } from 'react'
+import { useEffect, useTransition } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,6 +17,7 @@ import {
   FormItem,
   FormLabel,
 } from '@/components/ui/form'
+import { useAccounts } from '@/hooks/wallet-hooks'
 
 const formSchema = z.object({
   walletAddress: z.string(),
@@ -38,10 +39,23 @@ export const TraderDashboardForm = () => {
   })
   const { refresh } = useRouter()
 
+  const connectedAddress = useAccounts()?.starknetAccount?.address
+  useEffect(() => {
+    console.log(connectedAddress)
+    if (connectedAddress) {
+      form.setValue('walletAddress', connectedAddress, {
+        shouldValidate: true,
+      })
+    }
+  }, [connectedAddress, form])
+
   return (
     <div>
       {!currentWalletAddress && (
-        <p>Enter your wallet address to enable personalized market insights.</p>
+        <p>
+          Connect your StarkNet wallet or enter your address manually to enable
+          personalized market insights.
+        </p>
       )}
       <Form {...form}>
         <form
