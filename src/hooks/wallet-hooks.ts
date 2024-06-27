@@ -10,6 +10,8 @@ import {
 import { getAsteroidCount } from '@/actions/asteroids'
 
 const SWAY_MAINNET_ADDRESS = '0x9DE7f7a6c0B00902983c6f0658E157A8a684Cfd5'
+const SWAY_STARKNET_ADDRESS =
+  '0x004878d1148318a31829523ee9c6a5ee563af6cd87f90a30809e5b0d27db8a9b'
 
 export type AccountInfo = {
   address: string
@@ -37,28 +39,40 @@ const useAsteroidCount = (address?: string) => {
 
   return count
 }
-
 export const useBalances = (address?: string) => {
+  const isStarknet = address && address.length > 42
+
   const ethBalanceResult = useMainnetBalance({
-    address: address as `0x${string}`,
+    address: isStarknet ? undefined : (address as `0x${string}`),
   })?.data
 
   const swayBalanceResult = useMainnetBalance({
-    address: address as `0x${string}`,
+    address: isStarknet ? undefined : (address as `0x${string}`),
     token: SWAY_MAINNET_ADDRESS,
   })?.data
 
-  const ethBalance = ethBalanceResult
+  const mainnetEthBalance = ethBalanceResult
     ? getEthBalance(ethBalanceResult.value)
     : undefined
 
-  const swayBalance = swayBalanceResult
+  const mainnetSwayBalance = swayBalanceResult
     ? getSwayBalance(swayBalanceResult.value, swayBalanceResult.decimals)
     : undefined
 
   const starkEthBalanceResult = useStarknetBalance({
-    address,
+    address: isStarknet ? address : undefined,
   })?.data
+
+  const starkSwayBalanceResult = useStarknetBalance({
+    address: isStarknet ? address : undefined,
+    token: SWAY_STARKNET_ADDRESS,
+  })?.data
+  const starkSwayBalance = starkSwayBalanceResult
+    ? getSwayBalance(
+        starkSwayBalanceResult.value,
+        starkSwayBalanceResult.decimals
+      )
+    : undefined
 
   const starkEthBalance = starkEthBalanceResult
     ? getEthBalance(starkEthBalanceResult.value)
@@ -67,8 +81,8 @@ export const useBalances = (address?: string) => {
   const ownedAsteroids = useAsteroidCount(address)
 
   return {
-    ethBalance: ethBalance ?? starkEthBalance,
-    swayBalance,
+    ethBalance: mainnetEthBalance ?? starkEthBalance,
+    swayBalance: mainnetSwayBalance ?? starkSwayBalance,
     ownedAsteroids,
   }
 }
