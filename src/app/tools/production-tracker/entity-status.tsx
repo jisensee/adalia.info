@@ -141,7 +141,7 @@ const getContent = (status: EntityStatus, isFinished: boolean) => {
     case 'idleBuilding':
       return (
         <div>
-          <h3>{status.buildingType.name}</h3>
+          <h3>{status.name ?? status.buildingType.name}</h3>
         </div>
       )
     default:
