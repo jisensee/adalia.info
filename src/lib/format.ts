@@ -103,6 +103,8 @@ export const Format = {
   },
   processor: (processorType: number) => {
     switch (processorType) {
+      case Processor.IDS.CONSTRUCTION:
+        return 'Building Construction'
       case Processor.IDS.REFINERY:
         return 'Refinery'
       case Processor.IDS.FACTORY:
