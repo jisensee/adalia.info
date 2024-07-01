@@ -1,4 +1,3 @@
-import { Entity } from '@influenceth/sdk'
 import { EntityIds, InfluenceEntity } from 'influence-typed-sdk/api'
 import { influenceApi } from '@/lib/influence-api/api'
 
@@ -14,14 +13,8 @@ export type CrewStatusData = {
 }
 
 export const getCrews = async (address: string): Promise<CrewStatusData[]> =>
-  influenceApi
-    .entities({
-      match: {
-        path: 'Crew.delegatedTo',
-        value: address.toLocaleLowerCase(),
-      },
-      label: Entity.IDS.CREW,
-    })
+  influenceApi.util
+    .crews(address)
     .then((crews) =>
       Promise.all(
         crews.flatMap(async (entity) => {
