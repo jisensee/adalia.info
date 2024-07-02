@@ -1,4 +1,4 @@
-import { Order } from '@influenceth/sdk'
+import { Address, Order } from '@influenceth/sdk'
 import { orderSchema, searchResponseSchema } from 'influence-typed-sdk/api'
 import { traderDashbboardParamsCache } from '../params'
 import { OpenOrdersTable } from './table'
@@ -71,7 +71,7 @@ const getOrders = async (address: string) =>
           filter: [
             {
               term: {
-                initialCaller: address.toLowerCase(),
+                initialCaller: Address.toStandard(address),
               },
             },
             {
