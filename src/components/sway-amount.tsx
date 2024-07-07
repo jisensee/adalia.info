@@ -24,7 +24,7 @@ export const SwayAmount: FC<SwayAmountProps> = ({
         'text-destructive': colored && sway < 0,
       })}
     >
-      {Format.swayAmount(hideDecimals ? Math.round(sway) : sway)}
+      {Format.swayAmount(sway, hideDecimals)}
     </span>
     <NextImage
       src='/sway-logo.png'
