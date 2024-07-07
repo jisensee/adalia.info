@@ -129,7 +129,7 @@ export const Format = {
     }
     return `${formatKgs(amount)} ${product.name}`
   },
-  swayAmount: (amount: number) => formatBigNumber(Math.round(amount / 1e6)),
+  swayAmount: (amount: number) => formatBigNumber(amount / 1e6),
   orderType: (orderType: number) =>
     orderType === Order.IDS.LIMIT_SELL ? 'Limit Sell' : 'Limit Buy',
 }

@@ -92,19 +92,31 @@ export const OpenOrdersTable: FC<OpenOrdersTableProps> = ({
       <div className='flex gap-x-3'>
         <Statistic
           title='Limit Sell Value'
-          value={<SwayAmount sway={sellValue} large colored />}
+          value={<SwayAmount sway={sellValue} large colored hideDecimals />}
           compact
         />
         <Statistic
           title='Limit Buy Value'
           value={
-            <SwayAmount sway={buyValue === 0 ? 0 : -buyValue} large colored />
+            <SwayAmount
+              sway={buyValue === 0 ? 0 : -buyValue}
+              large
+              colored
+              hideDecimals
+            />
           }
           compact
         />
         <Statistic
           title='Balance'
-          value={<SwayAmount sway={sellValue - buyValue} large colored />}
+          value={
+            <SwayAmount
+              sway={sellValue - buyValue}
+              large
+              colored
+              hideDecimals
+            />
+          }
           compact
         />
       </div>
