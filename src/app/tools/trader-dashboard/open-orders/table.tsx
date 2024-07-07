@@ -97,7 +97,9 @@ export const OpenOrdersTable: FC<OpenOrdersTableProps> = ({
         />
         <Statistic
           title='Limit Buy Value'
-          value={<SwayAmount sway={-buyValue} large colored />}
+          value={
+            <SwayAmount sway={buyValue === 0 ? 0 : -buyValue} large colored />
+          }
           compact
         />
         <Statistic
