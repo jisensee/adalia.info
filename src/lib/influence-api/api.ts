@@ -7,8 +7,4 @@ export const influenceApi = makeInfluenceApi({
   accessToken: process.env.INFLUENCE_API_ACCESS_TOKEN ?? '',
 })
 
-export const influenceImages = makeInfluenceImageUrls({
-  cloudfrontImageHost: 'd2xo5vocah3zyk.cloudfront.net',
-  apiImagesUrl: 'https://images.influenceth.io/v1',
-  cloudfrontBucket: 'unstoppablegames',
-})
+export const influenceImages = makeInfluenceImageUrls()

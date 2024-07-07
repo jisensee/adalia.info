@@ -35,7 +35,7 @@ export const CrewStatus: FC<CrewStatusProps> = ({ crew }) => {
   return (
     <div className='flex gap-x-3 rounded border border-primary'>
       <NextImage
-        src={influenceImages.crewmate(crew.roster[0] ?? 0)}
+        src={influenceImages.crewmate(crew.roster[0] ?? 0, { width: 75 })}
         alt={crew.name + ' captain'}
         width={75}
         height={100}
