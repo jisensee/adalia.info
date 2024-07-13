@@ -59,7 +59,7 @@ export default async function OpenOrdersPage({
 const getCrewNames = async (address: string) => {
   const crews = await influenceApi.util.crews(address)
   const crewNames = new Map<number, string>()
-  crews.forEach((crew) => crewNames.set(crew.id, getEntityName(crew.Name)))
+  crews.forEach((crew) => crewNames.set(crew.id, getEntityName(crew)))
   return crewNames
 }
 
