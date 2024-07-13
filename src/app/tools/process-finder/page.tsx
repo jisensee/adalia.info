@@ -1,6 +1,7 @@
 import { createSearchParamsCache } from 'nuqs/server'
 import { Metadata } from 'next'
 import { Inventory } from '@influenceth/sdk'
+import { getEntityName } from 'influence-typed-sdk/api'
 import { addressParams } from './params'
 import { ProcessFinderResults } from './results'
 import { WalletAddressForm } from './form'
@@ -24,7 +25,7 @@ export default async function ProcessFinderPage({
     : undefined
 
   const asteroidIds = warehouses?.flatMap((w) => {
-    const asteroidId = w.Location?.locations?.asteroid?.id
+    const asteroidId = w.Location?.resolvedLocations?.asteroid?.id
     return asteroidId ? [asteroidId] : []
   })
 
@@ -36,9 +37,11 @@ export default async function ProcessFinderPage({
     ? warehouses.map((wh) => {
         return {
           asteroid:
-            asteroidNames?.get(wh.Location?.locations?.asteroid?.id ?? 0) ?? '',
+            asteroidNames?.get(
+              wh.Location?.resolvedLocations?.asteroid?.id ?? 0
+            ) ?? '',
           id: wh.id,
-          name: wh.Name ?? `Warehouse#${wh.id}`,
+          name: getEntityName(wh),
           products:
             wh.Inventories?.find(
               (i) => i.inventoryType === Inventory.IDS.WAREHOUSE_PRIMARY

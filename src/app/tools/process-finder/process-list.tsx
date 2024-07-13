@@ -63,12 +63,8 @@ export const ProcessList: FC<ProcessListProps> = ({
                 {processes
                   .sort((a, b) => a.name.localeCompare(b.name))
                   .map((p) => {
-                    const inputProducts = getInOutputs(p.inputs).map(
-                      Product.getType
-                    )
-                    const outputProducts = getInOutputs(p.outputs ?? {}).map(
-                      Product.getType
-                    )
+                    const inputProducts = getInOutputs(p.inputs)
+                    const outputProducts = getInOutputs(p.outputs ?? {})
                     return (
                       <HoverCard key={p.i}>
                         <HoverCardTrigger onClick={() => onProcessSelect(p)}>
@@ -91,7 +87,11 @@ export const ProcessList: FC<ProcessListProps> = ({
                               size={32}
                             />
                           </div>
-                          <p>{inputProducts.map((p) => p.name).join(', ')}</p>
+                          <p>
+                            {inputProducts
+                              .map((p) => Product.getType(p).name)
+                              .join(', ')}
+                          </p>
                           <div className='flex items-center gap-2'>
                             <span className='text-primary'>Outputs:</span>{' '}
                             <ProductIconGroup
@@ -99,7 +99,11 @@ export const ProcessList: FC<ProcessListProps> = ({
                               size={32}
                             />
                           </div>
-                          <p>{outputProducts.map((p) => p.name).join(', ')}</p>
+                          <p>
+                            {outputProducts
+                              .map((p) => Product.getType(p).name)
+                              .join(', ')}
+                          </p>
                         </HoverCardContent>
                       </HoverCard>
                     )

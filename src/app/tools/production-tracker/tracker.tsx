@@ -1,7 +1,11 @@
 import { FC } from 'react'
-import { Building } from '@influenceth/sdk'
+import { Building, Product } from '@influenceth/sdk'
 
-import { getOutputAmounts, reduceProductAmounts } from 'influence-typed-sdk/api'
+import {
+  getEntityName,
+  getOutputAmounts,
+  reduceProductAmounts,
+} from 'influence-typed-sdk/api'
 import { ProductAmount } from '../trader-dashboard/product-amount'
 import { AsteroidOverview } from './asteroid-overview'
 import { EntityStatus } from './entity-status'
@@ -39,9 +43,9 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   const buildings = await influenceApi.util.buildings(walletAddress)
 
   const entities = buildings.flatMap((entity): EntityStatus[] => {
-    const asteroidId = entity.Location?.locations?.asteroid?.id ?? 1
-    const lotUuid = entity.Location?.location?.lot?.uuid ?? ''
-    const name = entity.Name
+    const asteroidId = entity.Location?.resolvedLocations?.asteroid?.id ?? 1
+    const lotUuid = entity.Location?.resolvedLocations?.lot?.uuid ?? ''
+    const name = getEntityName(entity)
 
     const base = {
       asteroidId,
@@ -54,7 +58,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
         type: 'extractor',
         outputProduct: extractor.outputProduct,
         yield: extractor.yield,
-        finishTime: extractor.finishTime,
+        finishTime: extractor.finishTimestamp,
         ...base,
       }))
     }
@@ -62,7 +66,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
       return entity.Processors.filter((p) => p.recipes > 0).map(
         (processor) => ({
           type: 'process',
-          finishTime: processor.finishTime,
+          finishTime: processor.finishTimestamp,
           runningProcess: processor.runningProcess,
           outputProduct: processor.outputProduct,
           processorType: processor.processorType,
@@ -80,17 +84,17 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
         {
           type: 'building',
           buildingType: entity.Building.buildingType,
-          finishTime: entity.Building.finishTime,
+          finishTime: entity.Building.finishTimestamp,
           ...base,
         },
       ]
     }
 
     const isIdleExtractor =
-      entity.Building?.buildingType.i === Building.IDS.EXTRACTOR &&
+      entity.Building?.buildingType === Building.IDS.EXTRACTOR &&
       !entity.Extractors.some((e) => e.yield > 0)
     const isIdleProduction =
-      isProductionBuilding(entity?.Building?.buildingType.i) &&
+      isProductionBuilding(entity?.Building?.buildingType) &&
       !entity.Processors.some((p) => p.recipes > 0)
 
     if (
@@ -127,8 +131,8 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
       }
       if (entity.type === 'process') {
         return getOutputAmounts(
-          entity.runningProcess.i,
-          entity.outputProduct.i,
+          entity.runningProcess,
+          entity.outputProduct,
           entity.recipes,
           entity.secondaryEff
         )
@@ -149,14 +153,14 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   )
 
   const floorPrices = await influenceApi.util.floorPrices(
-    incomingProducts.map(({ product }) => product.i)
+    incomingProducts.map(({ product }) => product)
   )
 
   const incomingProductsWithPrices = incomingProducts
     .map(({ product, amount }) => ({
       product,
       amount,
-      marketValue: amount * (floorPrices.get(product.i) ?? 0),
+      marketValue: amount * (floorPrices.get(product) ?? 0),
     }))
     .sort((a, b) => b.marketValue - a.marketValue)
 
@@ -181,13 +185,13 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
               {incomingProductsWithPrices.map(
                 ({ product, amount, marketValue }) => (
                   <div
-                    key={product.i}
+                    key={product}
                     className='flex items-center gap-x-2 rounded border border-primary px-2 py-1'
                   >
                     <ProductIcon product={product} size={40} />
                     <div className='flex w-full flex-row items-center justify-between sm:flex-col'>
                       <ProductAmount
-                        product={product}
+                        product={Product.getType(product)}
                         amount={amount}
                         hideBadges
                         hideIcon

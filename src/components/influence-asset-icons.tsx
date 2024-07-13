@@ -1,4 +1,3 @@
-import { BuildingType, ProductType } from '@influenceth/sdk'
 import NextImage from 'next/image'
 import { FC } from 'react'
 import { cn } from '@/lib/utils'
@@ -6,7 +5,7 @@ import { influenceImages } from '@/lib/influence-api/api'
 
 export type ProductIconProps = {
   className?: string
-  product: ProductType
+  product: number
   size: number
 }
 
@@ -17,7 +16,7 @@ export const ProductIcon: FC<ProductIconProps> = ({
 }) => (
   <NextImage
     src={influenceImages.product(product, { w: size, h: size })}
-    alt={product.name}
+    alt={`product ${product}`}
     width={size}
     height={size}
     className={className}
@@ -25,7 +24,7 @@ export const ProductIcon: FC<ProductIconProps> = ({
 )
 
 export type ProductIconGroupProps = {
-  products: ProductType[]
+  products: number[]
   className?: string
   size: number
 }
@@ -37,14 +36,14 @@ export const ProductIconGroup: FC<ProductIconGroupProps> = ({
 }) => (
   <div className={cn('flex', className)}>
     {products.map((product) => (
-      <ProductIcon key={product.i} product={product} size={size} />
+      <ProductIcon key={product} product={product} size={size} />
     ))}
   </div>
 )
 
 export type BuildingIconProps = {
   className?: string
-  building: BuildingType
+  building: number
   size: number
   isHologram?: boolean
 }
@@ -57,7 +56,7 @@ export const BuildingIcon: FC<BuildingIconProps> = ({
 }) => (
   <NextImage
     src={influenceImages.building(building, { w: size }, isHologram)}
-    alt={building.name}
+    alt={`building ${building}`}
     width={size}
     height={size}
     className={className}

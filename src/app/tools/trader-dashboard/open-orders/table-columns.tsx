@@ -1,6 +1,6 @@
 'use client'
 
-import { Order, ProductType } from '@influenceth/sdk'
+import { Order, Product } from '@influenceth/sdk'
 import { ColumnDef } from '@tanstack/react-table'
 import { Check, X } from 'lucide-react'
 import { ProductAmount } from '../product-amount'
@@ -11,7 +11,7 @@ export type OpenOrderRow = {
   type: number
   crew: string
   location: string
-  product: ProductType
+  product: number
   amount: number
   price: number
   floorPrice: number
@@ -45,7 +45,7 @@ export const columns: ColumnDef<OpenOrderRow>[] = [
     enableSorting: true,
     cell: ({ row }) => (
       <ProductAmount
-        product={row.original.product}
+        product={Product.getType(row.original.product)}
         amount={row.original.amount}
         hideBadges
       />

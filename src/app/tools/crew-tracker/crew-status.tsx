@@ -4,6 +4,7 @@ import NextImage from 'next/image'
 import { formatRelative } from 'date-fns'
 import { FC, useMemo } from 'react'
 import { Entity } from '@influenceth/sdk'
+import { getEntityName } from 'influence-typed-sdk/api'
 import { CrewStatusData } from './api'
 import { Format } from '@/lib/format'
 import { useRemainingSeconds } from '@/hooks/timers'
@@ -30,7 +31,7 @@ export const CrewStatus: FC<CrewStatusProps> = ({ crew }) => {
     }
   }, [crew, isBusy])
 
-  const lotUuid = locationStatus?.entity?.Location?.locations.lot?.uuid
+  const lotUuid = locationStatus?.entity?.Location?.resolvedLocations.lot?.uuid
 
   return (
     <div className='flex gap-x-3 rounded border border-primary'>
@@ -66,15 +67,14 @@ export const CrewStatus: FC<CrewStatusProps> = ({ crew }) => {
             {locationStatus.entity.label === Entity.IDS.BUILDING
               ? 'Working at'
               : 'In Flight on'}{' '}
-            {locationStatus.entity?.Name ??
-              locationStatus.entity?.Building?.buildingType.name}
+            {locationStatus.entity ? getEntityName(locationStatus.entity) : ''}
           </p>
         )}
         {locationStatus?.type === 'habitat' && (
-          <p>Resting at {locationStatus.entity.Name ?? 'Habitat'}</p>
+          <p>Resting at {getEntityName(locationStatus.entity)}</p>
         )}
         {locationStatus?.type === 'travel' && (
-          <p>Travelling back to {locationStatus.entity.Name ?? 'Habitat'}</p>
+          <p>Travelling back to {getEntityName(locationStatus.entity)}</p>
         )}
         {lotUuid && <LotLink uuid={lotUuid} />}
       </div>

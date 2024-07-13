@@ -6,6 +6,7 @@ import {
   Product,
   ProductType,
 } from '@influenceth/sdk'
+import { getEntityName } from 'influence-typed-sdk/api'
 import { groupArrayBy } from '@/lib/utils'
 import { influenceApi } from '@/lib/influence-api/api'
 
@@ -181,7 +182,7 @@ export type WarehouseContent = {
   warehouseName: string
   asteroidId: number
   contents: {
-    product: ProductType
+    product: number
     amount: number
     marketValue: number
     floorPrice: number
@@ -202,9 +203,9 @@ export const getWarehouseContents = async (
     }
     return [
       {
-        warehouseName: w.Name ?? `Warehouse#${w.id}`,
+        warehouseName: getEntityName(w),
         warehouseId: w.id,
-        asteroidId: w.Location?.locations?.asteroid?.id ?? 0,
+        asteroidId: w.Location?.resolvedLocations?.asteroid?.id ?? 0,
         contents: contents.map((c) => ({
           ...c,
           marketValue: 0,
@@ -214,7 +215,7 @@ export const getWarehouseContents = async (
   })
 
   const products = [
-    ...new Set(contents.flatMap((c) => c.contents.map((c) => c.product.i))),
+    ...new Set(contents.flatMap((c) => c.contents.map((c) => c.product))),
   ]
   const floorPrices = await influenceApi.util.floorPrices(products)
 
@@ -222,8 +223,8 @@ export const getWarehouseContents = async (
     ...wc,
     contents: wc.contents.map((c) => ({
       ...c,
-      marketValue: c.amount * (floorPrices.get(c.product.i) ?? 0),
-      floorPrice: floorPrices.get(c.product.i) ?? 0,
+      marketValue: c.amount * (floorPrices.get(c.product) ?? 0),
+      floorPrice: floorPrices.get(c.product) ?? 0,
     })),
   }))
 }

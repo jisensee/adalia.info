@@ -42,8 +42,8 @@ export const ProcessFinderResults: FC<ProcessFinderResultsProps> = ({
         title='Warehouse products'
         products={state.inputProducts}
         selectedProducts={state.selectedInputs}
-        onProductSelect={({ i }) =>
-          dispatch({ type: 'select-input', productId: i })
+        onProductSelect={(productId) =>
+          dispatch({ type: 'select-input', productId })
         }
       />
       <ProcessList
@@ -58,8 +58,8 @@ export const ProcessFinderResults: FC<ProcessFinderResultsProps> = ({
         title='Possible outputs'
         products={state.outputProducts}
         selectedProducts={state.selectedOutputs}
-        onProductSelect={({ i }) =>
-          dispatch({ type: 'select-output', productId: i })
+        onProductSelect={(productId) =>
+          dispatch({ type: 'select-output', productId })
         }
       />
     </div>

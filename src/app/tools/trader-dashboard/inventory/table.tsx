@@ -7,7 +7,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { ProductType } from '@influenceth/sdk'
+import { Product, ProductType } from '@influenceth/sdk'
 import { WarehouseContent } from '../api'
 import { InventoryRow, columns } from './table-columns'
 
@@ -55,7 +55,7 @@ export const InventoryTable: FC<InventoryTableProps> = ({
     () => rows.reduce((acc, row) => acc + row.marketValue, 0),
     [rows]
   )
-  const uniqueProducts = new Set(rows.map((r) => r.product.i)).size
+  const uniqueProducts = new Set(rows.map((r) => r.product)).size
   const warehouses = new Set(
     rows.map((r) => r.warehouses.map((w) => w.id)).flat()
   ).size
@@ -66,7 +66,7 @@ export const InventoryTable: FC<InventoryTableProps> = ({
   )
 
   const onCsvExport = useCsvDownload('inventory.csv', rows, (row) => ({
-    product: row.product.name,
+    product: Product.getType(row.product).name,
     amount: row.amount,
     warehouses: row.warehouses.map((wh) => wh.name).join(','),
     marketValue: row.marketValue / 1e6,
@@ -129,7 +129,7 @@ const combineWarehouses = (
       contents:
         productFilter && productFilter.length > 0
           ? wc.contents.filter(({ product }) =>
-              doesProductMatch(product, productFilter)
+              doesProductMatch(Product.getType(product), productFilter)
             )
           : wc.contents,
     }))
@@ -143,7 +143,7 @@ const combineWarehouses = (
         warehouseId: wc.warehouseId,
       }))
     ),
-    (i) => i.product.i
+    (i) => i.product
   )
 
   return [...grouped.values()].flatMap((rows) => {
