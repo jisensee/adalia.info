@@ -16,7 +16,7 @@ export default async function InventoryPage({
   const asteroidIds = warehouseContents.map((wc) => wc.asteroidId)
   const products = [
     ...new Set(
-      warehouseContents.flatMap((wc) => wc.contents.map((c) => c.product.i))
+      warehouseContents.flatMap((wc) => wc.contents.map((c) => c.product))
     ),
   ]
   const [asteroidNames, floorPrices] = await Promise.all([

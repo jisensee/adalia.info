@@ -1,6 +1,6 @@
-import { ProductType } from '@influenceth/sdk'
+import { Product } from '@influenceth/sdk'
 import { FC, ReactNode } from 'react'
-import { ProductAmount } from './state'
+import { ProductAmount } from 'influence-typed-sdk/api'
 import { ListEntry } from './list-entry'
 import {
   HoverCard,
@@ -14,7 +14,7 @@ type ProductListProps = {
   title: ReactNode
   products: ProductAmount[]
   selectedProducts: number[]
-  onProductSelect?: (product: ProductType) => void
+  onProductSelect?: (product: number) => void
 }
 
 export const ProductList: FC<ProductListProps> = ({
@@ -30,33 +30,42 @@ export const ProductList: FC<ProductListProps> = ({
       </h2>
       <div className='flex flex-col'>
         {products
-          .sort((a, b) => a.product.name.localeCompare(b.product.name))
-          .map(({ product, amount }) => (
-            <HoverCard key={product.i}>
-              <HoverCardTrigger onClick={() => onProductSelect?.(product)}>
-                <ListEntry selected={selectedProducts.includes(product.i)}>
+          .sort((a, b) =>
+            Product.getType(a.product).name.localeCompare(
+              Product.getType(b.product).name
+            )
+          )
+          .map(({ product, amount }) => {
+            const productType = Product.getType(product)
+            return (
+              <HoverCard key={product}>
+                <HoverCardTrigger onClick={() => onProductSelect?.(product)}>
+                  <ListEntry selected={selectedProducts.includes(product)}>
+                    <div className='flex items-center gap-2'>
+                      <ProductIcon product={product} size={24} />
+                      {Format.productAmount(product, amount)}
+                    </div>
+                  </ListEntry>
+                </HoverCardTrigger>
+                <HoverCardContent>
                   <div className='flex items-center gap-2'>
-                    <ProductIcon product={product} size={24} />
-                    {Format.productAmount(product, amount)}
+                    <ProductIcon product={product} size={64} />
+                    <h3>{productType.name}</h3>
                   </div>
-                </ListEntry>
-              </HoverCardTrigger>
-              <HoverCardContent>
-                <div className='flex items-center gap-2'>
-                  <ProductIcon product={product} size={64} />
-                  <h3>{product.name}</h3>
-                </div>
-                <p>
-                  Category:{' '}
-                  <span className='text-primary'>{product.category}</span>
-                </p>
-                <p>
-                  Type:{' '}
-                  <span className='text-primary'>{product.classification}</span>
-                </p>
-              </HoverCardContent>
-            </HoverCard>
-          ))}
+                  <p>
+                    Category:{' '}
+                    <span className='text-primary'>{productType.category}</span>
+                  </p>
+                  <p>
+                    Type:{' '}
+                    <span className='text-primary'>
+                      {productType.classification}
+                    </span>
+                  </p>
+                </HoverCardContent>
+              </HoverCard>
+            )
+          })}
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 'use client'
 
-import { BuildingType, ProcessType, ProductType } from '@influenceth/sdk'
+import { Building, Process, Product } from '@influenceth/sdk'
 import { FC } from 'react'
 import { Check, Hourglass } from 'lucide-react'
 import { formatRelative } from 'date-fns'
@@ -18,8 +18,8 @@ type BaseEntityStatus = {
 
 export type ProcessStatus = {
   type: 'process'
-  runningProcess: ProcessType
-  outputProduct: ProductType
+  runningProcess: number
+  outputProduct: number
   processorType: number
   recipes: number
   secondaryEff: number
@@ -27,18 +27,18 @@ export type ProcessStatus = {
 
 export type ExtractorStatus = {
   type: 'extractor'
-  outputProduct: ProductType
+  outputProduct: number
   yield: number
 } & BaseEntityStatus
 
 export type BuildingConstructionStatus = {
   type: 'building'
-  buildingType: BuildingType
+  buildingType: number
 } & BaseEntityStatus
 
 export type IdleBuildingStatus = {
   type: 'idleBuilding'
-  buildingType: BuildingType
+  buildingType: number
 } & Omit<BaseEntityStatus, 'remainingSeconds'>
 
 export type EntityStatus =
@@ -98,15 +98,16 @@ const getContent = (status: EntityStatus, isFinished: boolean) => {
     case 'process': {
       const building = Format.processor(status.processorType)
       const outputAmount =
-        (status.runningProcess.outputs?.[status.outputProduct.i] ?? 1) *
-        status.recipes
+        (Process.getType(status.runningProcess).outputs?.[
+          status.outputProduct
+        ] ?? 1) * status.recipes
       const formattedOutput = Format.productAmount(
         status.outputProduct,
         outputAmount
       )
       return (
         <div>
-          <h3>{status.runningProcess.name}</h3>
+          <h3>{Process.getType(status.runningProcess).name}</h3>
           <p>
             <span className='font-bold'>{status.name ?? building}</span>{' '}
             {isFinished ? 'produced' : 'is producing'}{' '}
@@ -123,7 +124,7 @@ const getContent = (status: EntityStatus, isFinished: boolean) => {
       const actionText = isFinished ? 'Extracted' : 'Extracting'
       return (
         <div>
-          <h3>{status.outputProduct.name} extraction</h3>
+          <h3>{Product.getType(status.outputProduct).name} extraction</h3>
           <p>
             {status.name && <span className='font-bold'>{status.name}</span>}
             {status.name ? ' is ' + actionText.toLowerCase() : actionText}{' '}
@@ -135,13 +136,13 @@ const getContent = (status: EntityStatus, isFinished: boolean) => {
     case 'building':
       return (
         <div>
-          <h3>{status.buildingType.name} construction</h3>
+          <h3>{Building.getType(status.buildingType).name} construction</h3>
         </div>
       )
     case 'idleBuilding':
       return (
         <div>
-          <h3>{status.name ?? status.buildingType.name}</h3>
+          <h3>{status.name ?? Building.getType(status.buildingType).name}</h3>
         </div>
       )
     default:

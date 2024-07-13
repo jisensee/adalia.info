@@ -8,7 +8,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { Order } from '@influenceth/sdk'
+import { Order, Product } from '@influenceth/sdk'
 import { EntityOrder } from 'influence-typed-sdk/api'
 import { OpenOrderRow, columns } from './table-columns'
 import { DataTable } from '@/components/ui/data-table'
@@ -43,7 +43,7 @@ export const OpenOrdersTable: FC<OpenOrdersTableProps> = ({
         price: order.price,
         amount: order.amount,
         product: order.product,
-        floorPrice: floorPrices.get(order.product.i) ?? 0,
+        floorPrice: floorPrices.get(order.product) ?? 0,
       })),
     [orders, asteroidNames, crewNames, floorPrices, marketplaceNames]
   )
@@ -65,7 +65,7 @@ export const OpenOrdersTable: FC<OpenOrdersTableProps> = ({
     type: order.type === Order.IDS.LIMIT_BUY ? 'Limit Buy' : 'Limit Sell',
     crew: order.crew,
     location: order.location,
-    product: order.product.name,
+    product: Product.getType(order.product).name,
     amount: order.amount,
     price: order.price / 1e6,
     floorPrice: order.floorPrice / 1e6,

@@ -4,7 +4,7 @@ import {
   AsteroidSize,
   AsteroidSpectralType,
 } from '@prisma/client'
-import { Order, Processor, ProductType } from '@influenceth/sdk'
+import { Order, Processor, Product } from '@influenceth/sdk'
 import { Constants } from './constants'
 
 const numberFormatter =
@@ -120,14 +120,15 @@ export const Format = {
     }
   },
   mass: (mass: number) => formatKgs(mass),
-  productAmount: (product: ProductType, amount: number) => {
+  productAmount: (product: number, amount: number) => {
+    const productType = Product.getType(product)
     if (amount === 0) {
-      return product.name
+      return productType.name
     }
-    if (product.isAtomic) {
-      return `${amount.toLocaleString()} ${product.name}`
+    if (productType.isAtomic) {
+      return `${amount.toLocaleString()} ${productType.name}`
     }
-    return `${formatKgs(amount)} ${product.name}`
+    return `${formatKgs(amount)} ${productType.name}`
   },
   swayAmount: (amount: number, hideDecimals = false) =>
     formatBigNumber(hideDecimals ? Math.round(amount / 1e6) : amount / 1e6),

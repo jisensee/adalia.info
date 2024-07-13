@@ -21,7 +21,7 @@ export const ProductAmount: FC<ProductAmountProps> = ({
   className,
 }) => (
   <div className={cn('flex flex-row items-center gap-x-2', className)}>
-    {!hideIcon && <ProductIcon product={product} size={24} />}
+    {!hideIcon && <ProductIcon product={product.i} size={24} />}
     <span>
       <span className='font-bold text-primary'>
         {product.isAtomic ? amount.toLocaleString() : Format.mass(amount)}

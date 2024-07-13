@@ -1,12 +1,12 @@
 'use client'
 
-import { ProductType } from '@influenceth/sdk'
+import { Product } from '@influenceth/sdk'
 import { ColumnDef } from '@tanstack/react-table'
 import { ProductAmount } from '../product-amount'
 import { SwayAmount } from '@/components/sway-amount'
 
 export type InventoryRow = {
-  product: ProductType
+  product: number
   amount: number
   marketValue: number
   floorPrice: number
@@ -25,7 +25,7 @@ export const columns: ColumnDef<InventoryRow>[] = [
     enableSorting: true,
     cell: ({ row }) => (
       <ProductAmount
-        product={row.original.product}
+        product={Product.getType(row.original.product)}
         amount={row.original.amount}
       />
     ),

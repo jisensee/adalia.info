@@ -220,7 +220,7 @@ const updateAsteroid = (
       id: apiAsteroid.id,
     },
     data: {
-      name: apiAsteroid?.Name,
+      name: apiAsteroid?.Name?.name,
       ownerAddress: newOwner,
       blockchain: newChain,
       rarity: newRarity,

@@ -1,5 +1,9 @@
 import { Address, Order } from '@influenceth/sdk'
-import { orderSchema, searchResponseSchema } from 'influence-typed-sdk/api'
+import {
+  getEntityName,
+  orderSchema,
+  searchResponseSchema,
+} from 'influence-typed-sdk/api'
 import { traderDashbboardParamsCache } from '../params'
 import { OpenOrdersTable } from './table'
 import { influenceApi } from '@/lib/influence-api/api'
@@ -34,7 +38,7 @@ export default async function OpenOrdersPage({
     ),
   ]
   const [floorPrices, asteroidNames, marketplaceNames] = await Promise.all([
-    influenceApi.util.floorPrices([...new Set(orders.map((o) => o.product.i))]),
+    influenceApi.util.floorPrices([...new Set(orders.map((o) => o.product))]),
     influenceApi.util.asteroidNames(asteroidIds),
     influenceApi.util.buildingNames(marketplaceIds),
   ])
@@ -55,9 +59,7 @@ export default async function OpenOrdersPage({
 const getCrewNames = async (address: string) => {
   const crews = await influenceApi.util.crews(address)
   const crewNames = new Map<number, string>()
-  crews.forEach((crew) =>
-    crewNames.set(crew.id, crew.Name ?? `Crew#${crew.id}`)
-  )
+  crews.forEach((crew) => crewNames.set(crew.id, getEntityName(crew.Name)))
   return crewNames
 }
 

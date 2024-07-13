@@ -1,6 +1,10 @@
 import { Process, ProcessType, Product, ProductType } from '@influenceth/sdk'
 import { Reducer, useReducer } from 'react'
-import { getInOutputs, reduceProductAmounts } from 'influence-typed-sdk/api'
+import {
+  ProductAmount,
+  getInOutputs,
+  reduceProductAmounts,
+} from 'influence-typed-sdk/api'
 import { groupArrayBy } from '@/lib/utils'
 
 export type Warehouse = {
@@ -27,11 +31,6 @@ type State = {
   allProcessors: number[]
   processes: ProcessType[]
   outputProducts: ProductAmount[]
-}
-
-export type ProductAmount = {
-  product: ProductType
-  amount: number
 }
 
 type SelectInput = {
@@ -104,8 +103,7 @@ const calcOutputs = (processes: ProcessType[], inputs: ProductAmount[]) =>
 const mergeOutputs = (
   allOutputs: ProductAmount[],
   overrides: ProductAmount[]
-) =>
-  allOutputs.map((o) => overrides.find((s) => s.product.i === o.product.i) ?? o)
+) => allOutputs.map((o) => overrides.find((s) => s.product === o.product) ?? o)
 
 const selectProcess = (state: State, process: ProcessType): State => {
   const allOutputs = calcOutputs(state.processes, state.inputProducts)
@@ -139,25 +137,22 @@ const getOutputAmounts = (process: ProcessType, inputs: ProductAmount[]) => {
     Object.entries(process.inputs)
       .map(([processInput, inputAmount]) => {
         const input =
-          inputs.find((p) => p.product.i === parseInt(processInput))?.amount ??
-          0
+          inputs.find((p) => p.product === parseInt(processInput))?.amount ?? 0
         return Math.floor(input / inputAmount)
       })
       .sort((a, b) => a - b)[0] ?? 0
 
   return Object.entries(process.outputs ?? {}).map(([id, a]) => ({
-    product: Product.getType(parseInt(id)),
+    product: parseInt(id),
     amount: a * maxRecipes,
   }))
 }
 
 const collapseOutputAmounts = (outputProducts: ProductAmount[]) =>
-  [...groupArrayBy(outputProducts, (o) => o.product.i).values()].flatMap(
-    (o) => {
-      const r = o.sort((a, b) => b.amount - a.amount)[0]
-      return r ? [r] : []
-    }
-  )
+  [...groupArrayBy(outputProducts, (o) => o.product).values()].flatMap((o) => {
+    const r = o.sort((a, b) => b.amount - a.amount)[0]
+    return r ? [r] : []
+  })
 
 export const useProcessFinderState = (
   warehouses: Warehouse[],
@@ -195,7 +190,7 @@ const calcProcessFinderState = (
   )
 
   const processData = groupedProducts.map((products) => {
-    const ids = new Set(products.map((p) => p.product.i))
+    const ids = new Set(products.map((p) => p.product))
     const allProcesses = Object.values(Process.TYPES).filter((t) =>
       getInOutputs(t.inputs).every((inputId) => ids.has(inputId))
     )
@@ -222,7 +217,7 @@ const calcProcessFinderState = (
 
           return producingProcesses.flatMap((process) => {
             const inputs = products.filter((p) =>
-              getInOutputs(process.inputs).includes(p.product.i)
+              getInOutputs(process.inputs).includes(p.product)
             )
             return getOutputAmounts(process, inputs)
           })
@@ -263,7 +258,7 @@ const removeWithoutProcesses = (
   const processInputIds = new Set(
     processes.flatMap((p) => getInOutputs(p.inputs))
   )
-  return products.filter((p) => processInputIds.has(p.product.i))
+  return products.filter((p) => processInputIds.has(p.product))
 }
 
 const getLowProductThreshold = (product: ProductType) => {
@@ -281,9 +276,10 @@ const getLowProductThreshold = (product: ProductType) => {
 }
 
 const isLowAmount = ({ product, amount }: ProductAmount) => {
-  if (amount === 0 || product.isAtomic) {
+  const productType = Product.getType(product)
+  if (amount === 0 || productType.isAtomic) {
     return false
   }
 
-  return amount < getLowProductThreshold(product)
+  return amount < getLowProductThreshold(productType)
 }
