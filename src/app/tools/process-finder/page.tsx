@@ -1,8 +1,8 @@
 import { createSearchParamsCache } from 'nuqs/server'
 import { Metadata } from 'next'
-import { Inventory } from '@influenceth/sdk'
+import { Entity, Inventory } from '@influenceth/sdk'
 import { getEntityName } from 'influence-typed-sdk/api'
-import { addressParams } from './params'
+import { addressParams, settingsParams } from './params'
 import { ProcessFinderResults } from './results'
 import { WalletAddressForm } from './form'
 import { Settings } from './settings'
@@ -12,6 +12,20 @@ export const metadata: Metadata = {
   title: 'Process Finder | adalia.info',
 }
 
+const getWarehouses = async (
+  walletAddress: string | null,
+  warehouseIds: number[] | null
+) => {
+  if (walletAddress) {
+    return influenceApi.util.warehouses(walletAddress)
+  } else if (warehouseIds) {
+    return influenceApi.entities({
+      id: warehouseIds,
+      label: Entity.IDS.BUILDING,
+    })
+  }
+}
+
 export default async function ProcessFinderPage({
   searchParams,
 }: {
@@ -19,10 +33,10 @@ export default async function ProcessFinderPage({
 }) {
   const { walletAddress } =
     createSearchParamsCache(addressParams).parse(searchParams)
+  const { warehouses: warehouseIds } =
+    createSearchParamsCache(settingsParams).parse(searchParams)
 
-  const warehouses = walletAddress
-    ? await influenceApi.util.warehouses(walletAddress)
-    : undefined
+  const warehouses = await getWarehouses(walletAddress, warehouseIds)
 
   const asteroidIds = warehouses?.flatMap((w) => {
     const asteroidId = w.Location?.resolvedLocations?.asteroid?.id
