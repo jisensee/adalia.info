@@ -54,6 +54,7 @@ export const BeltInventoryTable = ({ products }: BeltInventoryTableProps) => {
     product: Product.getType(row.product).name,
     amount: row.amount,
     containingWarehouses: row.containingWarehouses,
+    warehouseAverage: row.amount / row.containingWarehouses,
     floorPrice: row.floorPrice ? row.floorPrice : '',
     marketValue: row.floorPrice ? row.floorPrice : '',
   }))

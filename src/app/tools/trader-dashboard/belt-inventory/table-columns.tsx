@@ -5,6 +5,7 @@ import { Product } from '@influenceth/sdk'
 import { ProductAmount } from '../product-amount'
 import { BeltInventoryItem } from './api'
 import { SwayAmount } from '@/components/sway-amount'
+import { Format } from '@/lib/format'
 
 export const columns: ColumnDef<BeltInventoryItem>[] = [
   {
@@ -25,6 +26,16 @@ export const columns: ColumnDef<BeltInventoryItem>[] = [
     accessorFn: (row) => row.containingWarehouses,
     enableSorting: true,
     cell: ({ row }) => row.original.containingWarehouses.toLocaleString(),
+  },
+  {
+    id: 'warehouse-average',
+    header: 'Warehouse Average',
+    accessorFn: (row) => row.amount / row.containingWarehouses,
+    enableSorting: true,
+    cell: ({ row: { original } }) =>
+      Product.getType(original.product).isAtomic
+        ? (original.amount / original.containingWarehouses).toLocaleString()
+        : Format.mass(original.amount / original.containingWarehouses),
   },
   {
     id: 'floor-price',

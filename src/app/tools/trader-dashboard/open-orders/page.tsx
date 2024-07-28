@@ -4,6 +4,7 @@ import {
   orderSchema,
   searchResponseSchema,
 } from 'influence-typed-sdk/api'
+import esb from 'elastic-builder'
 import { traderDashbboardParamsCache } from '../params'
 import { OpenOrdersTable } from './table'
 import { influenceApi } from '@/lib/influence-api/api'
@@ -66,25 +67,17 @@ const getCrewNames = async (address: string) => {
 const getOrders = async (address: string) =>
   influenceApi.search({
     index: 'order',
-    request: {
-      size: 100,
-      query: {
-        bool: {
-          filter: [
-            {
-              term: {
-                initialCaller: Address.toStandard(address),
-              },
-            },
-            {
-              term: {
-                status: Order.STATUSES.OPEN,
-              },
-            },
-          ],
-        },
-      },
-    },
+    request: esb
+      .requestBodySearch()
+      .size(999)
+      .query(
+        esb
+          .boolQuery()
+          .filter([
+            esb.termQuery('initialCaller', Address.toStandard(address)),
+            esb.termQuery('status', Order.STATUSES.OPEN),
+          ])
+      ),
     options: {
       responseSchema: searchResponseSchema(orderSchema),
     },
