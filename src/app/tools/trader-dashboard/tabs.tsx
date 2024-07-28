@@ -36,6 +36,11 @@ export const DashboardTabs = () => {
             Belt Production
           </TabsTrigger>
         </Link>
+        <Link href={`/tools/trader-dashboard/belt-inventory${paramStr}`}>
+          <TabsTrigger value='belt-inventory' className='text-md'>
+            Belt Inventory
+          </TabsTrigger>
+        </Link>
       </TabsList>
     </Tabs>
   )

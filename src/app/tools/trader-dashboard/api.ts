@@ -132,7 +132,9 @@ export const getAllProductions = (
         ...processBuckets.map((b) => b.key[1].i),
         ...extractorBuckets.map((b) => b.key.i),
       ]
-      const floorPrices = await influenceApi.util.floorPrices(products)
+      const floorPrices = await influenceApi.util.floorPrices(products, {
+        asteroidId,
+      })
 
       const processes: ProductProduction[] = processBuckets.flatMap((b) => {
         const [process, outputProduct] = b.key
@@ -227,4 +229,10 @@ export const getWarehouseContents = async (
       floorPrice: floorPrices.get(c.product) ?? 0,
     })),
   }))
+}
+
+export type ProductInventory = {
+  product: ProductType
+  amount: number
+  floorPrice: number
 }
