@@ -14,6 +14,9 @@ const numberFormatter =
     }) + (unit ? ' ' + unit : '')
 
 const formatKgs = (kgs: number) => {
+  if (kgs >= 1_000_000_000) {
+    return `${(kgs / 1_000_000_000).toFixed(2)}Mt`
+  }
   if (kgs >= 1_000_000) {
     return `${(kgs / 1_000_000).toFixed(2)}kt`
   }
