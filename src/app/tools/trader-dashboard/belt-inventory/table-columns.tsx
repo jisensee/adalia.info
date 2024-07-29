@@ -34,7 +34,7 @@ export const columns: ColumnDef<BeltInventoryItem>[] = [
     enableSorting: true,
     cell: ({ row: { original } }) =>
       Product.getType(original.product).isAtomic
-        ? (original.amount / original.containingWarehouses).toLocaleString()
+        ? Format.bigNumber(original.amount / original.containingWarehouses)
         : Format.mass(original.amount / original.containingWarehouses),
   },
   {

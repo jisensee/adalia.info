@@ -33,7 +33,7 @@ export const columns: ColumnDef<ProductProduction>[] = [
     enableSorting: true,
     cell: ({ row: { original } }) =>
       original.product.isAtomic
-        ? (original.amount / original.producers).toLocaleString()
+        ? Format.bigNumber(original.amount / original.producers)
         : Format.mass(original.amount / original.producers),
   },
   {

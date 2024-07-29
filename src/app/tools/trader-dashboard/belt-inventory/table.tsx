@@ -56,7 +56,7 @@ export const BeltInventoryTable = ({ products }: BeltInventoryTableProps) => {
     containingWarehouses: row.containingWarehouses,
     warehouseAverage: row.amount / row.containingWarehouses,
     floorPrice: row.floorPrice ? row.floorPrice : '',
-    marketValue: row.floorPrice ? row.floorPrice : '',
+    marketValue: row.floorPrice ? row.floorPrice * row.amount : '',
   }))
 
   return <DataTable table={table} onCsvExport={onCsvExport} />
