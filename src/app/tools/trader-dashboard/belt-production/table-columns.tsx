@@ -8,14 +8,30 @@ import { SwayAmount } from '@/components/sway-amount'
 
 export const columns: ColumnDef<ProductProduction>[] = [
   {
-    id: 'product',
-    header: 'Product',
+    id: 'product-amount',
+    header: 'Amount',
     accessorFn: (row) => row.amount,
     enableSorting: true,
     cell: ({ row }) => (
       <ProductAmount
         product={row.original.product}
         amount={row.original.amount}
+        onlyAmount
+        hideBadges
+        hideIcon
+      />
+    ),
+  },
+  {
+    id: 'product',
+    header: 'Product',
+    accessorFn: (row) => row.product.name,
+    enableSorting: true,
+    cell: ({ row }) => (
+      <ProductAmount
+        product={row.original.product}
+        amount={row.original.amount}
+        onlyName
       />
     ),
   },
