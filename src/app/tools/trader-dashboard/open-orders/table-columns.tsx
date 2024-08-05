@@ -39,14 +39,30 @@ export const columns: ColumnDef<OpenOrderRow>[] = [
     enableSorting: true,
   },
   {
-    id: 'product',
-    header: 'Product',
+    id: 'product-amount',
+    header: 'Amount',
     accessorFn: (row) => row.amount,
     enableSorting: true,
     cell: ({ row }) => (
       <ProductAmount
         product={Product.getType(row.original.product)}
         amount={row.original.amount}
+        onlyAmount
+        hideBadges
+        hideIcon
+      />
+    ),
+  },
+  {
+    id: 'product',
+    header: 'Product',
+    accessorFn: (row) => Product.getType(row.product).name,
+    enableSorting: true,
+    cell: ({ row }) => (
+      <ProductAmount
+        product={Product.getType(row.original.product)}
+        amount={row.original.amount}
+        onlyName
         hideBadges
       />
     ),

@@ -46,7 +46,7 @@ export const BeltProductionTable: FC<BeltProductionTableProps> = ({
       pagination: {
         pageSize: 15,
       },
-      sorting: [{ id: 'product', desc: true }],
+      sorting: [{ id: 'product-amount', desc: true }],
     },
   })
 

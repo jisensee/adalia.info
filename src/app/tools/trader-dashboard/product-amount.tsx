@@ -10,6 +10,8 @@ export type ProductAmountProps = {
   amount: number
   hideBadges?: boolean
   hideIcon?: boolean
+  onlyName?: boolean
+  onlyAmount?: boolean
   className?: string
 }
 
@@ -18,15 +20,20 @@ export const ProductAmount: FC<ProductAmountProps> = ({
   amount,
   hideBadges,
   hideIcon,
+  onlyName,
+  onlyAmount,
   className,
 }) => (
   <div className={cn('flex flex-row items-center gap-x-2', className)}>
     {!hideIcon && <ProductIcon product={product.i} size={24} />}
     <span>
-      <span className='font-bold text-primary'>
-        {product.isAtomic ? amount.toLocaleString() : Format.mass(amount)}
-      </span>{' '}
-      {product.name}
+      {!onlyName && (
+        <span className='font-bold text-primary'>
+          {product.isAtomic ? amount.toLocaleString() : Format.mass(amount)}
+        </span>
+      )}
+      {}
+      {onlyAmount ? '' : ' ' + product.name}
     </span>
     {!hideBadges && (
       <>
