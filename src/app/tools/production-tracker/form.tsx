@@ -45,12 +45,12 @@ export const ProductionTrackerForm = ({
   const connectedAddress = useAccounts()?.starknetAccount?.address
   useEffect(() => {
     console.log(connectedAddress)
-    if (connectedAddress) {
+    if (connectedAddress && !currentWalletAddress) {
       form.setValue('walletAddress', connectedAddress, {
         shouldValidate: true,
       })
     }
-  }, [connectedAddress, form])
+  }, [connectedAddress, currentWalletAddress, form])
 
   return (
     <Form {...form}>

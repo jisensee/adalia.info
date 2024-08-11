@@ -3,6 +3,8 @@
 import { FC, ReactNode, useState } from 'react'
 import { Check, Cog, Hourglass, List } from 'lucide-react'
 import { isPast } from 'date-fns'
+import { A, F, pipe } from '@mobily/ts-belt'
+import { Building, Processor } from '@influenceth/sdk'
 import { EntityStatus, EntityStatusCard } from './entity-status'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -10,47 +12,106 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { Toggle } from '@/components/ui/toggle'
 
-type Filter = 'all' | 'finished' | 'busy' | 'idle'
+type StatusFilter = 'all' | 'finished' | 'busy' | 'idle'
+
+export type AsteroidOverviewProps = {
+  asteroid: string
+  entities: EntityStatus[]
+}
+
+const isBusy = (entity: EntityStatus) => entity.type !== 'idleBuilding'
+const isIdle = (entity: EntityStatus) => entity.type === 'idleBuilding'
+const isFinished = (entity: EntityStatus) => isPast(entity.finishTime)
+
+const applyStatusFilter = (
+  entities: EntityStatus[],
+  statusFilter: StatusFilter
+) => {
+  if (statusFilter === 'idle') return entities.filter(isIdle)
+  if (statusFilter === 'busy') return entities.filter(isBusy)
+  if (statusFilter === 'finished') return entities.filter(isFinished)
+  return entities
+}
+
+const processorToBuilding = (processorType: number) => {
+  switch (processorType) {
+    case Processor.IDS.REFINERY:
+      return Building.IDS.REFINERY
+    case Processor.IDS.BIOREACTOR:
+      return Building.IDS.BIOREACTOR
+    case Processor.IDS.FACTORY:
+      return Building.IDS.FACTORY
+    case Processor.IDS.SHIPYARD:
+      return Building.IDS.SHIPYARD
+    default:
+      return undefined
+  }
+}
+
+const applyBuldingFilter = (entities: EntityStatus[], buildings: number[]) =>
+  entities.filter((e) => {
+    if (buildings.length === 0) return true
+    switch (e.type) {
+      case 'extractor':
+        return buildings.includes(Building.IDS.EXTRACTOR)
+      case 'process':
+        return buildings.includes(processorToBuilding(e.processorType) ?? -1)
+      default:
+        return false
+    }
+  })
 
 export const AsteroidOverview = ({
   asteroid,
   entities,
-}: {
-  asteroid: string
-  entities: EntityStatus[]
-}) => {
-  const [filter, setFilter] = useState<Filter>('all')
+}: AsteroidOverviewProps) => {
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [buildingFilter, setBuildingFilter] = useState<number[]>([])
 
-  const busyEntities = entities.filter((e) => e.type !== 'idleBuilding')
-  const idleEntities = entities.filter((e) => e.type === 'idleBuilding')
-  const finishedEntities = entities.filter(
-    (e) => e.type !== 'idleBuilding' && isPast(e.finishTime)
+  const busyEntities = entities.filter(isBusy)
+  const idleEntities = entities.filter(isIdle)
+  const finishedEntities = entities.filter(isFinished)
+
+  const availableBuildings = pipe(
+    entities,
+    A.filterMap((e) => {
+      switch (e.type) {
+        case 'extractor':
+          return Building.IDS.EXTRACTOR
+        case 'process':
+          return processorToBuilding(e.processorType) ?? -1
+        default:
+          return undefined
+      }
+    }),
+    A.uniq,
+    A.sortBy(F.identity)
   )
 
-  const shownEntities = (() => {
-    if (filter === 'idle') return idleEntities
-    if (filter === 'busy') return busyEntities
-    if (filter === 'finished') return finishedEntities
-    return entities
-  })().sort((a, b) => {
-    const aValue =
-      a.type === 'idleBuilding' ? Number.MAX_VALUE : a.finishTime.getTime()
-    const bValue =
-      b.type === 'idleBuilding' ? Number.MAX_VALUE : b.finishTime.getTime()
-    return aValue - bValue
-  })
+  const shownEntities = pipe(
+    entities,
+    (e) => applyStatusFilter(e, statusFilter),
+    (e) => applyBuldingFilter(e, buildingFilter),
+    A.sortBy((e) =>
+      e.type === 'idleBuilding' ? Number.MAX_VALUE : e.finishTime.getTime()
+    )
+  )
 
   return (
     <AccordionItem value={asteroid}>
       <Header
-        filter={filter}
-        onFilterChange={setFilter}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+        buildingFilter={buildingFilter}
+        onBuildingFilterChange={setBuildingFilter}
         asteroid={asteroid}
         allCount={entities.length}
         finishedCount={finishedEntities.length}
         busyCount={busyEntities.length}
         idleCount={idleEntities.length}
+        availableBuildings={availableBuildings}
       />
       <AccordionContent>
         {shownEntities.length === 0 && <p>Nothing to see here...</p>}
@@ -65,61 +126,80 @@ export const AsteroidOverview = ({
 }
 
 type HeaderProps = {
-  filter: Filter
-  onFilterChange: (filter: Filter) => void
+  statusFilter: StatusFilter
+  onStatusFilterChange: (filter: StatusFilter) => void
+  buildingFilter: number[]
+  onBuildingFilterChange: (filter: number[]) => void
   asteroid: string
   allCount: number
   finishedCount: number
   busyCount: number
   idleCount: number
+  availableBuildings: number[]
 }
 
 const Header: FC<HeaderProps> = ({
-  filter,
-  onFilterChange,
+  statusFilter,
+  onStatusFilterChange,
+  buildingFilter,
+  onBuildingFilterChange,
   asteroid,
   allCount,
   finishedCount,
   busyCount,
   idleCount,
+  availableBuildings,
 }) => (
-  <div className='flex w-full items-center justify-between gap-x-3 2xl:justify-start'>
+  <div className='flex w-full flex-col justify-between gap-x-3 pb-2 lg:flex-row lg:items-center lg:pb-0 2xl:justify-start'>
     <AccordionTrigger>
       <h2>{asteroid}</h2>
     </AccordionTrigger>
-    <Tabs value={filter} onValueChange={(v) => onFilterChange(v as Filter)}>
-      <TabsList>
-        <TabButton
-          value='all'
-          text='All'
-          icon={<List size={15} />}
-          count={allCount}
+    <div className='flex flex-wrap gap-1'>
+      {availableBuildings.map((b) => (
+        <BuildingToggle
+          key={b}
+          buildingType={b}
+          buildingFilter={buildingFilter}
+          setBuildingFilter={onBuildingFilterChange}
         />
-        <TabButton
-          value='finished'
-          text='Finished'
-          icon={<Check size={15} />}
-          count={finishedCount}
-        />
-        <TabButton
-          value='busy'
-          text='Busy'
-          icon={<Cog size={15} />}
-          count={busyCount}
-        />
-        <TabButton
-          value='idle'
-          text='Idle'
-          icon={<Hourglass size={15} />}
-          count={idleCount}
-        />
-      </TabsList>
-    </Tabs>
+      ))}
+      <Tabs
+        value={statusFilter}
+        onValueChange={(v) => onStatusFilterChange(v as StatusFilter)}
+      >
+        <TabsList className='ml-1'>
+          <TabButton
+            value='all'
+            text='All'
+            icon={<List size={15} />}
+            count={allCount}
+          />
+          <TabButton
+            value='finished'
+            text='Finished'
+            icon={<Check size={15} />}
+            count={finishedCount}
+          />
+          <TabButton
+            value='busy'
+            text='Busy'
+            icon={<Cog size={15} />}
+            count={busyCount}
+          />
+          <TabButton
+            value='idle'
+            text='Idle'
+            icon={<Hourglass size={15} />}
+            count={idleCount}
+          />
+        </TabsList>
+      </Tabs>
+    </div>
   </div>
 )
 
 type TabButtonProps = {
-  value: Filter
+  value: StatusFilter
   text: ReactNode
   icon: ReactNode
   count: number
@@ -133,4 +213,29 @@ const TabButton: FC<TabButtonProps> = ({ text, icon, count, value }) => (
     </span>
     <span className='text-xs md:hidden'>{count}</span>
   </TabsTrigger>
+)
+
+const BuildingToggle = ({
+  buildingType,
+  buildingFilter,
+  setBuildingFilter,
+}: {
+  buildingType: number
+  buildingFilter: number[]
+  setBuildingFilter: (newFilter: number[]) => void
+}) => (
+  <Toggle
+    variant='outline'
+    pressed={buildingFilter.includes(buildingType)}
+    size='sm'
+    onPressedChange={(pressed) =>
+      setBuildingFilter(
+        pressed
+          ? [...buildingFilter, buildingType]
+          : buildingFilter.filter((b) => b !== buildingType)
+      )
+    }
+  >
+    {Building.getType(buildingType).name}
+  </Toggle>
 )
