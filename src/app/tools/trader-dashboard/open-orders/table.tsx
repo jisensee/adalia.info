@@ -10,6 +10,7 @@ import {
 } from '@tanstack/react-table'
 import { Order, Product } from '@influenceth/sdk'
 import { EntityOrder } from 'influence-typed-sdk/api'
+import { getProductFloorPrice } from '../util'
 import { OpenOrderRow, columns } from './table-columns'
 import { DataTable } from '@/components/ui/data-table'
 import { useCsvDownload } from '@/hooks/csv'
@@ -19,7 +20,7 @@ import { SwayAmount } from '@/components/sway-amount'
 type OpenOrdersTableProps = {
   orders: EntityOrder[]
   crewNames: Map<number, string>
-  floorPrices: Map<number, number>
+  floorPrices: Map<number, Map<number, number>>
   asteroidNames: Map<number, string>
   marketplaceNames: Map<number, string>
 }
@@ -36,14 +37,17 @@ export const OpenOrdersTable: FC<OpenOrdersTableProps> = ({
       orders.map((order) => ({
         type: order.orderType,
         crew: crewNames.get(order.crew.id) ?? '',
-        location:
-          marketplaceNames.get(order.locations.building?.id ?? 0) +
-          ' - ' +
-          asteroidNames.get(order.locations.asteroid?.id ?? 0),
+        asteroid: asteroidNames.get(order.locations.asteroid?.id ?? 0) ?? '',
+        marketplace:
+          marketplaceNames.get(order.locations.building?.id ?? 0) ?? '',
         price: order.price,
         amount: order.amount,
         product: order.product,
-        floorPrice: floorPrices.get(order.product) ?? 0,
+        floorPrice: getProductFloorPrice(
+          floorPrices,
+          order.locations?.asteroid?.id ?? 0,
+          order.product
+        ),
       })),
     [orders, asteroidNames, crewNames, floorPrices, marketplaceNames]
   )
@@ -64,7 +68,8 @@ export const OpenOrdersTable: FC<OpenOrdersTableProps> = ({
   const onCsvExport = useCsvDownload('open-orders.csv', rows, (order) => ({
     type: order.type === Order.IDS.LIMIT_BUY ? 'Limit Buy' : 'Limit Sell',
     crew: order.crew,
-    location: order.location,
+    marketplace: order.marketplace,
+    asteroid: order.asteroid,
     product: Product.getType(order.product).name,
     amount: order.amount,
     price: order.price / 1e6,
@@ -98,7 +103,12 @@ export const OpenOrdersTable: FC<OpenOrdersTableProps> = ({
         <Statistic
           title='Limit Buy Value'
           value={
-            <SwayAmount sway={buyValue === 0 ? 0 : -buyValue} large colored />
+            <SwayAmount
+              sway={buyValue === 0 ? 0 : -buyValue}
+              large
+              colored
+              noDecimals
+            />
           }
           compact
         />

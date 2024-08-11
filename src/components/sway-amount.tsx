@@ -7,9 +7,15 @@ type SwayAmountProps = {
   sway: number
   large?: boolean
   colored?: boolean
+  noDecimals?: boolean
 }
 
-export const SwayAmount: FC<SwayAmountProps> = ({ sway, large, colored }) => (
+export const SwayAmount: FC<SwayAmountProps> = ({
+  sway,
+  large,
+  colored,
+  noDecimals,
+}) => (
   <div className='flex items-center gap-x-2'>
     <span
       className={cn({
@@ -18,7 +24,7 @@ export const SwayAmount: FC<SwayAmountProps> = ({ sway, large, colored }) => (
         'text-destructive': colored && sway < 0,
       })}
     >
-      {Format.swayAmount(sway)}
+      {Format.swayAmount(sway, noDecimals)}
     </span>
     <NextImage
       src='/sway-logo.png'

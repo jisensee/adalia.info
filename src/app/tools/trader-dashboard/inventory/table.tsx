@@ -8,11 +8,12 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { Product, ProductType } from '@influenceth/sdk'
+import { A, D, pipe } from '@mobily/ts-belt'
 import { WarehouseContent } from '../api'
+import { getProductFloorPrice } from '../util'
 import { InventoryRow, columns } from './table-columns'
 
 import { InventoryFilter, TableFilters } from './filters'
-import { groupArrayBy } from '@/lib/utils'
 import { SwayAmount } from '@/components/sway-amount'
 import { DataTable } from '@/components/ui/data-table'
 import {
@@ -26,15 +27,18 @@ import { Statistic } from '@/components/statistic'
 
 type InventoryTableProps = {
   warehouseContents: WarehouseContent[]
+  floorPrices: Map<number, Map<number, number>>
   asteroidNames: Map<number, string>
-  floorPrices: Map<number, number>
 }
 
 export const InventoryTable: FC<InventoryTableProps> = ({
   warehouseContents,
+  floorPrices,
   asteroidNames,
 }) => {
-  const [rows, setRows] = useState(combineWarehouses(warehouseContents, {}))
+  const [rows, setRows] = useState(() =>
+    combineWarehouses(warehouseContents, floorPrices, {})
+  )
   const [filter, setFilter] = useState<InventoryFilter>({})
 
   const table = useReactTable({
@@ -82,7 +86,9 @@ export const InventoryTable: FC<InventoryTableProps> = ({
               filter={filter}
               onFilterChange={(newFilter) => {
                 setFilter(newFilter)
-                setRows(combineWarehouses(warehouseContents, newFilter))
+                setRows(
+                  combineWarehouses(warehouseContents, floorPrices, newFilter)
+                )
               }}
               asteroidNames={asteroidNames}
               warehouseNames={warehouseNames}
@@ -111,6 +117,7 @@ const doesProductMatch = (product: ProductType, filter: string) =>
 
 const combineWarehouses = (
   contents: WarehouseContent[],
+  floorPrices: Map<number, Map<number, number>>,
   filter: InventoryFilter
 ): InventoryRow[] => {
   const productFilter = filter.product
@@ -134,8 +141,9 @@ const combineWarehouses = (
           : wc.contents,
     }))
 
-  const grouped = groupArrayBy(
-    filteredContents.flatMap((wc) =>
+  return pipe(
+    filteredContents,
+    A.map((wc) =>
       wc.contents.map((c) => ({
         ...c,
         warehouseName: wc.warehouseName,
@@ -143,25 +151,43 @@ const combineWarehouses = (
         warehouseId: wc.warehouseId,
       }))
     ),
-    (i) => i.product
+    A.flat,
+    A.groupBy((i) => i.product),
+    D.values,
+    A.filterMap((contents) => {
+      const withFloorPrice =
+        contents?.map((wc) => ({
+          ...wc,
+          floorPrice: getProductFloorPrice(
+            floorPrices,
+            wc.asteroidId,
+            wc.product
+          ),
+        })) ?? []
+      const cheapest = pipe(
+        withFloorPrice,
+        A.sortBy(D.prop('floorPrice')),
+        A.last
+      )
+      if (!cheapest) return undefined
+      const totalAmount = withFloorPrice.reduce(
+        (acc, row) => acc + row.amount,
+        0
+      )
+      const totalMarketValue = withFloorPrice.reduce(
+        (acc, row) => acc + row.floorPrice * row.amount,
+        0
+      )
+      return {
+        ...cheapest,
+        amount: totalAmount,
+        marketValue: totalMarketValue,
+        warehouses: withFloorPrice.map((wh) => ({
+          name: wh.warehouseName,
+          id: wh.warehouseId,
+          asteroidId: wh.asteroidId,
+        })),
+      }
+    })
   )
-
-  return [...grouped.values()].flatMap((rows) => {
-    const first = rows[0]
-    if (!first) {
-      return []
-    }
-    const totalAmount = rows.reduce((acc, row) => acc + row.amount, 0)
-    const totalMarketValue = rows.reduce((acc, row) => acc + row.marketValue, 0)
-    return {
-      ...first,
-      amount: totalAmount,
-      marketValue: totalMarketValue,
-      warehouses: rows.map((wh) => ({
-        name: wh.warehouseName,
-        id: wh.warehouseId,
-        asteroidId: wh.asteroidId,
-      })),
-    }
-  })
 }

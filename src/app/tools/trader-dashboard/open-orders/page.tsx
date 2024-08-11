@@ -6,6 +6,7 @@ import {
 } from 'influence-typed-sdk/api'
 import esb from 'elastic-builder'
 import { traderDashbboardParamsCache } from '../params'
+import { getFloorPrices } from '../api'
 import { OpenOrdersTable } from './table'
 import { influenceApi } from '@/lib/influence-api/api'
 
@@ -39,7 +40,12 @@ export default async function OpenOrdersPage({
     ),
   ]
   const [floorPrices, asteroidNames, marketplaceNames] = await Promise.all([
-    influenceApi.util.floorPrices([...new Set(orders.map((o) => o.product))]),
+    getFloorPrices(
+      orders.map((o) => ({
+        productId: o.product,
+        asteroidId: o.locations?.asteroid?.id ?? 0,
+      }))
+    ),
     influenceApi.util.asteroidNames(asteroidIds),
     influenceApi.util.buildingNames(marketplaceIds),
   ])

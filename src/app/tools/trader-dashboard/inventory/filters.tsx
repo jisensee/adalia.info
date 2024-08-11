@@ -41,7 +41,7 @@ export const TableFilters: FC<TableFiltersProps> = ({
         value={filter.product}
         onChange={(e) => onFilterChange({ ...filter, product: e.target.value })}
         className='w-full'
-        placeholder='Product, Category or Classification'
+        placeholder='Search for a product'
       />
     </div>
   )

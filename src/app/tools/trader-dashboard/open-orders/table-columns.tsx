@@ -10,7 +10,8 @@ import { cn } from '@/lib/utils'
 export type OpenOrderRow = {
   type: number
   crew: string
-  location: string
+  asteroid: string
+  marketplace: string
   product: number
   amount: number
   price: number
@@ -33,9 +34,15 @@ export const columns: ColumnDef<OpenOrderRow>[] = [
     enableSorting: true,
   },
   {
-    id: 'location',
+    id: 'asteroid',
     header: 'Location',
-    accessorFn: (row) => row.location,
+    accessorFn: (row) => row.asteroid,
+    enableSorting: true,
+  },
+  {
+    id: 'marketplace',
+    header: 'Marketplace',
+    accessorFn: (row) => row.marketplace,
     enableSorting: true,
   },
   {
