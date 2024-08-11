@@ -56,6 +56,8 @@ export const Format = {
   semiMajorAxis: numberFormatter(3, Constants.SEMI_MAJOR_AXIS_UNIT),
   salePrice: numberFormatter(3, Constants.SALE_PRICE_UNIT),
   eccentricity: numberFormatter(3),
+  distance: (distance: number) => `${Math.round(distance)} km`,
+  days: (days: number) => `${days} day${days > 1 ? 's' : ''}`,
   ethAddress: (address: string, shownCharacters: number) => {
     const start = address.slice(0, shownCharacters + 2)
     const end = address.slice(-shownCharacters)

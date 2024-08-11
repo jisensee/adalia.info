@@ -4,19 +4,29 @@ import { Format } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 type SwayAmountProps = {
+  className?: string
   sway: number
   large?: boolean
   colored?: boolean
   noDecimals?: boolean
+  allDigits?: boolean
 }
 
 export const SwayAmount: FC<SwayAmountProps> = ({
+  className,
   sway,
   large,
   colored,
   noDecimals,
+  allDigits,
 }) => (
-  <div className='flex items-center gap-x-2'>
+  <div className={cn('flex items-center gap-x-2', className)}>
+    <NextImage
+      src='/sway-logo.png'
+      width={large ? 25 : 20}
+      height={large ? 25 : 20}
+      alt='Sway'
+    />
     <span
       className={cn({
         'text-xl': large,
@@ -24,13 +34,9 @@ export const SwayAmount: FC<SwayAmountProps> = ({
         'text-destructive': colored && sway < 0,
       })}
     >
-      {Format.swayAmount(sway, noDecimals)}
+      {allDigits
+        ? (sway / 1e6).toLocaleString()
+        : Format.swayAmount(sway, noDecimals)}
     </span>
-    <NextImage
-      src='/sway-logo.png'
-      width={large ? 25 : 20}
-      height={large ? 25 : 20}
-      alt='Sway'
-    />
   </div>
 )
