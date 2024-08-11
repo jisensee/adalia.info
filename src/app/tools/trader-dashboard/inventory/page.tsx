@@ -12,17 +12,10 @@ export default async function InventoryPage({
   if (!walletAddress) {
     return null
   }
-  const warehouseContents = await getWarehouseContents(walletAddress)
+  const [warehouseContents, floorPrices] = await getWarehouseContents(walletAddress)
   const asteroidIds = warehouseContents.map((wc) => wc.asteroidId)
-  const products = [
-    ...new Set(
-      warehouseContents.flatMap((wc) => wc.contents.map((c) => c.product))
-    ),
-  ]
-  const [asteroidNames, floorPrices] = await Promise.all([
-    influenceApi.util.asteroidNames(asteroidIds),
-    influenceApi.util.floorPrices(products),
-  ])
+  const asteroidNames = await influenceApi.util.asteroidNames(asteroidIds)
+
   return (
     <InventoryTable
       warehouseContents={warehouseContents}

@@ -27,6 +27,7 @@ const formatKgs = (kgs: number) => {
 }
 
 const formatBigNumber = (value: number) => {
+  const absValue = Math.abs(value)
   const formatNumber = (v: number, maxDecimals = 4) =>
     v.toLocaleString(undefined, {
       minimumFractionDigits: 0,
@@ -34,13 +35,13 @@ const formatBigNumber = (value: number) => {
       useGrouping: false,
     })
 
-  if (value >= 1_000_000_000) {
+  if (absValue >= 1_000_000_000) {
     return `${formatNumber(value / 1_000_000_000, 2)}B`
   }
-  if (value >= 1_000_000) {
+  if (absValue >= 1_000_000) {
     return `${formatNumber(value / 1_000_000, 2)}M`
   }
-  if (value >= 1_000) {
+  if (absValue >= 1_000) {
     return `${formatNumber(value / 1_000, 2)}K`
   }
   return formatNumber(value)
@@ -140,7 +141,8 @@ export const Format = {
     }
     return `${formatKgs(amount)} ${productType.name}`
   },
-  swayAmount: (amount: number) => formatBigNumber(amount / 1e6),
+  swayAmount: (amount: number, noDecimals = false) =>
+    formatBigNumber(noDecimals ? Math.round(amount / 1e6) : amount / 1e6),
   orderType: (orderType: number) =>
     orderType === Order.IDS.LIMIT_SELL ? 'Limit Sell' : 'Limit Buy',
 }

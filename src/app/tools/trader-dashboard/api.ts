@@ -7,6 +7,7 @@ import {
   ProductType,
 } from '@influenceth/sdk'
 import { getEntityName } from 'influence-typed-sdk/api'
+import { A, D, G, pipe } from '@mobily/ts-belt'
 import { groupArrayBy } from '@/lib/utils'
 import { influenceApi } from '@/lib/influence-api/api'
 
@@ -186,49 +187,56 @@ export type WarehouseContent = {
   contents: {
     product: number
     amount: number
-    marketValue: number
-    floorPrice: number
+    floorPrice?: number
   }[]
 }
 export const getWarehouseContents = async (
-  walletAddress: string
-): Promise<WarehouseContent[]> => {
-  const warehouses = await influenceApi.util.warehouses(walletAddress)
+  walletAddress: string,
+  asteroidId?: number
+) => {
+  const warehouses = await influenceApi.util.warehouses(
+    walletAddress,
+    asteroidId
+  )
 
-  const contents = warehouses.flatMap((w) => {
-    const contents = w.Inventories.find(
-      (i) => i.inventoryType === Inventory.IDS.WAREHOUSE_PRIMARY
-    )?.contents
+  const contents = pipe(
+    warehouses,
+    A.filterMap((w) => {
+      const contents = w.Inventories.find(
+        (i) => i.inventoryType === Inventory.IDS.WAREHOUSE_PRIMARY
+      )?.contents
 
-    if (contents === undefined) {
-      return []
-    }
-    return [
-      {
-        warehouseName: getEntityName(w),
-        warehouseId: w.id,
-        asteroidId: w.Location?.resolvedLocations?.asteroid?.id ?? 0,
-        contents: contents.map((c) => ({
-          ...c,
-          marketValue: 0,
-        })),
-      },
-    ]
-  })
+      if (contents === undefined) {
+        return []
+      }
+      return [
+        {
+          warehouseName: getEntityName(w),
+          warehouseId: w.id,
+          asteroidId: w.Location?.resolvedLocations?.asteroid?.id ?? 0,
+          contents,
+        },
+      ]
+    }),
+    A.flat
+  )
 
-  const products = [
-    ...new Set(contents.flatMap((c) => c.contents.map((c) => c.product))),
-  ]
-  const floorPrices = await influenceApi.util.floorPrices(products)
+  const floorPrices = await getFloorPrices(
+    pipe(
+      contents,
+      A.groupBy((c) => c.asteroidId),
+      D.mapWithKey((asteroidId, asteroidContents) =>
+        asteroidContents?.flatMap((c) =>
+          c.contents?.map((a) => ({ productId: a.product, asteroidId }))
+        )
+      ),
+      D.values,
+      A.flat,
+      A.filter(G.isNotNullable)
+    )
+  )
 
-  return contents.map((wc) => ({
-    ...wc,
-    contents: wc.contents.map((c) => ({
-      ...c,
-      marketValue: c.amount * (floorPrices.get(c.product) ?? 0),
-      floorPrice: floorPrices.get(c.product) ?? 0,
-    })),
-  }))
+  return [contents, floorPrices] as const
 }
 
 export type ProductInventory = {
@@ -236,3 +244,20 @@ export type ProductInventory = {
   amount: number
   floorPrice: number
 }
+
+export const getFloorPrices = async (
+  products: { productId: number; asteroidId: number }[]
+) =>
+  pipe(
+    products,
+    A.groupBy((p) => p.asteroidId),
+    D.map((asteroidOrders) => asteroidOrders?.map((p) => p.productId) ?? []),
+    D.mapWithKey(async (asteroidId, products) => {
+      const floorPrices = await influenceApi.util.floorPrices(products, {
+        asteroidId,
+      })
+      return [parseInt(asteroidId.toString()), floorPrices] as const
+    }),
+    D.values,
+    (r) => Promise.all(r)
+  ).then((r) => new Map(r))

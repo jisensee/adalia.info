@@ -262,9 +262,17 @@ const removeWithoutProcesses = (
 }
 
 const getLowProductThreshold = (product: ProductType) => {
-  switch (product.i) {
-    case Product.IDS.PLATINUM:
-      return 1
+  const atomicProducts: number[] = [
+    Product.IDS.PLATINUM,
+    Product.IDS.GOLD,
+    Product.IDS.SILVER,
+    Product.IDS.COMPUTER,
+    Product.IDS.COMPUTER_CHIP,
+    Product.IDS.CIRCUIT_BOARD,
+    Product.IDS.BARE_CIRCUIT_BOARD,
+  ]
+  if (atomicProducts.includes(product.i)) {
+    return 1
   }
 
   switch (product.classification) {
