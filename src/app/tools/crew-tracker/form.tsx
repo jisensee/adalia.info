@@ -44,7 +44,6 @@ export const CrewTrackerForm = ({
 
   const connectedAddress = useAccounts()?.starknetAccount?.address
   useEffect(() => {
-    console.log(connectedAddress)
     if (connectedAddress && !currentWalletAddress) {
       form.setValue('walletAddress', connectedAddress, {
         shouldValidate: true,
