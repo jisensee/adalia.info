@@ -59,7 +59,7 @@ export const CrewStatus: FC<CrewStatusProps> = ({ crew }) => {
               <span>{Format.remainingTime(remainingSeconds)}</span>{' '}
             </div>
           )}
-          {!isBusy && <p className='font-bold uppercase text-primary'>Idle</p>}
+          {!isBusy && <p className='font-bold uppercase'>Idle</p>}
         </div>
         {isBusy && <p> Ready {formatRelative(crew.readyAt, new Date())}</p>}
         {locationStatus?.type === 'action' && (
