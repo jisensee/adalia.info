@@ -80,7 +80,10 @@ export const columns: ColumnDef<OpenOrderRow>[] = [
     accessorFn: (row) => row.price,
     enableSorting: true,
     cell: ({ row }) => {
-      const isLowest = row.original.price <= row.original.floorPrice
+      // Allow a small error margin for the floor price since the reported floor price can be off by a bit
+      const isLowest =
+        Math.abs(row.original.price - row.original.floorPrice) <
+        row.original.price * 1e-7
       return (
         <div className='flex items-center gap-x-2'>
           <SwayAmount sway={row.original.price} />
