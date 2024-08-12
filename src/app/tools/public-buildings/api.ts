@@ -1,6 +1,13 @@
-import { Asteroid, Building, Entity, Permission } from '@influenceth/sdk'
+import {
+  Asteroid,
+  Building,
+  Entity,
+  Permission,
+  Processor,
+} from '@influenceth/sdk'
 import esb from 'elastic-builder'
 import {
+  InfluenceEntity,
   entitySchema,
   getEntityName,
   searchResponseSchema,
@@ -68,6 +75,32 @@ export const getPublicBuildings = async (
       responseSchema: searchResponseSchema(entitySchema),
     },
   })
+  const getFinishTimes = (building: InfluenceEntity) => {
+    if (building.Building?.buildingType === Building.IDS.EXTRACTOR) {
+      return {
+        type: 'extractor' as const,
+        permission: Permission.IDS.EXTRACT_RESOURCES as number,
+        processFinishTime: building.Extractors[0]?.finishTimestamp,
+      }
+    } else if (building.Building?.buildingType === Building.IDS.SHIPYARD) {
+      const processFinishTime = building.Processors.find(
+        (p) => p.processorType === Processor.IDS.SHIPYARD
+      )?.finishTimestamp
+      const assembleShipFinishTime = building.Processors.find(
+        (p) => p.processorType === Processor.IDS.DRY_DOCK
+      )?.finishTimestamp
+      return {
+        type: 'shipyard' as const,
+        processFinishTime,
+        assembleShipFinishTime,
+      }
+    }
+    return {
+      type: 'other' as const,
+      permission: Permission.IDS.RUN_PROCESS,
+      processFinishTime: building.Processors[0]?.finishTimestamp,
+    }
+  }
 
   const total = buildings.hits.total
   return {
@@ -77,7 +110,7 @@ export const getPublicBuildings = async (
       return {
         name: getEntityName(building),
         isPublic: building.PublicPolicies.some((p) => p.public),
-        freeAt: building.Processors[0]?.finishTimestamp,
+        finishTimes: getFinishTimes(building),
         prepaidPolicies: building.PrepaidPolicies.map((policy) => ({
           swayPerDay: Math.round(policy.rate / 41_666),
           daysNotice: policy.noticePeriod / 86_400,

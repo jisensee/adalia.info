@@ -53,14 +53,27 @@ export const PublicBuildingsTable = ({
   )
 }
 
+const isBuildingFree = (building: PublicBuilding) => {
+  const times = building.finishTimes
+  if (times.type === 'shipyard') {
+    return (
+      !times.processFinishTime ||
+      isPast(times.processFinishTime) ||
+      !times.assembleShipFinishTime ||
+      isPast(times.assembleShipFinishTime)
+    )
+  }
+  return !times.processFinishTime || isPast(times.processFinishTime)
+}
+
 const useShownBuildings = (buildings: PublicBuilding[]) => {
   const [{ showBusyBuildings }] = useQueryStates(publicBuildingsParams)
 
   return useMemo(
     () =>
       buildings.filter((building) => {
-        if (showBusyBuildings || !building.freeAt) return true
-        return isPast(building.freeAt)
+        if (showBusyBuildings || !building.finishTimes) return true
+        return isBuildingFree(building)
       }),
     [buildings, showBusyBuildings]
   )

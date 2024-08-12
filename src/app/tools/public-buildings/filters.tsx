@@ -108,7 +108,7 @@ export const PublicBuildingFilters = () => {
         {busyToggle}
         <p>
           <span className='mr-1 font-bold text-primary'>Tip:</span>Enter the lot
-          number of your crew&apos;s habitat to see it&apos;s distance to the
+          number of your crew&apos;s habitat to see their distance to the
           buildings.
         </p>
       </div>

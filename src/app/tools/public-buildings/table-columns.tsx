@@ -1,15 +1,53 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { O, pipe } from '@mobily/ts-belt'
+import { O } from '@mobily/ts-belt'
 import { differenceInSeconds, isFuture } from 'date-fns'
+import { Cog, Hammer, Rocket } from 'lucide-react'
+import { Permission } from '@influenceth/sdk'
+import { ReactNode } from 'react'
 import { type PublicBuilding } from './api'
 import { SwayAmount } from '@/components/sway-amount'
 import { Format } from '@/lib/format'
 import { LotLink } from '@/components/lot-link'
+import { cn } from '@/lib/utils'
 
-const getRate = (building: PublicBuilding) => {
-  if (building.isPublic) return 0
-  return building.prepaidPolicies[0]?.swayPerDay ?? 0
+const getPermissionIcon = (permission: number) => {
+  switch (permission) {
+    case Permission.IDS.RUN_PROCESS:
+      return <Cog size={16} />
+    case Permission.IDS.EXTRACT_RESOURCES:
+      return <Hammer size={16} />
+    default:
+      return <Rocket size={16} />
+  }
 }
+
+const renderFinishTime = (permission: number, date?: Date) => (
+  <div
+    className={cn(
+      'flex items-center gap-x-1',
+      date && isFuture(date) ? 'text-warning' : 'text-success'
+    )}
+  >
+    {getPermissionIcon(permission)}{' '}
+    {date && isFuture(date)
+      ? Format.remainingTime(differenceInSeconds(date, new Date()))
+      : 'Now'}
+  </div>
+)
+
+const renderPolicies = (
+  policies: PublicBuilding['prepaidPolicies'],
+  render: (policy: PublicBuilding['prepaidPolicies'][number]) => ReactNode
+) => (
+  <div className='flex items-center gap-x-3'>
+    {policies.map((policy) => (
+      <div className='flex items-center gap-x-1' key={policy.permission}>
+        {getPermissionIcon(policy.permission)}
+        {render(policy)}
+      </div>
+    ))}
+  </div>
+)
 
 export const columns: ColumnDef<PublicBuilding>[] = [
   {
@@ -21,17 +59,38 @@ export const columns: ColumnDef<PublicBuilding>[] = [
   {
     id: 'free-at',
     header: 'Free At',
-    accessorFn: (row) => row.freeAt,
+    accessorFn: ({ finishTimes }) =>
+      finishTimes.type === 'shipyard'
+        ? (finishTimes.processFinishTime?.getTime() ?? 0) +
+          (finishTimes.assembleShipFinishTime?.getTime() ?? 0)
+        : finishTimes.processFinishTime,
     enableSorting: true,
-    cell: ({ row }) =>
-      pipe(
-        row.original.freeAt,
-        O.filter(isFuture),
-        O.mapWithDefault(<span className='text-success'>Now</span>, (date) => (
-          <span className='text-warning'>
-            {Format.remainingTime(differenceInSeconds(date, new Date()))}
-          </span>
-        ))
+    cell: ({
+      row: {
+        original: { finishTimes, isPublic, prepaidPolicies },
+      },
+    }) =>
+      finishTimes.type === 'shipyard' ? (
+        <div className='flex items-center gap-x-3'>
+          {(isPublic ||
+            prepaidPolicies.some(
+              (p) => p.permission === Permission.IDS.RUN_PROCESS
+            )) &&
+            renderFinishTime(
+              Permission.IDS.RUN_PROCESS,
+              finishTimes.processFinishTime
+            )}
+          {(isPublic ||
+            prepaidPolicies.some(
+              (p) => p.permission === Permission.IDS.ASSEMBLE_SHIP
+            )) &&
+            renderFinishTime(
+              Permission.IDS.ASSEMBLE_SHIP,
+              finishTimes.assembleShipFinishTime
+            )}
+        </div>
+      ) : (
+        renderFinishTime(finishTimes.permission, finishTimes.processFinishTime)
       ),
   },
   {
@@ -51,54 +110,40 @@ export const columns: ColumnDef<PublicBuilding>[] = [
   {
     id: 'minimum-duration',
     header: 'Minimum Duration',
-    accessorFn: (row) => row.prepaidPolicies[0]?.minimumDays,
-    cell: ({ row }) => {
-      const [policy1, policy2] = row.original.prepaidPolicies
-      if (policy1 && policy2 && policy1.minimumDays !== policy2.minimumDays) {
-        return `${Format.days(policy1.minimumDays)} / ${Format.days(policy2.minimumDays)}`
-      } else if (policy1) {
-        return Format.days(policy1.minimumDays)
-      }
-      return undefined
-    },
+    accessorFn: (row) =>
+      row.prepaidPolicies.reduce((acc, policy) => acc + policy.minimumDays, 0),
+    cell: ({ row }) =>
+      renderPolicies(row.original.prepaidPolicies, (policy) =>
+        Format.days(policy.minimumDays)
+      ),
     enableSorting: true,
   },
   {
     id: 'notice-period',
     header: 'Notice Period',
-    accessorFn: (row) => row.prepaidPolicies[0]?.daysNotice,
-    cell: ({ row }) => {
-      const [policy1, policy2] = row.original.prepaidPolicies
-      if (policy1 && policy2 && policy1.daysNotice !== policy2.daysNotice) {
-        return `${Format.days(policy1.daysNotice)} / ${Format.days(policy2.daysNotice)}`
-      } else if (policy1) {
-        return Format.days(policy1.daysNotice)
-      }
-      return undefined
-    },
+    accessorFn: (row) =>
+      row.prepaidPolicies.reduce((acc, policy) => acc + policy.daysNotice, 0),
+    cell: ({ row }) =>
+      renderPolicies(row.original.prepaidPolicies, (policy) =>
+        Format.days(policy.daysNotice)
+      ),
     enableSorting: true,
   },
   {
     id: 'rate',
     header: 'Price / Day',
-    accessorFn: getRate,
-    cell: ({ row }) => {
-      if (row.original.isPublic) return 'Public'
-      const [policy1, policy2] = row.original.prepaidPolicies
-      const renderRate = (rate: number) => (
-        <SwayAmount sway={rate * 1e6} allDigits />
-      )
-      if (policy1 && policy2 && policy1.swayPerDay !== policy2.swayPerDay) {
-        return (
-          <div className='flex items-center gap-x-1'>
-            {renderRate(policy1.swayPerDay)} / {renderRate(policy2.swayPerDay)}
-          </div>
-        )
-      } else if (policy1) {
-        return renderRate(policy1.swayPerDay)
-      }
-      return undefined
-    },
+    accessorFn: (building) =>
+      building.isPublic
+        ? 0
+        : building.prepaidPolicies.reduce(
+            (acc, policy) => acc + policy.swayPerDay,
+            0
+          ),
+    cell: ({ row }) =>
+      renderPolicies(row.original.prepaidPolicies, (policy) => {
+        if (policy.swayPerDay === 0) return 'Public'
+        return <SwayAmount sway={policy.swayPerDay * 1e6} allDigits />
+      }),
     enableSorting: true,
   },
 ]

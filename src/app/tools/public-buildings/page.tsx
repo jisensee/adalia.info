@@ -1,10 +1,15 @@
 import { Entity } from '@influenceth/sdk'
 import { getEntityName } from 'influence-typed-sdk/api'
+import { Metadata } from 'next'
 import { getPublicBuildings } from './api'
 import { PublicBuildingFilters } from './filters'
 import { publicBuildingsParamsCache } from './params'
 import { PublicBuildingsTable } from './table'
 import { influenceApi } from '@/lib/influence-api/api'
+
+export const metadata: Metadata = {
+  title: 'Public Buildings | adalia.info',
+}
 
 export default async function PublicBuildingsPage({
   searchParams,

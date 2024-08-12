@@ -20,7 +20,7 @@ export const SwayAmount: FC<SwayAmountProps> = ({
   noDecimals,
   allDigits,
 }) => (
-  <div className={cn('flex items-center gap-x-2', className)}>
+  <div className={cn('flex items-center gap-x-1', className)}>
     <NextImage
       src='/sway-logo.png'
       width={large ? 25 : 20}
