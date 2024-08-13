@@ -55,6 +55,16 @@ export default function ToolsPage() {
             </p>
           </div>
         </Link>
+        <Link href='/tools/ships-for-sale'>
+          <div className='group flex flex-col items-center justify-center rounded border border-primary p-5 hover:bg-primary'>
+            <h2 className='group-hover:text-primary-foreground'>
+              Ships For Sale
+            </h2>
+            <p className='text-md group-hover:text-primary-foreground'>
+              Find all ships that are currently for sale!
+            </p>
+          </div>
+        </Link>
       </div>
     </div>
   )

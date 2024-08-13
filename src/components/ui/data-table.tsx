@@ -17,14 +17,20 @@ import { cn } from '@/lib/utils'
 interface DataTableProps<TData> {
   table: TableInstance<TData>
   onCsvExport?: () => void
+  loading?: boolean
 }
 
 export const DataTable = <TData,>({
   table,
   onCsvExport,
+  loading,
 }: DataTableProps<TData>) => {
   return (
-    <div className='flex flex-col items-end gap-y-2'>
+    <div
+      className={cn('flex flex-col items-end gap-y-2', {
+        'opacity-50': loading,
+      })}
+    >
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
