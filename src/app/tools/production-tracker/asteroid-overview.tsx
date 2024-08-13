@@ -58,6 +58,8 @@ const applyBuldingFilter = (entities: EntityStatus[], buildings: number[]) =>
         return buildings.includes(Building.IDS.EXTRACTOR)
       case 'process':
         return buildings.includes(processorToBuilding(e.processorType) ?? -1)
+      case 'idleBuilding':
+        return buildings.includes(e.buildingType)
       default:
         return false
     }
@@ -82,6 +84,8 @@ export const AsteroidOverview = ({
           return Building.IDS.EXTRACTOR
         case 'process':
           return processorToBuilding(e.processorType) ?? -1
+        case 'idleBuilding':
+          return e.buildingType
         default:
           return undefined
       }
