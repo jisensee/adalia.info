@@ -43,11 +43,11 @@ export const ShipsForSaleTable = ({
     },
   })
   return (
-    <div>
+    <div className='space-y-1'>
       <ShipsForSaleFilters filters={filters} onFiltersChange={setFilters} />
       <h2>
-        {ships.length} ships found{' '}
-        {filterAsteroidName ? `on ${filterAsteroidName}` : 'in the belt'}
+        {ships.length} ships for sale
+        {filterAsteroidName ? ` on ${filterAsteroidName}` : ' in the belt'}
       </h2>
       <DataTable table={table} loading={loading} />
     </div>
