@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/select'
 import { useAccounts } from '@/hooks/wallet-hooks'
 import { Button } from '@/components/ui/button'
+import { AsteroidSelect } from '@/components/asteroid-select'
 
 export type ShipsForSaleFiltersProps = {
   filters: Filters
@@ -24,18 +25,11 @@ export const ShipsForSaleFilters = ({
   const connectedAccount = useAccounts()?.starknetAccount?.address
 
   const asteroidSelect = (
-    <div>
-      <Label>Asteroid ID</Label>
-      <Input
-        className='w-40'
-        type='number'
-        min={1}
-        value={filters.asteroidId?.toString() ?? ''}
-        onChange={(e) =>
-          onFiltersChange({
-            asteroidId: parseInt(e.target.value),
-          })
-        }
+    <div className='flex flex-col gap-y-1'>
+      <Label>Asteroid</Label>
+      <AsteroidSelect
+        asteroidId={filters.asteroidId}
+        onAsteroidIdChange={(id) => onFiltersChange({ asteroidId: id })}
       />
     </div>
   )
