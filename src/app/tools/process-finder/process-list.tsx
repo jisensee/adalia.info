@@ -1,6 +1,5 @@
 import { FC, useEffect, useState } from 'react'
 import { ProcessType, Product } from '@influenceth/sdk'
-import { AccordionItem } from '@radix-ui/react-accordion'
 import { useQueryStates } from 'nuqs'
 import { getInOutputs } from 'influence-typed-sdk/api'
 import { ListEntry } from './list-entry'
@@ -15,6 +14,7 @@ import { ProductIconGroup } from '@/components/influence-asset-icons'
 import {
   Accordion,
   AccordionContent,
+  AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
 

@@ -7,6 +7,7 @@ import { beltProductionParams } from '../params'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { AsteroidSelect } from '@/components/asteroid-select'
 
 export const BeltProductionFilters = () => {
   const [loading, startTransition] = useTransition()
@@ -37,11 +38,10 @@ export const BeltProductionFilters = () => {
         }}
       >
         <div className='w-full space-y-1 md:w-auto'>
-          <Label>Asteroid ID</Label>
-          <Input
-            type='number'
-            value={formValue}
-            onChange={(e) => setFormValue(e.target.value)}
+          <Label>Asteroid</Label>
+          <AsteroidSelect
+            asteroidId={formValue ? parseInt(formValue) : undefined}
+            onAsteroidIdChange={(id) => setFormValue(id?.toString())}
           />
         </div>
         <Button

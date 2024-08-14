@@ -13,6 +13,7 @@ import {
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
+import { AsteroidSelect } from '@/components/asteroid-select'
 
 const allowedBuildingTypes = [
   Building.IDS.EXTRACTOR,
@@ -55,17 +56,11 @@ export const PublicBuildingFilters = () => {
 
   const asteroidSelect = (
     <div>
-      <Label>Asteroid ID</Label>
-      <Input
-        className='w-40'
-        type='number'
-        min={1}
-        value={params.asteroidId?.toString()}
-        onChange={(e) =>
-          setParams({
-            asteroidId: parseInt(e.target.value),
-            habitatLotIndex: null,
-          })
+      <Label>Asteroid</Label>
+      <AsteroidSelect
+        asteroidId={params.asteroidId}
+        onAsteroidIdChange={(id) =>
+          setParams({ asteroidId: id, habitatLotIndex: null })
         }
       />
     </div>
