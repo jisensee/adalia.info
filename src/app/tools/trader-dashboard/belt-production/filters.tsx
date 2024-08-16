@@ -45,12 +45,7 @@ export const BeltProductionFilters = () => {
             allowAll
           />
         </div>
-        <Button
-          disabled={!formValue}
-          loading={loading}
-          type='submit'
-          icon={<Save />}
-        >
+        <Button loading={loading} type='submit' icon={<Save />}>
           Apply
         </Button>
       </form>
