@@ -45,7 +45,7 @@ export const ProductionTracker: FC<ProductionTrackerProps> = async ({
   const entities = buildings.flatMap((entity): EntityStatus[] => {
     const asteroidId = entity.Location?.resolvedLocations?.asteroid?.id ?? 1
     const lotUuid = entity.Location?.resolvedLocations?.lot?.uuid ?? ''
-    const name = getEntityName(entity)
+    const name = entity ? getEntityName(entity) : ''
 
     const base = {
       asteroidId,
