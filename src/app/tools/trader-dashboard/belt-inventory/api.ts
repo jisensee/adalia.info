@@ -23,7 +23,10 @@ export const getBeltInventory = (asteroidId?: number) =>
             .boolQuery()
             .mustNot([esb.termsQuery('Control.controller.id', 1)])
             .must([
-              esb.termQuery('Building.buildingType', Building.IDS.WAREHOUSE),
+              esb.termsQuery('Building.buildingType', [
+                Building.IDS.WAREHOUSE,
+                Building.IDS.TANK_FARM,
+              ]),
               esb.termQuery(
                 'Building.status',
                 Building.CONSTRUCTION_STATUSES.OPERATIONAL
@@ -53,10 +56,10 @@ export const getBeltInventory = (asteroidId?: number) =>
               esb
                 .filterAggregation(
                   'warehouses',
-                  esb.termQuery(
-                    'Inventories.inventoryType',
-                    Inventory.IDS.WAREHOUSE_PRIMARY
-                  )
+                  esb.termsQuery('Inventories.inventoryType', [
+                    Inventory.IDS.WAREHOUSE_PRIMARY,
+                    Inventory.IDS.TANK_FARM_PRIMARY,
+                  ])
                 )
                 .agg(
                   esb
@@ -73,7 +76,7 @@ export const getBeltInventory = (asteroidId?: number) =>
             .mapScript(
               `
             for(inv in params["_source"]["Inventories"]) {
-              if(inv["inventoryType"] == ${Inventory.IDS.WAREHOUSE_PRIMARY}) {
+              if(inv["inventoryType"] == ${Inventory.IDS.WAREHOUSE_PRIMARY} || inv["inventoryType"] == ${Inventory.IDS.TANK_FARM_PRIMARY}) {
                 for(c in inv["contents"]) {
                   def product = c["product"].toString();
                   if(state.products.containsKey(product)) {

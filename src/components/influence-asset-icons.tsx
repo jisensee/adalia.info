@@ -20,6 +20,7 @@ export const ProductIcon: FC<ProductIconProps> = ({
     width={size}
     height={size}
     className={className}
+    unoptimized
   />
 )
 
@@ -60,5 +61,6 @@ export const BuildingIcon: FC<BuildingIconProps> = ({
     width={size}
     height={size}
     className={className}
+    unoptimized
   />
 )

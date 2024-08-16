@@ -58,7 +58,7 @@ export default async function ProcessFinderPage({
           name: getEntityName(wh),
           products:
             wh.Inventories?.find(
-              (i) => i.inventoryType === Inventory.IDS.WAREHOUSE_PRIMARY
+              (i) => i.inventoryType === Inventory.IDS.WAREHOUSE_PRIMARY || i.inventoryType === Inventory.IDS.TANK_FARM_PRIMARY
             )?.contents ?? [],
         }
       })

@@ -203,7 +203,9 @@ export const getWarehouseContents = async (
     warehouses,
     A.filterMap((w) => {
       const contents = w.Inventories.find(
-        (i) => i.inventoryType === Inventory.IDS.WAREHOUSE_PRIMARY
+        (i) =>
+          i.inventoryType === Inventory.IDS.WAREHOUSE_PRIMARY ||
+          i.inventoryType === Inventory.IDS.TANK_FARM_PRIMARY
       )?.contents
 
       if (contents === undefined) {
