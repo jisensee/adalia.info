@@ -42,6 +42,7 @@ export const BeltProductionFilters = () => {
           <AsteroidSelect
             asteroidId={formValue ? parseInt(formValue) : undefined}
             onAsteroidIdChange={(id) => setFormValue(id?.toString())}
+            allowAll
           />
         </div>
         <Button

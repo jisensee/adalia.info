@@ -30,6 +30,7 @@ export const ShipsForSaleFilters = ({
       <AsteroidSelect
         asteroidId={filters.asteroidId}
         onAsteroidIdChange={(id) => onFiltersChange({ asteroidId: id })}
+        allowAll
       />
     </div>
   )

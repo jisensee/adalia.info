@@ -18,10 +18,12 @@ import { useDebouncedState } from '@/hooks/debounce'
 export type AsteroidSelectProps = {
   asteroidId?: number | null
   onAsteroidIdChange: (asteroid?: number) => void
+  allowAll?: boolean
 }
 
 export const AsteroidSelect = ({
   asteroidId,
+  allowAll,
   onAsteroidIdChange,
 }: AsteroidSelectProps) => {
   const [open, setOpen] = useState(false)
@@ -51,7 +53,9 @@ export const AsteroidSelect = ({
         >
           {asteroidNameLoading
             ? ''
-            : asteroidName ?? selectedAsteroidName ?? 'All'}
+            : asteroidName ??
+              selectedAsteroidName ??
+              (allowAll ? 'All' : 'Select an asteroid')}
         </Button>
       </PopoverTrigger>
       <PopoverContent className='w-72 p-0'>
@@ -71,7 +75,7 @@ export const AsteroidSelect = ({
               </div>
             ) : (
               <CommandGroup>
-                {!search && (
+                {!search && allowAll && (
                   <CommandItem
                     onSelect={() => {
                       setSelectedAsteroidName(undefined)
