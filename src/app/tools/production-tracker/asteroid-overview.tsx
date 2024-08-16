@@ -23,7 +23,8 @@ export type AsteroidOverviewProps = {
 
 const isBusy = (entity: EntityStatus) => entity.type !== 'idleBuilding'
 const isIdle = (entity: EntityStatus) => entity.type === 'idleBuilding'
-const isFinished = (entity: EntityStatus) => isPast(entity.finishTime)
+const isFinished = (entity: EntityStatus) =>
+  isPast(entity.finishTime) && entity.type !== 'idleBuilding'
 
 const applyStatusFilter = (
   entities: EntityStatus[],
