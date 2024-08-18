@@ -39,9 +39,12 @@ export const DataTable = <TData,>({
                 return (
                   <TableHead key={header.id}>
                     <div
-                      className={cn('flex flex-row items-center gap-x-2', {
-                        'cursor-pointer': header.column.getCanSort(),
-                      })}
+                      className={cn(
+                        'flex flex-row items-center gap-x-2 whitespace-nowrap pr-2',
+                        {
+                          'cursor-pointer': header.column.getCanSort(),
+                        }
+                      )}
                       onClick={() => header.column.toggleSorting()}
                     >
                       {header.isPlaceholder

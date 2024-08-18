@@ -1,9 +1,11 @@
 'use client'
 
-import { VictoryAxis, VictoryBar, VictoryChart, VictoryLabel } from 'victory'
 import { AsteroidRarity } from '@prisma/client'
-import { ChartContainer } from './chart-container'
+import { Bar, BarChart, LabelList, XAxis, YAxis } from 'recharts'
+import { A, pipe } from '@mobily/ts-belt'
+import { ChartContainer } from '@/components/ui/chart'
 import { rarityColors } from '@/lib/colors'
+import { Format } from '@/lib/format'
 
 export type RarityChartProps = {
   data: { rarity: AsteroidRarity; count: number }[]
@@ -14,70 +16,36 @@ export const RarityChart = ({ data }: RarityChartProps) => {
   const missingRarities = allRarities.filter(
     (r) => !data.find((d) => d.rarity === r)
   )
-  const chartData = [
-    ...data,
-    ...missingRarities.map((r) => ({ rarity: r, count: 0 })),
-  ].sort(
-    (a, b) => allRarities.indexOf(a.rarity) - allRarities.indexOf(b.rarity)
+  const chartData = pipe(
+    [...data, ...missingRarities.map((r) => ({ rarity: r, count: 0 }))],
+    A.sortBy((d) => allRarities.indexOf(d.rarity)),
+    A.reverse,
+    A.map((d) => ({ ...d, fill: rarityColors[d.rarity] }))
   )
 
   return (
-    <ChartContainer title='Rarities'>
-      <VictoryChart
-        padding={{
-          top: 30,
-          bottom: 50,
-          left: 130,
-          right: 60,
-        }}
-      >
-        <VictoryAxis
-          dependentAxis
-          tickFormat={() => ''}
-          style={{
-            axis: { stroke: 'none' },
-            ticks: { stroke: 'none' },
-          }}
-        />
-        <VictoryAxis
-          tickFormat={(t: string) =>
-            t[0]?.toUpperCase() + t.slice(1).toLowerCase()
-          }
-          style={{
-            axis: { stroke: 'none' },
-            ticks: { stroke: 'none' },
-            tickLabels: {
-              fill: '#e2e2e5',
-            },
-          }}
-        />
-        <VictoryBar
+    <div className='rounded-md border border-primary px-4 py-2'>
+      <h2>Rarities</h2>
+      <ChartContainer className='min-h-96 w-full' title='Rarities' config={{}}>
+        <BarChart
+          accessibilityLayer
           data={chartData}
-          x='rarity'
-          y='count'
-          animate={{
-            duration: 500,
-            onLoad: { duration: 500 },
-          }}
-          labels={({ datum }) => Math.round(datum.count).toLocaleString()}
-          style={{
-            data: {
-              fill: ({ datum }) => rarityColors[datum.rarity as AsteroidRarity],
-            },
-          }}
-          labelComponent={
-            <VictoryLabel
-              dx={10}
-              style={{
-                fontSize: 16,
-                fill: '#e2e2e5',
-              }}
-            />
-          }
-          horizontal
-          barRatio={1.3}
-        />
-      </VictoryChart>
-    </ChartContainer>
+          margin={{ left: 75 }}
+          layout='vertical'
+        >
+          <YAxis
+            dataKey='rarity'
+            type='category'
+            tickLine={false}
+            axisLine={false}
+            tickFormatter={(value) => Format.asteroidRarity(value)}
+          />
+          <XAxis dataKey='count' type='number' hide />
+          <Bar dataKey='count' layout='vertical' radius={5}>
+            <LabelList dataKey='count' position='right' offset={12} />
+          </Bar>
+        </BarChart>
+      </ChartContainer>
+    </div>
   )
 }

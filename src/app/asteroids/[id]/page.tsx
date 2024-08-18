@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
 import { FC, ReactNode } from 'react'
+import { Entity } from '@influenceth/sdk'
+import { Abundances } from './abundances'
 import { db } from '@/server/db'
 import {
   Accordion,
@@ -15,6 +17,7 @@ import {
   AsteroidGameButton,
 } from '@/components/asteroid-action-button'
 import { Address } from '@/components/address'
+import { influenceApi } from '@/lib/influence-api/api'
 
 type Params = {
   params: {
@@ -27,7 +30,12 @@ export default async function AsteroidDetailPage({ params }: Params) {
   if (isNaN(id)) {
     notFound()
   }
-  const asteroid = await db.asteroid.findUnique({ where: { id } })
+  const [asteroid, abundances] = await Promise.all([
+    db.asteroid.findUnique({ where: { id } }),
+    influenceApi
+      .entity({ label: Entity.IDS.ASTEROID, id })
+      .then((a) => a?.Celestial?.abundances),
+  ])
   if (!asteroid) {
     notFound()
   }
@@ -132,6 +140,11 @@ export default async function AsteroidDetailPage({ params }: Params) {
         </div>
         {stats}
       </div>
+      <Abundances
+        asteroidId={asteroid.id}
+        abundances={abundances ?? undefined}
+        lotCount={Math.floor(asteroid.surfaceArea)}
+      />
     </div>
   )
 }

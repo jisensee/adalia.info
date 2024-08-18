@@ -54,7 +54,7 @@ export default async function StatsPage({
         </div>
         <AsteroidFilterSummary />
         <ProgressCharts filters={filters} />
-        <div className='flex flex-wrap justify-center gap-10'>
+        <div className='flex flex-wrap justify-center gap-5'>
           <RarityChart data={rarityData} />
           <SpectralTypesChart data={spectralTypeData} />
         </div>
