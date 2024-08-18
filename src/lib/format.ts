@@ -147,4 +147,5 @@ export const Format = {
     formatBigNumber(noDecimals ? Math.round(amount / 1e6) : amount / 1e6),
   orderType: (orderType: number) =>
     orderType === Order.IDS.LIMIT_SELL ? 'Limit Sell' : 'Limit Buy',
+  abundance: (abundance: number) => `${(abundance * 100).toFixed(1)}%`,
 }

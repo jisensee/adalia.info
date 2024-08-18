@@ -263,7 +263,7 @@ export const getApiBonuses = ({ Celestial }: InfluenceEntity) =>
 
 export const convertScanStatus = (scanStatus: number) => {
   switch (scanStatus) {
-    case 1:
+    case 4:
       return AsteroidScanStatus.ORBITAL_SCAN
     case 2:
       return AsteroidScanStatus.LONG_RANGE_SCAN
