@@ -8,6 +8,7 @@
     "check": "tsc --noEmit && next lint",
     "preview": "next build && next start",
     "deploy-prod": "prisma migrate deploy && prisma generate && next build",
+    "inngest:dev": "inngest-cli dev",
     "lint": "next lint"
   },
   "dependencies": {
@@ -86,8 +87,12 @@
     "eslint-import-resolver-typescript": "3.6.1",
     "eslint-plugin-import": "2.29.1",
     "eslint-plugin-unused-imports": "3.2.0",
+    "inngest-cli": "^0.29.4",
     "pino-pretty": "^11.0.0",
     "prettier": "3.2.5",
     "typescript": "^5.4.5"
-  }
+  },
+  "trustedDependencies": [
+    "inngest-cli"
+  ]
 }
