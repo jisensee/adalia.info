@@ -148,4 +148,5 @@ export const Format = {
   orderType: (orderType: number) =>
     orderType === Order.IDS.LIMIT_SELL ? 'Limit Sell' : 'Limit Buy',
   abundance: (abundance: number) => `${(abundance * 100).toFixed(1)}%`,
+  lotIndex: (lotIndex: number) => '#' + lotIndex.toLocaleString('en'),
 }

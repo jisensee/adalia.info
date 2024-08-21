@@ -3,6 +3,7 @@ import { FC } from 'react'
 import { Entity, Lot } from '@influenceth/sdk'
 import { CopyButton } from './copy-button'
 import { cn } from '@/lib/utils'
+import { Format } from '@/lib/format'
 
 export type LotLinkProps = {
   uuid: string
@@ -10,18 +11,19 @@ export type LotLinkProps = {
 }
 
 export const LotLink: FC<LotLinkProps> = ({ uuid, className }) => {
-  const lotId = Lot.toIndex(Entity.unpackEntity(uuid).id)
+  const lotId = Entity.unpackEntity(uuid).id
+  const lotIndex = Lot.toIndex(lotId)
 
   return (
     <div className={cn('flex gap-x-3', className)}>
       <Link
         className='text-primary hover:underline'
-        href={`https://game.influenceth.io/${uuid}`}
+        href={`https://game.influenceth.io/lot/${lotId}`}
         target='_blank'
       >
-        Lot #{lotId.toLocaleString('en')}
+        Lot {Format.lotIndex(lotIndex)}
       </Link>
-      <CopyButton value={lotId.toString()} copiedMessage='Copied LotID' />
+      <CopyButton value={lotIndex.toString()} copiedMessage='Copied LotID' />
     </div>
   )
 }

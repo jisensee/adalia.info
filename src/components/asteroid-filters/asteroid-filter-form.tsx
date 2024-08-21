@@ -341,7 +341,7 @@ export const AsteroidFilterForm = () => {
         name='eccentricity'
         render={({ field }) => (
           <RangeFilter
-            name='Orbital Period'
+            name='Eccentricity'
             min={Constants.ECCENTRICITY_MIN}
             max={Constants.ECCENTRICITY_MAX}
             step={0.001}
