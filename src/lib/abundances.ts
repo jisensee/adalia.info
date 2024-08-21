@@ -14,12 +14,15 @@ export type CalcLotAbundancesArgs = {
   availableResources: number[]
 }
 
-export const calcLotAbundances = ({
-  asteroidId,
-  lotCount,
-  abundances,
-  availableResources,
-}: CalcLotAbundancesArgs) => {
+export const calcLotAbundances = (
+  {
+    asteroidId,
+    lotCount,
+    abundances,
+    availableResources,
+  }: CalcLotAbundancesArgs,
+  onProgress?: (progress: number) => void
+) => {
   const settings = new Map(
     availableResources.map(
       (resource) =>
@@ -56,6 +59,9 @@ export const calcLotAbundances = ({
   }
   return pipe(
     A.range(1, lotCount),
-    A.map((lotIndex) => getLotAbundances(lotIndex))
+    A.map((lotIndex) => {
+      onProgress?.((lotIndex / lotCount) * 100)
+      return getLotAbundances(lotIndex)
+    })
   )
 }

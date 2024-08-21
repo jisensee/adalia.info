@@ -12,6 +12,7 @@ import { ResourceSelect } from './resource-select'
 import { AbundancesTable } from './abundances-table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
+import { Progress } from '@/components/ui/progress'
 
 export type AbundancesProps = {
   asteroidId: number
@@ -49,6 +50,7 @@ export const Abundances = ({
     data: asteroidAbundances,
     isFetching: asteroidAbundancesLoading,
     refetch: calcAsteroidAbundances,
+    progress: abundancesProgress,
   } = useAsteroidAbundances(
     asteroidId,
     lotCount,
@@ -58,40 +60,35 @@ export const Abundances = ({
 
   if (!availableResources || !resources || !abundances) return null
 
-  const lotLimit = 25_000
-  const analyzeButton =
-    lotCount <= lotLimit ? (
-      <div className='flex w-full justify-center p-3'>
-        {asteroidAbundancesLoading ? (
-          <div className='flex animate-pulse flex-col items-center text-primary'>
-            <ChartArea size={48} />
-            <p className='text-3xl'>Analyzing resource abundances</p>
-            <p className='italic'>
-              This can take a few seconds on larger asteroids, please be
-              patient.
-            </p>
-          </div>
-        ) : (
-          <div className='flex flex-col items-center'>
-            <Button
-              onClick={() => calcAsteroidAbundances()}
-              icon={<ChartArea />}
-            >
-              Analyze resource abundances
-            </Button>
-            <p className='text-warning'>
-              This may take a few seconds on larger asteroids. Please be
-              patient.
-            </p>
-          </div>
-        )}
-      </div>
-    ) : (
-      <p>
-        Not available for asteroids with more than {lotLimit.toLocaleString()}{' '}
-        lots due to computational limits.
-      </p>
-    )
+  const analyzeButton = (
+    <div className='flex w-full justify-center p-3'>
+      {asteroidAbundancesLoading ? (
+        <div className='flex flex-col items-center gap-y-2 text-primary'>
+          <ChartArea size={48} className='animate-pulse' />
+          <p className='animate-pulse text-center text-3xl'>
+            Analyzing resource abundances
+          </p>
+          {lotCount > 300 && (
+            <Progress className='h-8 w-72' value={abundancesProgress}>
+              {Math.round(abundancesProgress)}%
+            </Progress>
+          )}
+          <p className='italic'>
+            This can take a couple moments on larger asteroids, please be
+            patient.
+          </p>
+        </div>
+      ) : (
+        <div className='flex flex-col items-center'>
+          <Button onClick={() => calcAsteroidAbundances()} icon={<ChartArea />}>
+            Analyze resource abundances
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+
+  const chartAvailable = lotCount <= 10_000
 
   return (
     <div className='space-y-1'>
@@ -119,14 +116,20 @@ export const Abundances = ({
           <ResourceAbundanceList abundances={resources} />
         </TabsContent>
         <TabsContent value='chart'>
-          {asteroidAbundances ? (
+          {!chartAvailable && (
+            <p>
+              The lot chart is not available for larger asteroids since it is
+              not really usable for that many lots. Please use the lot table
+              instead.
+            </p>
+          )}
+          {asteroidAbundances && chartAvailable && (
             <AbundancesChart
               asteroidAbundances={asteroidAbundances}
               selectedResource={selectedResource}
             />
-          ) : (
-            analyzeButton
           )}
+          {!asteroidAbundances && chartAvailable && analyzeButton}
         </TabsContent>
         <TabsContent value='table'>
           {asteroidAbundances ? (
