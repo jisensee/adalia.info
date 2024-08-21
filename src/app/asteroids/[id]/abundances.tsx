@@ -10,7 +10,6 @@ import { AbundancesChart } from './abundances-chart'
 import { ResourceAbundanceList } from './resource-abundance-list'
 import { ResourceSelect } from './resource-select'
 import { AbundancesTable } from './abundances-table'
-import { LoadingIndicator } from '@/components/loading-indicator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 
@@ -64,12 +63,13 @@ export const Abundances = ({
     lotCount <= lotLimit ? (
       <div className='flex w-full justify-center p-3'>
         {asteroidAbundancesLoading ? (
-          <div className='flex flex-col items-center'>
-            <p>
-              Analyzing resource abundances...this can take a few seconds on
-              larger asteroids.
+          <div className='flex animate-pulse flex-col items-center text-primary'>
+            <ChartArea size={48} />
+            <p className='text-3xl'>Analyzing resource abundances</p>
+            <p className='italic'>
+              This can take a few seconds on larger asteroids, please be
+              patient.
             </p>
-            <LoadingIndicator />
           </div>
         ) : (
           <div className='flex flex-col items-center'>

@@ -1,6 +1,6 @@
-import { Asteroid } from '@influenceth/sdk'
-import { A, D, N, pipe } from '@mobily/ts-belt'
 import { useQuery } from '@tanstack/react-query'
+import { useEffect, useRef } from 'react'
+import { CalcLotAbundancesArgs } from '@/lib/abundances'
 
 export type LotAbundances = {
   lotIndex: number
@@ -13,53 +13,36 @@ export const useAsteroidAbundances = (
   lotCount: number,
   abundances?: string,
   availableResources?: number[]
-) =>
-  useQuery({
+) => {
+  const worker = useRef<Worker>()
+
+  useEffect(() => {
+    worker.current = new Worker(
+      new URL('./abundances-worker.ts', import.meta.url)
+    )
+    return () => {
+      worker.current?.terminate()
+      worker.current = undefined
+    }
+  }, [])
+  return useQuery({
     queryKey: ['asteroidAbundances', asteroidId],
     enabled: false,
-    queryFn: () => {
-      if (!availableResources || !abundances) return
-      const settings = new Map(
-        availableResources.map(
-          (resource) =>
-            [
-              resource,
-              Asteroid.getAbundanceMapSettings(
-                asteroidId,
-                resource,
-                abundances
-              ),
-            ] as const
-        )
-      )
+    queryFn: () =>
+      new Promise<LotAbundances[]>((resolve, reject) => {
+        if (!availableResources || !abundances || !worker.current) {
+          reject()
+          return
+        }
 
-      const getLotAbundances = (lotIndex: number): LotAbundances => {
-        const lotPosition = Asteroid.getLotPosition(asteroidId, lotIndex)
-        const abundances = pipe(
-          availableResources,
-          A.map(
-            (resource) =>
-              [
-                resource,
-                Asteroid.getAbundanceAtPosition(
-                  lotPosition,
-                  settings.get(resource)
-                ),
-              ] as const
-          ),
-          D.fromPairs
-        )
-        const summedAbundances = pipe(
+        const args: CalcLotAbundancesArgs = {
+          asteroidId,
+          lotCount,
           abundances,
-          D.values,
-          A.filter(N.gt(0.1)),
-          A.reduce(0, N.add)
-        )
-        return { lotIndex, summedAbundances, ...abundances }
-      }
-      return pipe(
-        A.range(1, lotCount),
-        A.map((lotIndex) => getLotAbundances(lotIndex))
-      )
-    },
+          availableResources,
+        }
+        worker.current.onmessage = (e) => resolve(e.data)
+        worker.current.postMessage(args)
+      }),
   })
+}
