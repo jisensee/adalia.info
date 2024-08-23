@@ -17,7 +17,7 @@ export const ResourceAbundanceList = ({
 }: ResourceAbundanceListProps) => {
   const resources = D.keys(abundances)
   return (
-    <div className='grid grid-cols-[max-content,1fr] gap-x-5 gap-y-1'>
+    <div className='grid h-fit grid-cols-[max-content,1fr] gap-x-5 gap-y-1'>
       {pipe(
         resources,
         A.sortBy((r) =>

@@ -4,7 +4,7 @@ import { A, D, N, pipe } from '@mobily/ts-belt'
 export type LotAbundances = {
   lotIndex: number
   summedAbundances: number
-  [resource: number]: number
+  resources: Record<number, number>
 }
 
 export type CalcLotAbundancesArgs = {
@@ -37,16 +37,13 @@ export const calcLotAbundances = (
     const lotPosition = Asteroid.getLotPosition(asteroidId, lotIndex)
     const abundances = pipe(
       availableResources,
-      A.map(
-        (resource) =>
-          [
-            resource,
-            Asteroid.getAbundanceAtPosition(
-              lotPosition,
-              settings.get(resource)
-            ),
-          ] as const
-      ),
+      A.map((resource) => {
+        const abundance = Asteroid.getAbundanceAtPosition(
+          lotPosition,
+          settings.get(resource)
+        )
+        return [resource, abundance] as const
+      }),
       D.fromPairs
     )
     const summedAbundances = pipe(
@@ -55,7 +52,7 @@ export const calcLotAbundances = (
       A.filter(N.gt(0.1)),
       A.reduce(0, N.add)
     )
-    return { lotIndex, summedAbundances, ...abundances }
+    return { lotIndex, summedAbundances, resources: abundances }
   }
   return pipe(
     A.range(1, lotCount),

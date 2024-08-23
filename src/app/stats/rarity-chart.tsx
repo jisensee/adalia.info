@@ -41,7 +41,12 @@ export const RarityChart = ({ data }: RarityChartProps) => {
             tickFormatter={(value) => Format.asteroidRarity(value)}
           />
           <XAxis dataKey='count' type='number' hide />
-          <Bar dataKey='count' layout='vertical' radius={5}>
+          <Bar
+            dataKey='count'
+            layout='vertical'
+            radius={5}
+            animationDuration={300}
+          >
             <LabelList dataKey='count' position='right' offset={12} />
           </Bar>
         </BarChart>

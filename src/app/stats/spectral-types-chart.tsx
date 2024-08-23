@@ -7,16 +7,15 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
-import { rarityColors } from '@/lib/colors'
+import { chartColors } from '@/lib/colors'
 
 export type SpectralTypesChartProps = {
   data: { spectralType: AsteroidSpectralType; count: number }[]
 }
 export const SpectralTypesChart = ({ data }: SpectralTypesChartProps) => {
-  const colors = Object.values(rarityColors)
   const chartData = data.map((d, i) => ({
     ...d,
-    fill: colors[i % colors.length],
+    fill: chartColors[i % chartColors.length],
   }))
   return (
     <div className='rounded-md border border-primary px-4 py-2'>
@@ -26,6 +25,7 @@ export const SpectralTypesChart = ({ data }: SpectralTypesChartProps) => {
           <ChartTooltip content={<ChartTooltipContent hideLabel />} />
           <Pie
             data={chartData}
+            animationDuration={300}
             nameKey='spectralType'
             dataKey='count'
             label={({ payload, ...props }) => (

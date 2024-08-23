@@ -1,13 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { F } from '@mobily/ts-belt'
-import { CalcLotAbundancesArgs } from '@/lib/abundances'
-
-export type LotAbundances = {
-  lotIndex: number
-  summedAbundances: number
-  [resource: number]: number
-}
+import { CalcLotAbundancesArgs, LotAbundances, } from '@/lib/abundances'
 
 export const useAsteroidAbundances = (
   asteroidId: number,

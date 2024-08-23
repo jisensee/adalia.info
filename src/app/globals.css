@@ -38,6 +38,12 @@
 
     --radius: 0.5rem;
 
+    --common: #ffffff;
+    --uncommon: #65e4f5;
+    --rare: #5da0f4;
+    --superior: #944cde;
+    --exceptional: #e3853a;
+    --incomparable: #c7a519;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;

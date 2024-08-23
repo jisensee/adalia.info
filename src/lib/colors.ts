@@ -1,10 +1,18 @@
 import { AsteroidRarity } from '@prisma/client'
 
 export const rarityColors = {
-  [AsteroidRarity.COMMON]: '#ffffff',
-  [AsteroidRarity.UNCOMMON]: '#65e4f5',
-  [AsteroidRarity.RARE]: '#5da0f4',
-  [AsteroidRarity.SUPERIOR]: '#944cde',
-  [AsteroidRarity.EXCEPTIONAL]: '#e3853a',
-  [AsteroidRarity.INCOMPARABLE]: '#c7a519',
+  [AsteroidRarity.COMMON]: 'var(--common)',
+  [AsteroidRarity.UNCOMMON]: 'var(--uncommon)',
+  [AsteroidRarity.RARE]: 'var(--rare)',
+  [AsteroidRarity.SUPERIOR]: 'var(--superior)',
+  [AsteroidRarity.EXCEPTIONAL]: 'var(--exceptional)',
+  [AsteroidRarity.INCOMPARABLE]: 'var(--incomparable)',
 }
+
+export const chartColors = [
+  'hsl(var(--chart-1))',
+  'hsl(var(--chart-2))',
+  'hsl(var(--chart-3))',
+  'hsl(var(--chart-4))',
+  'hsl(var(--chart-5))',
+]

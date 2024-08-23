@@ -7,12 +7,12 @@ import {
 } from '@tanstack/react-table'
 import { A, O, pipe } from '@mobily/ts-belt'
 import { Product } from '@influenceth/sdk'
-import { LotAbundances } from './hooks'
 import { DataTable } from '@/components/ui/data-table'
 import { ProductIcon } from '@/components/influence-asset-icons'
 import { InfoTooltip } from '@/components/ui/tooltip'
 import { Abundance } from '@/components/abundance'
 import { useCsvDownload } from '@/hooks/csv'
+import { LotAbundances } from '@/lib/abundances'
 
 export type AbundancesTableProps = {
   asteroidAbundances: LotAbundances[]
@@ -97,9 +97,9 @@ const makeColumns = (
               {Product.getType(resource).name}
             </div>
           ),
-          accessorFn: (row) => row[resource],
+          accessorFn: (row) => row.resources[resource],
           cell: ({ row }) =>
-            O.map(row.original[resource], (a) => (
+            O.map(row.original.resources[resource], (a) => (
               <Abundance abundance={a} color />
             )),
         }) satisfies ColumnDef<LotAbundances>

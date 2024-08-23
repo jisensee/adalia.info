@@ -6,10 +6,12 @@ import { useMemo, useState } from 'react'
 import { ChartArea } from 'lucide-react'
 
 import { useAsteroidAbundances } from './hooks'
-import { AbundancesChart } from './abundances-chart'
+import { LotAbundancesChart } from './lot-abundances-chart'
 import { ResourceAbundanceList } from './resource-abundance-list'
 import { ResourceSelect } from './resource-select'
 import { AbundancesTable } from './abundances-table'
+import { AbundancesChart } from './abundances-chart'
+import { AbundanceAnalysis } from './abundance-analysis'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
@@ -98,6 +100,9 @@ export const Abundances = ({
           <TabsTrigger className='text-md' value='asteroid'>
             Asteroid Abundances
           </TabsTrigger>
+          <TabsTrigger className='text-md' value='abundance-analysis'>
+            Abundance Analysis
+          </TabsTrigger>
           <TabsTrigger className='text-md' value='chart'>
             Lot Chart
           </TabsTrigger>
@@ -105,7 +110,7 @@ export const Abundances = ({
             Lot Table
           </TabsTrigger>
         </TabsList>
-        {asteroidAbundances && selectedTab !== 'asteroid' && (
+        {asteroidAbundances && ['chart', 'table'].includes(selectedTab) && (
           <ResourceSelect
             resources={availableResources}
             selectedResource={selectedResource}
@@ -113,7 +118,21 @@ export const Abundances = ({
           />
         )}
         <TabsContent value='asteroid'>
-          <ResourceAbundanceList abundances={resources} />
+          <div className='flex flex-col gap-5 md:flex-row'>
+            <ResourceAbundanceList abundances={resources} />
+            <AbundancesChart abundances={resources} />
+          </div>
+        </TabsContent>
+        <TabsContent value='abundance-analysis'>
+          {asteroidAbundances && availableResources && (
+            <AbundanceAnalysis
+              abundances={asteroidAbundances}
+              availableResources={availableResources}
+              asteroidId={asteroidId}
+              showLotTable={() => setSelectedTab('table')}
+            />
+          )}
+          {!asteroidAbundances && analyzeButton}
         </TabsContent>
         <TabsContent value='chart'>
           {!chartAvailable && (
@@ -124,7 +143,7 @@ export const Abundances = ({
             </p>
           )}
           {asteroidAbundances && chartAvailable && (
-            <AbundancesChart
+            <LotAbundancesChart
               asteroidAbundances={asteroidAbundances}
               selectedResource={selectedResource}
             />
