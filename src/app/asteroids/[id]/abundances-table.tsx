@@ -40,11 +40,11 @@ export const AbundancesTable = ({
   const onCsvExport = useCsvDownload(
     'belt-production.csv',
     asteroidAbundances,
-    ({ lotIndex, summedAbundances, ...abundances }) => ({
+    ({ lotIndex, summedAbundances, resources }) => ({
       lotIndex,
       score: Math.round(summedAbundances * 100),
       ...pipe(
-        abundances,
+        resources,
         Object.entries,
         A.map(([resource, abundance]) => [
           Product.getType(parseInt(resource)).name,
