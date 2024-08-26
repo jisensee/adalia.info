@@ -38,7 +38,7 @@ export const AbundancesTable = ({
     },
   })
   const onCsvExport = useCsvDownload(
-    'belt-production.csv',
+    'abundances.csv',
     asteroidAbundances,
     ({ lotIndex, summedAbundances, resources }) => ({
       lotIndex,

@@ -3,6 +3,7 @@ import {
   ChartNoAxesCombined,
   Cog,
   Cpu,
+  Flag,
   LucideProps,
   Rocket,
   UsersRound,
@@ -19,38 +20,44 @@ export default function ToolsPage() {
         <ToolLink
           href='/tools/process-finder'
           title='Process Finder'
-          description='Find out what you can make from your leftover products!'
+          description='Find out what you can make from your leftover products'
           icon={Cpu}
         />
         <ToolLink
           href='/tools/production-tracker'
           title='Production Tracker'
-          description='Easily keep track of all your running production facilities!'
+          description='Easily keep track of all your running production facilities'
           icon={Cog}
         />
         <ToolLink
           href='/tools/crew-tracker'
           title='Crew Tracker'
-          description='Easily keep track of all your crews!'
+          description='Easily keep track of all your crews'
           icon={UsersRound}
         />
         <ToolLink
           href='/tools/trader-dashboard'
           title='Trader Dashboard'
-          description='Keep track of your trading activities!'
+          description='Keep track of your trading activities'
           icon={ChartNoAxesCombined}
         />
         <ToolLink
           href='/tools/public-buildings'
           title='Public Buildings'
-          description='Find buildings for public use!'
+          description='Find buildings for public use'
           icon={Building}
         />
         <ToolLink
           href='/tools/ships-for-sale'
           title='Ships For Sale'
-          description='Find all ships that are currently for sale!'
+          description='Find all ships that are currently for sale'
           icon={Rocket}
+        />
+        <ToolLink
+          href='/tools/expiring-lots'
+          title='Expiring Lots'
+          description='Find all lots with buildings which leases will expire soon'
+          icon={Flag}
         />
       </div>
     </div>
