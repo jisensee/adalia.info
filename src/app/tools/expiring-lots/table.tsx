@@ -96,6 +96,22 @@ const columns: ColumnDef<ExpiringLot>[] = [
         row.building.Building?.buildingType,
         (b) => Building.getType(b).name
       ),
+    cell: ({ row }) => {
+      const building = row.original.building.Building
+      if (!building) return undefined
+      return (
+        <div className='flex items-center gap-x-1'>
+          {Building.getType(building.buildingType).name}
+          {building.status !== Building.CONSTRUCTION_STATUSES.OPERATIONAL ? (
+            <span className='text-sm'>
+              ({Building.CONSTRUCTION_STATUS_LABELS[building.status]})
+            </span>
+          ) : (
+            ''
+          )}
+        </div>
+      )
+    },
     enableSorting: true,
   },
   {

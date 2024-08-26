@@ -4,7 +4,7 @@ import {
   searchResponseSchema,
 } from 'influence-typed-sdk/api'
 import esb from 'elastic-builder'
-import { Address, Entity, Permission } from '@influenceth/sdk'
+import { Address, Building, Entity, Permission } from '@influenceth/sdk'
 import { A, D, flow, pipe } from '@mobily/ts-belt'
 import { ExpiringLotsParams } from './params'
 import { influenceApi } from '@/lib/influence-api/api'
@@ -140,15 +140,24 @@ const getBuildings = (lotUuids: string[]) =>
       request: esb
         .requestBodySearch()
         .query(
-          esb.nestedQuery(
-            esb
-              .boolQuery()
-              .must([
-                esb.termQuery('Location.locations.label', Entity.IDS.LOT),
-                esb.termsQuery('Location.locations.uuid', lotUuids),
+          esb
+            .boolQuery()
+            .must([
+              esb.nestedQuery(
+                esb
+                  .boolQuery()
+                  .must([
+                    esb.termQuery('Location.locations.label', Entity.IDS.LOT),
+                    esb.termsQuery('Location.locations.uuid', lotUuids),
+                  ]),
+                'Location.locations'
+              ),
+              esb.termsQuery('Building.status', [
+                Building.CONSTRUCTION_STATUSES.PLANNED,
+                Building.CONSTRUCTION_STATUSES.UNDER_CONSTRUCTION,
+                Building.CONSTRUCTION_STATUSES.OPERATIONAL,
               ]),
-            'Location.locations'
-          )
+            ])
         )
 
         .size(9999),
