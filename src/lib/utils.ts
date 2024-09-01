@@ -1,5 +1,7 @@
+import { AdalianOrbit, Time } from '@influenceth/sdk'
 import { AsteroidRarity } from '@prisma/client'
 import { type ClassValue, clsx } from 'clsx'
+import { InfluenceEntity } from 'influence-typed-sdk/api'
 import { twMerge } from 'tailwind-merge'
 
 export const cn = (...inputs: ClassValue[]) => {
@@ -35,4 +37,21 @@ export const groupArrayBy = <T, K>(
     map.set(key, group)
   })
   return map
+}
+
+export const getAsteroidDistance = (
+  asteroid1: InfluenceEntity,
+  asteroid2: InfluenceEntity,
+  time: Time
+) => {
+  if (!asteroid1.Orbit || !asteroid2.Orbit) return 0
+
+  const pos1 = new AdalianOrbit(asteroid1.Orbit, {
+    units: 'km',
+  }).getPositionAtTime(time.toOrbitADays())
+  const pos2 = new AdalianOrbit(asteroid2.Orbit, {
+    units: 'km',
+  }).getPositionAtTime(time.toOrbitADays())
+  const AU = 1.495978707e11
+  return Math.hypot(pos2.x - pos1.x, pos2.y - pos1.y, pos2.z - pos1.z) / AU
 }

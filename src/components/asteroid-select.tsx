@@ -1,4 +1,4 @@
-import { getEntityName } from 'influence-typed-sdk/api'
+import { getEntityName, InfluenceEntity } from 'influence-typed-sdk/api'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover'
@@ -17,14 +17,16 @@ import { useDebouncedState } from '@/hooks/debounce'
 
 export type AsteroidSelectProps = {
   asteroidId?: number | null
-  onAsteroidIdChange: (asteroid?: number) => void
+  onAsteroidChange: (asteroid?: InfluenceEntity) => void
+  disabled?: boolean
   allowAll?: boolean
 }
 
 export const AsteroidSelect = ({
   asteroidId,
   allowAll,
-  onAsteroidIdChange,
+  disabled,
+  onAsteroidChange,
 }: AsteroidSelectProps) => {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -44,7 +46,7 @@ export const AsteroidSelect = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+      <PopoverTrigger asChild disabled={disabled}>
         <Button
           variant='outline'
           role='combobox'
@@ -81,7 +83,7 @@ export const AsteroidSelect = ({
                       setSelectedAsteroidName(undefined)
                       setSearch('')
                       setOpen(false)
-                      onAsteroidIdChange()
+                      onAsteroidChange()
                     }}
                   >
                     <span className='font-bold text-primary'>All</span>
@@ -94,7 +96,7 @@ export const AsteroidSelect = ({
                       setSearch('')
                       setSelectedAsteroidName(getEntityName(asteroid))
                       setOpen(false)
-                      onAsteroidIdChange(asteroid.id)
+                      onAsteroidChange(asteroid)
                     }}
                   >
                     {getEntityName(asteroid)}
