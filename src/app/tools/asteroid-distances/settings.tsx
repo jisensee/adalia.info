@@ -1,7 +1,7 @@
 'use client'
 
 import { useQueryStates } from 'nuqs'
-import { asteroidDistancesParams, TimeFormat } from './params'
+import { asteroidDistancesParams } from './params'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -12,36 +12,18 @@ import {
 } from '@/components/ui/select'
 
 export const Settings = () => {
-  const [timeFormat, setTimeFormat] = useQueryStates(asteroidDistancesParams)
-  const [daysToShow, setDaysToShow] = useQueryStates(asteroidDistancesParams, {
+  const [params, setParams] = useQueryStates(asteroidDistancesParams, {
     shallow: false,
   })
 
   return (
     <div className='flex gap-x-3'>
       <div>
-        <Label>Time Format</Label>
-        <Select
-          value={timeFormat.timeFormat}
-          onValueChange={(value) =>
-            setTimeFormat({ timeFormat: value as TimeFormat })
-          }
-        >
-          <SelectTrigger className='w-40'>
-            <SelectValue />
-            <SelectContent>
-              <SelectItem value='real-days'>Real Days</SelectItem>
-              <SelectItem value='adalian-days'>Adalian Days</SelectItem>
-            </SelectContent>
-          </SelectTrigger>
-        </Select>
-      </div>
-      <div>
         <Label>Time Range</Label>
         <Select
-          value={daysToShow.realDaysToShow.toString()}
+          value={params.realDaysToShow.toString()}
           onValueChange={(value) =>
-            setDaysToShow({ realDaysToShow: parseInt(value) })
+            setParams({ realDaysToShow: parseInt(value) })
           }
         >
           <SelectTrigger className='w-40'>

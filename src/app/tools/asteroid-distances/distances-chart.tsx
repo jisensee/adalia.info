@@ -4,8 +4,6 @@ import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
 import { A, D, F, O, pipe } from '@mobily/ts-belt'
 import { Time } from '@influenceth/sdk'
 import { format } from 'date-fns'
-import { useQueryStates } from 'nuqs'
-import { asteroidDistancesParams } from './params'
 import {
   ChartContainer,
   ChartTooltip,
@@ -27,7 +25,6 @@ export const DistancesChart = ({
   distances,
   asteroidNames,
 }: DistancesChartProps) => {
-  const [{ timeFormat }] = useQueryStates(asteroidDistancesParams)
   const asteroidIds = [...asteroidNames.keys()]
   const maxDistance =
     pipe(
@@ -44,14 +41,17 @@ export const DistancesChart = ({
       <LineChart data={distances}>
         <XAxis
           dataKey='time'
+          orientation='top'
+          xAxisId={0}
+          tickFormatter={(value) => Math.round(value).toLocaleString()}
+        />
+        <XAxis
+          xAxisId={1}
+          dataKey='time'
+          orientation='bottom'
           tickFormatter={(value) => {
-            const adays = value as number
-            if (timeFormat === 'real-days') {
-              const time = Time.fromGameClockADays(adays)
-              return format(time.toDate(), 'LLL dd')
-            } else {
-              return Math.round(adays).toLocaleString()
-            }
+            const time = Time.fromGameClockADays(value as number)
+            return format(time.toDate(), 'LLL dd')
           }}
         />
         <YAxis
@@ -68,9 +68,8 @@ export const DistancesChart = ({
                 const time = Time.fromGameClockADays(aDays).toDate()
                 return (
                   <div className='font-bold'>
-                    {timeFormat === 'real-days'
-                      ? format(time, 'PP')
-                      : Math.round(aDays).toLocaleString() + ' Days'}
+                    {format(time, 'PP')} -{' '}
+                    {Math.round(aDays).toLocaleString() + ' Days'}
                   </div>
                 )
               }}
