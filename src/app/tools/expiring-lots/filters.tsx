@@ -61,7 +61,9 @@ export const ExpiringLotsFilters = ({
         <Label>Asteroid</Label>
         <AsteroidSelect
           asteroidId={filters.asteroidId}
-          onAsteroidIdChange={(id) => onFiltersChange({ asteroidId: id })}
+          onAsteroidChange={(asteroid) =>
+            onFiltersChange({ asteroidId: asteroid?.id })
+          }
           allowAll
         />
       </div>

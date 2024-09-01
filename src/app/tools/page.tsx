@@ -1,9 +1,10 @@
 import {
   Building,
   ChartNoAxesCombined,
+  ChartSpline,
   Cog,
   Cpu,
-  Flag,
+  LandPlot,
   LucideProps,
   Rocket,
   UsersRound,
@@ -57,7 +58,13 @@ export default function ToolsPage() {
           href='/tools/expiring-lots'
           title='Expiring Lots'
           description='Find all lots with buildings which leases will expire soon'
-          icon={Flag}
+          icon={LandPlot}
+        />
+        <ToolLink
+          href='/tools/asteroid-distances'
+          title='Asteroid Distances'
+          description='Visualize the distance between asteroids over time'
+          icon={ChartSpline}
         />
       </div>
     </div>
@@ -75,7 +82,7 @@ const ToolLink = ({ href, title, description, icon: Icon }: ToolLinkProps) => (
       <Icon size={48} className='group-hover:text-primary-foreground' />
       <div className='flex w-full flex-col items-center justify-center'>
         <h2 className='group-hover:text-primary-foreground'>{title}</h2>
-        <p className='text-md group-hover:text-primary-foreground'>
+        <p className='text-md text-center group-hover:text-primary-foreground'>
           {description}
         </p>
       </div>

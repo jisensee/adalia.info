@@ -59,8 +59,8 @@ export const PublicBuildingFilters = () => {
       <Label>Asteroid</Label>
       <AsteroidSelect
         asteroidId={params.asteroidId}
-        onAsteroidIdChange={(id) =>
-          setParams({ asteroidId: id, habitatLotIndex: null })
+        onAsteroidChange={(asteroid) =>
+          setParams({ asteroidId: asteroid?.id, habitatLotIndex: null })
         }
       />
     </div>

@@ -44,11 +44,29 @@
     --superior: #944cde;
     --exceptional: #e3853a;
     --incomparable: #c7a519;
+
+    /* blue */
     --chart-1: 220 70% 50%;
+    /* green */
     --chart-2: 160 60% 45%;
+    /* orange */
     --chart-3: 30 80% 55%;
+    /* purple */
     --chart-4: 280 65% 60%;
+    /* red */
     --chart-5: 340 75% 55%;
+    /* yellow */
+    --chart-6: 47.9 95.8% 53.1%;
+    /* lime */
+    --chart-7: 82.7 78% 55.5%;
+    /* cyan */
+    --chart-8: 187 92% 69%;
+    /* fuchsia */
+    --chart-9: 292.2 84.1% 60.6%;
+    /* indigo */
+    --chart-10: 234.5 89.5% 73.9%;
+    /* rose */
+    --chart-11: 351.3 94.5% 71.4%;
   }
 }
 
