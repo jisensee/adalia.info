@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { WalletInfo } from './wallet/wallet-info'
 import { Logo } from './logo'
 import { Search } from './search'
+import { StandardTooltip } from './ui/tooltip'
+import { ToolList } from './tool-list'
 import { cn } from '@/lib/utils'
 
 const link =
@@ -23,23 +25,32 @@ export const Navbar = () => {
             adalia.info
           </Link>
           <Search
-            className={cn(link, 'hidden cursor-pointer gap-x-2 sm:flex')}
+            className={cn(link, 'hidden cursor-pointer gap-x-2 md:flex')}
           />
           <Link
             href='/asteroids'
-            className={cn(link, 'hidden gap-x-2 sm:flex')}
+            className={cn(link, 'hidden gap-x-2 md:flex')}
           >
             <Orbit />
             <span>Asteroids</span>
           </Link>
-          <Link href='/stats' className={cn(link, 'hidden gap-x-2 sm:flex')}>
+          <Link href='/stats' className={cn(link, 'hidden gap-x-2 md:flex')}>
             <BarChart3 />
             <span>Stats</span>
           </Link>
-          <Link href='/tools' className={cn(link, 'hidden gap-x-2 sm:flex')}>
-            <Wrench />
-            <span>Tools</span>
-          </Link>
+          <StandardTooltip
+            content={
+              <div className='grid w-[40rem] grid-cols-2 gap-3'>
+                <ToolList />
+              </div>
+            }
+            side='bottom'
+          >
+            <Link href='/tools' className={cn(link, 'hidden gap-x-2 md:flex')}>
+              <Wrench />
+              <span>Tools</span>
+            </Link>
+          </StandardTooltip>
         </div>
         <WalletInfo />
       </nav>
@@ -48,7 +59,7 @@ export const Navbar = () => {
 }
 
 export const BottomNavbar = () => (
-  <nav className='flex flex-row items-center border-t border-primary bg-background sm:hidden'>
+  <nav className='flex flex-row items-center border-t border-primary bg-background md:hidden'>
     <Search
       className={cn(link, 'flex grow cursor-pointer flex-col items-center')}
     />

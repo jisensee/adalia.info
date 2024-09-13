@@ -25,7 +25,7 @@ export const AccountHeaderView = ({
 
   return (
     <div className='flex flex-row items-center gap-x-4'>
-      <div className='hidden flex-row items-center gap-x-4 md:flex'>
+      <div className='hidden flex-row items-center gap-x-4 lg:flex'>
         {ownedAsteroids && <AsteroidBalance balance={ownedAsteroids} />}
         {ethBalance && <EthBalance balance={ethBalance} />}
         {swayBalance && <SwayBalance balance={swayBalance} />}
