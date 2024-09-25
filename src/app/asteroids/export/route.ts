@@ -19,6 +19,17 @@ const csvHeader = [
   'inclination',
   'eccentricity',
   'salePrice',
+  'totalBuildings',
+  'warehouses',
+  'tankFarms',
+  'extractors',
+  'refineries',
+  'bioreactors',
+  'factories',
+  'shipyards',
+  'marketplaces',
+  'spaceports',
+  'habitats',
 ].join(',')
 
 const toCsvLine = (asteroid: Asteroid) =>
@@ -37,6 +48,17 @@ const toCsvLine = (asteroid: Asteroid) =>
     asteroid.inclination,
     asteroid.eccentricity,
     asteroid.salePrice ?? '',
+    asteroid.totalBuildings ?? '',
+    asteroid.warehouses ?? '',
+    asteroid.tankFarms ?? '',
+    asteroid.extractors ?? '',
+    asteroid.refineries ?? '',
+    asteroid.bioreactors ?? '',
+    asteroid.factories ?? '',
+    asteroid.shipyards ?? '',
+    asteroid.marketplaces ?? '',
+    asteroid.spaceports ?? '',
+    asteroid.habitats ?? '',
   ].join(',')
 
 export async function GET(request: Request) {

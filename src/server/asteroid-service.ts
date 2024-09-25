@@ -1,6 +1,7 @@
 import { Readable } from 'stream'
 import { Asteroid, AsteroidScanStatus, Prisma } from '@prisma/client'
-import { Address } from '@influenceth/sdk'
+import { Address, Building } from '@influenceth/sdk'
+import { A } from '@mobily/ts-belt'
 import { Sort } from '@/app/asteroids/types'
 import { db } from '@/server/db'
 import { AsteroidColumn } from '@/app/asteroids/columns'
@@ -122,11 +123,50 @@ const makeWhereFilter = async (
     scanStatus: makeFilter(filters.scanStatus, (scanStatus) => ({
       in: scanStatus,
     })),
-    AND: makePurchaseOrderFilter(filters).map((filter) => ({
-      purchaseOrder: filter,
-    })),
+    AND: [
+      ...makePurchaseOrderFilter(filters).map((filter) => ({
+        purchaseOrder: filter,
+      })),
+      ...makeBuildingsFilter(filters),
+    ],
+    totalBuildings: makeFilter(filters.hasBuildings, (hasBuildings) =>
+      hasBuildings
+        ? {
+            gt: 0,
+          }
+        : 0
+    ),
   }
 }
+
+const makeBuildingsFilter = (filters: AsteroidFilters) =>
+  makeFilter(filters.buildings, (buildings) =>
+    A.filterMap(buildings, (building) => {
+      switch (building) {
+        case Building.IDS.WAREHOUSE:
+          return { warehouses: { gt: 0 } }
+        case Building.IDS.TANK_FARM:
+          return { tankFarms: { gt: 0 } }
+        case Building.IDS.EXTRACTOR:
+          return { extractors: { gt: 0 } }
+        case Building.IDS.REFINERY:
+          return { refineries: { gt: 0 } }
+        case Building.IDS.BIOREACTOR:
+          return { bioreactors: { gt: 0 } }
+        case Building.IDS.FACTORY:
+          return { factories: { gt: 0 } }
+        case Building.IDS.SHIPYARD:
+          return { shipyards: { gt: 0 } }
+        case Building.IDS.MARKETPLACE:
+          return { marketplaces: { gt: 0 } }
+        case Building.IDS.SPACEPORT:
+          return { spaceports: { gt: 0 } }
+        case Building.IDS.HABITAT:
+          return { habitats: { gt: 0 } }
+      }
+      return undefined
+    })
+  ) ?? []
 
 const makeOrderBy = (sort: Sort) => ({
   id: getSort('id', sort),
@@ -141,6 +181,7 @@ const makeOrderBy = (sort: Sort) => ({
   eccentricity: getSort('eccentricity', sort),
   rarity: getSort('rarity', sort),
   salePrice: getSort('salePrice', sort),
+  totalBuildings: getSort('totalBuildings', sort),
 })
 
 export type AsteroidWithCustomColumns = Asteroid & {

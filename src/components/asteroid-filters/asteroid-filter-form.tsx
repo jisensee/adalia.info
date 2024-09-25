@@ -9,6 +9,7 @@ import {
   AsteroidSize,
   AsteroidSpectralType,
 } from '@prisma/client'
+import { Building } from '@influenceth/sdk'
 import { Form, FormField } from '../ui/form'
 import { Button } from '../ui/button'
 
@@ -354,6 +355,46 @@ export const AsteroidFilterForm = () => {
     </div>
   )
 
+  const buildingFilters = (
+    <div className='flex flex-col gap-y-5'>
+      <FormField
+        control={form.control}
+        name='hasBuildings'
+        render={({ field }) => (
+          <BooleanFilter
+            value={field.value}
+            onChange={field.onChange}
+            name='Has Buildings'
+          />
+        )}
+      />
+      <FormField
+        control={form.control}
+        name='buildings'
+        render={({ field }) => (
+          <EnumFilter
+            name='Buildings'
+            value={field.value}
+            onChange={field.onChange}
+            format={(v) => Building.getType(v).name}
+            options={[
+              Building.IDS.WAREHOUSE,
+              Building.IDS.TANK_FARM,
+              Building.IDS.EXTRACTOR,
+              Building.IDS.REFINERY,
+              Building.IDS.BIOREACTOR,
+              Building.IDS.FACTORY,
+              Building.IDS.SHIPYARD,
+              Building.IDS.MARKETPLACE,
+              Building.IDS.SPACEPORT,
+              Building.IDS.HABITAT,
+            ]}
+          />
+        )}
+      />
+    </div>
+  )
+
   const filterAccordion = (
     <Accordion type='multiple' defaultValue={['general']}>
       <AccordionItem value='general'>
@@ -375,6 +416,10 @@ export const AsteroidFilterForm = () => {
       <AccordionItem value='orbitals'>
         <AccordionTrigger>Orbitals</AccordionTrigger>
         <AccordionContent>{orbitalFilters}</AccordionContent>
+      </AccordionItem>
+      <AccordionItem value='buildings'>
+        <AccordionTrigger>Buildings</AccordionTrigger>
+        <AccordionContent>{buildingFilters}</AccordionContent>
       </AccordionItem>
     </Accordion>
   )

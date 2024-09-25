@@ -5,11 +5,18 @@ import {
   AsteroidScanStatus,
   Blockchain,
 } from '@prisma/client'
-import { BonusType, Rarity, Asteroid as SdkAsteroid } from '@influenceth/sdk'
+import {
+  BonusType,
+  Building,
+  Rarity,
+  Asteroid as SdkAsteroid,
+} from '@influenceth/sdk'
 import { InfluenceEntity } from 'influence-typed-sdk/api'
+import { A, D, N, pipe } from '@mobily/ts-belt'
 import { inngest } from './client'
 import { db } from '@/server/db'
 import { influenceApi } from '@/lib/influence-api/api'
+import { asteroidBuildings } from '@/actions/asteroids'
 
 const API_BATCH_SIZE = parseInt(
   process.env.ASTEROID_SYNC_API_BATCH_SIZE ?? '500',
@@ -176,12 +183,18 @@ const updateAsteroids = async (
   apiAsteroids: InfluenceEntity[],
   existingAsteroids: Map<number, Asteroid>
 ) => {
+  const buildings = await asteroidBuildings(apiAsteroids.map((a) => a.id))
   const updates = apiAsteroids.flatMap((apiAsteroid) => {
     const existingAsteroid = existingAsteroids.get(apiAsteroid.id)
+
     if (!existingAsteroid) {
       return []
     }
-    return updateAsteroid(apiAsteroid, existingAsteroid)
+    return updateAsteroid(
+      apiAsteroid,
+      existingAsteroid,
+      buildings[apiAsteroid.id] ?? {}
+    )
   })
 
   return Promise.all(updates)
@@ -189,7 +202,8 @@ const updateAsteroids = async (
 
 const updateAsteroid = (
   apiAsteroid: InfluenceEntity,
-  existingAsteroid: Asteroid
+  existingAsteroid: Asteroid,
+  buildings: Record<number, number>
 ) => {
   if (!apiAsteroid.Celestial || !apiAsteroid.Nft) {
     return
@@ -214,7 +228,6 @@ const updateAsteroid = (
   if (!newOwner) {
     console.log('UNOWNED ASTEROID', JSON.stringify(apiAsteroid, null, 2))
   }
-
   return db.asteroid.update({
     where: {
       id: apiAsteroid.id,
@@ -250,6 +263,17 @@ const updateAsteroid = (
             },
           }
         : undefined,
+      warehouses: buildings[Building.IDS.WAREHOUSE] ?? 0,
+      tankFarms: buildings[Building.IDS.TANK_FARM] ?? 0,
+      extractors: buildings[Building.IDS.EXTRACTOR] ?? 0,
+      refineries: buildings[Building.IDS.REFINERY] ?? 0,
+      bioreactors: buildings[Building.IDS.BIOREACTOR] ?? 0,
+      factories: buildings[Building.IDS.FACTORY] ?? 0,
+      shipyards: buildings[Building.IDS.SHIPYARD] ?? 0,
+      marketplaces: buildings[Building.IDS.MARKETPLACE] ?? 0,
+      spaceports: buildings[Building.IDS.SPACEPORT] ?? 0,
+      habitats: buildings[Building.IDS.HABITAT] ?? 0,
+      totalBuildings: pipe(buildings, D.values, A.reduce(0, N.add)),
     },
   })
 }

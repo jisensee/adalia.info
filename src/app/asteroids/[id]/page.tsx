@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { FC, ReactNode } from 'react'
-import { Entity } from '@influenceth/sdk'
+import { Building, Entity } from '@influenceth/sdk'
+import { Asteroid } from '@prisma/client'
 import { Abundances } from './abundances'
 import { db } from '@/server/db'
 import {
@@ -18,6 +19,7 @@ import {
 } from '@/components/asteroid-action-button'
 import { Address } from '@/components/address'
 import { influenceApi } from '@/lib/influence-api/api'
+import { BuildingIcon } from '@/components/influence-asset-icons'
 
 type Params = {
   params: {
@@ -39,6 +41,7 @@ export default async function AsteroidDetailPage({ params }: Params) {
   if (!asteroid) {
     notFound()
   }
+  const buildingCounts = getBuildingCounts(asteroid)
   const stats = (
     <Accordion
       className='flex w-full flex-col gap-y-3 sm:max-w-sm'
@@ -140,6 +143,27 @@ export default async function AsteroidDetailPage({ params }: Params) {
         </div>
         {stats}
       </div>
+      {buildingCounts.length > 0 && (
+        <div className='flex flex-col gap-y-3'>
+          <h2>{asteroid.totalBuildings} Buildings</h2>
+          <div className='flex flex-wrap gap-3'>
+            {buildingCounts.map(({ buildingId, count }) => (
+              <div
+                key={buildingId}
+                className='flex gap-x-1 rounded-md border border-primary px-2 py-1'
+              >
+                <BuildingIcon size={75} building={buildingId} />
+                <div className='flex flex-col items-center'>
+                  <p className='text-lg text-primary'>
+                    {Building.getType(buildingId).name}
+                  </p>
+                  <p className='text-2xl font-bold'>{count.toLocaleString()}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <Abundances
         asteroidId={asteroid.id}
         abundances={abundances ?? undefined}
@@ -161,3 +185,47 @@ const InfoRow: FC<InfoRowProps> = ({ title, value, valueClassName }) => (
     <span className={cn('text-xl', valueClassName)}>{value}</span>
   </div>
 )
+
+const getBuildingCounts = (asteroid: Asteroid) =>
+  [
+    {
+      buildingId: Building.IDS.WAREHOUSE,
+      count: asteroid.warehouses,
+    },
+    {
+      buildingId: Building.IDS.TANK_FARM,
+      count: asteroid.tankFarms,
+    },
+    {
+      buildingId: Building.IDS.EXTRACTOR,
+      count: asteroid.extractors,
+    },
+    {
+      buildingId: Building.IDS.REFINERY,
+      count: asteroid.refineries,
+    },
+    {
+      buildingId: Building.IDS.BIOREACTOR,
+      count: asteroid.bioreactors,
+    },
+    {
+      buildingId: Building.IDS.FACTORY,
+      count: asteroid.factories,
+    },
+    {
+      buildingId: Building.IDS.SHIPYARD,
+      count: asteroid.shipyards,
+    },
+    {
+      buildingId: Building.IDS.MARKETPLACE,
+      count: asteroid.marketplaces,
+    },
+    {
+      buildingId: Building.IDS.SPACEPORT,
+      count: asteroid.spaceports,
+    },
+    {
+      buildingId: Building.IDS.HABITAT,
+      count: asteroid.habitats,
+    },
+  ].filter(({ count }) => count > 0)

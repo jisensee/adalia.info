@@ -3,6 +3,8 @@
 import Image from 'next/image'
 import { PropsWithChildren, ReactNode } from 'react'
 import { XIcon } from 'lucide-react'
+import { A, pipe } from '@mobily/ts-belt'
+import { Building } from '@influenceth/sdk'
 import { Button } from '../ui/button'
 import { AsteroidFilters, RangeParam } from './filter-params'
 
@@ -118,6 +120,17 @@ export const AsteroidFilterSummary = ({
       )}
       {tag('scanBonus', 'Scan bonus', enumFormatter(Format.asteroidScanBonus))}
       {tag('blockchain', 'Blockchain', (v) => v)}
+      {tag('hasBuildings', 'Has buildings', (hasBuildings) =>
+        hasBuildings ? 'Yes' : 'No'
+      )}
+      {tag('buildings', 'Buildings', (buildings) =>
+        pipe(
+          buildings,
+          A.filter((building) => building >= 1 && building <= 10),
+          A.map((building) => Building.getType(building).name),
+          A.join(', ')
+        )
+      )}
     </div>
   ) : null
 }

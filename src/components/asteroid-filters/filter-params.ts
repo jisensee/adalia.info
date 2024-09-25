@@ -1,4 +1,4 @@
-import { createParser, parseAsJson } from 'nuqs'
+import { createParser, parseAsInteger, parseAsJson } from 'nuqs'
 import {
   createSearchParamsCache,
   parseAsArrayOf,
@@ -89,6 +89,8 @@ export const asteroidFilterParamsParsers = {
   orbitalPeriod: parseAsJson<RangeParam>(),
   eccentricity: parseAsJson<RangeParam>(),
   salePrice: parseAsJson<RangeParam>(),
+  hasBuildings: parseAsBoolean,
+  buildings: parseAsArrayOf(parseAsInteger),
 }
 
 export const asteroidFiltersCache = createSearchParamsCache(
@@ -117,4 +119,6 @@ export const emptyAsteroidFilters: AsteroidFilters = {
   eccentricity: null,
   orbitalPeriod: null,
   salePrice: null,
+  hasBuildings: null,
+  buildings: null,
 }
