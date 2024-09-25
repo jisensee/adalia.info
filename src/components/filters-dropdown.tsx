@@ -7,6 +7,7 @@ import {
   AsteroidScanStatus,
   AsteroidSpectralType,
 } from '@prisma/client'
+import { Building } from '@influenceth/sdk'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -126,6 +127,34 @@ export const FiltersDropdown = () => {
           }}
         >
           Multi-Type
+        </FilterItem>
+        <FilterItem
+          filters={{
+            hasBuildings: true,
+          }}
+        >
+          Inhabited
+        </FilterItem>
+        <FilterItem
+          filters={{
+            buildings: [Building.IDS.MARKETPLACE],
+          }}
+        >
+          With Marketplace
+        </FilterItem>
+        <FilterItem
+          filters={{
+            buildings: [Building.IDS.SPACEPORT],
+          }}
+        >
+          With Spaceport
+        </FilterItem>
+        <FilterItem
+          filters={{
+            buildings: [Building.IDS.HABITAT],
+          }}
+        >
+          With Habitat
         </FilterItem>
       </DropdownMenuContent>
     </DropdownMenu>

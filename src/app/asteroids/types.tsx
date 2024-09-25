@@ -34,6 +34,7 @@ export const defaultAsteroidColumnConfig: AsteroidColumnConfig[] = [
   { id: 'eccentricity', active: false },
   { id: 'semiMajorAxis', active: false },
   { id: 'blockchain', active: false },
+  { id: 'totalBuildings', active: true },
 ]
 
 const asteroidPageParamsParsers = {

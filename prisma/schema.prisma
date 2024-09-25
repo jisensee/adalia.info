@@ -37,6 +37,18 @@ model Asteroid {
 
   bonuses      AsteroidBonus[]
   ownerChanges AsteroidOwnerChange[]
+
+  warehouses     Int @default(0)
+  tankFarms      Int @default(0)
+  extractors     Int @default(0)
+  refineries     Int @default(0)
+  bioreactors    Int @default(0)
+  factories      Int @default(0)
+  shipyards      Int @default(0)
+  marketplaces   Int @default(0)
+  spaceports     Int @default(0)
+  habitats       Int @default(0)
+  totalBuildings Int @default(0)
 }
 
 model AsteroidOwnerChange {

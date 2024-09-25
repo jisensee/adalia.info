@@ -38,6 +38,7 @@ export type AsteroidRow = {
   salePrice?: number | null
   starkSightUser?: string | null
   starkSightGroup?: string | null
+  totalBuildings?: number | null
 }
 
 const getScanBonus = (purchaseOrder: number | null) => {
@@ -81,6 +82,7 @@ export const toAsteroidRow = (
   earlyAdopter: isEarlyAdopter(asteroid.purchaseOrder),
   purchaseOrder: asteroid.purchaseOrder,
   blockchain: asteroid.blockchain,
+  totalBuildings: asteroid.totalBuildings,
 })
 
 export type AsteroidColumn = keyof AsteroidRow
@@ -106,6 +108,7 @@ export const allAsteroidColumns: AsteroidColumn[] = [
   'purchaseOrder',
   'blockchain',
   'salePrice',
+  'totalBuildings',
 ]
 
 const columnNames: Record<AsteroidColumn, string> = {
@@ -129,6 +132,7 @@ const columnNames: Record<AsteroidColumn, string> = {
   purchaseOrder: 'Purchase order',
   blockchain: 'Chain',
   salePrice: 'Sale price',
+  totalBuildings: 'Total buildings',
 }
 
 export const getAsteroidColumnName = (col: AsteroidColumn): string =>
@@ -212,5 +216,8 @@ export const columnDef: ColumnDef<AsteroidRow>[] = [
   ),
   col('salePrice', (asteroid) =>
     asteroid.salePrice ? Format.salePrice(asteroid.salePrice) : undefined
+  ),
+  col('totalBuildings', (asteroid) =>
+    asteroid.totalBuildings?.toLocaleString()
   ),
 ]

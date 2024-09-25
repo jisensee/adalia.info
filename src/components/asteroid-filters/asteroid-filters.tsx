@@ -308,7 +308,7 @@ export type EnumFilterProps<T> = AsteroidFilterProps<T[]> & {
   format: (value: T) => string
 }
 
-export const EnumFilter = <T extends string>({
+export const EnumFilter = <T extends string | number>({
   options,
   format,
   ...filterProps
