@@ -1,35 +1,29 @@
-'use client'
-
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts'
-import { A, D, F, O, pipe } from '@mobily/ts-belt'
+import { A, D, F, O, pipe, S } from '@mobily/ts-belt'
 import { Time } from '@influenceth/sdk'
 import { format } from 'date-fns'
+import { getEntityName } from 'influence-typed-sdk/api'
+import { MoveHorizontal } from 'lucide-react'
+import { calculateDistances } from './distances'
+import { ResolvedTrip } from './actions'
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart'
 import { chartColors } from '@/lib/colors'
-
-export type DistanceChartData = {
-  asteroidDistances: Record<number, number>
-  time: number
-}
+import { Format } from '@/lib/format'
 
 export type DistancesChartProps = {
-  asteroidNames: Map<number, string>
-  distances: DistanceChartData[]
+  trips: ResolvedTrip[]
+  distances: ReturnType<typeof calculateDistances>
 }
 
-export const DistancesChart = ({
-  distances,
-  asteroidNames,
-}: DistancesChartProps) => {
-  const asteroidIds = [...asteroidNames.keys()]
+export const DistancesChart = ({ trips, distances }: DistancesChartProps) => {
   const maxDistance =
     pipe(
       distances,
-      A.map((d) => D.values(d.asteroidDistances)),
+      A.map((d) => D.values(d.distances)),
       A.flat,
       A.sortBy(F.identity),
       A.last,
@@ -79,19 +73,35 @@ export const DistancesChart = ({
                     style={{ background: item.stroke }}
                     className='h-2 w-2 rounded-full'
                   />
-                  {asteroidNames.get(
-                    parseInt(name?.toString()?.split('.')?.[1] ?? '0')
+                  {pipe(
+                    name?.toString(),
+                    S.split('.'),
+                    A.last,
+                    (tripId) => A.find(trips, (trip) => trip.id === tripId),
+                    O.map((trip) => (
+                      <div key={trip.id} className='flex items-center gap-x-2'>
+                        <span className='text-primary'>
+                          {getEntityName(trip.origin)}
+                        </span>
+                        <MoveHorizontal />
+                        <span className='text-primary'>
+                          {getEntityName(trip.destination)}
+                        </span>
+                      </div>
+                    ))
                   )}
-                  : {(value as number).toFixed(3)} AU
+                  <span className='font-bold'>
+                    {Format.asteroidDistance(value as number)}
+                  </span>
                 </div>
               )}
             />
           }
         />
-        {asteroidIds.map((asteroidId, index) => (
+        {trips.map((trip, index) => (
           <Line
-            key={asteroidId}
-            dataKey={`asteroidDistances.${asteroidId}`}
+            key={trip.id}
+            dataKey={`distances.${trip.id}`}
             dot={false}
             strokeWidth={2}
             stroke={chartColors[index % chartColors.length]}

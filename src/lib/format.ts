@@ -57,6 +57,7 @@ export const Format = {
   salePrice: numberFormatter(3, Constants.SALE_PRICE_UNIT),
   eccentricity: numberFormatter(3),
   distance: (distance: number) => `${Math.round(distance)} km`,
+  asteroidDistance: (distance: number) => `${distance.toFixed(3)} AU`,
   days: (days: number) => `${days} day${days === 1 ? '' : 's'}`,
   ethAddress: (address: string, shownCharacters: number) => {
     const start = address.slice(0, shownCharacters + 2)

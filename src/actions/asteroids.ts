@@ -156,4 +156,4 @@ export const getOrbits = (asteroids: number[]) =>
         responseSchema: searchResponseSchema(entitySchema),
       },
     })
-    .then((r) => r.hits.hits)
+    .then((r) => r.hits.hits.map(D.prop('_source')))

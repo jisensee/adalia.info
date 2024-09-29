@@ -1,13 +1,10 @@
 'use client'
-import { match, P } from 'ts-pattern'
 import { useQueryStates } from 'nuqs'
-import { Fragment, ReactNode, useState } from 'react'
-import { getEntityName, InfluenceEntity } from 'influence-typed-sdk/api'
-import { A, F, flow, pipe } from '@mobily/ts-belt'
-import { Trash } from 'lucide-react'
+import { useState } from 'react'
+import { MoveHorizontal, Plus, Trash } from 'lucide-react'
+import { getEntityName } from 'influence-typed-sdk/api'
 import { asteroidDistancesParams } from './params'
-import { Label } from '@/components/ui/label'
-import { AsteroidSelect } from '@/components/asteroid-select'
+import { ResolvedTrip } from './actions'
 import {
   Dialog,
   DialogContent,
@@ -17,118 +14,167 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { pluralize } from '@/lib/utils'
+import { Label } from '@/components/ui/label'
+import { AsteroidSelect } from '@/components/asteroid-select'
 
-export type AsteroidDistancesFormProps = {
-  asteroidNames: Map<number, string>
+export type AsteroidTripsFormProps = {
+  trips: ResolvedTrip[]
 }
-export const AsteroidDistancesForm = ({
-  asteroidNames,
-}: AsteroidDistancesFormProps) => {
-  const [params, setParams] = useQueryStates(asteroidDistancesParams, {
-    shallow: false,
-  })
-  const [dialogOpen, setDialogOpen] = useState(false)
-  const initialSelectedDestinations = pipe(
-    params.destinations ?? [],
-    A.filterMap((id) => {
-      const name = asteroidNames.get(id)
-      return name ? F.toMutable([id, name] as const) : null
-    })
-  )
-  const [selectedDestinations, setSelectedDestinations] = useState<
-    [number, string][]
-  >(initialSelectedDestinations)
-
-  const addDestination = (newDestination?: InfluenceEntity) => {
-    if (
-      newDestination &&
-      selectedDestinations.every((a) => a[0] !== newDestination.id)
-    ) {
-      setSelectedDestinations(
-        flow(A.append([newDestination.id, getEntityName(newDestination)]))
-      )
-    }
-  }
-  const removeDestination = (asteroidId: number) =>
-    setSelectedDestinations(A.reject((a) => a[0] === asteroidId))
-
-  const saveDestinations = () => {
-    setParams({ destinations: selectedDestinations.map((a) => a[0]) })
-    setDialogOpen(false)
-  }
-
-  const destinationLimitReached = selectedDestinations.length >= 10
+export const AsteroidTripsForm = ({ trips }: AsteroidTripsFormProps) => {
+  const [addTripOpen, setAddTripOpen] = useState(false)
+  const [tripOverviewOpen, setTripOverviewOpen] = useState(false)
 
   return (
     <div className='flex gap-x-3'>
-      <div>
-        <Label>Origin Asteroid</Label>
-        <AsteroidSelect
-          asteroidId={params.origin}
-          onAsteroidChange={(asteroid) => setParams({ origin: asteroid?.id })}
+      <Dialog open={tripOverviewOpen} onOpenChange={setTripOverviewOpen}>
+        <DialogTrigger asChild>
+          <Button variant='outline' onClick={() => setTripOverviewOpen(true)}>
+            {trips.length} {pluralize(trips.length, 'Trip')}
+          </Button>
+        </DialogTrigger>
+        <TripOverviewDialogContent
+          trips={trips}
+          onAddTrip={() => {
+            setTripOverviewOpen(false)
+            setAddTripOpen(true)
+          }}
+          onClose={() => setTripOverviewOpen(false)}
         />
+      </Dialog>
+      <Dialog open={addTripOpen} onOpenChange={setAddTripOpen}>
+        <DialogTrigger asChild>
+          <Button onClick={() => setAddTripOpen(true)} icon={<Plus />}>
+            Add Trip
+          </Button>
+        </DialogTrigger>
+        <AddTripDialogContent onClose={() => setAddTripOpen(false)} />
+      </Dialog>
+    </div>
+  )
+}
+
+type AddTripDialogContentProps = {
+  onClose: () => void
+}
+const AddTripDialogContent = ({ onClose }: AddTripDialogContentProps) => {
+  const [, setParams] = useQueryStates(asteroidDistancesParams)
+  const [origin, setOrigin] = useState<number>()
+  const [destination, setDestination] = useState<number>()
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Add Trip</DialogTitle>
+      </DialogHeader>
+      <div className='space-y-2'>
+        <div>
+          <Label>Origin Asteroid</Label>
+          <AsteroidSelect
+            asteroidId={origin}
+            onAsteroidChange={(a) => setOrigin(a?.id)}
+          />
+        </div>
+        <div>
+          <Label>Destination Asteroid</Label>
+          <AsteroidSelect
+            asteroidId={destination}
+            onAsteroidChange={(a) => setDestination(a?.id)}
+          />
+        </div>
       </div>
-      <div className='flex flex-col justify-end'>
-        <Label className='mb-1'>Destination Asteroids</Label>
-        <Dialog
-          open={dialogOpen}
-          onOpenChange={(o) => {
-            setDialogOpen(o)
-            if (!o) {
-              setSelectedDestinations(initialSelectedDestinations)
-            }
+      <DialogFooter>
+        <Button variant='outline' onClick={onClose}>
+          Cancel
+        </Button>
+        <Button
+          disabled={!origin || !destination}
+          icon={<Plus />}
+          onClick={() => {
+            if (!origin || !destination) return
+            setParams((params) => ({
+              ...params,
+              trips: [...(params.trips ?? []), { origin, destination }],
+            }))
+            onClose()
           }}
         >
-          <DialogTrigger asChild>
-            <Button variant='outline' onClick={() => setDialogOpen(true)}>
-              {match(selectedDestinations)
-                .returnType<ReactNode>()
-                .with([], () => 'Select Destination')
-                .with([P._], ([[, name]]) => name)
-                .with(P.array(P._), (arr) => `${arr.length} Destinations`)
-                .exhaustive()}
+          Add
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  )
+}
+
+type TripOverviewDialogContentProps = {
+  trips: ResolvedTrip[]
+  onAddTrip: () => void
+  onClose: () => void
+}
+const TripOverviewDialogContent = ({
+  trips,
+  onAddTrip,
+  onClose,
+}: TripOverviewDialogContentProps) => {
+  const [, setParams] = useQueryStates(asteroidDistancesParams)
+  const removeTrip = (trip: ResolvedTrip) =>
+    setParams((params) => ({
+      trips: params.trips.filter(
+        (t) =>
+          t.origin !== trip.origin.id || t.destination !== trip.destination.id
+      ),
+    }))
+  const removeAllTrips = () => {
+    onClose()
+    setParams((params) => ({
+      ...params,
+      trips: [],
+    }))
+  }
+
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Trip Overview</DialogTitle>
+      </DialogHeader>
+      <div className='flex flex-col gap-y-1'>
+        {trips.map((trip) => (
+          <div key={trip.id} className='flex gap-x-3'>
+            <Button
+              variant='destructive'
+              size='icon'
+              onClick={() => removeTrip(trip)}
+            >
+              <Trash />
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Select Destination Asteroids</DialogTitle>
-            </DialogHeader>
-            <div>
-              <AsteroidSelect
-                onAsteroidChange={addDestination}
-                disabled={destinationLimitReached}
-              />
-              {destinationLimitReached && (
-                <p className='text-sm text-warning'>
-                  You have reached the limit of 10 destinations.
-                </p>
-              )}
+            <div className='flex items-center gap-x-2'>
+              <span className='text-xl text-primary'>
+                {getEntityName(trip.origin)}
+              </span>
+              <MoveHorizontal size={32} />
+              <span className='text-xl text-primary'>
+                {getEntityName(trip.destination)}
+              </span>
             </div>
-            <div className='grid grid-cols-[min-content,1fr] items-center gap-y-1'>
-              {selectedDestinations.map(([id, name]) => (
-                <Fragment key={id}>
-                  <Button
-                    className='text-destructive hover:text-destructive'
-                    variant='ghost'
-                    onClick={() => removeDestination(id)}
-                  >
-                    <Trash />
-                  </Button>
-                  <p>{name}</p>
-                </Fragment>
-              ))}
-            </div>
-            <DialogFooter>
-              <Button
-                disabled={selectedDestinations.length === 0}
-                onClick={saveDestinations}
-              >
-                Save Destinations
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+          </div>
+        ))}
       </div>
-    </div>
+      <DialogFooter>
+        <Button variant='outline' onClick={onClose}>
+          Close
+        </Button>
+        {trips.length > 0 && (
+          <Button
+            variant='destructive'
+            onClick={removeAllTrips}
+            icon={<Trash />}
+          >
+            Clear Trips
+          </Button>
+        )}
+        <Button onClick={onAddTrip} icon={<Plus />}>
+          Add Trip
+        </Button>
+      </DialogFooter>
+    </DialogContent>
   )
 }

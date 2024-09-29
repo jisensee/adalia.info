@@ -55,3 +55,14 @@ export const getAsteroidDistance = (
   const AU = 1.495978707e11
   return Math.hypot(pos2.x - pos1.x, pos2.y - pos1.y, pos2.z - pos1.z) / AU
 }
+
+export const pluralize = (
+  number: number,
+  singular: string,
+  plural?: string
+) => {
+  if (number === 1) {
+    return singular
+  }
+  return plural ?? `${singular}s`
+}
