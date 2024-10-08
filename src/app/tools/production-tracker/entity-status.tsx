@@ -1,166 +1,238 @@
 'use client'
 
-import { Building, Process, Product } from '@influenceth/sdk'
-import { FC } from 'react'
+import { differenceInSeconds, formatRelative } from 'date-fns'
 import { Check, Hourglass } from 'lucide-react'
-import { formatRelative } from 'date-fns'
+
+import { getEntityName, InfluenceEntity } from 'influence-typed-sdk/api'
+import { Fragment } from 'react'
+import { Entity } from '@influenceth/sdk'
+import { EntityData } from './entity-data'
+import { Progress } from '@/components/ui/progress'
 import { Format } from '@/lib/format'
-import { useRemainingSeconds } from '@/hooks/timers'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import { cn } from '@/lib/utils'
+import {
+  BuildingIcon,
+  ProductIcon,
+  ShipIcon,
+} from '@/components/influence-asset-icons'
 import { LotLink } from '@/components/lot-link'
-import { BuildingIcon, ProductIcon } from '@/components/influence-asset-icons'
+import { CrewImage, CrewmateImage } from '@/components/crew'
 
-type BaseEntityStatus = {
-  finishTime: Date
-  asteroidId: number
-  name?: string
-  lotUuid: string
+export type EntityStatusCardProps = {
+  data: EntityData
+  now: Date
 }
 
-export type ProcessStatus = {
-  type: 'process'
-  runningProcess: number
-  outputProduct: number
-  processorType: number
-  recipes: number
-  secondaryEff: number
-} & BaseEntityStatus
+export const EntityStatusCard = ({ data, now }: EntityStatusCardProps) => {
+  const crew = 'crew' in data ? data.crew : undefined
+  const crewCaptainId = crew?.Crew?.roster[0]
+  const crewImage = crewCaptainId && (
+    <CrewmateImage crewmateId={crewCaptainId} width={64} />
+  )
 
-export type ExtractorStatus = {
-  type: 'extractor'
-  outputProduct: number
-  yield: number
-} & BaseEntityStatus
-
-export type BuildingConstructionStatus = {
-  type: 'building'
-  buildingType: number
-} & BaseEntityStatus
-
-export type IdleBuildingStatus = {
-  type: 'idleBuilding'
-  buildingType: number
-} & Omit<BaseEntityStatus, 'remainingSeconds'>
-
-export type EntityStatus =
-  | ProcessStatus
-  | ExtractorStatus
-  | BuildingConstructionStatus
-  | IdleBuildingStatus
-
-type EntityStatusCardProps = {
-  status: EntityStatus
-}
-
-export const EntityStatusCard: FC<EntityStatusCardProps> = ({ status }) => {
-  const idleBuilding = status.type === 'idleBuilding'
-  const remainingSeconds = useRemainingSeconds(status.finishTime)
-
-  const isFinished = remainingSeconds <= 0
-
-  return (
-    <div className='flex items-center gap-x-3 rounded border border-primary px-3 py-1'>
-      {getIcon(status)}
-      <div className='flex w-full flex-col md:flex-row md:justify-between'>
-        <div>
-          <div>{getContent(status, isFinished)}</div>
-          <LotLink className='hidden md:flex' uuid={status.lotUuid} />
+  const timeInfo = (
+    <div className='flex items-center justify-end gap-x-1'>
+      {data.type === 'idle-building' && (
+        <span className='text-xl text-primary'>Idle</span>
+      )}
+      {data.type !== 'idle-building' && data.duration.remainingSeconds <= 0 && (
+        <div className='flex items-center gap-x-2 whitespace-nowrap text-primary'>
+          <Check />
+          <span className='text-xl'>Finished</span>
         </div>
-        <div className='flex items-center justify-between gap-x-3 text-primary md:justify-end'>
-          <LotLink className='md:hidden' uuid={status.lotUuid} />
-          {idleBuilding && <span className='text-2xl'>Idle</span>}
-          {isFinished && !idleBuilding && (
-            <div className='flex items-center gap-x-2'>
-              <Check />
-              <span className='text-xl'>Finished</span>
-            </div>
-          )}
-          {!isFinished && !idleBuilding && (
-            <div className='flex flex-col items-end'>
-              <div className='flex items-center gap-x-2'>
-                <Hourglass />
-                <span className='whitespace-nowrap text-2xl'>
-                  {Format.remainingTime(remainingSeconds)}
-                </span>
-              </div>
-              <span className='text-sm'>
-                {formatRelative(status.finishTime, new Date())}
-              </span>
-            </div>
-          )}
+      )}
+      {data.type !== 'idle-building' && data.duration.remainingSeconds > 0 && (
+        <div className='flex flex-col items-end'>
+          <div className='flex items-center gap-x-2 whitespace-nowrap text-primary'>
+            <Hourglass className='inline' />{' '}
+            <span className='text-2xl'>
+              {Format.remainingTime(data.duration.remainingSeconds)}
+            </span>
+          </div>
+          <p className='hidden whitespace-nowrap text-sm text-primary md:block'>
+            {formatRelative(data.duration.end, now)}
+          </p>
         </div>
-      </div>
+      )}
     </div>
+  )
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <div
+          className={cn(
+            'flex cursor-pointer flex-col justify-between gap-x-3 rounded ring-1 ring-primary hover:ring-2',
+            {
+              'p-1': data.type === 'idle-building',
+            }
+          )}
+        >
+          <div className='flex items-start'>
+            <div className='flex w-fit shrink-0 items-center gap-x-1'>
+              {crewImage}
+              {data.icon?.(64)}
+            </div>
+            <div className='flex w-full flex-col justify-start gap-2 px-2 py-1 md:flex-row md:justify-between'>
+              <div className='flex flex-col'>
+                <div>
+                  <h3 className='line-clamp-1'>{data.name}</h3>
+                  {'subtext' in data && data.subtext}
+                </div>
+              </div>
+              {timeInfo}
+            </div>
+          </div>
+          {data.type !== 'idle-building' &&
+            data.type !== 'rented-production' && (
+              <EntityProgress {...data.duration} />
+            )}
+        </div>
+      </DialogTrigger>
+      <Details data={data} now={now} />
+    </Dialog>
   )
 }
 
-const getContent = (status: EntityStatus, isFinished: boolean) => {
-  switch (status.type) {
-    case 'process': {
-      const building = Format.processor(status.processorType)
-      const outputAmount =
-        (Process.getType(status.runningProcess).outputs?.[
-          status.outputProduct
-        ] ?? 1) * status.recipes
-      const formattedOutput = Format.productAmount(
-        status.outputProduct,
-        outputAmount
-      )
-      return (
-        <div>
-          <h3>{Process.getType(status.runningProcess).name}</h3>
-          <p>
-            <span className='font-bold'>{status.name ?? building}</span>{' '}
-            {isFinished ? 'produced' : 'is producing'}{' '}
-            <span className='font-bold text-primary'>{formattedOutput}</span>
-          </p>
+const Details = ({ data }: EntityStatusCardProps) => {
+  const otherOutputs = 'outputs' in data && data.outputs.length > 1 && (
+    <div className='grid grid-cols-[auto,1fr] items-center gap-x-1 gap-y-2'>
+      <h3 className='col-span-2'>Other Outputs</h3>
+      {data.outputs
+        .filter((o) => !o.primary)
+        .map((output) => (
+          <Fragment key={output.product}>
+            <ProductIcon product={output.product} size={40} />
+            <span className='text-lg'>
+              {Format.productAmount(output.product, output.amount)}
+            </span>
+          </Fragment>
+        ))}
+    </div>
+  )
+  const location = (
+    <LotLink
+      uuid={data.building.Location?.resolvedLocations?.lot?.uuid ?? ''}
+    />
+  )
+  const buildingInfo = data.type === 'idle-building' && (
+    <div className='flex gap-x-2'>
+      <BuildingIcon
+        building={data.building.Building?.buildingType ?? 1}
+        size={128}
+      />
+      <div className='space-y-1'>
+        <p className='text-lg font-bold'>{getEntityName(data.building)}</p>
+        {location}
+      </div>
+    </div>
+  )
+  const origin = 'origin' in data && <Inventory inventory={data.origin} />
+  const destination = 'destination' in data && (
+    <Inventory inventory={data.destination} />
+  )
+  const crew = 'crew' in data ? data.crew : undefined
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>{data.name}</DialogTitle>
+      </DialogHeader>
+      <div className='space-y-2'>
+        {buildingInfo}
+        {data.type !== 'idle-building' && (
+          <div className='flex gap-x-2'>
+            {data.icon(128)}
+            <div className='w-full space-y-1'>
+              {'subtext' in data && <p>{data.subtext}</p>}
+              {data.type !== 'rented-production' && (
+                <EntityProgress {...data.duration} showDuration />
+              )}
+              {'duration' in data && data.duration.remainingSeconds > 0 && (
+                <p className='w-full text-center text-sm text-primary'>
+                  {formatRelative(data.duration.end, new Date())}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+        {data.type !== 'idle-building' && location}
+        {otherOutputs}
+        <div className='flex flex-wrap gap-x-10 gap-y-2'>
+          {origin && (
+            <div className='space-y-1'>
+              <h3>Origin</h3>
+              {origin}
+            </div>
+          )}
+          {destination && (
+            <div className='space-y-1'>
+              <h3>Destination</h3>
+              {destination}
+            </div>
+          )}
         </div>
-      )
-    }
-    case 'extractor': {
-      const formattedOutput = Format.productAmount(
-        status.outputProduct,
-        status.yield
-      )
-      const actionText = isFinished ? 'Extracted' : 'Extracting'
-      return (
-        <div>
-          <h3>{Product.getType(status.outputProduct).name} extraction</h3>
-          <p>
-            {status.name && <span className='font-bold'>{status.name}</span>}
-            {status.name ? ' is ' + actionText.toLowerCase() : actionText}{' '}
-            <span className='font-bold text-primary'> {formattedOutput}</span>
-          </p>
-        </div>
-      )
-    }
-    case 'building':
-      return (
-        <div>
-          <h3>{Building.getType(status.buildingType).name} construction</h3>
-        </div>
-      )
-    case 'idleBuilding':
-      return (
-        <div>
-          <h3>{status.name ?? Building.getType(status.buildingType).name}</h3>
-        </div>
-      )
-    default:
-      return <div />
-  }
+        {crew && <CrewImage crew={crew} width={64} />}
+      </div>
+    </DialogContent>
+  )
 }
 
-const getIcon = (status: EntityStatus) => {
-  switch (status.type) {
-    case 'process':
-      return <ProductIcon product={status.outputProduct} size={64} />
-    case 'extractor':
-      return <ProductIcon product={status.outputProduct} size={64} />
-    case 'building':
-      return (
-        <BuildingIcon building={status.buildingType} size={64} isHologram />
-      )
-    case 'idleBuilding':
-      return <BuildingIcon building={status.buildingType} size={64} />
-  }
+const Inventory = ({ inventory }: { inventory: InfluenceEntity }) => (
+  <div className='flex gap-x-2'>
+    {inventory.label === Entity.IDS.BUILDING && inventory.Building && (
+      <BuildingIcon building={inventory.Building.buildingType} size={128} />
+    )}
+    {inventory.label === Entity.IDS.SHIP && inventory.Ship && (
+      <ShipIcon ship={inventory.Ship.shipType} size={128} />
+    )}
+    <div className='space-y-1'>
+      <p className='text-lg font-bold'>{getEntityName(inventory)}</p>
+      <LotLink uuid={inventory.Location?.resolvedLocations?.lot?.uuid ?? ''} />
+    </div>
+  </div>
+)
+
+type EntityProgressProps = {
+  start: Date
+  end: Date
+  remainingSeconds: number
+  showDuration?: boolean
+}
+const EntityProgress = ({
+  start,
+  end,
+  remainingSeconds,
+  showDuration,
+}: EntityProgressProps) => {
+  const duration = differenceInSeconds(end, start)
+  const progress = (duration - remainingSeconds) / duration
+
+  return (
+    <Progress
+      className={cn('h-[5px] rounded-none', {
+        'h-8': showDuration,
+        'bg-muted': !showDuration,
+      })}
+      value={progress * 100}
+    >
+      <span className='text-xl'>
+        {showDuration && (
+          <div className='flex items-center gap-x-2'>
+            {remainingSeconds < 0 ? <Check /> : <Hourglass />}
+            <span>
+              {remainingSeconds < 0
+                ? 'Finished'
+                : Format.remainingTime(remainingSeconds)}
+            </span>
+          </div>
+        )}
+      </span>
+    </Progress>
+  )
 }

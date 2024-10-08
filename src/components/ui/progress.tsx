@@ -7,8 +7,11 @@ import { cn } from '@/lib/utils'
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root>
->(({ className, value, children, ...props }, ref) => {
+  React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & {
+    loading?: boolean
+  }
+>(({ className, children, ...props }, ref) => {
+  const value = props.loading ? 100 : props.value
   const progress = (
     <ProgressPrimitive.Root
       ref={ref}
@@ -26,7 +29,7 @@ const Progress = React.forwardRef<
   )
   if (children) {
     return (
-      <div className='relative'>
+      <div className='relative w-full'>
         <div className='absolute z-50 flex h-full w-full items-center justify-center text-primary-foreground'>
           {children}
         </div>

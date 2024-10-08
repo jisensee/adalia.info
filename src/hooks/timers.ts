@@ -22,6 +22,20 @@ export const useRemainingSeconds = (
   return remainingSeconds
 }
 
+export const useNow = (updateInterval = 10_000) => {
+  const [now, setNow] = useState(new Date())
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date())
+    }, updateInterval)
+
+    return () => clearInterval(interval)
+  }, [updateInterval])
+
+  return now
+}
+
 export const usePeriodicRefresh = (interval = 60_000) => {
   const { refresh } = useRouter()
 
@@ -32,4 +46,28 @@ export const usePeriodicRefresh = (interval = 60_000) => {
 
     return () => clearInterval(intervalId)
   }, [refresh, interval])
+}
+
+export const useRefreshTimer = (
+  intervalInSeconds: number,
+  onRefresh: () => void
+) => {
+  const [remainingSeconds, setRemainingSeconds] = useState(intervalInSeconds)
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setRemainingSeconds((old) => old - 1)
+    }, 1_000)
+
+    return () => clearInterval(intervalId)
+  }, [])
+
+  useEffect(() => {
+    if (remainingSeconds === 0) {
+      onRefresh()
+      setRemainingSeconds(intervalInSeconds)
+    }
+  }, [remainingSeconds, intervalInSeconds, onRefresh])
+
+  return remainingSeconds
 }
