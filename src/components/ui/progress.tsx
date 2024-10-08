@@ -26,7 +26,7 @@ const Progress = React.forwardRef<
   )
   if (children) {
     return (
-      <div className='relative'>
+      <div className='relative w-full'>
         <div className='absolute z-50 flex h-full w-full items-center justify-center text-primary-foreground'>
           {children}
         </div>
