@@ -19,7 +19,7 @@ export const ProductIcon: FC<ProductIconProps> = ({
     alt={`product ${product}`}
     width={size}
     height={size}
-    className={className}
+    className={cn('object-contain', className)}
     unoptimized
   />
 )
@@ -60,7 +60,24 @@ export const BuildingIcon: FC<BuildingIconProps> = ({
     alt={`building ${building}`}
     width={size}
     height={size}
-    className={className}
+    className={cn('object-contain', className)}
+    unoptimized
+  />
+)
+
+export type ShipIconProps = {
+  className?: string
+  ship: number
+  size: number
+}
+
+export const ShipIcon: FC<ShipIconProps> = ({ className, ship, size }) => (
+  <NextImage
+    src={influenceImages.ship(ship, { w: size })}
+    alt={`ship ${ship}`}
+    width={size}
+    height={size}
+    className={cn('object-contain', className)}
     unoptimized
   />
 )

@@ -1,15 +1,15 @@
-import { FC } from 'react'
-import { Building, Product } from '@influenceth/sdk'
+'use client'
 
-import {
-  getEntityName,
-  getOutputAmounts,
-  reduceProductAmounts,
-} from 'influence-typed-sdk/api'
+import { Product } from '@influenceth/sdk'
+
+import { A, D, F, pipe } from '@mobily/ts-belt'
+import { useQuery } from '@tanstack/react-query'
+import { useQueryStates } from 'nuqs'
 import { ProductAmount } from '../trader-dashboard/product-amount'
 import { AsteroidOverview } from './asteroid-overview'
-import { EntityStatus } from './entity-status'
-import { Refresh } from './refresh'
+import { fetchProductionTrackerData } from './api'
+import { productionTrackerParams } from './params'
+import { ProductionTrackerForm } from './form'
 import {
   Accordion,
   AccordionContent,
@@ -18,201 +18,103 @@ import {
 } from '@/components/ui/accordion'
 import { SwayAmount } from '@/components/sway-amount'
 import { ProductIcon } from '@/components/influence-asset-icons'
-import { influenceApi } from '@/lib/influence-api/api'
+import { useRefreshTimer } from '@/hooks/timers'
+import { Progress } from '@/components/ui/progress'
 
-export type ProductionTrackerProps = {
-  walletAddress: string
-}
+const UPDATE_INTERVAL = 60
 
-const isProductionBuilding = (buildingId?: number) => {
-  if (!buildingId) return false
+export const ProductionTracker = () => {
+  const [{ walletAddress }] = useQueryStates(productionTrackerParams)
 
-  return (
-    [
-      Building.IDS.REFINERY,
-      Building.IDS.BIOREACTOR,
-      Building.IDS.FACTORY,
-      Building.IDS.SHIPYARD,
-    ] as number[]
-  ).includes(buildingId)
-}
-
-export const ProductionTracker: FC<ProductionTrackerProps> = async ({
-  walletAddress,
-}) => {
-  const buildings = await influenceApi.util.buildings(walletAddress)
-
-  const entities = buildings.flatMap((entity): EntityStatus[] => {
-    const asteroidId = entity.Location?.resolvedLocations?.asteroid?.id ?? 1
-    const lotUuid = entity.Location?.resolvedLocations?.lot?.uuid ?? ''
-    const name = entity ? getEntityName(entity) : ''
-
-    const base = {
-      asteroidId,
-      lotUuid,
-      name,
-    }
-
-    if (entity.Extractors.some((e) => e.yield > 0)) {
-      return entity.Extractors.filter((e) => e.yield > 0).map((extractor) => ({
-        type: 'extractor',
-        outputProduct: extractor.outputProduct,
-        yield: extractor.yield,
-        finishTime: extractor.finishTimestamp,
-        ...base,
-      }))
-    }
-    if (entity.Processors.some((p) => p.recipes > 0)) {
-      return entity.Processors.filter((p) => p.recipes > 0).map(
-        (processor) => ({
-          type: 'process',
-          finishTime: processor.finishTimestamp,
-          runningProcess: processor.runningProcess,
-          outputProduct: processor.outputProduct,
-          processorType: processor.processorType,
-          recipes: processor.recipes,
-          secondaryEff: processor.secondaryEff,
-          ...base,
-        })
-      )
-    }
-    if (
-      entity.Building?.status ===
-      Building.CONSTRUCTION_STATUSES.UNDER_CONSTRUCTION
-    ) {
-      return [
-        {
-          type: 'building',
-          buildingType: entity.Building.buildingType,
-          finishTime: entity.Building.finishTimestamp,
-          ...base,
-        },
-      ]
-    }
-
-    const isIdleExtractor =
-      entity.Building?.buildingType === Building.IDS.EXTRACTOR &&
-      !entity.Extractors.some((e) => e.yield > 0)
-    const isIdleProduction =
-      isProductionBuilding(entity?.Building?.buildingType) &&
-      !entity.Processors.some((p) => p.recipes > 0)
-
-    if (
-      entity.Building &&
-      entity.Building.status === Building.CONSTRUCTION_STATUSES.OPERATIONAL &&
-      (isIdleExtractor || isIdleProduction)
-    ) {
-      return [
-        {
-          type: 'idleBuilding',
-          buildingType: entity.Building.buildingType,
-          finishTime: new Date(),
-          ...base,
-        },
-      ]
-    }
-    return []
+  const { data, refetch, isRefetching, isLoading } = useQuery({
+    queryKey: ['production-tracker', walletAddress],
+    queryFn: () => fetchProductionTrackerData(walletAddress ?? ''),
+    placeholderData: F.identity,
+    enabled: !!walletAddress,
   })
 
-  const asteroidIds = [...new Set(entities.map(({ asteroidId }) => asteroidId))]
-  const asteroidIdToName = await influenceApi.util.asteroidNames(asteroidIds)
+  const secondsUntilUpdate = useRefreshTimer(UPDATE_INTERVAL, refetch)
 
-  const asteroidToEntities = new Map<string, EntityStatus[]>()
-
-  const incomingProducts = reduceProductAmounts(
-    entities.flatMap((entity) => {
-      if (entity.type === 'extractor') {
-        return [
-          {
-            product: entity.outputProduct,
-            amount: entity.yield,
-          },
-        ]
-      }
-      if (entity.type === 'process') {
-        return getOutputAmounts(
-          entity.runningProcess,
-          entity.outputProduct,
-          entity.recipes,
-          entity.secondaryEff
-        )
-      }
-      return []
-    })
-  )
-
-  entities.forEach((entity) => {
-    const asteroidName =
-      asteroidIdToName.get(entity.asteroidId) ?? entity.asteroidId.toString()
-    const processors = asteroidToEntities.get(asteroidName) ?? []
-    processors.push(entity)
-    asteroidToEntities.set(asteroidName, processors)
-  })
-  const entries = [...asteroidToEntities.entries()].sort(
-    (a, b) => b[1].length - a[1].length
-  )
-
-  const floorPrices = await influenceApi.util.floorPrices(
-    incomingProducts.map(({ product }) => product)
-  )
-
-  const incomingProductsWithPrices = incomingProducts
-    .map(({ product, amount }) => ({
-      product,
-      amount,
-      marketValue: amount * (floorPrices.get(product) ?? 0),
-    }))
-    .sort((a, b) => b.marketValue - a.marketValue)
-
-  const incomingValue = incomingProductsWithPrices.reduce(
-    (acc, { marketValue }) => acc + marketValue,
-    0
-  )
-
-  return (
-    <>
-      <Accordion
-        type='multiple'
-        defaultValue={entries.map(([asteroid]) => asteroid)}
-      >
-        <AccordionItem value='incoming-products'>
-          <div className='flex items-center gap-x-5'>
-            <AccordionTrigger>Incoming Products</AccordionTrigger>
-            <SwayAmount sway={incomingValue} large colored />
-          </div>
-          <AccordionContent>
-            <div className='flex flex-col gap-2 sm:flex-row md:flex-wrap'>
-              {incomingProductsWithPrices.map(
-                ({ product, amount, marketValue }) => (
-                  <div
-                    key={product}
-                    className='flex items-center gap-x-2 rounded border border-primary px-2 py-1'
-                  >
-                    <ProductIcon product={product} size={40} />
-                    <div className='flex w-full flex-row items-center justify-between sm:flex-col'>
-                      <ProductAmount
-                        product={Product.getType(product)}
-                        amount={amount}
-                        hideBadges
-                        hideIcon
-                      />
-                      <SwayAmount sway={marketValue} />
-                    </div>
-                  </div>
-                )
-              )}
+  const incomingProducts = data && (
+    <div className='flex flex-col gap-2 sm:flex-row md:flex-wrap'>
+      {data.incomingProductsWithPrices.map(
+        ({ product, amount, marketValue }) => (
+          <div
+            key={product}
+            className='flex items-center gap-x-2 rounded border border-primary px-2 py-1'
+          >
+            <ProductIcon product={product} size={40} />
+            <div className='flex w-full flex-row items-center justify-between sm:flex-col'>
+              <ProductAmount
+                product={Product.getType(product)}
+                amount={amount}
+                hideBadges
+                hideIcon
+              />
+              <SwayAmount sway={marketValue} />
             </div>
-          </AccordionContent>
-        </AccordionItem>
-        {entries.map(([asteroid, entities]) => (
-          <AsteroidOverview
-            key={asteroid}
-            asteroid={asteroid}
-            entities={entities}
-          />
-        ))}
-      </Accordion>
-      <Refresh />
-    </>
+          </div>
+        )
+      )}
+    </div>
+  )
+
+  const updateTimer = data && (
+    <div className='sticky right-4 top-4 float-right w-48'>
+      <Progress
+        className='h-5'
+        value={((UPDATE_INTERVAL - secondsUntilUpdate) / UPDATE_INTERVAL) * 100}
+        loading={isRefetching}
+      >
+        {isRefetching ? (
+          <span>Updating...</span>
+        ) : (
+          <span>
+            Next update in{' '}
+            <span className='font-mono'>{secondsUntilUpdate}</span>s
+          </span>
+        )}
+      </Progress>
+    </div>
+  )
+
+  return (
+    <div className='space-y-3'>
+      {updateTimer}
+      <h1>Production Tracker</h1>
+      <ProductionTrackerForm
+        loading={isRefetching || isLoading}
+        refresh={refetch}
+      />
+      {data && (
+        <Accordion
+          type='multiple'
+          defaultValue={data.groupedData.map(D.prop('asteroidName'))}
+        >
+          <AccordionItem value='incoming-products'>
+            <div className='flex items-center gap-x-5'>
+              <AccordionTrigger>Incoming Products</AccordionTrigger>
+              <SwayAmount sway={data.incomingValue} large colored />
+            </div>
+            <AccordionContent>{incomingProducts}</AccordionContent>
+          </AccordionItem>
+          {pipe(
+            data.groupedData,
+            A.sortBy(
+              (d) =>
+                -(d.asteroidActivities.length + d.asteroidIdleBuildings.length)
+            ),
+            A.map((entry) => (
+              <AsteroidOverview
+                key={entry.asteroidName}
+                data={entry}
+                entityMap={data.entityMap}
+                floorPrices={data.floorPrices}
+              />
+            ))
+          )}
+        </Accordion>
+      )}
+    </div>
   )
 }

@@ -2,10 +2,12 @@
 
 import { FC, ReactNode, useState } from 'react'
 import { Check, Cog, Hourglass, List } from 'lucide-react'
-import { isPast } from 'date-fns'
+import { Building } from '@influenceth/sdk'
+import { InfluenceEntity } from 'influence-typed-sdk/api'
 import { A, F, pipe } from '@mobily/ts-belt'
-import { Building, Processor } from '@influenceth/sdk'
-import { EntityStatus, EntityStatusCard } from './entity-status'
+import { EntityStatusCard } from './entity-status'
+import { TrackerAsteroidData } from './api'
+import { EntityData, getEntityData } from './entity-data'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   AccordionContent,
@@ -13,116 +15,99 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion'
 import { Toggle } from '@/components/ui/toggle'
+import { useNow } from '@/hooks/timers'
 
 type StatusFilter = 'all' | 'finished' | 'busy' | 'idle'
 
 export type AsteroidOverviewProps = {
-  asteroid: string
-  entities: EntityStatus[]
+  data: TrackerAsteroidData
+  entityMap: Map<string, InfluenceEntity>
+  floorPrices: Map<number, number>
 }
 
-const isBusy = (entity: EntityStatus) => entity.type !== 'idleBuilding'
-const isIdle = (entity: EntityStatus) => entity.type === 'idleBuilding'
-const isFinished = (entity: EntityStatus) =>
-  isPast(entity.finishTime) && entity.type !== 'idleBuilding'
-
-const applyStatusFilter = (
-  entities: EntityStatus[],
-  statusFilter: StatusFilter
-) => {
-  if (statusFilter === 'idle') return entities.filter(isIdle)
-  if (statusFilter === 'busy') return entities.filter(isBusy)
-  if (statusFilter === 'finished') return entities.filter(isFinished)
-  return entities
-}
-
-const processorToBuilding = (processorType: number) => {
-  switch (processorType) {
-    case Processor.IDS.REFINERY:
-      return Building.IDS.REFINERY
-    case Processor.IDS.BIOREACTOR:
-      return Building.IDS.BIOREACTOR
-    case Processor.IDS.FACTORY:
-      return Building.IDS.FACTORY
-    case Processor.IDS.SHIPYARD:
-      return Building.IDS.SHIPYARD
-    default:
-      return undefined
-  }
-}
-
-const applyBuldingFilter = (entities: EntityStatus[], buildings: number[]) =>
-  entities.filter((e) => {
-    if (buildings.length === 0) return true
-    switch (e.type) {
-      case 'extractor':
-        return buildings.includes(Building.IDS.EXTRACTOR)
-      case 'process':
-        return buildings.includes(processorToBuilding(e.processorType) ?? -1)
-      case 'idleBuilding':
-        return buildings.includes(e.buildingType)
-      default:
-        return false
-    }
-  })
+const isBusy = (data: EntityData) =>
+  data.type !== 'idle-building' &&
+  'duration' in data &&
+  data.duration.remainingSeconds > 0
+const isIdle = (data: EntityData) => data.type === 'idle-building'
+const isFinished = (data: EntityData) =>
+  data.type !== 'idle-building' && data.duration.remainingSeconds <= 0
 
 export const AsteroidOverview = ({
-  asteroid,
-  entities,
+  entityMap,
+  data: { asteroidName, asteroidActivities, asteroidIdleBuildings },
 }: AsteroidOverviewProps) => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [buildingFilter, setBuildingFilter] = useState<number[]>([])
+  const now = useNow()
 
-  const busyEntities = entities.filter(isBusy)
-  const idleEntities = entities.filter(isIdle)
-  const finishedEntities = entities.filter(isFinished)
+  const activityData = A.filterMap(asteroidActivities, (activity) =>
+    getEntityData({
+      activity,
+      now,
+      entityMap,
+    })
+  )
+  const idleBuildingData = A.filterMap(asteroidIdleBuildings, (idleBuilding) =>
+    getEntityData({
+      idleBuilding,
+      now,
+      entityMap,
+    })
+  )
+  const asteroidData = [...activityData, ...idleBuildingData].filter(Boolean)
 
-  const availableBuildings = pipe(
-    entities,
-    A.filterMap((e) => {
-      switch (e.type) {
-        case 'extractor':
-          return Building.IDS.EXTRACTOR
-        case 'process':
-          return processorToBuilding(e.processorType) ?? -1
-        case 'idleBuilding':
-          return e.buildingType
-        default:
-          return undefined
+  const filteredAsteroidData = pipe(
+    asteroidData,
+    A.filter((d) => {
+      switch (statusFilter) {
+        case 'all':
+          return true
+        case 'finished':
+          return isFinished(d)
+        case 'busy':
+          return isBusy(d)
+        case 'idle':
+          return isIdle(d)
       }
     }),
+    A.filter(
+      (d) =>
+        buildingFilter.length === 0 ||
+        buildingFilter.includes(d.building.Building?.buildingType ?? 0)
+    ),
+    A.sortBy((d) => d.duration?.remainingSeconds ?? Number.MAX_VALUE)
+  )
+
+  const busyEntities = asteroidData.filter(isBusy).length
+  const idleEntities = asteroidData.filter(isIdle).length
+  const finishedEntities = asteroidData.filter(isFinished).length
+
+  const availableBuildings = pipe(
+    asteroidData,
+    A.filterMap((d) => d.building.Building?.buildingType),
     A.uniq,
     A.sortBy(F.identity)
   )
 
-  const shownEntities = pipe(
-    entities,
-    (e) => applyStatusFilter(e, statusFilter),
-    (e) => applyBuldingFilter(e, buildingFilter),
-    A.sortBy((e) =>
-      e.type === 'idleBuilding' ? Number.MAX_VALUE : e.finishTime.getTime()
-    )
-  )
-
   return (
-    <AccordionItem value={asteroid}>
+    <AccordionItem value={asteroidName}>
       <Header
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
         buildingFilter={buildingFilter}
         onBuildingFilterChange={setBuildingFilter}
-        asteroid={asteroid}
-        allCount={entities.length}
-        finishedCount={finishedEntities.length}
-        busyCount={busyEntities.length}
-        idleCount={idleEntities.length}
+        asteroid={asteroidName}
+        allCount={asteroidData.length}
+        finishedCount={finishedEntities}
+        busyCount={busyEntities}
+        idleCount={idleEntities}
         availableBuildings={availableBuildings}
       />
       <AccordionContent>
-        {shownEntities.length === 0 && <p>Nothing to see here...</p>}
-        <div className='grid grid-cols-1 gap-3 lg:grid-cols-2 2xl:grid-cols-3'>
-          {shownEntities.map((entity) => (
-            <EntityStatusCard key={entity.lotUuid} status={entity} />
+        <div className='grid grid-cols-1 gap-3 py-1 lg:grid-cols-2 2xl:grid-cols-3'>
+          {filteredAsteroidData.map((d) => (
+            <EntityStatusCard key={d.id} data={d} now={now} />
           ))}
         </div>
       </AccordionContent>
