@@ -22,6 +22,20 @@ export const useRemainingSeconds = (
   return remainingSeconds
 }
 
+export const useNow = (updateInterval = 10_000) => {
+  const [now, setNow] = useState(new Date())
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date())
+    }, updateInterval)
+
+    return () => clearInterval(interval)
+  }, [updateInterval])
+
+  return now
+}
+
 export const usePeriodicRefresh = (interval = 60_000) => {
   const { refresh } = useRouter()
 
