@@ -34,7 +34,7 @@ export const EntityStatusCard = ({ data, now }: EntityStatusCardProps) => {
   const crew = 'crew' in data ? data.crew : undefined
   const crewCaptainId = crew?.Crew?.roster[0]
   const crewImage = crewCaptainId && (
-    <CrewmateImage crewmateId={crewCaptainId} width={64} />
+    <CrewmateImage crewmateId={crewCaptainId} width={64} bustOnly />
   )
 
   const timeInfo = (
@@ -177,7 +177,7 @@ const Details = ({ data }: EntityStatusCardProps) => {
             </div>
           )}
         </div>
-        {crew && <CrewImage crew={crew} width={64} />}
+        {crew && <CrewImage crew={crew} width={64} bustOnly />}
       </div>
     </DialogContent>
   )
