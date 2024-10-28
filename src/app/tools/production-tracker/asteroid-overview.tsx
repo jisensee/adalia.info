@@ -41,6 +41,14 @@ export const AsteroidOverview = ({
   const [buildingFilter, setBuildingFilter] = useState<number[]>([])
   const now = useNow()
 
+  console.log(
+    asteroidName,
+    'overview',
+    asteroidActivities.filter(
+      (e) => e.event.name === 'MaterialProcessingStarted'
+    )
+  )
+
   const activityData = A.filterMap(asteroidActivities, (activity) =>
     getEntityData({
       activity,

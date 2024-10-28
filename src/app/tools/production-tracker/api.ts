@@ -128,7 +128,7 @@ export const fetchProductionTrackerData = async (walletAddress: string) => {
 
       const asteroidActivities = activities.filter(
         (a) =>
-          a.data.crew.Location?.resolvedLocations?.asteroid?.id === asteroidId
+          a.data?.crew.Location?.resolvedLocations?.asteroid?.id === asteroidId
       )
       const asteroidIdleBuildings = idleBuildings.filter(
         (b) => b.Location?.resolvedLocations?.asteroid?.id === asteroidId

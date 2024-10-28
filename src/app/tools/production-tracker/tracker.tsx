@@ -60,7 +60,7 @@ export const ProductionTracker = () => {
   )
 
   const updateTimer = data && (
-    <div className='sticky right-4 top-4 float-right w-48'>
+    <div className='fixed right-4 top-20 z-50 float-right w-48'>
       <Progress
         className='h-5'
         value={((UPDATE_INTERVAL - secondsUntilUpdate) / UPDATE_INTERVAL) * 100}

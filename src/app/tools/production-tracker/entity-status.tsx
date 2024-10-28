@@ -34,7 +34,7 @@ export const EntityStatusCard = ({ data, now }: EntityStatusCardProps) => {
   const crew = 'crew' in data ? data.crew : undefined
   const crewCaptainId = crew?.Crew?.roster[0]
   const crewImage = crewCaptainId && (
-    <CrewmateImage crewmateId={crewCaptainId} width={64} bustOnly />
+    <CrewmateImage crewmateId={crewCaptainId} width={64} />
   )
 
   const timeInfo = (
@@ -133,8 +133,10 @@ const Details = ({ data }: EntityStatusCardProps) => {
       </div>
     </div>
   )
-  const origin = 'origin' in data && <Inventory inventory={data.origin} />
-  const destination = 'destination' in data && (
+  const origin = 'origin' in data && data.origin && (
+    <Inventory inventory={data.origin} />
+  )
+  const destination = 'destination' in data && data.destination && (
     <Inventory inventory={data.destination} />
   )
   const crew = 'crew' in data ? data.crew : undefined

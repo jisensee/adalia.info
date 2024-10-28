@@ -52,6 +52,5 @@ export const CrewmateImage = ({
     alt={`crewmate ${crewmateId}`}
     width={width}
     height={width * 1.333}
-    unoptimized
   />
 )

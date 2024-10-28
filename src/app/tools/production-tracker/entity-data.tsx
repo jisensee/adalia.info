@@ -109,14 +109,9 @@ export const getEntityData = (args: EntityDataArgs) =>
         const crew = args.entityMap.get(
           Entity.packEntity(returnValues.callerCrew)
         )
-        if (
-          !processor ||
-          !building?.Building ||
-          !origin ||
-          !destination ||
-          !crew
-        )
+        if (!processor || !building?.Building || !crew) {
           return null
+        }
 
         const buildingName = getEntityName(building)
         const remainingSeconds = differenceInSeconds(
