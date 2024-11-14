@@ -89,6 +89,37 @@ model AsteroidBonus {
   asteroidId Int
 }
 
+model ShipRace {
+  id              Int                   @id @default(autoincrement())
+  name            String
+  start           DateTime
+  end             DateTime
+  lastBlockNumber Int?
+  participants    ShipRaceParticipant[]
+  firstPrice      Int
+  secondPrice     Int
+  thirdPrice      Int
+}
+
+model ShipRaceParticipant {
+  id         Int               @id @default(autoincrement())
+  shipId     Int
+  playerName String
+  shipRace   ShipRace          @relation(fields: [shipRaceId], references: [id])
+  shipRaceId Int
+  transits   ShipRaceTransit[]
+}
+
+model ShipRaceTransit {
+  id            Int                 @id @default(autoincrement())
+  participantId Int
+  participant   ShipRaceParticipant @relation(fields: [participantId], references: [id])
+  origin        Int
+  destination   Int
+  departure     DateTime
+  arrival       DateTime
+}
+
 enum AsteroidBonusType {
   YIELD
   VOLATILE
