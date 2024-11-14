@@ -27,6 +27,20 @@ type Params = {
   }
 }
 
+export const generateMetadata = async ({ params }: Params) => {
+  const id = Number.parseInt(params.id)
+  if (isNaN(id)) {
+    notFound()
+  }
+  const asteroid = await db.asteroid.findUnique({ where: { id } })
+
+  return {
+    title: asteroid
+      ? `${asteroid?.name ?? `Asteroid ${asteroid.id}-${asteroid.spectralType}`} | adalia.info`
+      : 'adalia.info',
+  }
+}
+
 export default async function AsteroidDetailPage({ params }: Params) {
   const id = Number.parseInt(params.id)
   if (isNaN(id)) {

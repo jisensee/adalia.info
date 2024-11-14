@@ -7,6 +7,7 @@ import {
   LandPlot,
   LucideProps,
   Rocket,
+  Trophy,
   UsersRound,
 } from 'lucide-react'
 import { Route } from 'next'
@@ -62,6 +63,12 @@ export const ToolList = () => (
       title='Asteroid Distances'
       description='Visualize the distance between asteroids over time'
       icon={ChartSpline}
+    />
+    <ToolLink
+      href='/nasstar'
+      title='NASSTAR'
+      description='Track the current status of the race'
+      icon={Trophy}
     />
   </>
 )
