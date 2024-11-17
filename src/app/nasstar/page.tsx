@@ -5,6 +5,8 @@ import { getRace } from './data'
 import { RunningRace } from './running-race'
 import { UpcomingRace } from './upcoming-race'
 
+export const dynamic = 'force-dynamic'
+
 export const generateMetadata = async () => {
   const raceResult = await getRace()
   return {

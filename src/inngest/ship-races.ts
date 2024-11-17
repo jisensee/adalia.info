@@ -1,7 +1,8 @@
 import { hash, num, RpcProvider } from 'starknet'
-import { A } from '@mobily/ts-belt'
+import { A, pipe } from '@mobily/ts-belt'
 import { Prisma } from '@prisma/client'
 import { Time } from '@influenceth/sdk'
+import { addMinutes, isWithinInterval, subMinutes } from 'date-fns'
 import { inngest } from './client'
 import { db } from '@/server/db'
 
@@ -21,10 +22,10 @@ const getRaceData = async () => {
   const race = await db.shipRace.findFirst({
     where: {
       start: {
-        lte: new Date(),
+        lte: subMinutes(new Date(), 10),
       },
       end: {
-        gte: new Date(),
+        gte: addMinutes(new Date(), 10),
       },
     },
     include: {
@@ -66,20 +67,33 @@ const updateCurrentRace = async () => {
 
   const convertDate = (d: string) =>
     Time.fromOrbitADays(parseInt(d, 16) / 24 / 60 / 60).toDate()
-  const transits = A.filterMap(eventsList.events, ({ data }) => {
-    const shipId = Number(data[1])
-    const participant = raceData.participants.get(shipId)
-    if (!participant) {
-      return
-    }
-    return {
-      participantId: participant.id,
-      origin: parseInt(data[3] ?? '1'),
-      destination: parseInt(data[5] ?? '1'),
-      departure: convertDate(data[6] ?? '0'),
-      arrival: convertDate(data[7] ?? '0'),
-    } satisfies Prisma.ShipRaceTransitCreateManyInput
-  })
+  const transits = pipe(
+    eventsList.events,
+    A.filterMap(({ data }) => {
+      const shipId = Number(data[1])
+      const participant = raceData.participants.get(shipId)
+      if (!participant) {
+        return
+      }
+      return {
+        participantId: participant.id,
+        origin: parseInt(data[3] ?? '1'),
+        destination: parseInt(data[5] ?? '1'),
+        departure: convertDate(data[6] ?? '0'),
+        arrival: convertDate(data[7] ?? '0'),
+      } satisfies Prisma.ShipRaceTransitCreateManyInput
+    }),
+    A.filter((t) => {
+      const raceInterval = {
+        start: raceData.race.start,
+        end: raceData.race.end,
+      }
+      return (
+        isWithinInterval(t.arrival, raceInterval) &&
+        isWithinInterval(t.departure, raceInterval)
+      )
+    })
+  )
   await db.shipRaceTransit.createMany({
     data: transits,
   })
