@@ -19,7 +19,7 @@ export const UpcomingRace = async ({ race }: UpcomingRaceProps) => {
       </p>
       <h2>Price Pool</h2>
       <PricePool race={race} />
-      <h2>Participants</h2>
+      <h2>{race.participants.length} Participants</h2>
       <div className='flex flex-col gap-y-2'>
         {race.participants.map((p) => {
           const ship = ships.get(p.shipId)
