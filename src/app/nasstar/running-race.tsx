@@ -59,7 +59,7 @@ export const RunningRace = async ({ race }: RunningRaceProps) => {
           </div>
         </div>
         <div className='flex flex-col items-center gap-x-3'>
-          <p className='font-bold text-primary'>Total Price Pool</p>
+          <p className='font-bold text-primary'>Total Prize Pool</p>
           <SwayAmount sway={pricePool * 1e6} allDigits large />
         </div>
       </div>

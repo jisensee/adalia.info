@@ -17,7 +17,7 @@ export const UpcomingRace = async ({ race }: UpcomingRaceProps) => {
         <span className='font-bold'>{race.start.toLocaleString()}</span> until{' '}
         <span className='font-bold'>{race.end.toLocaleString()}</span>
       </p>
-      <h2>Price Pool</h2>
+      <h2>Prize Pool</h2>
       <PricePool race={race} />
       <h2>{race.participants.length} Participants</h2>
       <div className='flex flex-col gap-y-2'>
@@ -39,7 +39,7 @@ export const UpcomingRace = async ({ race }: UpcomingRaceProps) => {
         })}
       </div>
       <p className='text-center italic'>
-        Price pool and participant list are subject to change until the race
+        Prize pool and participant list are subject to change until the race
         starts.
       </p>
     </div>
