@@ -2,7 +2,7 @@ import { hash, num, RpcProvider } from 'starknet'
 import { A, pipe } from '@mobily/ts-belt'
 import { Prisma } from '@prisma/client'
 import { Time } from '@influenceth/sdk'
-import { addMinutes, isWithinInterval, subDays } from 'date-fns'
+import { addDays, isWithinInterval, subHours } from 'date-fns'
 import { inngest } from './client'
 import { db } from '@/server/db'
 
@@ -22,10 +22,10 @@ const getRaceData = async () => {
   const race = await db.shipRace.findFirst({
     where: {
       start: {
-        lte: subDays(new Date(), 1),
+        lte: addDays(new Date(), 1),
       },
       end: {
-        gte: addMinutes(new Date(), 10),
+        gte: subHours(new Date(), 1),
       },
     },
     include: {
