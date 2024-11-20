@@ -230,15 +230,14 @@ const LeaderBoardEntryDetails = ({
 
 const ShipStatus = ({ ship }: { ship: InfluenceEntity }) => {
   const shipType = Ship.getType(ship.Ship?.shipType ?? 1)
-  const fuelCapacity = Inventory.getType(
-    shipType.propellantInventoryType
-  ).massConstraint
+  const fuelCapacity =
+    Inventory.getType(shipType.propellantInventoryType).massConstraint / 1_000
   const availableFuel =
     ship.Inventories.find(
       (i) => i.inventoryType === shipType.propellantInventoryType
     )?.contents?.find((c) => c.product === Product.IDS.HYDROGEN_PROPELLANT)
       ?.amount ?? 0
-  const fuelPercentage = (availableFuel / fuelCapacity) * 100
+  const fuel = availableFuel / fuelCapacity
 
   return (
     <div className='flex items-end gap-x-1'>
@@ -249,13 +248,13 @@ const ShipStatus = ({ ship }: { ship: InfluenceEntity }) => {
       </div>
       <div
         className={cn('ml-3 flex items-center gap-x-2 whitespace-nowrap', {
-          'text-success': fuelPercentage >= 75,
-          'text-warning': fuelPercentage < 75 && fuelPercentage > 25,
-          'text-destructive': fuelPercentage <= 25,
+          'text-success': fuel >= 0.75,
+          'text-warning': fuel < 0.75 && fuel > 0.25,
+          'text-destructive': fuel <= 0.25,
         })}
       >
         <Fuel />
-        <span className='text-2xl'>{Format.percentage(fuelPercentage)}</span>
+        <span className='text-2xl'>{Format.percentage(fuel)}</span>
       </div>
     </div>
   )

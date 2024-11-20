@@ -1,4 +1,4 @@
-import { A, D, pipe } from '@mobily/ts-belt'
+import { A, D, O, pipe } from '@mobily/ts-belt'
 import { isWithinInterval, min } from 'date-fns'
 import { Entity } from '@influenceth/sdk'
 import { db } from '@/server/db'
@@ -41,21 +41,34 @@ export const calcLeaderboard = (race: Race) =>
     A.reverse
   )
 
+const isTransitInRace = (race: Race, arrival: Date) =>
+  isWithinInterval(arrival, {
+    start: race.start,
+    end: min([race.end, new Date()]),
+  })
+
 export const calcParticipantScore = (
   race: Race,
   participant: Race['participants'][number]
 ) =>
   pipe(
     participant.transits,
-    A.filter((t) =>
-      isWithinInterval(t.arrival, {
-        start: race.start,
-        end: min([race.end, new Date()]),
-      })
-    ),
+    A.filter((t) => isTransitInRace(race, t.arrival)),
+    A.reject((t) => t.destination === getInitialAsteroid(race, participant)),
     A.map((t) => t.destination),
     A.uniq,
     A.length
+  )
+
+const getInitialAsteroid = (
+  race: Race,
+  participant: Race['participants'][number]
+) =>
+  pipe(
+    A.filter(participant.transits, (t) => isTransitInRace(race, t.arrival)),
+    A.sortBy(D.prop('arrival')),
+    A.head,
+    O.map(D.prop('origin'))
   )
 
 export const getShips = (race: Race) =>
