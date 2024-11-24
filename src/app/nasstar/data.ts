@@ -1,6 +1,7 @@
 import { A, D, O, pipe } from '@mobily/ts-belt'
 import { isWithinInterval, min } from 'date-fns'
 import { Entity } from '@influenceth/sdk'
+import { InfluenceEntity } from 'influence-typed-sdk/api'
 import { db } from '@/server/db'
 import { influenceApi } from '@/lib/influence-api/api'
 
@@ -79,3 +80,13 @@ export const getShips = (race: Race) =>
     })
     .then((ships) => ships.map((s) => [s.id, s] as const))
     .then((s) => new Map(s))
+
+export const getLeaderboard = (
+  race: Race,
+  shipMap: Map<number, InfluenceEntity>
+) =>
+  pipe(
+    race,
+    calcLeaderboard,
+    A.filterMap((p) => O.map(shipMap.get(p.shipId), (ship) => ({ ...p, ship })))
+  )

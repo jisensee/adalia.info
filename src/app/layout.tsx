@@ -1,7 +1,6 @@
 import './globals.css'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { SiDiscord, SiGithub } from '@icons-pack/react-simple-icons'
-import { formatRelative } from 'date-fns'
 import type { Metadata } from 'next'
 import { Jura } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/react'
@@ -9,6 +8,7 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import { BottomNavbar, Navbar } from '../components/navbar'
 import { Providers } from './providers'
+import { DataUpdateTimestamp } from './data-update-timestamp'
 import { cn } from '@/lib/utils'
 import { db } from '@/server/db'
 import { Separator } from '@/components/ui/separator'
@@ -51,15 +51,7 @@ export default async function RootLayout({
           </Link>
         </div>
         {lastAsteroidUpdate && (
-          <div className='text-center'>
-            <span className='text-primary'>Last data update: </span>
-            <span>
-              {formatRelative(
-                lastAsteroidUpdate,
-                new Date(new Date().toUTCString())
-              )}
-            </span>
-          </div>
+          <DataUpdateTimestamp timestamp={lastAsteroidUpdate} />
         )}
       </div>
     </div>
