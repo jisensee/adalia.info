@@ -30,19 +30,31 @@ export const calcLeaderboard = (race: Race) =>
   pipe(
     race.participants,
     A.map((p) => ({ score: calcParticipantScore(race, p), ...p })),
-    A.sortBy((p) =>
-      pipe(
-        p.transits,
-        A.sortBy(D.prop('arrival')),
-        A.head,
-        (lastTransit) =>
-          p.score + (lastTransit ? 1 / lastTransit.arrival.getTime() : 0)
-      )
-    ),
+    A.sort((a, b) => {
+      if (a.score === b.score) {
+        const lastA = getLastTransit(race, a)
+        const lastB = getLastTransit(race, b)
+        return (
+          (lastB?.arrival?.getTime() ?? 0) - (lastA?.arrival?.getTime() ?? 0)
+        )
+      }
+      return a.score - b.score
+    }),
     A.reverse
   )
 
-const isTransitInRace = (race: Race, arrival: Date) =>
+const getLastTransit = (
+  race: Race,
+  participant: Race['participants'][number]
+) =>
+  pipe(
+    participant.transits,
+    A.filter((t) => isTransitInRace(race, t.arrival)),
+    A.sortBy(D.prop('arrival')),
+    A.last
+  )
+
+export const isTransitInRace = (race: Race, arrival: Date) =>
   isWithinInterval(arrival, {
     start: race.start,
     end: min([race.end, new Date()]),
