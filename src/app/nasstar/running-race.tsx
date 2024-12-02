@@ -2,6 +2,7 @@ import { A, pipe } from '@mobily/ts-belt'
 import { differenceInSeconds } from 'date-fns'
 import { getLeaderboard, getShips, Race } from './data'
 import { LeaderboardEntry, LeaderBoardEntryDetails } from './leaderboard-entry'
+import { VisitedAsteroids } from './visited-asteroids'
 import { SwayAmount } from '@/components/sway-amount'
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { influenceApi } from '@/lib/influence-api/api'
@@ -46,6 +47,7 @@ export const RunningRace = async ({ race }: RunningRaceProps) => {
           <p className='font-bold text-primary'>Total Prize Pool</p>
           <SwayAmount sway={pricePool * 1e6} allDigits large />
         </div>
+        <VisitedAsteroids race={race} asteroidNames={asteroidNames} />
       </div>
       <div className='flex flex-col gap-y-2'>
         {leaderboard.map((entry, index) => (

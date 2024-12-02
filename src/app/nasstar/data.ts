@@ -1,5 +1,5 @@
-import { A, D, O, pipe } from '@mobily/ts-belt'
-import { isWithinInterval, min } from 'date-fns'
+import { A, D, F, O, pipe } from '@mobily/ts-belt'
+import { isBefore, isWithinInterval, min } from 'date-fns'
 import { Entity } from '@influenceth/sdk'
 import { InfluenceEntity } from 'influence-typed-sdk/api'
 import { db } from '@/server/db'
@@ -51,6 +51,15 @@ const getLastTransit = (
     participant.transits,
     A.filter((t) => isTransitInRace(race, t.arrival)),
     A.sortBy(D.prop('arrival')),
+    A.filter(
+      (transit) =>
+        !A.any(
+          participant.transits,
+          (t) =>
+            t.destination === transit.destination &&
+            isBefore(t.arrival, transit.arrival)
+        )
+    ),
     A.last
   )
 
@@ -92,6 +101,27 @@ export const getShips = (race: Race) =>
     })
     .then((ships) => ships.map((s) => [s.id, s] as const))
     .then((s) => new Map(s))
+
+export const getTotalVisitedAsteroids = (race: Race) =>
+  pipe(
+    race.participants,
+    A.map((p) => p.transits.map((t) => t.destination)),
+    A.flat,
+    A.groupBy(F.identity),
+    D.toPairs,
+    A.map(([asteroid, visits]) => ({
+      asteroid: parseInt(asteroid),
+      visits: visits?.length ?? 0,
+      visitors: pipe(
+        race.participants,
+        A.filter((p) =>
+          p.transits.some((t) => t.destination === parseInt(asteroid))
+        ),
+        A.length
+      ),
+    })),
+    A.sortBy((e) => -e.visits)
+  )
 
 export const getLeaderboard = (
   race: Race,
