@@ -5,24 +5,51 @@ import { InfluenceEntity } from 'influence-typed-sdk/api'
 import { db } from '@/server/db'
 import { influenceApi } from '@/lib/influence-api/api'
 
-export const getRace = () =>
-  db.shipRace.findFirst({
+export const getRace = async () => {
+  const include = {
+    participants: {
+      include: {
+        transits: true,
+      },
+    },
+  }
+
+  const ongoing = await db.shipRace.findFirst({
     where: {
+      start: { lte: new Date() },
       end: {
         gte: new Date(),
       },
     },
-    include: {
-      participants: {
-        include: {
-          transits: true,
-        },
-      },
+    include,
+  })
+
+  if (ongoing) return ongoing
+
+  const upcoming = await db.shipRace.findFirst({
+    where: {
+      start: { gte: new Date() },
     },
+    include,
     orderBy: {
       start: 'asc',
     },
   })
+
+  if (upcoming) return upcoming
+
+  const previous = await db.shipRace.findFirst({
+    where: {
+      end: { lt: new Date() },
+    },
+    include,
+    orderBy: {
+      end: 'desc',
+    },
+  })
+
+  return previous
+}
 
 export type Race = NonNullable<Awaited<ReturnType<typeof getRace>>>
 

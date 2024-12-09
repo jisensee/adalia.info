@@ -1,5 +1,5 @@
 import { A, pipe } from '@mobily/ts-belt'
-import { differenceInSeconds } from 'date-fns'
+import { differenceInSeconds, isPast } from 'date-fns'
 import { getLeaderboard, getShips, Race } from './data'
 import { LeaderboardEntry, LeaderBoardEntryDetails } from './leaderboard-entry'
 import { VisitedAsteroids } from './visited-asteroids'
@@ -25,6 +25,7 @@ export const RunningRace = async ({ race }: RunningRaceProps) => {
     getShips(race),
     influenceApi.util.asteroidNames(asteroidIds),
   ])
+  const raceFinished = isPast(race.end)
 
   const leaderboard = getLeaderboard(race, shipMap)
 
@@ -35,10 +36,16 @@ export const RunningRace = async ({ race }: RunningRaceProps) => {
       <h1>{race.name}</h1>
       <div className='flex flex-wrap items-center justify-center gap-x-10 gap-y-3'>
         <div className='text-center'>
-          <p className='font-bold text-primary'>Ends in</p>
+          <p className='font-bold text-primary'>
+            {raceFinished ? 'Ended' : 'Ends in'}
+          </p>
           <div className='flex items-center gap-x-2'>
             <p className='text-xl'>
-              {Format.remainingTime(differenceInSeconds(race.end, new Date()))}
+              {Format.remainingTime(
+                (raceFinished ? -1 : 1) *
+                  differenceInSeconds(race.end, new Date())
+              )}
+              {raceFinished ? ' ago' : ''}
             </p>
             <InfoTooltip size={20}>{race.end.toLocaleString()}</InfoTooltip>
           </div>
