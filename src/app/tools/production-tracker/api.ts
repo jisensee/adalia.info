@@ -138,7 +138,12 @@ export const fetchProductionTrackerData = async (walletAddress: string) => {
         asteroidIdleBuildings,
         asteroidName,
       }
-    })
+    }),
+    A.keep(
+      (data) =>
+        A.isNotEmpty(data.asteroidActivities) ||
+        A.isNotEmpty(data.asteroidIdleBuildings)
+    )
   )
 
   return {
@@ -165,20 +170,24 @@ const getBuildings = async (crewUuids: string[], buildingIds: number[]) =>
                 .boolQuery()
                 .should([
                   esb.termsQuery('id', buildingIds),
-                  esb.termsQuery('Control.controller.uuid', crewUuids),
+                  esb
+                    .boolQuery()
+                    .must([
+                      esb.termsQuery('Control.controller.uuid', crewUuids),
+                      esb.termsQuery('Building.buildingType', [
+                        Building.IDS.WAREHOUSE,
+                        Building.IDS.TANK_FARM,
+                        Building.IDS.EXTRACTOR,
+                        Building.IDS.REFINERY,
+                        Building.IDS.BIOREACTOR,
+                        Building.IDS.FACTORY,
+                        Building.IDS.SHIPYARD,
+                      ]),
+                    ]),
                 ]),
               esb.termsQuery('Building.status', [
                 Building.CONSTRUCTION_STATUSES.OPERATIONAL,
                 Building.CONSTRUCTION_STATUSES.UNDER_CONSTRUCTION,
-              ]),
-              esb.termsQuery('Building.buildingType', [
-                Building.IDS.WAREHOUSE,
-                Building.IDS.TANK_FARM,
-                Building.IDS.EXTRACTOR,
-                Building.IDS.REFINERY,
-                Building.IDS.BIOREACTOR,
-                Building.IDS.FACTORY,
-                Building.IDS.SHIPYARD,
               ]),
             ])
         ),
