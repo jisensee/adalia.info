@@ -1,0 +1,325 @@
+[
+  {
+    "name": "constructor",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "name": "set_admin",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ],
+    "outputs": [],
+    "state_mutability": "external"
+  },
+  {
+    "name": "add_grant",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "role",
+        "type": "core::integer::u64"
+      }
+    ],
+    "outputs": [],
+    "state_mutability": "external"
+  },
+  {
+    "name": "core::bool",
+    "type": "enum",
+    "variants": [
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "name": "has_grant",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "role",
+        "type": "core::integer::u64"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::bool"
+      }
+    ],
+    "state_mutability": "view"
+  },
+  {
+    "name": "revoke_grant",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "account",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "role",
+        "type": "core::integer::u64"
+      }
+    ],
+    "outputs": [],
+    "state_mutability": "external"
+  },
+  {
+    "name": "upgrade",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "class_hash",
+        "type": "core::starknet::class_hash::ClassHash"
+      }
+    ],
+    "outputs": [],
+    "state_mutability": "external"
+  },
+  {
+    "name": "constant",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "core::felt252"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::felt252"
+      }
+    ],
+    "state_mutability": "view"
+  },
+  {
+    "name": "register_constant",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "core::felt252"
+      },
+      {
+        "name": "value",
+        "type": "core::felt252"
+      }
+    ],
+    "outputs": [],
+    "state_mutability": "external"
+  },
+  {
+    "name": "contract",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "core::felt252"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ],
+    "state_mutability": "view"
+  },
+  {
+    "name": "register_contract",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "core::felt252"
+      },
+      {
+        "name": "address",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ],
+    "outputs": [],
+    "state_mutability": "external"
+  },
+  {
+    "name": "system",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "core::felt252"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::starknet::class_hash::ClassHash"
+      }
+    ],
+    "state_mutability": "view"
+  },
+  {
+    "name": "register_system",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "core::felt252"
+      },
+      {
+        "name": "class_hash",
+        "type": "core::starknet::class_hash::ClassHash"
+      }
+    ],
+    "outputs": [],
+    "state_mutability": "external"
+  },
+  {
+    "name": "core::array::Span::<core::felt252>",
+    "type": "struct",
+    "members": [
+      {
+        "name": "snapshot",
+        "type": "@core::array::Array::<core::felt252>"
+      }
+    ]
+  },
+  {
+    "name": "run_system",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "core::felt252"
+      },
+      {
+        "name": "calldata",
+        "type": "core::array::Array::<core::felt252>"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::array::Span::<core::felt252>"
+      }
+    ],
+    "state_mutability": "external"
+  },
+  {
+    "name": "run_system_with_payment",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "core::felt252"
+      },
+      {
+        "name": "calldata",
+        "type": "core::array::Array::<core::felt252>"
+      },
+      {
+        "name": "payment",
+        "type": "core::array::Array::<core::felt252>"
+      }
+    ],
+    "outputs": [
+      {
+        "type": "core::array::Span::<core::felt252>"
+      }
+    ],
+    "state_mutability": "external"
+  },
+  {
+    "kind": "struct",
+    "name": "influence::contracts::dispatcher::Dispatcher::ConstantRegistered",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
+        "name": "name",
+        "type": "core::felt252"
+      },
+      {
+        "kind": "data",
+        "name": "value",
+        "type": "core::felt252"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "influence::contracts::dispatcher::Dispatcher::ContractRegistered",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
+        "name": "name",
+        "type": "core::felt252"
+      },
+      {
+        "kind": "data",
+        "name": "address",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "influence::contracts::dispatcher::Dispatcher::SystemRegistered",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
+        "name": "name",
+        "type": "core::felt252"
+      },
+      {
+        "kind": "data",
+        "name": "class_hash",
+        "type": "core::starknet::class_hash::ClassHash"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "influence::contracts::dispatcher::Dispatcher::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "ConstantRegistered",
+        "type": "influence::contracts::dispatcher::Dispatcher::ConstantRegistered"
+      },
+      {
+        "kind": "nested",
+        "name": "ContractRegistered",
+        "type": "influence::contracts::dispatcher::Dispatcher::ContractRegistered"
+      },
+      {
+        "kind": "nested",
+        "name": "SystemRegistered",
+        "type": "influence::contracts::dispatcher::Dispatcher::SystemRegistered"
+      }
+    ]
+  }
+]

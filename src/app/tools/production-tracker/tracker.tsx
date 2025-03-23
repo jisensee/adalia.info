@@ -10,6 +10,7 @@ import { AsteroidOverview } from './asteroid-overview'
 import { fetchProductionTrackerData } from './api'
 import { productionTrackerParams } from './params'
 import { ProductionTrackerForm } from './form'
+import { FinishAllButton } from './finish-all-button'
 import {
   Accordion,
   AccordionContent,
@@ -34,6 +35,10 @@ export const ProductionTracker = () => {
   })
 
   const secondsUntilUpdate = useRefreshTimer(UPDATE_INTERVAL, refetch)
+  const allActivities =
+    data?.groupedData?.flatMap(
+      ({ asteroidActivities }) => asteroidActivities
+    ) ?? []
 
   const incomingProducts = data && (
     <div className='flex flex-col gap-2 sm:flex-row md:flex-wrap'>
@@ -67,10 +72,10 @@ export const ProductionTracker = () => {
         loading={isRefetching}
       >
         {isRefetching ? (
-          <span>Updating...</span>
+          <span>Refreshing...</span>
         ) : (
           <span>
-            Next update in{' '}
+            Next refresh in{' '}
             <span className='font-mono'>{secondsUntilUpdate}</span>s
           </span>
         )}
@@ -82,10 +87,18 @@ export const ProductionTracker = () => {
     <div className='space-y-3'>
       {updateTimer}
       <h1>Production Tracker</h1>
-      <ProductionTrackerForm
-        loading={isRefetching || isLoading}
-        refresh={refetch}
-      />
+      <div className='flex flex-wrap items-end gap-3'>
+        <ProductionTrackerForm
+          loading={isRefetching || isLoading}
+          refresh={refetch}
+          initalFetchDone={!!data}
+        />
+        <FinishAllButton
+          activities={allActivities}
+          walletAddress={walletAddress}
+          trackerLoading={isRefetching || isLoading}
+        />
+      </div>
       {data && (
         <Accordion
           type='multiple'
