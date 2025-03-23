@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Download, RefreshCw } from 'lucide-react'
 import { productionTrackerParams } from './params'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -23,11 +24,13 @@ const formSchema = z.object({
 export type ProductionTrackerFormProps = {
   loading: boolean
   refresh: () => void
+  initalFetchDone: boolean
 }
 
 export const ProductionTrackerForm = ({
   loading,
   refresh,
+  initalFetchDone,
 }: ProductionTrackerFormProps) => {
   const [{ walletAddress: currentWalletAddress }, setParams] = useQueryStates(
     productionTrackerParams
@@ -73,14 +76,16 @@ export const ProductionTrackerForm = ({
                 <FormLabel>Wallet address</FormLabel>
                 <div className='flex gap-x-3'>
                   <FormControl>
-                    <Input {...field} className='md:max-w-[550px]' />
+                    <Input {...field} className='md:w-[550px]' />
                   </FormControl>
                   <Button
                     className='hidden md:flex'
+                    variant={initalFetchDone ? 'outline' : 'default'}
+                    icon={initalFetchDone ? <RefreshCw /> : <Download />}
                     disabled={!form.formState.isValid}
                     loading={loading}
                   >
-                    Track Production
+                    {initalFetchDone ? 'Refresh' : 'Track Production'}
                   </Button>
                 </div>
               </FormItem>
